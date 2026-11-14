@@ -1,0 +1,12 @@
+{
+  "title": "Blind Drop",
+  "shortDescription": "Your opponent turns invisible. Guess where they run and drop one bomb on them.",
+  "genres": ["Action", "Party"],
+  "engine": "HTML5",
+  "version": "1.0.0",
+  "status": "published",
+  "publishedAt": "2026-11-14",
+  "maxPlayers": 2,
+  "cover": "cover.svg",
+  "banner": "banner.svg"
+}

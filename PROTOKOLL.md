@@ -15,6 +15,32 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 19 – 2026-11-14 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Zweites Spiel „Blind Drop“ bauen: 3D-Comic-Bombenduell auf einer schwebenden Insel, 1 gegen 1 über die Party, Übungsmodus gegen Bot, Store-Eintrag und Patch Note
+**Änderungen:**
+- Neues Spiel `games/blind-drop/` (ohne Build-Schritt, three.js 0.187.0 und PeerJS 1.5.4 im Ordner `vendor/` mit Lizenzdateien)
+- Ablauf wie festgelegt: Farbwahl (8 Farben, keine doppelt), 3 s Schauen, 5 s Action mit unsichtbarem Gegner (WASD, Linksklick setzt die Bombe einmal, Zielkreis nur für einen selbst), Aufdecken, Bomben fallen gleichzeitig, Auswertung, Insel schrumpft ohne Treffer und teleportiert Spieler zurück auf die Insel, Ergebnisbildschirm mit Rematch
+- Comic-Stil: Toon-Shading mit dicken Umrissen, Sternenhimmel und Planeten, Insel mit Gras und Felsunterseite, Stern-Explosion in Spielerfarbe mit „BOOM!“, Rauchwolken und Kamerawackeln
+- Mehrspieler: Der Host ist der Schiedsrichter (`host.js`); der Gast schickt nur Eingaben und Position. Während der unsichtbaren Phase wird keine Position des Gegners verschickt. Verbindung wie in PARTY-GAMES.md beschrieben, mit erneutem Versuch und Erkennung geschlossener Tabs
+- Ohne Party: Übungsmodus gegen einen einfachen Bot
+- Spieler sind überall eine Liste; für mehr Spieler später `MAX_PLAYERS` in `config.js` und `maxPlayers` in `game.json` erhöhen
+- Store-Eintrag (`game.json`, `description.md`, Cover und Banner als SVG) und Patch Note „Blind Drop 1.0.0“
+- Doku: ROADMAP (Stand, Ideen), DECISIONS 32, PARTY-GAMES (zweites Beispiel), games/README
+- Getestet: Übungsmodus und Mehrspieler mit zwei Tabs in Chrome (Lobby, Farbsperre, Runde, Treffer, Schrumpfen, Rematch, dritter Spieler „voll“, Tab schließen). Noch offen: Test in Safari und mit zwei echten Konten über die Party
+**Geänderte Dateien:** games/blind-drop/ (neu: index.html, game.js, host.js, scene.js, net.js, config.js, game.json, description.md, cover.svg, banner.svg, vendor/three.module.js, vendor/three.core.js, vendor/three-LICENSE.txt, vendor/peerjs.min.js, vendor/peerjs-LICENSE.txt), news/2026-11-14-blind-drop-1-0.md (neu), games/README.md, docs/ROADMAP.md, docs/DECISIONS.md, docs/PARTY-GAMES.md, PROTOKOLL.md
+**Commit-Message:** `[v19] feat(games): add Blind Drop, a 3D bomb duel for two players`
+**GitHub-Commit:** _ausstehend_
+
+## Version 18 – 2026-11-14 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Weiß ein neuer Chat alles Wichtige aus dem Projektordner? Danach: neue Spielidee „Blind Drop“ festhalten, verworfene Spielidee entfernen, Prompt für die nächste Session
+**Änderungen:**
+- Roadmap aktualisiert, damit neue Chats den richtigen Stand lesen: alle SQL-Dateien 0001 bis 0008 sind ausgeführt, Phase 7 (online stellen) ist als nächste markiert
+- Neuer Abschnitt „Ideas for later“ in der Roadmap: das nächste Spiel „Blind Drop“ mit allen festgelegten Regeln, dazu weitere Spiel- und Launcher-Ideen
+- Commit-Hash für Version 17 nachgetragen
+**Geänderte Dateien:** docs/ROADMAP.md, PROTOKOLL.md
+**Commit-Message:** `[v18] docs(roadmap): update status and plan the game Blind Drop`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 17 – 2026-11-14 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Online-Status ist nirgends zu sehen – liegt es am Kollegen oder fehlt etwas?
 **Änderungen:**
@@ -23,7 +49,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Geprüft: Tabelle `user_status` und die Funktionen aus `0008_online_status.sql` sind in Supabase vorhanden; Commit-Hash für Version 15 und 16 nachgetragen
 **Geänderte Dateien:** src/features/presence/queries.ts, src/features/presence/useStatusLabel.ts, src/types/models.ts, PROTOKOLL.md
 **Commit-Message:** `[v17] fix(presence): show friends without status as offline`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`dba392a`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/dba392a)
 
 ## Version 16 – 2026-11-14 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Datenschutzbehörde für Hessen eintragen, „typeshit“ wieder normal machen

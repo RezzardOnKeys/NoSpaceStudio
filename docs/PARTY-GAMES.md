@@ -88,6 +88,13 @@ Ein vollständiges Beispiel ist `games/wpm-trainer/index.html`, Abschnitt
 „NoSpaceStudio launcher integration“ sowie die Funktionen `createRoom` und
 `joinRoom`.
 
+Ein zweites, kleineres Beispiel ist `games/blind-drop/`: `net.js` enthält nur
+die Verbindung (`openRoom` für den Host, `joinRoom` für Gäste, mit erneutem
+Versuch und einem „Ping“ alle 2 Sekunden, damit ein geschlossener Tab bemerkt
+wird). Dort ist der Host außerdem der Schiedsrichter (`host.js`): Gäste
+schicken nur ihre Eingaben, und der Host schickt geheime Dinge (wo der
+unsichtbare Gegner steht) erst, wenn sie aufgedeckt werden.
+
 ### 4. Ohne Party weiter funktionieren
 
 Ohne `#party=...` wurde das Spiel allein gestartet (oder direkt über seine

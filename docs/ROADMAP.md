@@ -15,7 +15,7 @@ table whenever a phase is finished.
 | 4     | Playtime, library and profile        | Done   |
 | 5     | Friends                              | Done   |
 | 6     | Content guides and engine notes      | Open   |
-| 7     | Polish and deployment                | Open   |
+| 7     | Polish and deployment                | Next   |
 | 8     | Parties and multiplayer              | Done   |
 
 ### Where things stand
@@ -23,6 +23,12 @@ table whenever a phase is finished.
 - **The first game is in:** `games/wpm-trainer/` (99-Finger WPM Trainer by
   Balls), a typing race for 2 players. Screen recording was removed on
   request; PeerJS is shipped in the game folder (`vendor/`).
+- **The second game is in:** `games/blind-drop/` (Blind Drop), a 3D comic
+  bomb duel on a floating island for 2 players, with a practice mode against
+  a bot when started alone. Rules and numbers are in `config.js`, the
+  referee (host) in `host.js`; see decision 32. three.js and PeerJS are
+  shipped in the game folder (`vendor/`). Tested in Chrome with two tabs;
+  **not yet tested in Safari and not yet with two real accounts in a party.**
 - **Games and news are files in the repository**, not database rows
   (decision 22). A game is a folder `games/<slug>/` with a `game.json`
   (store entry), an optional `description.md` and its images. A news post is
@@ -44,8 +50,9 @@ table whenever a phase is finished.
   Single player games say that the party does not come along. How a game
   supports parties: [PARTY-GAMES.md](PARTY-GAMES.md).
 - The database schema is in `supabase/migrations/` (0001 to 0008). Each file
-  is run once in the Supabase SQL editor; **0008_online_status.sql is new and still
-  has to be run.** Games are referenced by their slug (folder name).
+  is run once in the Supabase SQL editor. **0001 to 0008 have all been run**
+  in the shared project; a new file gets the next number and is run once by
+  one developer. Games are referenced by their slug (folder name).
 - **Claude cannot test anything that needs an account** (no passwords).
   Playtime saving, the profile picture upload and all party flows are only
   checked by typecheck and as a guest; the developers test them with their
@@ -217,12 +224,27 @@ Requirements:
 - `docs/PARTY-GAMES.md`: what a game needs to support parties.
 - Possible next step: a TURN server if direct connections fail too often.
 
+## Ideas for later
+
+Collected in conversations with the developers; nothing decided yet.
+
+- **Blind Drop follow-ups** (the game itself is built, see above): more than
+  two players (free-for-all; raise `MAX_PLAYERS` in `config.js` and
+  `maxPlayers` in `game.json`, then test), sound effects, touch controls for
+  phones, a smarter bot, a score over several matches.
+- **Other game ideas:** drawing and guessing ("Doodle Dash", 3–8 players),
+  quiz, memory duel, reaction mini games.
+- **Launcher ideas:** leaderboards per game (games report a score), party
+  chat, achievements, a "delete my account" button (the privacy policy
+  promises deletion on request by email).
+
 ## Open points carried forward
 
 - The built-in Supabase email service only sends a few emails per hour. A
   real SMTP provider is needed before going public (phase 7).
 - `brand.contactEmail` is still the placeholder `contact@example.com`.
 - Fullscreen in the player and Safari in general have not been tested yet.
+  This includes Blind Drop (3D with WebGL), which was only tested in Chrome.
 - The WPM trainer loads YouTube videos inside the sandboxed player. Check
   once with a real link that videos play.
 - Route-level lazy loading is still to do (the bundle is one large chunk).

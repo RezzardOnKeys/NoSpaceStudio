@@ -308,3 +308,34 @@ metadata.
 **Why:** The developers can update the texts without touching code, and an
 unfinished page cannot go unnoticed. The texts were drafted by Claude and are
 not legal advice.
+
+## 32. Blind Drop: the host is the referee, three.js is shipped unminified
+
+**Decision:** In Blind Drop only the party host's browser runs the rules
+(`games/blind-drop/host.js`): timers, hits, shrinking, teleporting. Every
+screen, including the host's own, only reacts to the referee's messages and
+sends back its inputs and position. While opponents are invisible the
+referee sends no positions or bombs at all; they go out only in the "look"
+phase (everyone is visible anyway) and in the reveal. Practice mode uses the
+same referee in the own browser with a bot as second player. Players are a
+list everywhere; the limit of 2 is one number (`MAX_PLAYERS` in `config.js`)
+plus `maxPlayers` in `game.json`.
+
+Rules that the idea left open: a player is hit when their centre is inside
+any blast, their own included. Whoever is not hit wins; if nobody is left it
+is a draw. The bomb can be aimed anywhere on the island with the mouse. The
+blast radius is a fifth of the starting diameter and never changes. The
+island loses 1.1 of its 10 units of radius per round without a hit, down to
+3.4, which is smaller than a blast, so a match cannot go on forever.
+
+three.js 0.187.0 is shipped as the two original files `three.module.js` and
+`three.core.js` (about 2 MB before compression) with its MIT license, as
+decision 27 asks. That version no longer comes with minified files, and we
+did not minify it ourselves.
+
+**Why:** One referee means two browsers can never disagree about a hit, and
+a guest cannot find the invisible opponent with browser tools because the
+data is not on their computer. The price: the host could cheat (their
+browser knows everything), which is acceptable among friends. Unmodified
+library files can be compared with the official release at any time;
+Cloudflare compresses them on the way to the player.
