@@ -5,9 +5,7 @@ entry point. No build step. Whatever is in the folder gets served as is.
 
 | Folder | What it is |
 | --- | --- |
-| `star-dodger/` | Demo arcade game (HTML5 canvas) |
-| `tile-shift/` | Demo sliding puzzle (plain DOM) |
-| `_template/` | Starter page. Also shown for catalogue entries without a real game |
+| `_template/` | Starting point for a new game. Copy it and rename the copy |
 
 ## Rules for a game
 
@@ -23,4 +21,5 @@ entry point. No build step. Whatever is in the folder gets served as is.
 
 `npm run dev` in the repo root starts two servers: the launcher on
 <http://localhost:5173> and this folder on <http://localhost:5174>. Open
-<http://localhost:5174/star-dodger/> to test a game on its own.
+<http://localhost:5174/_template/> to see the template, or
+`http://localhost:5174/<your-game>/` to test a game on its own.

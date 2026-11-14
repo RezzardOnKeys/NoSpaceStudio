@@ -84,23 +84,21 @@ are enforced by convention (see CLAUDE.md) until it does.
 hand-written plumbing. It also lets the interface be built against mock
 functions first: moving to Supabase only replaces the query functions.
 
-## 11. Mock artwork is generated, not stored
+## 11. The catalogue starts empty
 
-**Decision:** Covers, banners and screenshots of mock games are SVG data URLs
-generated in `src/mocks/art.ts`.
+**Decision:** There are no demo games, demo news, demo playtime or demo
+players. `games/`
+only contains `_template/`, the starting point for a new game. This replaces
+the earlier approach of eight mock entries with generated artwork.
 
-**Why:** The store needs to look like a real store, but we do not want
-placeholder image files in the repository. The generator disappears together
-with the mocks.
+**Why:** The platform should show only what we really publish, so we fill it
+ourselves, entry by entry. Every page has an empty state for this. Until the
+database and the admin panel exist, entries can be added by hand in
+`src/mocks/games.ts` and `src/mocks/news.ts`.
 
-## 12. Mock entries without a real game use `games/_template/`
+## 12. (withdrawn)
 
-**Decision:** Only two catalogue entries are real games. The others point to
-the starter template, which says that the game is not uploaded yet.
-
-**Why:** The store needs enough entries to test filters and sorting, and the
-player must never show a broken page. The template doubles as the starting
-point for new games.
+Mock entries pointing to the template no longer exist; see decision 11.
 
 ## 13. iframe sandbox for games
 

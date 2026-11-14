@@ -15,6 +15,29 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 4 – 2026-11-14 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Auch die Demo-Freunde und Demo-Nutzer löschen
+**Änderungen:**
+- Alle sieben Demo-Nutzer entfernt; die Liste in `src/mocks/users.ts` ist jetzt leer (nur der vorläufig angemeldete Nutzer `pixel_pilot` bleibt, bis es echte Konten gibt)
+- Demo-Freundschaften und offene Demo-Anfragen entfernt; die Friends-Seite startet leer, der Zähler in der Sidebar ist weg
+- docs/DECISIONS.md angepasst
+**Geänderte Dateien:** src/mocks/users.ts, src/mocks/api.ts, docs/DECISIONS.md, PROTOKOLL.md
+**Commit-Message:** `[v3][v4] chore: remove all demo content (games, news, playtime, players)`
+**GitHub-Commit:** _ausstehend_
+
+## Version 3 – 2026-11-14 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Alle Demo-Spiele und Demo-News löschen, damit die Plattform sauber und leer startet
+**Änderungen:**
+- Alle acht Demo-Einträge im Spielekatalog und alle sechs Demo-News entfernt; die Listen in `src/mocks/games.ts` und `src/mocks/news.ts` sind jetzt leer
+- Demo-Spielzeiten entfernt (Library und Profil starten leer)
+- Die beiden Demo-Spiele `games/star-dodger/` und `games/tile-shift/` gelöscht; `games/_template/` bleibt als Startvorlage für eigene Spiele
+- Generator für Platzhalter-Grafiken (`src/mocks/art.ts`) entfernt, da nicht mehr gebraucht
+- Leerzustände angepasst: Store blendet Filterleiste und Zähler ohne Spiele aus, News zeigt „No news yet“, Profil zeigt bei null Spielzeit „None yet“
+- README, games/README.md und docs/DECISIONS.md angepasst; Commit-Hash von Version 2 nachgetragen
+**Geänderte Dateien:** src/mocks/games.ts, src/mocks/news.ts, src/mocks/api.ts, src/mocks/art.ts (gelöscht), src/pages/StorePage.tsx, src/pages/NewsPage.tsx, src/features/profile/ProfileView.tsx, games/star-dodger/ (gelöscht), games/tile-shift/ (gelöscht), games/_template/index.html, games/README.md, README.md, docs/DECISIONS.md, PROTOKOLL.md
+**Commit-Message:** `[v3] chore: remove demo games, demo news and demo playtime`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 2 – 2026-11-14 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Phase 2 – App-Shell und komplette Oberfläche mit Mock-Daten, zwei Demo-Spiele
 **Änderungen:**
@@ -30,7 +53,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - README, CLAUDE.md und docs/DECISIONS.md aktualisiert; Commit-Hash von Version 1 nachgetragen
 **Geänderte Dateien:** package.json, package-lock.json, tsconfig.node.json, vite.games.config.ts, README.md, CLAUDE.md, PROTOKOLL.md, docs/DECISIONS.md, games/ (README.md, star-dodger/, tile-shift/, _template/), src/main.tsx, src/styles/index.css, src/config/env.ts, src/types/models.ts, src/lib/ (format.ts, query-client.ts, query-keys.ts), src/hooks/useDebouncedValue.ts, src/mocks/ (api.ts, art.ts, games.ts, news.ts, users.ts), src/routes/ (router.tsx, paths.ts), src/components/layout/ (neu), src/components/ui/ (Avatar, Chip, ErrorState, Lightbox, ListSkeleton, Markdown, PageHeader, Select), src/features/ (auth, games, player, library, friends, news, profile), src/pages/ (StorePage, GamePage, PlayerPage, LibraryPage, FriendsPage, NewsPage, ProfilePage, LegalPage, AdminPage neu; NotFoundPage, UiKitPage geändert; HomePage entfernt)
 **Commit-Message:** `[v2] feat: add app shell, all main pages on mock data and two demo games`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`e62cae5`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/e62cae5)
 
 ## Version 1 – 2026-11-14 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Phase 1 – Projekt-Fundament und GitHub-Basis aufsetzen

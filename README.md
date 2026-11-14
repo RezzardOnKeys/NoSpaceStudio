@@ -13,8 +13,8 @@ in-app purchases.
 
 </div>
 
-> **Status:** early prototype. The complete interface runs on mock data; real
-> accounts and a database are next.
+> **Status:** early prototype. The complete interface is built and starts with
+> an empty catalogue; real accounts and a database are next.
 
 <!-- TODO: replace with a real screenshot once the store page exists. -->
 <p align="center"><em>Screenshot coming soon</em></p>
@@ -27,7 +27,6 @@ in-app purchases.
 | Store with search, genre and engine filters, sorting       | Done (mock data) |
 | Game pages with gallery, patch notes and in-browser player | Done (mock data) |
 | Library, friends, news and profile pages                   | Done (mock data) |
-| Two playable demo games                                    | Done             |
 | Accounts with unique usernames                             | Planned          |
 | Real playtime tracking                                     | Planned          |
 | Admin panel for games and news                             | Planned          |
@@ -93,9 +92,7 @@ The component reference lives at <http://localhost:5173/dev/ui>.
 ├── .github/            CI workflow, pull request and issue templates
 ├── docs/               Decisions and guides
 ├── games/              Static games, served from a separate origin
-│   ├── star-dodger/    Demo arcade game
-│   ├── tile-shift/     Demo puzzle
-│   └── _template/      Starter page for new games
+│   └── _template/      Starting point for a new game
 ├── public/             Favicon, logo and other static files
 ├── supabase/           Database migrations and seed data (coming in phase 3)
 └── src/

@@ -120,7 +120,11 @@ export function ProfileView({ username, isOwn }: ProfileViewProps) {
       ) : (
         <>
           <div className="grid gap-4 sm:grid-cols-3">
-            <StatCard icon={Clock} label="Total playtime" value={formatPlaytime(totalSeconds)} />
+            <StatCard
+              icon={Clock}
+              label="Total playtime"
+              value={totalSeconds > 0 ? formatPlaytime(totalSeconds) : 'None yet'}
+            />
             <StatCard icon={Gamepad2} label="Games played" value={String(played.length)} />
             <StatCard
               icon={Trophy}

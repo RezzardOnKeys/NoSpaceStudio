@@ -1,4 +1,4 @@
-import { SearchX } from 'lucide-react';
+import { Gamepad2, SearchX } from 'lucide-react';
 import { useMemo } from 'react';
 
 import { Button } from '@/components/ui/Button';
@@ -47,14 +47,14 @@ export function StorePage() {
           <h2 id="all-games-heading" className="text-xl font-semibold">
             {heading}
           </h2>
-          {!isPending && (
+          {!isPending && (games?.length ?? 0) > 0 && (
             <span className="text-sm text-fg-subtle" aria-live="polite">
               {visibleGames.length} {visibleGames.length === 1 ? 'game' : 'games'}
             </span>
           )}
         </div>
 
-        {games && (
+        {games && games.length > 0 && (
           <StoreFilterBar
             genres={collectGenres(games)}
             engines={collectEngines(games)}
@@ -94,7 +94,7 @@ export function StorePage() {
           />
         ) : (
           <EmptyState
-            icon={<SearchX />}
+            icon={<Gamepad2 />}
             title="No games yet"
             description="The first games are on their way. Check back soon."
           />

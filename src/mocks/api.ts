@@ -32,53 +32,12 @@ function requireUser(userId: string): Profile {
   return user;
 }
 
-function entry(gameId: string, totalSeconds: number, lastPlayedAt: string): PlaytimeEntry {
-  return { gameId, totalSeconds, lastPlayedAt };
-}
+/** Playtime per user id. Empty until someone has games to play. */
+const playtimeByUser: Record<string, PlaytimeEntry[]> = {};
 
-const playtimeByUser: Record<string, PlaytimeEntry[]> = {
-  'user-me': [
-    entry('game-star-dodger', 15_300, '2026-11-13T20:10:00Z'),
-    entry('game-neon-drift', 27_900, '2026-11-12T18:30:00Z'),
-    entry('game-tile-shift', 5_400, '2026-11-09T12:00:00Z'),
-    entry('game-dungeon-of-echoes', 9_800, '2026-10-28T21:00:00Z'),
-  ],
-  'user-luna': [
-    entry('game-neon-drift', 61_200, '2026-11-13T22:00:00Z'),
-    entry('game-cloud-kingdom', 22_500, '2026-11-11T17:00:00Z'),
-    entry('game-star-dodger', 7_200, '2026-11-01T17:00:00Z'),
-  ],
-  'user-rex': [
-    entry('game-star-dodger', 33_000, '2026-11-14T08:00:00Z'),
-    entry('game-tile-shift', 18_600, '2026-11-10T19:00:00Z'),
-    entry('game-moonbase-tycoon', 12_000, '2026-10-30T19:00:00Z'),
-  ],
-  'user-mika': [
-    entry('game-dungeon-of-echoes', 44_100, '2026-11-12T23:00:00Z'),
-    entry('game-star-dodger', 2_700, '2026-10-20T23:00:00Z'),
-  ],
-};
+let friends: Friend[] = [];
 
-let friends: Friend[] = [
-  { profile: requireUser('user-luna'), since: '2026-07-01T10:00:00Z' },
-  { profile: requireUser('user-rex'), since: '2026-06-12T10:00:00Z' },
-  { profile: requireUser('user-mika'), since: '2026-09-15T10:00:00Z' },
-];
-
-let requests: FriendRequest[] = [
-  {
-    id: 'request-1',
-    profile: requireUser('user-nova'),
-    direction: 'incoming',
-    createdAt: '2026-11-13T15:00:00Z',
-  },
-  {
-    id: 'request-2',
-    profile: requireUser('user-tom'),
-    direction: 'outgoing',
-    createdAt: '2026-11-11T15:00:00Z',
-  },
-];
+let requests: FriendRequest[] = [];
 
 function isFriend(userId: string): boolean {
   return friends.some((friend) => friend.profile.id === userId);

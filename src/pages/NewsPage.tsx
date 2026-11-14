@@ -61,8 +61,12 @@ export function NewsPage() {
       ) : visiblePosts.length === 0 ? (
         <EmptyState
           icon={<Newspaper />}
-          title="Nothing here yet"
-          description="There are no posts of this type so far. Pick another filter or check back later."
+          title={type === null ? 'No news yet' : 'Nothing of this type yet'}
+          description={
+            type === null
+              ? 'Game updates, launcher updates and announcements will show up here.'
+              : 'There are no posts of this type so far. Pick another filter or check back later.'
+          }
         />
       ) : (
         <div className="flex flex-col gap-5">
