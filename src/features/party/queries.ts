@@ -12,9 +12,11 @@ import {
   fetchMyParty,
   fetchPartyInvites,
   inviteToParty,
+  kickPartyMember,
   leaveParty,
   startPartyGame,
   stopPartyGame,
+  transferPartyHost,
 } from './api';
 
 /**
@@ -94,6 +96,14 @@ export function useCancelPartyInvite() {
 
 export function useLeaveParty() {
   return usePartyAction(leaveParty, 'You left the party');
+}
+
+export function useKickPartyMember() {
+  return usePartyAction(kickPartyMember, 'Player removed from the party');
+}
+
+export function useTransferPartyHost() {
+  return usePartyAction(transferPartyHost, 'New host chosen');
 }
 
 /** Host only. Resolves with the new session id; the caller opens the game. */

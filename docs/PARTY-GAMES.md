@@ -5,18 +5,23 @@ Party-Mitglieder automatisch zusammen darin landen.
 
 ## Was die Spieler sehen
 
-1. In der **Library** startet man eine Party und lädt Freunde ein. Eingeladene
-   sehen oben auf jeder Seite „… invited you to their party“ und einen Zähler
-   an „Library“ in der Navigation.
-2. Der **Host** (Krone in der Party-Liste) startet ein Mehrspieler-Spiel: in
-   der Library unter „Play together“ oder auf der Spielseite mit „Play with
-   party“.
-3. Bei allen anderen Mitgliedern öffnet sich dasselbe Spiel **automatisch**.
+1. In der Seitenleiste gibt es den Bereich **Party**. Dort startet man eine
+   Party und lädt Freunde aus der Freundesliste ein. Eingeladene sehen oben
+   auf jeder Seite „… invited you to their party“ und einen Zähler an „Party“
+   in der Navigation.
+2. Wer in einer Party ist, sieht neben „Party“ in der Seitenleiste die
+   **Profilbilder der Mitglieder übereinander gestapelt**, auf jeder Seite.
+3. Auf der Party-Seite ist jeder als **Host** (Krone) oder **Member**
+   gekennzeichnet. Der Host kann Mitglieder **entfernen** und einen anderen
+   zum **Host machen**.
+4. Der **Host** startet ein Mehrspieler-Spiel: auf der Party-Seite unter
+   „Play together“ oder auf der Spielseite mit „Play with party“.
+5. Bei allen anderen Mitgliedern öffnet sich dasselbe Spiel **automatisch**.
    Wer gerade nicht im Launcher war, sieht beim nächsten Mal „Your party is
    playing … · Join game“.
-4. Geht der Host zurück in den Launcher, ist das Party-Spiel beendet. Die
+6. Geht der Host zurück in den Launcher, ist das Party-Spiel beendet. Die
    Party selbst bleibt bestehen.
-5. Einzelspieler-Spiele kann man auch in einer Party starten. Auf der
+7. Einzelspieler-Spiele kann man auch in einer Party starten. Auf der
    Spielseite steht dann „Single player only. Your party will not join you.“
 
 Eine Party hat höchstens 8 Mitglieder. Verlässt der Host die Party, wird das
@@ -97,5 +102,5 @@ was das Spiel sonst anbietet.
   Weiterleitungs-Server (TURN), der meist Geld kostet.
 - **Der öffentliche PeerJS-Server** (0.peerjs.com) ist kostenlos, aber ohne
   Garantie. Fällt er aus, können sich Spieler nicht finden.
-- Die Party-Funktion braucht `supabase/migrations/0006_parties.sql` (siehe
+- Die Party-Funktion braucht `0006_parties.sql` und `0007_party_host_tools.sql` (siehe
   [SUPABASE-SETUP.md](SUPABASE-SETUP.md)).

@@ -23,7 +23,6 @@ export interface Game {
   gamePath: string;
   version: string;
   status: GameStatus;
-  isFeatured: boolean;
   /** ISO date string. */
   publishedAt: string;
   /** Playtime of all players combined, used for the "Most played" sorting. */

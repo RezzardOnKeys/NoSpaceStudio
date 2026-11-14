@@ -3,8 +3,10 @@ import { Link } from 'react-router';
 
 import { Logo } from '@/components/brand/Logo';
 import { Avatar } from '@/components/ui/Avatar';
+import { AvatarStack } from '@/components/ui/AvatarStack';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useCurrentUser } from '@/features/auth/queries';
+import { useParty } from '@/features/party/queries';
 import { paths } from '@/routes/paths';
 
 import { mainNavItems } from './nav-items';
@@ -15,6 +17,8 @@ import { useNavBadges } from './useNavBadges';
 export function Sidebar() {
   const { data: user, isPending } = useCurrentUser();
   const badges = useNavBadges();
+  const { data: party } = useParty();
+  const partyMembers = party?.members.map((member) => member.profile) ?? [];
 
   return (
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 flex-col border-r border-line bg-surface lg:flex">
@@ -29,6 +33,12 @@ export function Sidebar() {
             to={item.to}
             label={item.label}
             icon={item.icon}
+            trailing={
+              // Who is in the party, visible from every page.
+              item.to === paths.party && partyMembers.length > 0 ? (
+                <AvatarStack profiles={partyMembers} />
+              ) : undefined
+            }
             count={badges[item.to]?.count}
             countLabel={badges[item.to]?.label}
           />

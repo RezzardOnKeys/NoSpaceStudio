@@ -37,12 +37,14 @@ table whenever a phase is finished.
   tab is hidden or the player closes) calls `record_playtime`. Library,
   "Continue playing", profile statistics and the "Most played" sorting use
   real data. Guests can play, but their time is not saved.
-- **Parties** (phase 8): start a party in the library, invite friends, the
-  host starts a multiplayer game and all members are pulled into it.
+- **Parties** (phase 8): own "Party" section in the sidebar (with the
+  members' pictures stacked next to it on every page). Invite friends, kick
+  members, pass the host role on; the host starts a multiplayer game and all
+  members are pulled into it.
   Single player games say that the party does not come along. How a game
   supports parties: [PARTY-GAMES.md](PARTY-GAMES.md).
-- The database schema is in `supabase/migrations/` (0001 to 0006). Each file
-  is run once in the Supabase SQL editor; **0006_parties.sql is new and still
+- The database schema is in `supabase/migrations/` (0001 to 0007). Each file
+  is run once in the Supabase SQL editor; **0007_party_host_tools.sql is new and still
   has to be run.** Games are referenced by their slug (folder name).
 - **Claude cannot test anything that needs an account** (no passwords).
   Playtime saving, the profile picture upload and all party flows are only
@@ -76,7 +78,7 @@ table whenever a phase is finished.
    characters, `a-z`, `0-9`, `_`, case-insensitive, availability checked
    live). Sign in, sign out, forgot/reset password, email confirmation. No
    social logins.
-2. **Store/home:** all published games; featured/new highlight; live search by
+2. **Store/home:** all published games in one grid of equal covers; live search by
    title, genre filter (multi-select), engine filter, sorting (newest, A–Z,
    most played).
 3. **Library:** every game the user has played, with playtime and "last
@@ -195,14 +197,15 @@ Requirements:
 - Parties in Supabase (`0006_parties.sql`): create, invite friends, accept or
   decline, leave (host passes on), start and stop a party game. Realtime
   updates plus a 20-second refresh as a fallback.
-- Library: party panel with members, invitations, "Play together" list for
-  the host. Notices on every page for invitations and a running party game.
-  Badge for invitations on "Library".
+- Own page `/party` ("Party" in the sidebar, with stacked member pictures):
+  members marked as host or member, invitations, kick and "make host" for
+  the host (`0007_party_host_tools.sql`), "Play together" list. Notices on
+  every page for invitations and a running party game. Badge for
+  invitations on "Party".
 - Game page: "Play with party" for the host, a hint for single player games.
 - The player passes room code, role and name to the game (`#party=...`).
 - `docs/PARTY-GAMES.md`: what a game needs to support parties.
-- Possible next steps: kick members, pass the host role by hand, a TURN
-  server if direct connections fail too often.
+- Possible next step: a TURN server if direct connections fail too often.
 
 ## Open points carried forward
 

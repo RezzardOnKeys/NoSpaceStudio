@@ -15,6 +15,23 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 12 – 2026-11-14 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Party als eigener Bereich in der Seitenleiste mit gestapelten Profilbildern, Mitglieder kicken und Host weitergeben, Host/Mitglied kennzeichnen; Featured-Banner aus dem Store entfernen
+**Änderungen:**
+- Neuer Bereich „Party“ in der Seitenleiste und im Handy-Menü mit eigener Seite `/party`; der Party-Kasten in der Library ist dafür weg
+- Wer in einer Party ist, sieht neben „Party“ in der Seitenleiste die Profilbilder der Mitglieder übereinander gestapelt, auf jeder Seite (ab 4 Mitgliedern mit „+N“)
+- Party-Seite: „Your party:“ mit Mitgliederzahl, jeder Spieler als „Host“ (Krone) oder „Member“ gekennzeichnet, offene Einladungen als „Invited“, Freunde einladen, Party verlassen, Mehrspieler-Spiele starten
+- Der Host kann Mitglieder entfernen und einen anderen zum Host machen, jeweils mit Sicherheitsabfrage
+- Neue SQL-Datei `0007_party_host_tools.sql` für Entfernen und Host-Weitergabe, ausführlich kommentiert
+- Zähler für Party-Einladungen sitzt jetzt an „Party“ statt an „Library“
+- Featured-Banner im Store entfernt, inklusive dem Feld `featured` in `game.json`; der Store zeigt alle Spiele einheitlich als gleich große Cover
+- Gestapelte Profilbilder und Rollen-Abzeichen in der Komponenten-Übersicht `/dev/ui`
+- Doku angepasst (PARTY-GAMES, ROADMAP, DECISIONS 29, SUPABASE-SETUP, ADDING-A-GAME)
+- Noch offen: `0007_party_host_tools.sql` muss in Supabase ausgeführt werden; Party-Seite und Seitenleiste mit echter Party sind ohne Anmeldung nicht getestet
+**Geänderte Dateien:** supabase/migrations/0007_party_host_tools.sql (neu), src/pages/PartyPage.tsx (neu), src/features/party/ (PartyMembers.tsx, PartyGames.tsx, PartyRoleBadge.tsx neu; PartyPanel.tsx gelöscht; api.ts, queries.ts), src/components/ui/AvatarStack.tsx (neu), src/components/layout/ (Sidebar.tsx, SidebarLink.tsx, nav-items.ts, useNavBadges.ts), src/features/games/ (FeaturedHero.tsx gelöscht, api.ts), src/pages/ (StorePage.tsx, LibraryPage.tsx, UiKitPage.tsx), src/routes/ (router.tsx, paths.ts), src/types/ (models.ts, database.ts), games/_template/game.json, games/wpm-trainer/game.json, docs/PARTY-GAMES.md, docs/ROADMAP.md, docs/DECISIONS.md, docs/SUPABASE-SETUP.md, docs/ADDING-A-GAME.md, PROTOKOLL.md
+**Commit-Message:** `[v12] feat(party): add party page with host tools and sidebar avatars, remove featured banner`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 11 – 2026-11-14 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Balls' Tipp-Spiel (WPM-Trainer mit PeerJS, bisher auf Vercel) einbauen, Spielzeit (Phase 4) und Party-System umsetzen, aufräumen; Bildschirmaufnahme weglassen
 **Änderungen:**

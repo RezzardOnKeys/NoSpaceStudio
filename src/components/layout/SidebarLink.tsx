@@ -10,6 +10,8 @@ interface SidebarLinkProps {
   icon?: LucideIcon;
   /** Replaces the icon, e.g. with an avatar. */
   leading?: ReactNode;
+  /** Extra content on the right, e.g. the party members' pictures. */
+  trailing?: ReactNode;
   /** Small counter on the right, hidden when zero. */
   count?: number;
   countLabel?: string;
@@ -20,6 +22,7 @@ export function SidebarLink({
   label,
   icon: Icon,
   leading,
+  trailing,
   count = 0,
   countLabel,
 }: SidebarLinkProps) {
@@ -52,6 +55,7 @@ export function SidebarLink({
               />
             ))}
           <span className="min-w-0 flex-1 truncate">{label}</span>
+          {trailing}
           {count > 0 && (
             <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-accent-strong px-1.5 text-xs font-semibold text-on-accent">
               <span aria-hidden="true">{count}</span>

@@ -68,7 +68,6 @@ function toGame(path: string, manifest: unknown): Game {
     gamePath: slug,
     version: readOptionalText(file, manifest, 'version') ?? '1.0.0',
     status: readChoice(file, manifest, 'status', ['draft', 'published']),
-    isFeatured: manifest.featured === true,
     publishedAt: readDate(file, manifest, 'publishedAt'),
     // Filled in from the database by fetchGames().
     totalPlaytimeSeconds: 0,

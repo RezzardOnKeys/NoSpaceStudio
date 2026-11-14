@@ -104,13 +104,27 @@ export async function stopPartyGame(): Promise<void> {
   if (error) throw error;
 }
 
+/** Host only: removes a member from the party. */
+export async function kickPartyMember(userId: string): Promise<void> {
+  const { error } = await getSupabase().rpc('kick_party_member', { target_user: userId });
+  if (error) throw error;
+}
+
+/** Host only: makes another member the host. */
+export async function transferPartyHost(userId: string): Promise<void> {
+  const { error } = await getSupabase().rpc('transfer_party_host', { target_user: userId });
+  if (error) throw error;
+}
+
 const PARTY_ERROR_MESSAGES: Record<string, string> = {
   not_friends: 'You can only invite confirmed friends.',
   already_in_party: 'This player is already in your party.',
   party_full: 'The party is full (8 players).',
   invite_not_found: 'This invitation is no longer valid. The party may have ended.',
   no_party: 'You are not in a party.',
-  not_host: 'Only the party host can start a game.',
+  not_host: 'Only the party host can do that.',
+  not_member: 'This player is no longer in your party.',
+  cannot_kick_yourself: 'To leave the party, use "Leave party".',
 };
 
 export function describePartyError(error: unknown): string {

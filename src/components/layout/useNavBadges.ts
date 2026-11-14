@@ -18,6 +18,6 @@ export function useNavBadges(): Partial<Record<string, NavBadge>> {
       count: requests?.filter((request) => request.direction === 'incoming').length ?? 0,
       label: 'friend requests',
     },
-    [paths.library]: { count: invites?.length ?? 0, label: 'party invitations' },
+    [paths.party]: { count: invites?.length ?? 0, label: 'party invitations' },
   };
 }

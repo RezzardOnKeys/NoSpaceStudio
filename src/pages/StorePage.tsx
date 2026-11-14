@@ -4,7 +4,6 @@ import { useMemo } from 'react';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
-import { FeaturedHero, FeaturedHeroSkeleton } from '@/features/games/FeaturedHero';
 import { GameCard, GameCardSkeleton } from '@/features/games/GameCard';
 import { GameGrid } from '@/features/games/GameGrid';
 import { useGames } from '@/features/games/queries';
@@ -26,7 +25,6 @@ export function StorePage() {
     () => filterGames(games ?? [], { query, genres, engine, sort }),
     [games, query, genres, engine, sort],
   );
-  const featured = useMemo(() => (games ?? []).filter((game) => game.isFeatured), [games]);
 
   if (isError) {
     return (
@@ -43,17 +41,12 @@ export function StorePage() {
 
   return (
     <div className="flex flex-col gap-10">
-      <h1 className="sr-only">Store</h1>
-
-      {/* The hero steps aside while someone is searching or filtering. */}
-      {!filters.isFiltering &&
-        (isPending ? <FeaturedHeroSkeleton /> : <FeaturedHero games={featured} />)}
-
+      {/* All games look the same: one grid of equally sized covers. */}
       <section aria-labelledby="all-games-heading" className="flex flex-col gap-5">
         <div className="flex items-baseline gap-3">
-          <h2 id="all-games-heading" className="text-xl font-semibold">
+          <h1 id="all-games-heading" className="text-2xl font-bold sm:text-3xl">
             {heading}
-          </h2>
+          </h1>
           {!isPending && (games?.length ?? 0) > 0 && (
             <span className="text-sm text-fg-subtle" aria-live="polite">
               {visibleGames.length} {visibleGames.length === 1 ? 'game' : 'games'}

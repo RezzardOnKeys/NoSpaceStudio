@@ -12,6 +12,7 @@ import { LegalPage } from '@/pages/LegalPage';
 import { LibraryPage } from '@/pages/LibraryPage';
 import { NewsPage } from '@/pages/NewsPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
+import { PartyPage } from '@/pages/PartyPage';
 import { PlayerPage } from '@/pages/PlayerPage';
 import { ProfilePage } from '@/pages/ProfilePage';
 import { ResetPasswordPage } from '@/pages/ResetPasswordPage';
@@ -42,6 +43,7 @@ export const router = createBrowserRouter([
             children: [
               { path: paths.library, element: <LibraryPage /> },
               { path: paths.friends, element: <FriendsPage /> },
+              { path: paths.party, element: <PartyPage /> },
               { path: paths.profile, element: <ProfilePage /> },
               { path: paths.user(':username'), element: <ProfilePage /> },
             ],

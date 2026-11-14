@@ -268,3 +268,16 @@ the sandbox.
 
 **Why:** The developers did not want the recording. Keeping one sandbox for
 all games keeps decision 13 simple.
+
+## 29. Party gets its own page; no featured banner in the store
+
+**Decision:** The party has its own sidebar entry and page (`/party`)
+instead of a box in the library. Next to "Party" in the sidebar, the
+members' pictures are shown stacked, so it is visible on every page who is
+in the party. The host can kick members and pass the host role on
+(`0007_party_host_tools.sql`). The store has no featured banner anymore:
+every game is one cover in the same grid, and the `featured` field in
+`game.json` is gone.
+
+**Why:** The developers want the party always in view and the store to look
+uniform, with all covers the same size.

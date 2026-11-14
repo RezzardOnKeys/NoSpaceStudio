@@ -5,6 +5,7 @@ export const paths = {
   play: (slug: string) => `/play/${slug}`,
   library: '/library',
   friends: '/friends',
+  party: '/party',
   news: '/news',
   profile: '/profile',
   user: (username: string) => `/u/${username}`,

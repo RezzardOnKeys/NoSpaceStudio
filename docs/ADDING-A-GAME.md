@@ -53,7 +53,6 @@ Das ist der Eintrag im Store:
   "engine": "HTML5",
   "version": "1.0.0",
   "status": "draft",
-  "featured": false,
   "publishedAt": "2026-11-20",
   "cover": "cover.webp",
   "banner": "banner.webp",
@@ -70,7 +69,6 @@ Das ist der Eintrag im Store:
 | `genres`           | nein    | Liste für den Genre-Filter                                                                                   |
 | `engine`           | nein    | Label, z. B. `HTML5`, `Unity`, `Godot`. Standard: `HTML5`                                                    |
 | `version`          | nein    | Standard: `1.0.0`                                                                                            |
-| `featured`         | nein    | `true` zeigt das Spiel im großen Banner oben im Store                                                        |
 | `cover`, `banner`  | nein    | Dateinamen der Bilder im Spielordner                                                                         |
 | `screenshots`      | nein    | Liste von Dateinamen                                                                                         |
 | `maxPlayers`       | nein    | Höchstzahl Spieler in einer Party. Standard: `1` (nur Einzelspieler). Siehe [PARTY-GAMES.md](PARTY-GAMES.md) |

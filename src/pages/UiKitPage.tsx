@@ -1,8 +1,9 @@
-import { ArrowLeft, Check, Play, Search, Trash2, Users } from 'lucide-react';
+import { ArrowLeft, Check, PartyPopper, Play, Search, Trash2, Users } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { Link } from 'react-router';
 
 import { Logo } from '@/components/brand/Logo';
+import { AvatarStack } from '@/components/ui/AvatarStack';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -11,8 +12,17 @@ import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/components/ui/toast-context';
+import { PartyRoleBadge } from '@/features/party/PartyRoleBadge';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { paths } from '@/routes/paths';
+
+/** Example players for the avatar stack. */
+const demoProfiles = ['morris', 'balls', 'pixel', 'nova', 'kai'].map((username) => ({
+  id: username,
+  username,
+  avatarUrl: null,
+  createdAt: '2026-11-14T12:00:00Z',
+}));
 
 const swatches = [
   { name: 'canvas', className: 'bg-canvas' },
@@ -166,10 +176,27 @@ export function UiKitPage() {
           <Badge variant="outline">HTML5</Badge>
           <Badge variant="outline">Unity</Badge>
           <Badge variant="outline">Godot</Badge>
-          <Badge variant="accent">Featured</Badge>
+          <Badge variant="accent">New</Badge>
           <Badge variant="success">Published</Badge>
           <Badge variant="warning">Draft</Badge>
           <Badge variant="danger">Hidden</Badge>
+        </div>
+      </Section>
+
+      <Section title="Avatar stack and party roles">
+        <div className="flex flex-col gap-4">
+          {/* Same markup as the "Party" entry in the sidebar. */}
+          <div className="flex h-10 max-w-60 items-center gap-3 rounded-lg bg-surface-raised px-3 text-sm font-medium text-fg-muted">
+            <PartyPopper className="size-5 shrink-0" aria-hidden="true" />
+            <span className="min-w-0 flex-1 truncate">Party</span>
+            <AvatarStack profiles={demoProfiles.slice(0, 3)} />
+          </div>
+          <div className="flex flex-wrap items-center gap-4">
+            <AvatarStack profiles={demoProfiles.slice(0, 2)} />
+            <AvatarStack profiles={demoProfiles} />
+            <PartyRoleBadge isHost />
+            <PartyRoleBadge isHost={false} />
+          </div>
         </div>
       </Section>
 

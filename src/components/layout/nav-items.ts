@@ -1,4 +1,4 @@
-import { Library, Newspaper, Store, Users, type LucideIcon } from 'lucide-react';
+import { Library, Newspaper, PartyPopper, Store, Users, type LucideIcon } from 'lucide-react';
 
 import { paths } from '@/routes/paths';
 
@@ -12,5 +12,6 @@ export const mainNavItems: NavItem[] = [
   { label: 'Store', to: paths.store, icon: Store },
   { label: 'Library', to: paths.library, icon: Library },
   { label: 'Friends', to: paths.friends, icon: Users },
+  { label: 'Party', to: paths.party, icon: PartyPopper },
   { label: 'News', to: paths.news, icon: Newspaper },
 ];

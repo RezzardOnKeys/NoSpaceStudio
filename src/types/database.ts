@@ -191,6 +191,8 @@ export type Database = {
       accept_party_invite: { Args: { invite_id: string }; Returns: string };
       start_party_game: { Args: { p_game_slug: string }; Returns: string };
       stop_party_game: { Args: Record<never, never>; Returns: undefined };
+      kick_party_member: { Args: { target_user: string }; Returns: undefined };
+      transfer_party_host: { Args: { target_user: string }; Returns: undefined };
       set_avatar: { Args: Record<never, never>; Returns: string };
       record_playtime: { Args: { p_game_slug: string; p_seconds: number }; Returns: number };
     };
