@@ -29,7 +29,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Getestet: Übungsmodus und Mehrspieler mit zwei Tabs in Chrome (Lobby, Farbsperre, Runde, Treffer, Schrumpfen, Rematch, dritter Spieler „voll“, Tab schließen). Noch offen: Test in Safari und mit zwei echten Konten über die Party
 **Geänderte Dateien:** games/blind-drop/ (neu: index.html, game.js, host.js, scene.js, net.js, config.js, game.json, description.md, cover.svg, banner.svg, vendor/three.module.js, vendor/three.core.js, vendor/three-LICENSE.txt, vendor/peerjs.min.js, vendor/peerjs-LICENSE.txt), news/2026-11-14-blind-drop-1-0.md (neu), games/README.md, docs/ROADMAP.md, docs/DECISIONS.md, docs/PARTY-GAMES.md, PROTOKOLL.md
 **Commit-Message:** `[v19] feat(games): add Blind Drop, a 3D bomb duel for two players`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`1dd893c`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/1dd893c)
 
 ## Version 18 – 2026-11-14 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Weiß ein neuer Chat alles Wichtige aus dem Projektordner? Danach: neue Spielidee „Blind Drop“ festhalten, verworfene Spielidee entfernen, Prompt für die nächste Session
@@ -39,7 +39,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Commit-Hash für Version 17 nachgetragen
 **Geänderte Dateien:** docs/ROADMAP.md, PROTOKOLL.md
 **Commit-Message:** `[v18] docs(roadmap): update status and plan the game Blind Drop`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`1dd893c`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/1dd893c)
 
 ## Version 17 – 2026-11-14 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Online-Status ist nirgends zu sehen – liegt es am Kollegen oder fehlt etwas?
