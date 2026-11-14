@@ -15,6 +15,21 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 21 – 2026-11-15 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** WPM Trainer: Anzeige oben links ganz entfernen, Party-Mitglieder als überlappende Avatare unten links, Video-Knöpfe von oben rechts nach unten rechts im Karten-Stil, bei Revanche erst Einstellungen ändern können
+**Änderungen:**
+- Anzeige oben links komplett entfernt; das Tipptempo des Gegners wird während der Runde nirgends mehr gezeigt (die Live-Nachrichten dafür sind entfernt)
+- Party-Mitglieder unten links im freien Platz als überlappende Profilbilder wie bei „Party“ im Launcher (ohne Bild: Anfangsbuchstabe auf Farbe); gestrichelter Platzhalter, solange der Mitspieler fehlt; grüner Ring beim Host, wenn der Gegner bereit ist; Name beim Darüberfahren
+- Der Launcher gibt dem Spiel dafür den Link zum eigenen Profilbild mit (`avatar` in der Adresse); die Spieler tauschen Name und Bild beim Verbinden aus
+- Video-Bedienung (YouTube-Link, „Load video“, „Own file“, Ton, Tempo-Anzeige) als Karte unten rechts; über dem Video liegt nichts mehr
+- Ist das Fenster schmaler als 1440 Pixel und neben dem Trainer kein Platz, rutschen beide Blöcke in eine Zeile über dem Trainer
+- Revanche: Nach dem Ergebnis geht es zuerst zurück in die Lobby. Der Host kann Zeit, Ziel-Tempo und Video ändern und startet dann mit „▶ Start round“ (liegt jetzt über dem Wörterfeld) oder Enter; der Gast meldet „bereit“ und wartet
+- Spielversion 1.3.0 mit Patch Note; Doku PARTY-GAMES (neue Angabe `avatar`) und ROADMAP angepasst; Commit-Hash für Version 20 nachgetragen
+- Getestet mit zwei Tabs in Chrome (breites und schmales Fenster). Nicht getestet: echte Profilbilder über den Launcher mit zwei Konten
+**Geänderte Dateien:** games/wpm-trainer/index.html, games/wpm-trainer/game.json, news/2026-11-15-wpm-trainer-1-3.md (neu), src/features/party/party-session.ts, src/features/party/usePartyLaunch.ts, docs/PARTY-GAMES.md, docs/ROADMAP.md, PROTOKOLL.md
+**Commit-Message:** `[v21] feat(wpm-trainer): party avatars, video controls at the bottom, rematch via lobby`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 20 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** WPM Trainer: Raum-Code oben links entfernen (man spielt nur noch über die Party), Anzeige oben links mit den Spielernamen besser lesbar und schöner machen
 **Änderungen:**
@@ -26,7 +41,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Getestet mit zwei Tabs in Chrome: verbinden, Runde starten, Live-Anzeige auf beiden Seiten
 **Geänderte Dateien:** games/wpm-trainer/index.html, games/wpm-trainer/game.json, news/2026-11-15-wpm-trainer-1-2.md (neu), PROTOKOLL.md
 **Commit-Message:** `[v20] feat(wpm-trainer): remove room codes, add readable party panel`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`2407805`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/2407805)
 
 ## Version 19 – 2026-11-14 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Zweites Spiel „Blind Drop“ bauen: 3D-Comic-Bombenduell auf einer schwebenden Insel, 1 gegen 1 über die Party, Übungsmodus gegen Bot, Store-Eintrag und Patch Note

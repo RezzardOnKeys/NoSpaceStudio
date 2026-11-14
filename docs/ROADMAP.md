@@ -220,7 +220,8 @@ Requirements:
   every page for invitations and a running party game. Badge for
   invitations on "Party".
 - Game page: "Play with party" for the host, a hint for single player games.
-- The player passes room code, role and name to the game (`#party=...`).
+- The player passes room code, role, name and the link to the profile
+  picture to the game (`#party=...`).
 - `docs/PARTY-GAMES.md`: what a game needs to support parties.
 - Possible next step: a TURN server if direct connections fail too often.
 

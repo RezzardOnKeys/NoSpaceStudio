@@ -56,7 +56,7 @@ Startet der Launcher ein Spiel für die Party, hängt er hinter `#` an die
 Adresse des Spiels:
 
 ```
-.../games/mein-spiel/#party=3F2A9C...&role=host&name=morris&players=2
+.../games/mein-spiel/#party=3F2A9C...&role=host&name=morris&players=2&avatar=https...
 ```
 
 | Angabe    | Bedeutung                                                                   |
@@ -65,6 +65,7 @@ Adresse des Spiels:
 | `role`    | `host` oder `guest`. Genau ein Mitglied ist Host                            |
 | `name`    | Benutzername des Spielers, z. B. zum Anzeigen                               |
 | `players` | Anzahl der Party-Mitglieder                                                 |
+| `avatar`  | Öffentlicher Link zum Profilbild des Spielers. Fehlt, wenn er keines hat    |
 
 Lesen in JavaScript:
 
@@ -73,6 +74,12 @@ const h = new URLSearchParams(location.hash.slice(1));
 const party = h.get('party'); // null, wenn das Spiel normal gestartet wurde
 const isHost = h.get('role') === 'host';
 ```
+
+Jedes Spiel bekommt nur den **eigenen** Namen und das **eigene** Profilbild.
+Wer die Mitspieler anzeigen will, schickt beides nach dem Verbinden an die
+anderen (im WPM Trainer die Nachricht `hello`). Einen Bild-Link von einem
+Mitspieler vor dem Anzeigen prüfen (nur `https://…`), siehe `safeImageUrl` in
+`games/wpm-trainer/index.html`.
 
 ### 3. Damit verbinden, ohne eigenes Einlade-Menü
 

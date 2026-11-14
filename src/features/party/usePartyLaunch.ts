@@ -33,7 +33,7 @@ export function usePartyLaunch(gameSlug: string, session: string | null): PartyL
 
   return {
     isLoading: false,
-    hash: partyHash(data, userId, user.data.username),
+    hash: partyHash(data, userId, user.data.username, user.data.avatarUrl),
     isHost: data.hostId === userId,
   };
 }
