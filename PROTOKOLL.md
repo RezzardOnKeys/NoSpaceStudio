@@ -15,6 +15,16 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 13 – 2026-11-14 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Block „Play together“ auf der Party-Seite löschen, Knopf „Play alone“ deutlicher machen (wie der Play-Knopf in der Library)
+**Änderungen:**
+- Block „Play together“ von der Party-Seite entfernt; Spiele startet der Host jetzt auf der Spielseite mit „Play with party“
+- „Play alone“ auf der Spielseite ist jetzt ein richtiger Knopf mit Rand, grauem Hintergrund und Hover-Effekt, genau wie „Play“ unter „All played games“
+- Doku angepasst; Commit-Hash für Version 12 nachgetragen
+**Geänderte Dateien:** src/pages/PartyPage.tsx, src/features/party/GamePlayActions.tsx, src/features/party/PartyGames.tsx (gelöscht), docs/PARTY-GAMES.md, docs/ROADMAP.md, PROTOKOLL.md
+**Commit-Message:** `[v13] refactor(party): remove play together block, make play alone a button`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 12 – 2026-11-14 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Party als eigener Bereich in der Seitenleiste mit gestapelten Profilbildern, Mitglieder kicken und Host weitergeben, Host/Mitglied kennzeichnen; Featured-Banner aus dem Store entfernen
 **Änderungen:**
@@ -30,7 +40,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Noch offen: `0007_party_host_tools.sql` muss in Supabase ausgeführt werden; Party-Seite und Seitenleiste mit echter Party sind ohne Anmeldung nicht getestet
 **Geänderte Dateien:** supabase/migrations/0007_party_host_tools.sql (neu), src/pages/PartyPage.tsx (neu), src/features/party/ (PartyMembers.tsx, PartyGames.tsx, PartyRoleBadge.tsx neu; PartyPanel.tsx gelöscht; api.ts, queries.ts), src/components/ui/AvatarStack.tsx (neu), src/components/layout/ (Sidebar.tsx, SidebarLink.tsx, nav-items.ts, useNavBadges.ts), src/features/games/ (FeaturedHero.tsx gelöscht, api.ts), src/pages/ (StorePage.tsx, LibraryPage.tsx, UiKitPage.tsx), src/routes/ (router.tsx, paths.ts), src/types/ (models.ts, database.ts), games/_template/game.json, games/wpm-trainer/game.json, docs/PARTY-GAMES.md, docs/ROADMAP.md, docs/DECISIONS.md, docs/SUPABASE-SETUP.md, docs/ADDING-A-GAME.md, PROTOKOLL.md
 **Commit-Message:** `[v12] feat(party): add party page with host tools and sidebar avatars, remove featured banner`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`a729f50`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/a729f50)
 
 ## Version 11 – 2026-11-14 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Balls' Tipp-Spiel (WPM-Trainer mit PeerJS, bisher auf Vercel) einbauen, Spielzeit (Phase 4) und Party-System umsetzen, aufräumen; Bildschirmaufnahme weglassen

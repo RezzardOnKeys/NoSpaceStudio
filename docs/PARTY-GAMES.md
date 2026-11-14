@@ -14,8 +14,8 @@ Party-Mitglieder automatisch zusammen darin landen.
 3. Auf der Party-Seite ist jeder als **Host** (Krone) oder **Member**
    gekennzeichnet. Der Host kann Mitglieder **entfernen** und einen anderen
    zum **Host machen**.
-4. Der **Host** startet ein Mehrspieler-Spiel: auf der Party-Seite unter
-   „Play together“ oder auf der Spielseite mit „Play with party“.
+4. Der **Host** startet ein Mehrspieler-Spiel auf dessen Spielseite mit
+   „Play with party“. Daneben gibt es „Play alone“ für eine Runde allein.
 5. Bei allen anderen Mitgliedern öffnet sich dasselbe Spiel **automatisch**.
    Wer gerade nicht im Launcher war, sieht beim nächsten Mal „Your party is
    playing … · Join game“.

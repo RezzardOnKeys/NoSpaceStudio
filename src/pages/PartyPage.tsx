@@ -14,7 +14,6 @@ import { useAuth } from '@/features/auth/auth-context';
 import { useGames } from '@/features/games/queries';
 import { InviteFriendsModal } from '@/features/party/InviteFriendsModal';
 import { partyPlayPath } from '@/features/party/party-session';
-import { PartyGames } from '@/features/party/PartyGames';
 import { PartyMembers } from '@/features/party/PartyMembers';
 import { useCreateParty, useLeaveParty, useParty } from '@/features/party/queries';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
@@ -127,10 +126,6 @@ function PartyDetails({ party }: PartyDetailsProps) {
           </Link>
         </Card>
       )}
-
-      <Section title="Play together">
-        <PartyGames party={party} isHost={isHost} />
-      </Section>
 
       <InviteFriendsModal open={inviteOpen} onClose={() => setInviteOpen(false)} party={party} />
     </>

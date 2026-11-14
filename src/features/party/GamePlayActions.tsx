@@ -56,10 +56,7 @@ export function GamePlayActions({ game, note }: GamePlayActionsProps) {
           >
             Play with party
           </Button>
-          <Link
-            to={paths.play(game.slug)}
-            className={buttonStyles({ variant: 'ghost', size: 'sm' })}
-          >
+          <Link to={paths.play(game.slug)} className={buttonStyles({ variant: 'secondary' })}>
             <User className="size-4" aria-hidden="true" />
             Play alone
           </Link>

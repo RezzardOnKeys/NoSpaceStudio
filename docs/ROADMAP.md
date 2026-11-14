@@ -199,7 +199,8 @@ Requirements:
   updates plus a 20-second refresh as a fallback.
 - Own page `/party` ("Party" in the sidebar, with stacked member pictures):
   members marked as host or member, invitations, kick and "make host" for
-  the host (`0007_party_host_tools.sql`), "Play together" list. Notices on
+  the host (`0007_party_host_tools.sql`). Games are started from the game
+  page ("Play with party"). Notices on
   every page for invitations and a running party game. Badge for
   invitations on "Party".
 - Game page: "Play with party" for the host, a hint for single player games.
