@@ -15,6 +15,19 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 20 – 2026-11-15 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** WPM Trainer: Raum-Code oben links entfernen (man spielt nur noch über die Party), Anzeige oben links mit den Spielernamen besser lesbar und schöner machen
+**Änderungen:**
+- „Create room“, Code-Feld, „Join“, „Copy link“ und „Leave“ entfernt; auch der alte Einladungslink `?room=CODE` funktioniert nicht mehr. Zusammen spielen geht nur noch über die Party im Launcher
+- Allein gestartet zeigt das Spiel oben links gar nichts mehr an (reiner Einzelspieler)
+- Neue Party-Anzeige oben links: Karte mit Status-Punkt (gelb = wartet, grün = verbunden), beiden Spielernamen, Markierung „you“ / „host“, „ready ✓“ und den Tippgeschwindigkeiten beider Spieler live; größere, gut lesbare Schrift
+- Die eigene Geschwindigkeit steht jetzt ebenfalls in der Anzeige (vorher nur die des Gegners)
+- Spielversion auf 1.2.0 erhöht, Patch Note dazu
+- Getestet mit zwei Tabs in Chrome: verbinden, Runde starten, Live-Anzeige auf beiden Seiten
+**Geänderte Dateien:** games/wpm-trainer/index.html, games/wpm-trainer/game.json, news/2026-11-15-wpm-trainer-1-2.md (neu), PROTOKOLL.md
+**Commit-Message:** `[v20] feat(wpm-trainer): remove room codes, add readable party panel`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 19 – 2026-11-14 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Zweites Spiel „Blind Drop“ bauen: 3D-Comic-Bombenduell auf einer schwebenden Insel, 1 gegen 1 über die Party, Übungsmodus gegen Bot, Store-Eintrag und Patch Note
 **Änderungen:**

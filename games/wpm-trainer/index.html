@@ -43,18 +43,23 @@
   .drop #dropMsg { display: flex; flex-direction: column; gap: 8px; align-items: center; }
   .vinfo .yt-in { background: rgba(0,0,0,.55); color: #fff; border: 1px solid rgba(255,255,255,.2); border-radius: 20px; padding: 4px 12px; font-size: 13px; width: 240px; outline: none; }
   .vinfo .yt-in:focus { border-color: var(--accent); }
-  .roombar { position: absolute; top: 10px; left: 12px; z-index: 4; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; font-size: 12px; color: #fff; }
-  .roombar { max-width: calc(50% - 20px); }
+  /* Party panel (top left): who plays, who hosts, live speed. Only shown in a party. */
+  .roombar { position: absolute; top: 10px; left: 12px; z-index: 4; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; color: #fff; max-width: calc(50% - 20px); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+  .roombar[hidden] { display: none; }
+  .rcard { display: flex; flex-direction: column; gap: 8px; min-width: 240px; max-width: 100%; padding: 10px 12px 12px; background: rgba(20, 22, 27, .9); border: 1px solid rgba(255, 255, 255, .14); border-radius: 14px; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+  .rhead { display: flex; align-items: center; gap: 8px; font-size: 11.5px; font-weight: 700; letter-spacing: .7px; text-transform: uppercase; color: #b9bfcf; }
+  .rdot { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); flex: none; }
+  .rdot.on { background: var(--good); }
+  .rp { display: flex; align-items: baseline; gap: 8px; font-size: 15px; line-height: 1.3; }
+  .rname { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rp.wait .rname { font-weight: 500; color: #b9bfcf; }
+  .rtag { flex: none; font-size: 11px; color: #b9bfcf; border: 1px solid rgba(255, 255, 255, .2); border-radius: 20px; padding: 1px 7px; white-space: nowrap; }
+  .rtag.ok { color: var(--good); border-color: var(--good); }
+  .rwpm { flex: none; margin-left: auto; padding-left: 10px; font-size: 12px; color: #b9bfcf; white-space: nowrap; }
+  .rwpm b { font-size: 16px; color: #fff; }
+  .roombar button.go { align-self: stretch; margin-top: 2px; background: var(--accent); color: #1a1a1a; font-weight: 700; font-size: 14px; border: 0; border-radius: 10px; padding: 8px 12px; cursor: pointer; }
+  .roombar .rmsg { background: rgba(245, 185, 66, .95); color: #1a1a1a; font-weight: 600; font-size: 13px; padding: 6px 12px; border-radius: 10px; }
   .vinfo { max-width: calc(50% - 20px); flex-wrap: wrap; justify-content: flex-end; }
-  .roombar .rrow { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
-  .roombar .pill { background: rgba(0,0,0,.6); padding: 4px 10px; border-radius: 20px; }
-  .roombar button { background: rgba(0,0,0,.6); color: #fff; border: 0; border-radius: 20px; padding: 4px 10px; cursor: pointer; font-size: 12px; }
-  .roombar button.go { background: var(--accent); color: #1a1a1a; font-weight: 700; }
-  .roombar .room-in { background: rgba(0,0,0,.6); color: #fff; border: 1px solid rgba(255,255,255,.2); border-radius: 20px; padding: 4px 10px; font-size: 12px; width: 70px; outline: none; text-transform: uppercase; letter-spacing: 1px; }
-  .roombar .room-in:focus { border-color: var(--accent); }
-  .roombar .code { color: var(--accent); letter-spacing: 1px; cursor: pointer; }
-  .roombar .okc { color: var(--good); }
-  .roombar .rmsg { background: rgba(245, 185, 66, .9); color: #1a1a1a; font-weight: 600; }
   .vinfo button:disabled, .vinfo input:disabled { opacity: .4; cursor: not-allowed; }
   .countdown { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; font-size: 52px; font-weight: 800; color: var(--accent); background: rgba(29, 32, 40, .9); border-radius: 12px; z-index: 3; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
   .countdown.show { display: flex; }
@@ -196,20 +201,13 @@
   <video id="vid" preload="auto" playsinline></video>
   <div class="ytwrap" id="ytwrap"></div>
   <div class="vbar"><div class="play" id="vPlay"></div><div class="goal" id="vGoal"></div></div>
-  <div class="roombar" id="roombar">
-    <div class="rrow" id="roomIdle">
-      <button id="roomCreate" title="Create a room and send the code to a friend">👥 Create room</button>
-      <input id="roomCode" class="room-in" placeholder="Code" maxlength="8" spellcheck="false" autocomplete="off">
-      <button id="roomJoin">Join</button>
-    </div>
-    <div class="rrow" id="roomActive" style="display:none">
-      <span class="pill" id="roomStatus"></span>
-      <span class="pill" id="roomOpp" style="display:none"></span>
+  <div class="roombar" id="roombar" hidden>
+    <div class="rcard">
+      <div class="rhead"><span class="rdot" id="roomDot"></span><span id="roomStatus"></span></div>
+      <div id="roomPlayers"></div>
       <button id="roomStart" class="go" style="display:none">▶ Start round</button>
-      <button id="roomLink" style="display:none">🔗 Copy link</button>
-      <button id="roomLeave">Leave</button>
     </div>
-    <div class="pill rmsg" id="roomMsg" style="display:none"></div>
+    <div class="rmsg" id="roomMsg" role="status" style="display:none"></div>
   </div>
   <div class="vinfo">
     <span class="pill" id="vRate">⏸ 0.00×</span>
@@ -1032,14 +1030,12 @@ var Room = {
 
 // ---------------------------------------------------------------------
 //  NoSpaceStudio launcher integration
-//  EMBEDDED: the game runs inside the launcher. An invite link would open
-//  the game without the launcher, so only the code is copied there.
 //  PARTY: the launcher started this game for a party and passes the room
 //  in the address: #party=<code>&role=host|guest&name=<username>
-//  The game then connects by itself; nobody has to create or join a room.
+//  The game then connects by itself. There is no other way to play together:
+//  the old "create room / enter code" controls are gone.
 //  Details: docs/PARTY-GAMES.md in the NoSpaceStudio repository.
 // ---------------------------------------------------------------------
-const EMBEDDED = window.parent !== window;
 const PARTY = (() => {
   const h = new URLSearchParams(location.hash.slice(1));
   const code = (h.get('party') || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
@@ -1076,44 +1072,40 @@ function loadPeerLib() {
   return peerLib;
 }
 
-function randomCode() {
-  const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let c = '';
-  for (let i = 0; i < 5; i++) c += A[Math.floor(Math.random() * A.length)];
-  return c;
-}
-
 // ---------- Anzeige oben links ----------
 function roomUi() {
-  const bar = $('roomStatus'), opp = $('roomOpp');
-  $('roomIdle').style.display = Room.active ? 'none' : '';
-  $('roomActive').style.display = Room.active ? '' : 'none';
-  if (!Room.active) return;
-  const codeHtml = PARTY && Room.code === PARTY.code
-    ? '<b class="code">Party</b>'
-    : `<b class="code" id="roomCodeTxt" title="Click to copy the invite link">${Room.code}</b>`;
-  if (!Room.connected) {
-    bar.innerHTML = Room.role === 'host'
-      ? `🟡 Room ${codeHtml} · waiting for an opponent…`
-      : `🟡 Connecting to room ${codeHtml}…`;
-  } else {
-    bar.innerHTML = `🟢 Room ${codeHtml} · ${Room.role === 'host' ? 'you are the host' : 'you are a guest'}`;
-  }
-  const c = $('roomCodeTxt');
-  if (c) c.onclick = copyRoomLink;
-  // Gegner-WPM
+  $('roombar').hidden = !PARTY;
+  if (!PARTY) return;
+  $('roomDot').className = Room.connected ? 'rdot on' : 'rdot';
+  $('roomStatus').textContent = Room.connected ? 'Party match'
+    : !Room.active ? 'Not connected'
+    : Room.role === 'host' ? 'Waiting for your opponent…' : 'Connecting to the host…';
+
+  const playing = Room.inRound || Room.counting;
+  const wpm = n => `<b>${n}</b> WPM`;
+  const row = (name, tags, value, cls) =>
+    `<div class="rp ${cls || ''}"><span class="rname">${esc(name)}</span>${tags}<span class="rwpm">${value}</span></div>`;
+  const tag = (text, cls) => `<span class="rtag ${cls || ''}">${text}</span>`;
+
+  // Own row: live speed while typing, otherwise the last result.
+  let mine = '';
+  if (Room.inRound) mine = wpm(computeStats(elapsed()).gross);
+  else if (Room.myResult) mine = wpm(Room.myResult.gross);
+  let html = row(MY_NAME || 'You', tag(Room.role === 'host' ? 'you · host' : 'you'), mine);
+
+  // Opponent row.
   if (Room.connected) {
-    const live = Room.oppLive;
-    const who = esc(oppName());
-    let txt = `${who}: –`;
-    if (Room.inRound || Room.counting) txt = `${who}: <b>${live ? live.gross : 0}</b> WPM total`;
-    else if (Room.oppResult) txt = `${who} last round: <b>${Room.oppResult.gross}</b> WPM total`;
-    if (!Room.inRound && !Room.counting && Room.role === 'host') txt += Room.oppReady ? ' · <span class="okc">ready ✓</span>' : '';
-    opp.innerHTML = txt;
-    opp.style.display = '';
-  } else opp.style.display = 'none';
-  $('roomStart').style.display = (Room.role === 'host' && Room.connected && !Room.inRound && !Room.counting) ? '' : 'none';
-  $('roomLink').style.display = (Room.role === 'host' && !Room.connected && !PARTY) ? '' : 'none';
+    let theirs = '';
+    if (playing) theirs = wpm(Room.oppLive ? Room.oppLive.gross : 0);
+    else if (Room.oppResult) theirs = wpm(Room.oppResult.gross);
+    let tags = Room.role === 'guest' ? tag('host') : '';
+    if (!playing && Room.role === 'host' && Room.oppReady) tags += tag('ready ✓', 'ok');
+    html += row(oppName(), tags, theirs);
+  } else {
+    html += row('Waiting for the other player…', '', '', 'wait');
+  }
+  $('roomPlayers').innerHTML = html;
+  $('roomStart').style.display = (Room.role === 'host' && Room.connected && !playing) ? '' : 'none';
 }
 
 function roomInfo(msg, ms) {
@@ -1121,15 +1113,6 @@ function roomInfo(msg, ms) {
   el.textContent = msg; el.style.display = msg ? '' : 'none';
   clearTimeout(roomInfo.t);
   if (msg && ms) roomInfo.t = setTimeout(() => { el.style.display = 'none'; }, ms);
-}
-
-function copyRoomLink() {
-  const codeOnly = location.protocol === 'file:' || EMBEDDED;
-  const url = codeOnly ? Room.code : `${location.origin}${location.pathname}?room=${Room.code}`;
-  (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(
-    () => roomInfo(codeOnly ? 'Code copied' : 'Invite link copied ✓', 2500),
-    () => roomInfo('Code: ' + Room.code, 4000));
-  inp.focus();
 }
 
 // Gast darf Video & Einstellungen nicht ändern – das macht der Host
@@ -1141,14 +1124,14 @@ function roomLockControls() {
 }
 
 // ---------- Raum erstellen / beitreten / verlassen ----------
-async function createRoom(tries = 0, fixedCode = '') {
+async function createRoom(code, tries = 0) {
   try { await loadPeerLib(); } catch (e) { roomInfo('Multiplayer service not reachable (internet?)', 5000); return; }
   roomCleanup();
-  Room.active = true; Room.role = 'host'; Room.code = fixedCode || randomCode();
+  Room.active = true; Room.role = 'host'; Room.code = code;
   roomUi(); roomLockControls();
   const peer = new Peer(PEER_PREFIX + Room.code, { debug: 0 });
   Room.peer = peer;
-  peer.on('open', () => { roomUi(); if (!fixedCode) copyRoomLink(); });
+  peer.on('open', roomUi);
   peer.on('connection', c => {
     if (Room.conn && Room.connected) { c.on('open', () => { c.send({ t: 'full' }); setTimeout(() => c.close(), 300); }); return; }
     setupConn(c);
@@ -1156,15 +1139,13 @@ async function createRoom(tries = 0, fixedCode = '') {
   peer.on('error', err => {
     // Party code taken: usually our own old connection after a reload. It is
     // released after a few seconds, so try the same code again.
-    if (err.type === 'unavailable-id' && fixedCode && tries < 10) { peer.destroy(); roomInfo('Preparing the party room…', 3000); setTimeout(() => createRoom(tries + 1, fixedCode), 3000); return; }
-    if (err.type === 'unavailable-id' && tries < 3) { peer.destroy(); createRoom(tries + 1); return; }
+    if (err.type === 'unavailable-id' && tries < 10) { peer.destroy(); roomInfo('Preparing the party room…', 3000); setTimeout(() => createRoom(code, tries + 1), 3000); return; }
     if (err.type === 'network' || err.type === 'server-error' || err.type === 'socket-error') roomInfo('Lost the connection to the multiplayer service', 5000);
   });
 }
 
 async function joinRoom(code, tries = 0) {
   code = (code || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
-  if (code.length < 4) { roomInfo('Please enter a valid room code', 3000); return; }
   try { await loadPeerLib(); } catch (e) { roomInfo('Multiplayer service not reachable (internet?)', 5000); return; }
   roomCleanup();
   Room.active = true; Room.role = 'guest'; Room.code = code;
@@ -1173,13 +1154,13 @@ async function joinRoom(code, tries = 0) {
   Room.peer = peer;
   peer.on('open', () => setupConn(peer.connect(PEER_PREFIX + code, { reliable: true })));
   peer.on('error', err => {
-    if (err.type === 'peer-unavailable' && PARTY && code === PARTY.code && tries < 40) {
+    if (err.type === 'peer-unavailable' && tries < 40) {
       // The host's game is not ready yet: wait a moment and try again.
       peer.destroy(); roomInfo('Waiting for the host…', 2000);
       setTimeout(() => joinRoom(code, tries + 1), 1500);
       return;
     }
-    if (err.type === 'peer-unavailable') { roomInfo(`Room ${code} not found`, 5000); leaveRoom(); }
+    if (err.type === 'peer-unavailable') { roomInfo('Could not find the host. Ask them to start the game again.', 8000); leaveRoom(); }
     else if (err.type === 'network' || err.type === 'server-error' || err.type === 'socket-error') { roomInfo('Multiplayer service not reachable', 5000); leaveRoom(); }
   });
 }
@@ -1203,10 +1184,9 @@ function onOppGone() {
   if (!Room.active || !Room.connected) return;
   Room.connected = false; Room.conn = null; Room.oppReady = false;
   clearInterval(Room.liveTimer);
-  roomInfo(`${oppName()} left the room`, 5000);
+  roomInfo(`${oppName()} left the game`, 5000);
   // In a party the guest waits for the host to come back (e.g. after a reload).
-  if (Room.role === 'guest' && PARTY && Room.code === PARTY.code) { const c = Room.code; roomCleanup(); roomUi(); setTimeout(() => joinRoom(c), 1500); return; }
-  if (Room.role === 'guest') { leaveRoom(); return; }
+  if (Room.role === 'guest') { const c = Room.code; roomCleanup(); roomUi(); setTimeout(() => joinRoom(c), 1500); return; }
   roomUi();
   if (!S.started || S.finished) { Room.counting = false; reset(); }
 }
@@ -1242,7 +1222,7 @@ function onRoomMsg(m) {
   if (!m || typeof m !== 'object') return;
   switch (m.t) {
     case 'full':
-      roomInfo('The room is already full (2 players)', 5000); leaveRoom(); break;
+      roomInfo('This match is already full (2 players)', 5000); leaveRoom(); break;
     case 'video':
       if (Room.role !== 'guest') break;
       if (m.yt) {
@@ -1315,6 +1295,7 @@ function beginRound(m) {
     Room.liveTimer = setInterval(() => {
       const st = computeStats(elapsed());
       send({ t: 'live', gross: st.gross, net: st.net, ok: st.ok, bad: st.bad });
+      roomUi();
     }, 300);
     roomUi();
   }, 1000);
@@ -1389,27 +1370,12 @@ function playAgain() {
 }
 
 // ---------- Bedienelemente ----------
-$('roomCreate').onclick = () => createRoom();
-$('roomJoin').onclick = () => joinRoom($('roomCode').value);
-$('roomCode').addEventListener('keydown', e => {
-  e.stopPropagation();
-  if (e.key === 'Enter') { e.preventDefault(); joinRoom($('roomCode').value); }
-});
-$('roomLeave').onclick = () => leaveRoom();
 $('roomStart').onclick = () => hostStartRound();
-$('roomLink').onclick = () => copyRoomLink();
 window.addEventListener('beforeunload', () => { try { if (Room.peer) Room.peer.destroy(); } catch (e) {} });
 
-// Party from the launcher → connect automatically.
-// Otherwise: invite link ?room=CODE → automatisch beitreten
-(() => {
-  if (PARTY) {
-    setTimeout(() => PARTY.role === 'host' ? createRoom(0, PARTY.code) : joinRoom(PARTY.code), 300);
-    return;
-  }
-  const q = new URLSearchParams(location.search).get('room');
-  if (q) setTimeout(() => joinRoom(q), 300);
-})();
+// Party from the launcher → connect automatically. Without a party the game
+// is single player and shows no multiplayer controls.
+if (PARTY) setTimeout(() => PARTY.role === 'host' ? createRoom(PARTY.code) : joinRoom(PARTY.code), 300);
 roomUi();
 
 // Tastatur ein-/ausblenden (spart Platz in der unteren Hälfte)
