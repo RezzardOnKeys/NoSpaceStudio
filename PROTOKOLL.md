@@ -15,6 +15,19 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 14 – 2026-11-14 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** WPM-Spiel komplett auf Englisch, Hinweis „Menüs auf Deutsch“ aus der Beschreibung streichen, Patchnotes für das Spiel und alle Launcher-Versionen als Zeitleiste, YouTube-Feld ohne Video schwer anklickbar beheben
+**Änderungen:**
+- WPM Trainer komplett ins Englische übersetzt: Knöpfe, Hinweise, Fingernamen, Ergebnisse, Mehrspieler-Meldungen; die deutsche Wortliste bleibt als Auswahl „German“ erhalten
+- Fehler behoben: Ohne Video lag die Fläche „No video loaded“ über dem YouTube-Feld und den Raum-Knöpfen, Klicks kamen dort nicht an; die obere Leiste liegt jetzt darüber
+- Zeile „The game's own menus are in German“ aus der Spielbeschreibung entfernt; Spielversion auf 1.1.0 erhöht
+- Patchnotes als News-Dateien: WPM Trainer 1.0.0 und 1.1.0 (erscheinen auch auf der Spielseite) sowie Launcher 1.0.0 bis 1.6.0, mit den echten Zeitpunkten aus der Git-Historie
+- News-Seite als Zeitleiste von oben nach unten (Linie mit Punkt pro Beitrag, der neueste leuchtet)
+- Commit-Hash für Version 13 nachgetragen
+**Geänderte Dateien:** games/wpm-trainer/ (index.html, game.json, description.md), news/ (9 neue Beiträge: 2026-11-14-launcher-1-0.md bis 1-6.md, 2026-11-14-wpm-trainer-1-0.md, 2026-11-14-wpm-trainer-1-1.md), src/features/news/NewsTimeline.tsx (neu), src/pages/NewsPage.tsx, PROTOKOLL.md
+**Commit-Message:** `[v14] feat: translate WPM trainer to English, add patch notes and news timeline`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 13 – 2026-11-14 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Block „Play together“ auf der Party-Seite löschen, Knopf „Play alone“ deutlicher machen (wie der Play-Knopf in der Library)
 **Änderungen:**
@@ -23,7 +36,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Doku angepasst; Commit-Hash für Version 12 nachgetragen
 **Geänderte Dateien:** src/pages/PartyPage.tsx, src/features/party/GamePlayActions.tsx, src/features/party/PartyGames.tsx (gelöscht), docs/PARTY-GAMES.md, docs/ROADMAP.md, PROTOKOLL.md
 **Commit-Message:** `[v13] refactor(party): remove play together block, make play alone a button`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`318ddf9`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/318ddf9)
 
 ## Version 12 – 2026-11-14 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Party als eigener Bereich in der Seitenleiste mit gestapelten Profilbildern, Mitglieder kicken und Host weitergeben, Host/Mitglied kennzeichnen; Featured-Banner aus dem Store entfernen

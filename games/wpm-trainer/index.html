@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -37,12 +37,13 @@
   }
   .ytwrap { position: absolute; inset: 0; }
   .ytwrap iframe { width: 100%; height: 100%; border: 0; pointer-events: none; display: block; }
-  .vbar, .vinfo { z-index: 2; }
+  /* Above the "no video" layer (.drop), so these stay clickable. */
+  .vbar, .vinfo { z-index: 4; }
   .drop { z-index: 3; background: rgba(0,0,0,.6); }
   .drop #dropMsg { display: flex; flex-direction: column; gap: 8px; align-items: center; }
   .vinfo .yt-in { background: rgba(0,0,0,.55); color: #fff; border: 1px solid rgba(255,255,255,.2); border-radius: 20px; padding: 4px 12px; font-size: 13px; width: 240px; outline: none; }
   .vinfo .yt-in:focus { border-color: var(--accent); }
-  .roombar { position: absolute; top: 10px; left: 12px; z-index: 2; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; font-size: 12px; color: #fff; }
+  .roombar { position: absolute; top: 10px; left: 12px; z-index: 4; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; font-size: 12px; color: #fff; }
   .roombar { max-width: calc(50% - 20px); }
   .vinfo { max-width: calc(50% - 20px); flex-wrap: wrap; justify-content: flex-end; }
   .roombar .rrow { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
@@ -197,29 +198,29 @@
   <div class="vbar"><div class="play" id="vPlay"></div><div class="goal" id="vGoal"></div></div>
   <div class="roombar" id="roombar">
     <div class="rrow" id="roomIdle">
-      <button id="roomCreate" title="Raum erstellen und Code an einen Freund schicken">👥 Raum erstellen</button>
+      <button id="roomCreate" title="Create a room and send the code to a friend">👥 Create room</button>
       <input id="roomCode" class="room-in" placeholder="Code" maxlength="8" spellcheck="false" autocomplete="off">
-      <button id="roomJoin">Beitreten</button>
+      <button id="roomJoin">Join</button>
     </div>
     <div class="rrow" id="roomActive" style="display:none">
       <span class="pill" id="roomStatus"></span>
       <span class="pill" id="roomOpp" style="display:none"></span>
-      <button id="roomStart" class="go" style="display:none">▶ Runde starten</button>
-      <button id="roomLink" style="display:none">🔗 Link kopieren</button>
-      <button id="roomLeave">Verlassen</button>
+      <button id="roomStart" class="go" style="display:none">▶ Start round</button>
+      <button id="roomLink" style="display:none">🔗 Copy link</button>
+      <button id="roomLeave">Leave</button>
     </div>
     <div class="pill rmsg" id="roomMsg" style="display:none"></div>
   </div>
   <div class="vinfo">
     <span class="pill" id="vRate">⏸ 0.00×</span>
-    <input id="ytUrl" class="yt-in" placeholder="YouTube-Link einfügen…" spellcheck="false" autocomplete="off">
-    <button id="ytLoad" title="YouTube-Video laden">▶ Laden</button>
-    <button id="vChoose" title="Eigenes MP4 laden">Eigenes Video</button>
-    <button id="vMute" title="Ton an/aus">🔊</button>
+    <input id="ytUrl" class="yt-in" placeholder="Paste a YouTube link…" spellcheck="false" autocomplete="off">
+    <button id="ytLoad" title="Load the YouTube video">▶ Load</button>
+    <button id="vChoose" title="Load your own MP4">Own video</button>
+    <button id="vMute" title="Sound on/off">🔊</button>
   </div>
   <div class="drop" id="drop">
-    <div id="dropMsg"><b>Kein Video gefunden</b></div>
-    <label>Video auswählen<input type="file" id="vFile" accept=".mp4,video/mp4" hidden></label>
+    <div id="dropMsg"><b>No video loaded</b></div>
+    <label>Choose a video<input type="file" id="vFile" accept=".mp4,video/mp4" hidden></label>
   </div>
 </div>
 <div class="bottom">
@@ -228,27 +229,27 @@
     <h1>10-Finger <span>WPM</span> Trainer</h1>
     <div class="controls">
       <div class="seg" id="langSeg">
-        <button data-lang="de" class="on">Deutsch</button>
+        <button data-lang="de" class="on">German</button>
         <button data-lang="en">English</button>
       </div>
-      <div class="seg" id="layoutSeg" title="Tastaturlayout">
+      <div class="seg" id="layoutSeg" title="Keyboard layout">
         <button data-layout="qwertz" class="on">QWERTZ</button>
         <button data-layout="qwerty">QWERTY</button>
       </div>
-      <div class="seg" id="timeSeg" title="Dauer">
+      <div class="seg" id="timeSeg" title="Duration">
         <button data-time="30">30s</button>
         <button data-time="60" class="on">1 min</button>
         <button data-time="120">2 min</button>
       </div>
-      <div class="seg" id="goalSeg" title="Ziel-WPM: bei diesem Tempo läuft das Video in Echtzeit">
-        <button data-goal="40" class="on">Ziel 40</button>
+      <div class="seg" id="goalSeg" title="Goal WPM: at this speed the video plays in real time">
+        <button data-goal="40" class="on">Goal 40</button>
         <button data-goal="60">60</button>
         <button data-goal="80">80</button>
         <button data-goal="120">120</button>
         <button data-goal="140">140</button>
       </div>
-      <div class="seg" id="kbSeg"><button id="kbToggle">⌨︎ Tastatur</button></div>
-      <div class="seg" id="capsSeg" title="Groß-/Kleinschreibung">
+      <div class="seg" id="kbSeg"><button id="kbToggle">⌨︎ Keyboard</button></div>
+      <div class="seg" id="capsSeg" title="Upper and lower case">
         <button data-caps="1" class="on">Aa</button>
         <button data-caps="0">aa</button>
       </div>
@@ -256,19 +257,19 @@
   </header>
 
   <div class="stats">
-    <div class="stat timer"><div class="lbl">Zeit</div><div class="val" id="sTime">60</div></div>
+    <div class="stat timer"><div class="lbl">Time</div><div class="val" id="sTime">60</div></div>
     <div class="stat"><div class="lbl">WPM total</div><div class="val" id="sGross">0</div></div>
-    <div class="stat net"><div class="lbl">WPM tatsächlich</div><div class="val" id="sNet">0</div></div>
-    <div class="stat"><div class="lbl">Wörter ✓ / ✗</div><div class="val" id="sWords">0 / 0</div></div>
+    <div class="stat net"><div class="lbl">WPM net</div><div class="val" id="sNet">0</div></div>
+    <div class="stat"><div class="lbl">Words ✓ / ✗</div><div class="val" id="sWords">0 / 0</div></div>
   </div>
 
   <div class="words-box"><div class="words" id="words"></div><div class="countdown" id="countdown"></div></div>
 
   <div class="input-row">
-    <input id="inp" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Hier tippen – der Timer startet beim ersten Buchstaben">
-    <button class="btn" id="restart" title="Neustart (Esc)">↻</button>
+    <input id="inp" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Type here – the timer starts with the first letter">
+    <button class="btn" id="restart" title="Restart (Esc)">↻</button>
   </div>
-  <div class="hint">Leertaste = nächstes Wort · <b>kein Löschen möglich</b> – jeder Anschlag zählt · Nur richtige Buchstaben treiben das Video an · <kbd>Esc</kbd> = Neustart</div>
+  <div class="hint">Space = next word · <b>no deleting</b> – every keystroke counts · Only correct letters drive the video · <kbd>Esc</kbd> = restart</div>
 
   <div class="kb" id="kb"></div>
   <div class="finger-info" id="fingerInfo"></div>
@@ -278,30 +279,30 @@
 
 <div class="overlay" id="overlay">
   <div class="result">
-    <h2 id="rTitle">Ergebnis</h2>
+    <h2 id="rTitle">Result</h2>
     <div id="rVs" class="vs" style="display:none"></div>
     <div class="big">
-      <div class="box"><div class="val" id="rGross">0</div><div class="lbl">WPM total<br>(alle Wörter, richtig + falsch)</div></div>
-      <div class="box net"><div class="val" id="rNet">0</div><div class="lbl">WPM tatsächlich<br>(mit Abzug der Fehler)</div></div>
+      <div class="box"><div class="val" id="rGross">0</div><div class="lbl">WPM total<br>(all words, right + wrong)</div></div>
+      <div class="box net"><div class="val" id="rNet">0</div><div class="lbl">WPM net<br>(mistakes taken off)</div></div>
     </div>
     <div class="best" id="rBest"></div>
     <div class="best" id="rVideo" style="color:var(--text)"></div>
     <div class="details">
-      <div><b id="rOk">0</b><small>richtige Wörter</small></div>
-      <div><b id="rBad">0</b><small>falsche Wörter</small></div>
-      <div><b id="rAcc">0%</b><small>Genauigkeit</small></div>
-      <div><b id="rKeys">0</b><small>Anschläge</small></div>
+      <div><b id="rOk">0</b><small>correct words</small></div>
+      <div><b id="rBad">0</b><small>wrong words</small></div>
+      <div><b id="rAcc">0%</b><small>accuracy</small></div>
+      <div><b id="rKeys">0</b><small>keystrokes</small></div>
     </div>
     <div id="rWrongWrap">
-      <div style="font-size:13px;color:var(--muted);margin-bottom:6px">Falsche Wörter (erwartet → getippt):</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:6px">Wrong words (expected → typed):</div>
       <div class="wrong-list" id="rWrong"></div>
     </div>
     <div class="history" id="rHistory"></div>
     <div class="formula">
-      <b>WPM total</b> = alle getippten Zeichen (inkl. Leerzeichen) ÷ 5 ÷ Minuten.<br>
-      <b>WPM tatsächlich</b> = nur Zeichen aus richtig getippten Wörtern ÷ 5 ÷ Minuten. Falsche Wörter zählen nicht.
+      <b>WPM total</b> = all typed characters (including spaces) ÷ 5 ÷ minutes.<br>
+      <b>WPM net</b> = only characters of correctly typed words ÷ 5 ÷ minutes. Wrong words do not count.
     </div>
-    <div class="actions"><button class="btn" id="again">Nochmal (Enter)</button></div>
+    <div class="actions"><button class="btn" id="again">Again (Enter)</button></div>
   </div>
 </div>
 
@@ -346,8 +347,8 @@ const LAYOUTS = {
   }
 };
 const FINGER_NAMES = {
-  lp: 'linker kleiner Finger', lr: 'linker Ringfinger', lm: 'linker Mittelfinger', li: 'linker Zeigefinger',
-  ri: 'rechter Zeigefinger', rm: 'rechter Mittelfinger', rr: 'rechter Ringfinger', rp: 'rechter kleiner Finger', th: 'Daumen'
+  lp: 'left little finger', lr: 'left ring finger', lm: 'left middle finger', li: 'left index finger',
+  ri: 'right index finger', rm: 'right middle finger', rr: 'right ring finger', rp: 'right little finger', th: 'thumb'
 };
 
 // ---------- State ----------
@@ -484,7 +485,7 @@ function buildKeyboard() {
   const sp = document.createElement('div');
   sp.className = 'kb-row';
   const space = document.createElement('div');
-  space.className = 'key f-th'; space.textContent = 'Leertaste';
+  space.className = 'key f-th'; space.textContent = 'Space';
   space.style.width = '340px';
   sp.appendChild(space);
   specialEls.Space = space;
@@ -494,7 +495,7 @@ function buildKeyboard() {
   const lg = $('legend'); lg.innerHTML = '';
   ['lp','lr','lm','li','ri','rm','rr','rp','th'].forEach(f => {
     const s = document.createElement('span');
-    s.innerHTML = `<i class="f-${f}"></i>${FINGER_NAMES[f].replace('linker ','L ').replace('rechter ','R ')}`;
+    s.innerHTML = `<i class="f-${f}"></i>${FINGER_NAMES[f].replace('left ','L ').replace('right ','R ')}`;
     lg.appendChild(s);
   });
 }
@@ -509,12 +510,12 @@ function highlightChar(ch) {
   if (ch == null) { info.textContent = ''; return; }
   if (ch === ' ') {
     specialEls.Space.classList.add('next');
-    info.innerHTML = 'Nächste Taste: <b>Leertaste</b> – Daumen';
+    info.innerHTML = 'Next key: <b>Space</b> – thumb';
     return;
   }
   if (ch === 'BACK') {
     specialEls.Backspace.classList.add('next');
-    info.innerHTML = '<b>Tippfehler!</b> Mit ⌫ korrigieren (rechter kleiner Finger)';
+    info.innerHTML = '<b>Typo!</b> Fix it with ⌫ (right little finger)';
     return;
   }
   const L = LAYOUTS[S.layout];
@@ -523,15 +524,15 @@ function highlightChar(ch) {
   else if (keyEls[ch.toLowerCase()] && ch !== ch.toLowerCase()) { base = ch.toLowerCase(); shift = true; }
   else if (L.shifted[ch]) { base = L.shifted[ch]; shift = true; }
   const k = keyEls[base];
-  if (!k) { info.innerHTML = `Nächstes Zeichen: <b>${ch}</b>`; return; }
+  if (!k) { info.innerHTML = `Next character: <b>${ch}</b>`; return; }
   k.classList.add('next');
   const f = k.dataset.finger;
-  let txt = `Nächste Taste: <b>${ch}</b> – ${FINGER_NAMES[f]}`;
+  let txt = `Next key: <b>${ch}</b> – ${FINGER_NAMES[f]}`;
   if (shift) {
     const left = f.startsWith('l');
     const sh = left ? specialEls.ShiftR : specialEls.ShiftL;
     if (sh) sh.classList.add('next');
-    txt += ` + <b>Shift ${left ? 'rechts' : 'links'}</b> (${left ? 'rechter' : 'linker'} kleiner Finger)`;
+    txt += ` + <b>Shift ${left ? 'right' : 'left'}</b> (${left ? 'right' : 'left'} little finger)`;
   }
   info.innerHTML = txt;
 }
@@ -586,7 +587,7 @@ function reset() {
   applyKbVisibility();
   refreshStats();
   updateKeyHint();
-  $('again').textContent = 'Nochmal (Enter)';
+  $('again').textContent = 'Again (Enter)';
   $('again').disabled = false; clearInterval(resultLockTimer); resultLockUntil = 0;
   if (Room && Room.active) roomLobby();
   setTimeout(() => inp.focus(), 0);
@@ -641,25 +642,25 @@ function finish() {
   const isBest = st.net > best;
   if (isBest) store.set(key, st.net);
   const hist = store.get('wpm-history', []);
-  hist.unshift({ d: new Date().toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' }), lang: S.lang, dur: S.duration, gross: st.gross, net: st.net, acc });
+  hist.unshift({ d: new Date().toLocaleString('en-GB', { dateStyle: 'short', timeStyle: 'short' }), lang: S.lang, dur: S.duration, gross: st.gross, net: st.net, acc });
   store.set('wpm-history', hist.slice(0, 10));
 
-  $('rTitle').textContent = `Ergebnis – ${S.lang === 'de' ? 'Deutsch' : 'English'}, ${S.duration === 60 ? '1 Minute' : S.duration + ' s'}`;
+  $('rTitle').textContent = `Result – ${S.lang === 'de' ? 'German' : 'English'}, ${S.duration === 60 ? '1 minute' : S.duration + ' s'}`;
   $('rGross').textContent = st.gross;
   $('rNet').textContent = st.net;
   $('rOk').textContent = st.ok;
   $('rBad').textContent = st.bad;
   $('rAcc').textContent = acc + '%';
   $('rKeys').textContent = S.keystrokes;
-  $('rVideo').textContent = V.dur ? `🎬 Video angetrieben: ${Math.round(Math.min(P.time() / V.dur, 1) * 100)} %  (${P.time().toFixed(1)} von ${V.dur.toFixed(0)} s)` : '';
-  $('rBest').textContent = isBest ? `🏆 Neuer Rekord! (vorher ${best} WPM)` : `Dein Rekord: ${Math.max(best, st.net)} WPM tatsächlich`;
+  $('rVideo').textContent = V.dur ? `🎬 Video driven: ${Math.round(Math.min(P.time() / V.dur, 1) * 100)} %  (${P.time().toFixed(1)} of ${V.dur.toFixed(0)} s)` : '';
+  $('rBest').textContent = isBest ? `🏆 New record! (before: ${best} WPM)` : `Your record: ${Math.max(best, st.net)} WPM net`;
 
   const wrong = S.results.filter(r => !r.ok);
   $('rWrongWrap').style.display = wrong.length ? '' : 'none';
   $('rWrong').innerHTML = wrong.map(r => `<div><span class="exp">${esc(r.word)}</span> → <span class="got">${esc(r.typed)}</span></div>`).join('');
 
   const h = store.get('wpm-history', []);
-  $('rHistory').innerHTML = h.length > 1 ? `<div style="margin-bottom:4px">Letzte Durchgänge:</div><table><tr><th>Datum</th><th>Sprache</th><th>Dauer</th><th>Total</th><th>Tatsächlich</th><th>Genauigkeit</th></tr>${h.map(x => `<tr><td>${x.d}</td><td>${x.lang.toUpperCase()}</td><td>${x.dur}s</td><td>${x.gross}</td><td>${x.net}</td><td>${x.acc}%</td></tr>`).join('')}</table>` : '';
+  $('rHistory').innerHTML = h.length > 1 ? `<div style="margin-bottom:4px">Last rounds:</div><table><tr><th>Date</th><th>Language</th><th>Duration</th><th>Total</th><th>Net</th><th>Accuracy</th></tr>${h.map(x => `<tr><td>${x.d}</td><td>${x.lang.toUpperCase()}</td><td>${x.dur}s</td><td>${x.gross}</td><td>${x.net}</td><td>${x.acc}%</td></tr>`).join('')}</table>` : '';
 
   $('rVs').style.display = 'none';
   if (Room && Room.active) { roomOnFinish(st, acc); roomLockControls(); }
@@ -850,7 +851,7 @@ vid.addEventListener('error', () => {
   // kein lokales Video (z. B. online auf Vercel): zuletzt benutzten YouTube-Link laden
   const saved = store.get('wpm-yt', '');
   if (!userFile && saved && location.protocol !== 'file:') { loadYouTube(saved); return; }
-  vMsg('<b>Kein Video gefunden</b><div>Füge oben rechts einen <b>YouTube-Link</b> ein,<br>zieh ein Video hier hinein oder wähle eine Datei.</div>');
+  vMsg('<b>No video loaded</b><div>Paste a <b>YouTube link</b> at the top right,<br>drop a video here or choose a file.</div>');
 });
 vid.addEventListener('ended', () => vid.pause());
 
@@ -901,9 +902,9 @@ function parseYT(u) {
 
 async function loadYouTube(url) {
   const id = parseYT(url);
-  if (!id) { vMsg('<b>Ungültiger Link</b><div>Das sieht nicht nach einem YouTube-Link aus.</div>'); return; }
+  if (!id) { vMsg('<b>Invalid link</b><div>That does not look like a YouTube link.</div>'); return; }
   if (location.protocol === 'file:') {
-    vMsg('<b>YouTube geht nur online</b><div>YouTube-Videos lassen sich nur einbetten, wenn die Seite über eine Webadresse geöffnet ist<br>(z. B. auf Vercel) – nicht per Doppelklick auf die Datei.</div>');
+    vMsg('<b>YouTube only works online</b><div>YouTube videos can only be embedded when the page is opened from a web address,<br>not by double-clicking the file.</div>');
     return;
   }
   store.set('wpm-yt', url.trim());
@@ -915,7 +916,7 @@ async function loadYouTube(url) {
   $('drop').classList.remove('show');
   reset();
   try { await loadYTApi(); } catch (e) {
-    vMsg('<b>YouTube konnte nicht geladen werden</b><div>Besteht eine Internetverbindung?</div>');
+    vMsg('<b>YouTube could not be loaded</b><div>Are you connected to the internet?</div>');
     return;
   }
   if (ytp) { try { ytp.destroy(); } catch (e) {} }
@@ -943,10 +944,10 @@ async function loadYouTube(url) {
         if (e.data === YT.PlayerState.ENDED) ytPlaying = false;
       },
       onError: e => {
-        const why = (e.data === 101 || e.data === 150) ? 'Der Besitzer erlaubt nicht, dass dieses Video eingebettet wird.' :
-                    (e.data === 100 ? 'Das Video wurde nicht gefunden (privat oder gelöscht).' : 'YouTube meldet einen Fehler (' + e.data + ').');
+        const why = (e.data === 101 || e.data === 150) ? 'The owner does not allow this video to be embedded.' :
+                    (e.data === 100 ? 'The video was not found (private or deleted).' : 'YouTube reports an error (' + e.data + ').');
         V.ready = false;
-        vMsg('<b>Video nicht abspielbar</b><div>' + why + '<br>Probier einen anderen Link.</div>');
+        vMsg('<b>This video cannot be played</b><div>' + why + '<br>Try another link.</div>');
       }
     }
   });
@@ -1045,7 +1046,7 @@ const PARTY = (() => {
   return { code, role, name: (h.get('name') || '').slice(0, 20) };
 })();
 const MY_NAME = PARTY ? PARTY.name : '';
-const oppName = () => Room.oppName || 'Gegner';
+const oppName = () => Room.oppName || 'Opponent';
 
 // --- gemeinsamer Zufallsgenerator (gleiche Wörter für beide) ---
 function mulberry32(a) {
@@ -1088,13 +1089,13 @@ function roomUi() {
   if (!Room.active) return;
   const codeHtml = PARTY && Room.code === PARTY.code
     ? '<b class="code">Party</b>'
-    : `<b class="code" id="roomCodeTxt" title="Klicken: Einladungslink kopieren">${Room.code}</b>`;
+    : `<b class="code" id="roomCodeTxt" title="Click to copy the invite link">${Room.code}</b>`;
   if (!Room.connected) {
     bar.innerHTML = Room.role === 'host'
-      ? `🟡 Raum ${codeHtml} · warte auf Gegner…`
-      : `🟡 Verbinde mit Raum ${codeHtml}…`;
+      ? `🟡 Room ${codeHtml} · waiting for an opponent…`
+      : `🟡 Connecting to room ${codeHtml}…`;
   } else {
-    bar.innerHTML = `🟢 Raum ${codeHtml} · ${Room.role === 'host' ? 'du bist Host' : 'du bist Gast'}`;
+    bar.innerHTML = `🟢 Room ${codeHtml} · ${Room.role === 'host' ? 'you are the host' : 'you are a guest'}`;
   }
   const c = $('roomCodeTxt');
   if (c) c.onclick = copyRoomLink;
@@ -1104,8 +1105,8 @@ function roomUi() {
     const who = esc(oppName());
     let txt = `${who}: –`;
     if (Room.inRound || Room.counting) txt = `${who}: <b>${live ? live.gross : 0}</b> WPM total`;
-    else if (Room.oppResult) txt = `${who} letzte Runde: <b>${Room.oppResult.gross}</b> WPM total`;
-    if (!Room.inRound && !Room.counting && Room.role === 'host') txt += Room.oppReady ? ' · <span class="okc">bereit ✓</span>' : '';
+    else if (Room.oppResult) txt = `${who} last round: <b>${Room.oppResult.gross}</b> WPM total`;
+    if (!Room.inRound && !Room.counting && Room.role === 'host') txt += Room.oppReady ? ' · <span class="okc">ready ✓</span>' : '';
     opp.innerHTML = txt;
     opp.style.display = '';
   } else opp.style.display = 'none';
@@ -1124,7 +1125,7 @@ function copyRoomLink() {
   const codeOnly = location.protocol === 'file:' || EMBEDDED;
   const url = codeOnly ? Room.code : `${location.origin}${location.pathname}?room=${Room.code}`;
   (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(
-    () => roomInfo(codeOnly ? 'Code kopiert' : 'Einladungslink kopiert ✓', 2500),
+    () => roomInfo(codeOnly ? 'Code copied' : 'Invite link copied ✓', 2500),
     () => roomInfo('Code: ' + Room.code, 4000));
   inp.focus();
 }
@@ -1139,7 +1140,7 @@ function roomLockControls() {
 
 // ---------- Raum erstellen / beitreten / verlassen ----------
 async function createRoom(tries = 0, fixedCode = '') {
-  try { await loadPeerLib(); } catch (e) { roomInfo('Mehrspieler-Dienst nicht erreichbar (Internet?)', 5000); return; }
+  try { await loadPeerLib(); } catch (e) { roomInfo('Multiplayer service not reachable (internet?)', 5000); return; }
   roomCleanup();
   Room.active = true; Room.role = 'host'; Room.code = fixedCode || randomCode();
   roomUi(); roomLockControls();
@@ -1153,16 +1154,16 @@ async function createRoom(tries = 0, fixedCode = '') {
   peer.on('error', err => {
     // Party code taken: usually our own old connection after a reload. It is
     // released after a few seconds, so try the same code again.
-    if (err.type === 'unavailable-id' && fixedCode && tries < 10) { peer.destroy(); roomInfo('Party-Raum wird vorbereitet…', 3000); setTimeout(() => createRoom(tries + 1, fixedCode), 3000); return; }
+    if (err.type === 'unavailable-id' && fixedCode && tries < 10) { peer.destroy(); roomInfo('Preparing the party room…', 3000); setTimeout(() => createRoom(tries + 1, fixedCode), 3000); return; }
     if (err.type === 'unavailable-id' && tries < 3) { peer.destroy(); createRoom(tries + 1); return; }
-    if (err.type === 'network' || err.type === 'server-error' || err.type === 'socket-error') roomInfo('Verbindung zum Mehrspieler-Dienst verloren', 5000);
+    if (err.type === 'network' || err.type === 'server-error' || err.type === 'socket-error') roomInfo('Lost the connection to the multiplayer service', 5000);
   });
 }
 
 async function joinRoom(code, tries = 0) {
   code = (code || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
-  if (code.length < 4) { roomInfo('Bitte einen gültigen Raum-Code eingeben', 3000); return; }
-  try { await loadPeerLib(); } catch (e) { roomInfo('Mehrspieler-Dienst nicht erreichbar (Internet?)', 5000); return; }
+  if (code.length < 4) { roomInfo('Please enter a valid room code', 3000); return; }
+  try { await loadPeerLib(); } catch (e) { roomInfo('Multiplayer service not reachable (internet?)', 5000); return; }
   roomCleanup();
   Room.active = true; Room.role = 'guest'; Room.code = code;
   roomUi(); roomLockControls();
@@ -1172,12 +1173,12 @@ async function joinRoom(code, tries = 0) {
   peer.on('error', err => {
     if (err.type === 'peer-unavailable' && PARTY && code === PARTY.code && tries < 40) {
       // The host's game is not ready yet: wait a moment and try again.
-      peer.destroy(); roomInfo('Warte auf den Host…', 2000);
+      peer.destroy(); roomInfo('Waiting for the host…', 2000);
       setTimeout(() => joinRoom(code, tries + 1), 1500);
       return;
     }
-    if (err.type === 'peer-unavailable') { roomInfo(`Raum ${code} nicht gefunden`, 5000); leaveRoom(); }
-    else if (err.type === 'network' || err.type === 'server-error' || err.type === 'socket-error') { roomInfo('Mehrspieler-Dienst nicht erreichbar', 5000); leaveRoom(); }
+    if (err.type === 'peer-unavailable') { roomInfo(`Room ${code} not found`, 5000); leaveRoom(); }
+    else if (err.type === 'network' || err.type === 'server-error' || err.type === 'socket-error') { roomInfo('Multiplayer service not reachable', 5000); leaveRoom(); }
   });
 }
 
@@ -1185,7 +1186,7 @@ function setupConn(c) {
   Room.conn = c;
   c.on('open', () => {
     Room.connected = true; Room.oppLive = null; Room.oppResult = null; Room.oppReady = false;
-    roomInfo('Gegner verbunden 🎉', 2500);
+    roomInfo(`${oppName()} connected 🎉`, 2500);
     if (MY_NAME) send({ t: 'hello', name: MY_NAME });
     if (Room.role === 'host') roomSendVideo();
     roomUi(); roomLockControls();
@@ -1200,7 +1201,7 @@ function onOppGone() {
   if (!Room.active || !Room.connected) return;
   Room.connected = false; Room.conn = null; Room.oppReady = false;
   clearInterval(Room.liveTimer);
-  roomInfo(`${oppName()} hat den Raum verlassen`, 5000);
+  roomInfo(`${oppName()} left the room`, 5000);
   // In a party the guest waits for the host to come back (e.g. after a reload).
   if (Room.role === 'guest' && PARTY && Room.code === PARTY.code) { const c = Room.code; roomCleanup(); roomUi(); setTimeout(() => joinRoom(c), 1500); return; }
   if (Room.role === 'guest') { leaveRoom(); return; }
@@ -1221,7 +1222,7 @@ function leaveRoom() {
   RNG = Math.random;
   roomUi(); roomLockControls();
   setSegDisabled(false);
-  inp.placeholder = 'Hier tippen – der Timer startet beim ersten Buchstaben';
+  inp.placeholder = 'Type here – the timer starts with the first letter';
   if (!S.started || S.finished) reset();
 }
 
@@ -1239,14 +1240,14 @@ function onRoomMsg(m) {
   if (!m || typeof m !== 'object') return;
   switch (m.t) {
     case 'full':
-      roomInfo('Der Raum ist schon voll (2 Spieler)', 5000); leaveRoom(); break;
+      roomInfo('The room is already full (2 players)', 5000); leaveRoom(); break;
     case 'video':
       if (Room.role !== 'guest') break;
       if (m.yt) {
         if (V.mode !== 'yt' || $('ytUrl').value.trim() !== m.yt) loadYouTube(m.yt);
       } else if (m.file) {
         if (V.mode === 'yt') { useFileMode(); vid.src = CANDIDATES[0]; }
-        roomInfo('Der Host nutzt eine eigene Videodatei – du siehst dein lokales Video', 5000);
+        roomInfo('The host uses their own video file – you see your local video', 5000);
       }
       break;
     case 'start':
@@ -1269,7 +1270,7 @@ function roomLobby() {
   if (!Room.connected || Room.counting || Room.inRound) return;
   if (S.finished) return; // Ergebnis-Ansicht bleibt offen
   inp.disabled = true;
-  inp.placeholder = Room.role === 'host' ? 'Klick oben links auf „▶ Runde starten“ (oder Enter)' : 'Warte, bis der Host die Runde startet…';
+  inp.placeholder = Room.role === 'host' ? 'Click "▶ Start round" at the top left (or press Enter)' : 'Waiting for the host to start the round…';
   roomUi();
 }
 
@@ -1291,7 +1292,7 @@ function beginRound(m) {
   Room.oppLive = null; Room.oppResult = null; Room.myResult = null; Room.oppReady = false;
   reset();
   inp.disabled = true;
-  inp.placeholder = 'Gleich geht’s los…';
+  inp.placeholder = 'Get ready…';
   setSegDisabled(true);
   roomUi();
   let n = 3;
@@ -1302,7 +1303,7 @@ function beginRound(m) {
     n--;
     if (n > 0) { cd.textContent = n; return; }
     clearInterval(Room.cdTimer);
-    cd.textContent = 'Los!';
+    cd.textContent = 'Go!';
     setTimeout(() => cd.classList.remove('show'), 500);
     Room.counting = false; Room.inRound = true;
     inp.disabled = false; inp.placeholder = '';
@@ -1325,7 +1326,7 @@ function roomOnFinish(st, acc) {
   send(Object.assign({ t: 'result' }, Room.myResult));
   roomUi();
   renderVs();
-  $('again').textContent = Room.role === 'host' ? 'Neue Runde starten (Enter)' : 'Bereit für Revanche (Enter)';
+  $('again').textContent = Room.role === 'host' ? 'Start a new round (Enter)' : 'Ready for a rematch (Enter)';
 }
 
 function renderVs() {
@@ -1335,21 +1336,21 @@ function renderVs() {
   const col = (title, r, cls) => r ? `
     <div class="vs-col ${cls}">
       <div class="vs-name">${title}</div>
-      <div class="vs-net">${r.net}</div><div class="vs-sub">WPM tatsächlich</div>
+      <div class="vs-net">${r.net}</div><div class="vs-sub">WPM net</div>
       <div class="vs-row"><span>WPM total</span><b>${r.gross}</b></div>
-      <div class="vs-row"><span>Wörter ✓ / ✗</span><b>${r.ok} / ${r.bad}</b></div>
-      <div class="vs-row"><span>Genauigkeit</span><b>${r.acc}%</b></div>
-    </div>` : `<div class="vs-col"><div class="vs-name">${title}</div><div class="vs-wait">tippt noch…</div></div>`;
+      <div class="vs-row"><span>Words ✓ / ✗</span><b>${r.ok} / ${r.bad}</b></div>
+      <div class="vs-row"><span>Accuracy</span><b>${r.acc}%</b></div>
+    </div>` : `<div class="vs-col"><div class="vs-name">${title}</div><div class="vs-wait">still typing…</div></div>`;
   let verdict = '';
   if (op) {
-    if (me.net > op.net) verdict = '🏆 Du gewinnst!';
-    else if (me.net < op.net) verdict = Room.oppName ? `😤 ${esc(Room.oppName)} gewinnt` : '😤 Dein Gegner gewinnt';
-    else verdict = '🤝 Unentschieden';
+    if (me.net > op.net) verdict = '🏆 You win!';
+    else if (me.net < op.net) verdict = Room.oppName ? `😤 ${esc(Room.oppName)} wins` : '😤 Your opponent wins';
+    else verdict = '🤝 Draw';
   }
   const meCls = op ? (me.net > op.net ? 'win' : me.net < op.net ? 'lose' : '') : '';
   const opCls = op ? (op.net > me.net ? 'win' : op.net < me.net ? 'lose' : '') : '';
-  box.innerHTML = `<div class="vs-verdict">${verdict || 'Warte auf das Ergebnis deines Gegners…'}</div>
-    <div class="vs-grid">${col('Du', me, meCls)}<div class="vs-mid">VS</div>${col(esc(oppName()), op, opCls)}</div>`;
+  box.innerHTML = `<div class="vs-verdict">${verdict || 'Waiting for your opponent’s result…'}</div>
+    <div class="vs-grid">${col('You', me, meCls)}<div class="vs-mid">VS</div>${col(esc(oppName()), op, opCls)}</div>`;
   box.style.display = '';
 }
 
@@ -1379,7 +1380,7 @@ function playAgain() {
   if (Room.active && Room.connected) {
     if (Room.inRound || Room.counting) return;
     if (Room.role === 'host') hostStartRound();
-    else { send({ t: 'ready' }); $('again').textContent = 'Warte auf den Host…'; }
+    else { send({ t: 'ready' }); $('again').textContent = 'Waiting for the host…'; }
     return;
   }
   reset();

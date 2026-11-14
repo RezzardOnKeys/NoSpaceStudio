@@ -9,5 +9,3 @@ A touch-typing trainer that turns your speed into a race.
 - **Learn the fingers.** An on-screen keyboard shows which finger to use,
   for QWERTZ and QWERTY.
 - German and English word lists, rounds of 30 seconds to 2 minutes.
-
-The game's own menus are in German.

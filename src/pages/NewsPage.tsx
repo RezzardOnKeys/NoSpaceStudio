@@ -9,7 +9,7 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useGames } from '@/features/games/queries';
 import { NEWS_TYPE_LABELS } from '@/features/news/news-types';
-import { NewsCard } from '@/features/news/NewsCard';
+import { NewsTimeline } from '@/features/news/NewsTimeline';
 import { useNews } from '@/features/news/queries';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { describeLoadError } from '@/lib/errors';
@@ -74,15 +74,7 @@ export function NewsPage() {
           }
         />
       ) : (
-        <div className="flex flex-col gap-5">
-          {visiblePosts.map((post) => (
-            <NewsCard
-              key={post.id}
-              post={post}
-              game={games?.find((game) => game.id === post.gameId)}
-            />
-          ))}
-        </div>
+        <NewsTimeline posts={visiblePosts} games={games} />
       )}
     </div>
   );
