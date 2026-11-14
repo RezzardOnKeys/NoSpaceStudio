@@ -137,8 +137,6 @@ src/
   hooks/          shared hooks
   lib/            helpers without UI (format.ts, query-client.ts, query-keys.ts,
                   supabase.ts, content.ts for reading content files)
-  mocks/          api.ts, an in-memory stand-in for what is not on Supabase yet
-                  (playtime, friends)
   pages/          one file per route
   routes/         router and path constants (paths.ts)
   styles/         index.css with all design tokens
@@ -156,10 +154,10 @@ docs/             ROADMAP.md (plan and status), DECISIONS.md, guides
 Components never fetch data themselves. They call a hook from
 `features/<feature>/queries.ts` (TanStack Query). The hooks call async functions
 from `features/<feature>/api.ts` (Supabase rows or content files from the
-repository, mapped to the camelCase shapes in `types/models.ts` there) or, for
-features that are not connected yet, from `src/mocks/api.ts`. When a feature moves to Supabase, only the query
-function changes; components and types stay as they are. Query keys come from
-`lib/query-keys.ts`.
+repository, mapped to the camelCase shapes in `types/models.ts` there).
+Components and types do not know where the data comes from. Query keys come
+from `lib/query-keys.ts`. Hooks that need an account are disabled for guests
+(`enabled: userId !== null`).
 
 Auth: `useAuth()` (`features/auth/auth-context.ts`) gives the raw sign-in
 state, `useCurrentUser()` the profile (`null` for guests). Routes are guarded

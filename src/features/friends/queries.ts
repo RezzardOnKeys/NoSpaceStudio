@@ -1,31 +1,56 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useToast } from '@/components/ui/toast-context';
+import { useAuth } from '@/features/auth/auth-context';
 import { queryKeys } from '@/lib/query-keys';
+
 import {
   acceptFriendRequest,
   deleteFriendRequest,
-  fetchFriendRequests,
-  fetchFriends,
+  describeFriendError,
+  fetchFriendships,
   removeFriend,
   searchUsers,
   sendFriendRequest,
-} from '@/mocks/api';
+  type Friendships,
+} from './api';
+
+/** How often open requests are checked, so the badge in the menu stays current. */
+const REFRESH_MS = 60_000;
+
+/** Friends and requests share one request. Guests have neither. */
+function useFriendships<T>(select: (data: Friendships) => T) {
+  const { userId } = useAuth();
+
+  return useQuery({
+    queryKey: queryKeys.friendships,
+    queryFn: () => fetchFriendships(userId ?? ''),
+    enabled: userId !== null,
+    select,
+    refetchInterval: REFRESH_MS,
+    refetchOnWindowFocus: true,
+  });
+}
+
+const selectFriends = (data: Friendships) => data.friends;
+const selectRequests = (data: Friendships) => data.requests;
 
 export function useFriends() {
-  return useQuery({ queryKey: queryKeys.friends, queryFn: fetchFriends });
+  return useFriendships(selectFriends);
 }
 
 export function useFriendRequests() {
-  return useQuery({ queryKey: queryKeys.friendRequests, queryFn: fetchFriendRequests });
+  return useFriendships(selectRequests);
 }
 
 export function useUserSearch(query: string) {
+  const { userId } = useAuth();
   const trimmed = query.trim().toLowerCase();
+
   return useQuery({
     queryKey: queryKeys.userSearch(trimmed),
-    queryFn: () => searchUsers(trimmed),
-    enabled: trimmed.length >= 2,
+    queryFn: () => searchUsers(trimmed, userId ?? ''),
+    enabled: userId !== null && trimmed.length >= 2,
   });
 }
 
@@ -42,18 +67,18 @@ function useFriendAction<TInput>(action: (input: TInput) => Promise<unknown>, su
     onSuccess: () => {
       toast({ title: success, variant: 'success' });
     },
-    onError: () => {
+    onError: (error) => {
       toast({
         title: 'That did not work',
-        description: 'Check your internet connection and try again.',
+        description: describeFriendError(error),
         variant: 'error',
       });
     },
     onSettled: () =>
       Promise.all([
-        queryClient.invalidateQueries({ queryKey: queryKeys.friends }),
-        queryClient.invalidateQueries({ queryKey: queryKeys.friendRequests }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.friendships }),
         queryClient.invalidateQueries({ queryKey: ['user-search'] }),
+        // Becoming friends (or not) changes whose playtime is visible.
         queryClient.invalidateQueries({ queryKey: ['playtime'] }),
       ]),
   });

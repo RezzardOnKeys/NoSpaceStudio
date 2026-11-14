@@ -14,23 +14,24 @@ in-app purchases.
 </div>
 
 > **Status:** early prototype. Accounts work, games and news are added as files
-> in this repository; playtime tracking and friends are next.
+> in this repository, friends work; playtime tracking is next.
 
 <!-- TODO: replace with a real screenshot once the store page exists. -->
 <p align="center"><em>Screenshot coming soon</em></p>
 
 ## Features
 
-| Feature                                                    | Status           |
-| ---------------------------------------------------------- | ---------------- |
-| Design system (tokens, base components)                    | Done             |
-| Store with search, genre and engine filters, sorting       | Done             |
-| Game pages with gallery, patch notes and in-browser player | Done             |
-| News feed                                                  | Done             |
-| Accounts with unique usernames, password reset             | Done             |
-| Library, friends and profile pages                         | Done (mock data) |
-| Real playtime tracking                                     | Planned          |
-| Installable as a web app (PWA)                             | Planned          |
+| Feature                                                    | Status  |
+| ---------------------------------------------------------- | ------- |
+| Design system (tokens, base components)                    | Done    |
+| Store with search, genre and engine filters, sorting       | Done    |
+| Game pages with gallery, patch notes and in-browser player | Done    |
+| News feed                                                  | Done    |
+| Accounts with unique usernames, password reset             | Done    |
+| Friends: search, requests, friend profiles                 | Done    |
+| Library and profile pages                                  | Done    |
+| Real playtime tracking                                     | Planned |
+| Installable as a web app (PWA)                             | Planned |
 
 ## Tech stack
 
@@ -114,7 +115,6 @@ The component reference lives at <http://localhost:5173/dev/ui>.
     │                   friends, news, profile, auth
     ├── hooks/          Shared React hooks
     ├── lib/            Helpers without UI (formatting, query client, Supabase client)
-    ├── mocks/          In-memory stand-in for the parts not on the database yet
     ├── pages/          One file per route
     ├── routes/         Router definition and path constants
     ├── styles/         Design tokens and global CSS

@@ -7,6 +7,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { ListSkeleton } from '@/components/ui/ListSkeleton';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { FriendshipAction } from '@/features/friends/FriendshipAction';
 import { useGames } from '@/features/games/queries';
 import { joinPlaytime } from '@/features/library/join-playtime';
 import { PlayedGameRow } from '@/features/library/PlayedGameRow';
@@ -101,12 +102,8 @@ export function ProfileView({ username, isOwn }: ProfileViewProps) {
         <EmptyState
           icon={<Lock />}
           title="This playtime is private"
-          description={`Only confirmed friends can see what ${profile.username} plays. Send a friend request to compare playtime.`}
-          action={
-            <Link to={paths.friends} className={buttonStyles({ variant: 'secondary' })}>
-              Go to friends
-            </Link>
-          }
+          description={`Only confirmed friends can see what ${profile.username} plays. Add them as a friend to compare playtime.`}
+          action={<FriendshipAction profile={profile} />}
         />
       ) : (
         <>

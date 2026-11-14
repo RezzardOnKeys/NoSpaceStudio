@@ -8,7 +8,7 @@ export const queryKeys = {
   myPlaytime: ['playtime', 'me'],
   userPlaytime: (username: string) => ['playtime', 'user', username],
   friendsPlaytimeForGame: (gameId: string) => ['playtime', 'friends', gameId],
-  friends: ['friends'],
-  friendRequests: ['friend-requests'],
+  /** Friends and open requests of the signed-in user. */
+  friendships: ['friendships'],
   userSearch: (query: string) => ['user-search', query],
 } as const;

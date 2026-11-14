@@ -15,6 +15,22 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 9 – 2026-11-14 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Freunde hinzufügen können: Freundesfunktion an Supabase anschließen (Phase 5 vor Phase 4)
+**Änderungen:**
+- Freundesliste, Anfragen und Spielersuche kommen jetzt aus der Datenbank statt aus Mock-Daten
+- Suche nach Benutzernamen (Anfang des Namens, ab 2 Zeichen); man selbst, Freunde und offene Anfragen werden ausgeblendet
+- Anfragen senden, annehmen, ablehnen, zurückziehen und Freunde entfernen funktionieren; schicken sich zwei gegenseitig eine Anfrage, sind sie sofort befreundet
+- Neuer Knopf „Add friend“ auf dem Profil anderer Spieler (bzw. „Accept friend request“ oder „Friend request sent“)
+- Zähler für offene Anfragen in der Seitenleiste aktualisiert sich jede Minute und beim Zurückkehren in den Tab
+- Spielzeit wird aus der Datenbank gelesen (eigene und die von Freunden); geschrieben wird sie erst in Phase 4, bis dahin steht überall 0
+- Gäste sehen auf der Spielseite „Sign in to see which of your friends play this“ statt eines Ladebalkens
+- Mock-Backend `src/mocks/` vollständig entfernt
+- Roadmap (Phase 5 erledigt), README und CLAUDE.md angepasst; Commit-Hash für Version 5 bis 8 nachgetragen
+**Geänderte Dateien:** src/features/friends/ (api.ts neu, FriendshipAction.tsx neu, queries.ts), src/features/library/ (api.ts neu, queries.ts), src/features/profile/ProfileView.tsx, src/features/games/FriendsPlaytime.tsx, src/lib/query-keys.ts, src/mocks/ (gelöscht), docs/ROADMAP.md, README.md, CLAUDE.md, PROTOKOLL.md
+**Commit-Message:** `[v9] feat(friends): connect friends and playtime reading to Supabase`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 8 – 2026-11-14 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Spiele und News auf Dateien im Repo umbauen, Admin-Panel streichen, SQL-Dateien ausführlich kommentieren
 **Änderungen:**
@@ -30,7 +46,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Noch offen: Die SQL-Dateien sind weiterhin nicht gegen ein echtes Supabase-Projekt gelaufen
 **Geänderte Dateien:** supabase/migrations/ (0001_profiles.sql neu geschrieben; 0002_friendships.sql, 0003_playtime.sql, 0004_storage.sql neu; 0002_games_and_news.sql, 0003_friendships.sql, 0004_playtime.sql, 0005_storage.sql gelöscht), supabase/seed.sql (gelöscht), docs/ADDING-A-GAME.md, docs/SUPABASE-SETUP.md, docs/ROADMAP.md, docs/DECISIONS.md, README.md, CLAUDE.md, PROTOKOLL.md, games/README.md, games/_template/ (game.json, description.md), news/_template.md, .github/ISSUE_TEMPLATE/new_game.yml, src/lib/ (content.ts neu, errors.ts), src/types/ (database.ts, models.ts), src/features/games/api.ts, src/features/news/api.ts, src/features/profile/ (api.ts, ProfileView.tsx), src/features/auth/RequireAdmin.tsx (gelöscht), src/pages/AdminPage.tsx (gelöscht), src/routes/ (router.tsx, paths.ts), src/components/layout/Sidebar.tsx
 **Commit-Message:** `[v6][v7][v8] feat: add accounts with Supabase, file-based games and news catalogue`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`2dbccf4`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/2dbccf4)
 
 ## Version 7 – 2026-11-14 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Die zwei unbenutzten Mock-Dateien löschen
@@ -39,7 +55,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Hinweis dazu aus der Roadmap entfernt
 **Geänderte Dateien:** src/mocks/games.ts (gelöscht), src/mocks/news.ts (gelöscht), docs/ROADMAP.md, PROTOKOLL.md
 **Commit-Message:** `[v6][v7] feat(auth): add Supabase schema, accounts and real games and news data`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`2dbccf4`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/2dbccf4)
 
 ## Version 6 – 2026-11-14 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Nächste offene Phase umsetzen: Phase 3 – Supabase, Datenbank und Konten
@@ -56,7 +72,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Noch offen: Die SQL-Dateien wurden ohne lokale Datenbank geschrieben und sind noch nicht gegen ein echtes Supabase-Projekt gelaufen
 **Geänderte Dateien:** supabase/migrations/ (0001_profiles.sql, 0002_games_and_news.sql, 0003_friendships.sql, 0004_playtime.sql, 0005_storage.sql), supabase/seed.sql, docs/SUPABASE-SETUP.md, docs/ROADMAP.md, docs/DECISIONS.md, README.md, CLAUDE.md, PROTOKOLL.md, .env.example, .claude/launch.json, package.json, package-lock.json, public/game-placeholder.svg, src/main.tsx, src/config/env.ts, src/lib/ (supabase.ts, errors.ts, query-keys.ts), src/types/database.ts, src/routes/ (router.tsx, paths.ts), src/components/ui/ (Notice.tsx, ErrorState.tsx), src/components/layout/ (ProfileMenu.tsx, Sidebar.tsx), src/features/auth/ (api.ts, queries.ts, auth-context.ts, auth-errors.ts, AuthProvider.tsx, AuthLayout.tsx, AuthCard.tsx, AuthGate.tsx, GuestOnly.tsx, RequireAuth.tsx, RequireAdmin.tsx, TextLink.tsx, UsernameField.tsx, useUsernameCheck.ts, username.ts, redirect-target.ts), src/features/profile/api.ts, src/features/games/ (api.ts, queries.ts), src/features/news/ (api.ts, queries.ts), src/features/library/queries.ts, src/mocks/ (api.ts, users.ts), src/pages/ (SignInPage, SignUpPage, ForgotPasswordPage, ResetPasswordPage neu; StorePage, NewsPage, GamePage, PlayerPage, ProfilePage, AdminPage geändert)
 **Commit-Message:** `[v6] feat(auth): add Supabase schema, accounts and real games and news data`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`2dbccf4`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/2dbccf4)
 
 ## Version 5 – 2026-11-14 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Phasenplan aus dem Startprompt als Datei im Repo ablegen
@@ -66,7 +82,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Commit-Hash für Version 3 und 4 nachgetragen (beide stecken im Commit „Version 3“)
 **Geänderte Dateien:** docs/ROADMAP.md, CLAUDE.md, README.md, PROTOKOLL.md
 **Commit-Message:** `[v5] docs: add roadmap with phase plan and status`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`2dbccf4`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/2dbccf4)
 
 ## Version 4 – 2026-11-14 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Auch die Demo-Freunde und Demo-Nutzer löschen

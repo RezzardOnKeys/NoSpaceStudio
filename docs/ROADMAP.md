@@ -13,7 +13,7 @@ table whenever a phase is finished.
 | 2     | App shell and interface on mock data | Done     |
 | 3     | Supabase: database and accounts      | Done     |
 | 4     | Playtime, library and profile        | **Next** |
-| 5     | Friends                              | Open     |
+| 5     | Friends                              | Done     |
 | 6     | Content guides and engine notes      | Open     |
 | 7     | Polish and deployment                | Open     |
 
@@ -34,8 +34,14 @@ table whenever a phase is finished.
 - **The migrations have not been run against a real project by Claude.** They
   were written without a local database. The first run in the Supabase SQL
   editor is the real test; report any error message.
-- **Playtime and friends still run on the in-memory mock** (`src/mocks/api.ts`)
-  until phases 4 and 5. Those phases only replace query functions.
+- **Friends are real** (phase 5 was done before phase 4, because the
+  developers wanted to add each other first). Search by username, send,
+  accept, decline and cancel requests, remove friends, an "Add friend" button
+  on other players' profiles and a badge for open requests (refreshed every
+  minute).
+- **Playtime is read from the database, but nothing writes it yet.** All
+  playtime is 0 until phase 4 adds the heartbeat in the player. The mock
+  backend (`src/mocks/`) is gone.
 - Without Supabase values in `.env` the app still starts: the store and news
   work, everyone is a guest, and the account pages point to the setup guide.
 - Guests can browse the store, read news and play. Library, friends and

@@ -2,6 +2,7 @@ import { Link } from 'react-router';
 
 import { Avatar } from '@/components/ui/Avatar';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { useAuth } from '@/features/auth/auth-context';
 import { useFriendsPlaytimeForGame } from '@/features/library/queries';
 import { formatPlaytime } from '@/lib/format';
 import { paths } from '@/routes/paths';
@@ -12,7 +13,19 @@ interface FriendsPlaytimeProps {
 
 /** Which friends played this game, and for how long. */
 export function FriendsPlaytime({ gameId }: FriendsPlaytimeProps) {
+  const { userId } = useAuth();
   const { data, isPending, isError } = useFriendsPlaytimeForGame(gameId);
+
+  if (!userId) {
+    return (
+      <p className="text-sm text-fg-muted">
+        <Link to={paths.signIn} className="rounded font-medium text-accent-bright hover:underline">
+          Sign in
+        </Link>{' '}
+        to see which of your friends play this.
+      </p>
+    );
+  }
 
   if (isPending) {
     return (
