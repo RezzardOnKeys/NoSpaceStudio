@@ -15,6 +15,16 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 17 – 2026-11-14 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Online-Status ist nirgends zu sehen – liegt es am Kollegen oder fehlt etwas?
+**Änderungen:**
+- Ursache: Der Status entsteht erst, wenn der Launcher eines Freundes mit dem neuen Code einmal offen war; bis dahin gab es keine Daten und es wurde gar nichts angezeigt
+- Freunde ohne Daten werden jetzt als „Offline“ mit grauem Punkt angezeigt (ohne „last seen“), statt gar nicht
+- Geprüft: Tabelle `user_status` und die Funktionen aus `0008_online_status.sql` sind in Supabase vorhanden; Commit-Hash für Version 15 und 16 nachgetragen
+**Geänderte Dateien:** src/features/presence/queries.ts, src/features/presence/useStatusLabel.ts, src/types/models.ts, PROTOKOLL.md
+**Commit-Message:** `[v17] fix(presence): show friends without status as offline`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 16 – 2026-11-14 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Datenschutzbehörde für Hessen eintragen, „typeshit“ wieder normal machen
 **Änderungen:**
@@ -23,7 +33,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Erledigten Punkt zum Tab-Titel aus der Roadmap entfernt
 **Geänderte Dateien:** index.html, legal/privacy.md, docs/ROADMAP.md, PROTOKOLL.md
 **Commit-Message:** `[v16] fix: restore page title and add data protection authority`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`8890f20`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/8890f20)
 
 ## Version 15 – 2026-11-14 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Online-Status für Freunde (mit „zuletzt gesehen“, ohne Unsichtbar-Modus); Impressum und Datenschutzerklärung schreiben und einfügen
@@ -39,7 +49,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Noch offen: `0008_online_status.sql` in Supabase ausführen; die TODOs in `legal/` und die E-Mail in `src/config/brand.ts` ausfüllen; Online-Status mit echten Konten testen
 **Geänderte Dateien:** supabase/migrations/0008_online_status.sql (neu), src/features/presence/ (neu: api.ts, queries.ts, PresenceReporter.tsx, PresenceAvatar.tsx, StatusLine.tsx, useStatusLabel.ts), src/features/legal/legal-texts.ts (neu), legal/imprint.md (neu), legal/privacy.md (neu), news/2026-11-14-launcher-1-7.md (neu), src/components/ui/ (Avatar.tsx, AvatarStack.tsx, Checkbox.tsx neu), src/components/layout/ (RootLayout.tsx, Sidebar.tsx), src/features/friends/ (UserRow.tsx, FriendList.tsx, queries.ts), src/features/party/ (InviteFriendsModal.tsx, PartyMembers.tsx), src/features/games/FriendsPlaytime.tsx, src/features/profile/ProfileView.tsx, src/features/auth/ (api.ts, username.ts), src/pages/ (LegalPage.tsx, SignUpPage.tsx, UiKitPage.tsx), src/types/ (models.ts, database.ts), src/lib/query-keys.ts, games/wpm-trainer/index.html, news/2026-11-14-wpm-trainer-1-1.md, docs/ROADMAP.md, docs/DECISIONS.md, docs/SUPABASE-SETUP.md, CLAUDE.md, PROTOKOLL.md
 **Commit-Message:** `[v15] feat: add online status for friends, imprint and privacy policy`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`8890f20`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/8890f20)
 
 ## Version 14 – 2026-11-14 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** WPM-Spiel komplett auf Englisch, Hinweis „Menüs auf Deutsch“ aus der Beschreibung streichen, Patchnotes für das Spiel und alle Launcher-Versionen als Zeitleiste, YouTube-Feld ohne Video schwer anklickbar beheben

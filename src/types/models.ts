@@ -92,8 +92,11 @@ export interface FriendStatus {
   state: PresenceState;
   /** The game they are playing, while state is 'playing'. */
   gameSlug: string | null;
-  /** ISO date string of the last time their launcher was open. */
-  lastSeenAt: string;
+  /**
+   * ISO date string of the last time their launcher was open. Null for
+   * friends who have not opened the launcher since online status exists.
+   */
+  lastSeenAt: string | null;
 }
 
 export interface PartyMember {

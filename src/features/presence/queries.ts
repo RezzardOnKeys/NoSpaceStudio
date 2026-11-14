@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { useAuth } from '@/features/auth/auth-context';
+import { useFriends } from '@/features/friends/queries';
 import { queryKeys } from '@/lib/query-keys';
 import type { FriendStatus } from '@/types/models';
 
@@ -26,10 +27,18 @@ export function useFriendStatuses() {
   });
 }
 
-/** One player's status, or undefined when they are not a friend (or yourself). */
+/**
+ * One player's status, or undefined when they are not a friend (or yourself).
+ * A friend without any report yet counts as offline, without "last seen".
+ */
 export function useFriendStatus(userId: string): FriendStatus | undefined {
   const { data } = useFriendStatuses();
-  return data?.get(userId);
+  const { data: friends } = useFriends();
+
+  const status = data?.get(userId);
+  if (status) return status;
+  if (!friends?.some((friend) => friend.profile.id === userId)) return undefined;
+  return { userId, state: 'offline', gameSlug: null, lastSeenAt: null };
 }
 
 /** How many friends are online or playing right now. */

@@ -17,7 +17,7 @@ export function useStatusLabel(userId: string): string | undefined {
     const title = games?.find((game) => game.slug === status.gameSlug)?.title;
     return title ? `Playing ${title}` : 'Playing';
   }
-  return `Offline · last seen ${formatRelative(status.lastSeenAt)}`;
+  return status.lastSeenAt ? `Offline · last seen ${formatRelative(status.lastSeenAt)}` : 'Offline';
 }
 
 /** Sort order for lists of friends: playing, online, offline. */
