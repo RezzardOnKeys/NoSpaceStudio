@@ -7,6 +7,7 @@ import { AvatarStack } from '@/components/ui/AvatarStack';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useCurrentUser } from '@/features/auth/queries';
 import { useParty } from '@/features/party/queries';
+import { useFriendStatuses, useOnlineFriendCount } from '@/features/presence/queries';
 import { paths } from '@/routes/paths';
 
 import { mainNavItems } from './nav-items';
@@ -19,6 +20,19 @@ export function Sidebar() {
   const badges = useNavBadges();
   const { data: party } = useParty();
   const partyMembers = party?.members.map((member) => member.profile) ?? [];
+  const { data: statuses } = useFriendStatuses();
+  const onlineFriends = useOnlineFriendCount();
+
+  function trailingFor(to: string) {
+    // Who is in the party, visible from every page.
+    if (to === paths.party && partyMembers.length > 0) {
+      return <AvatarStack profiles={partyMembers} statusOf={(id) => statuses?.get(id)?.state} />;
+    }
+    if (to === paths.friends && onlineFriends > 0) {
+      return <span className="text-xs font-medium text-success">{onlineFriends} online</span>;
+    }
+    return undefined;
+  }
 
   return (
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 flex-col border-r border-line bg-surface lg:flex">
@@ -33,12 +47,7 @@ export function Sidebar() {
             to={item.to}
             label={item.label}
             icon={item.icon}
-            trailing={
-              // Who is in the party, visible from every page.
-              item.to === paths.party && partyMembers.length > 0 ? (
-                <AvatarStack profiles={partyMembers} />
-              ) : undefined
-            }
+            trailing={trailingFor(item.to)}
             count={badges[item.to]?.count}
             countLabel={badges[item.to]?.label}
           />

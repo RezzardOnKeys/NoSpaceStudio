@@ -8,6 +8,8 @@ import { ListSkeleton } from '@/components/ui/ListSkeleton';
 import { Modal } from '@/components/ui/Modal';
 import { UserRow } from '@/features/friends/UserRow';
 import { useFriends } from '@/features/friends/queries';
+import { useFriendStatuses } from '@/features/presence/queries';
+import { PRESENCE_ORDER } from '@/features/presence/useStatusLabel';
 import { paths } from '@/routes/paths';
 import type { Party } from '@/types/models';
 
@@ -27,7 +29,15 @@ export function InviteFriendsModal({ open, onClose, party }: InviteFriendsModalP
 
   const memberIds = new Set(party?.members.map((member) => member.profile.id));
   const invitedIds = new Set(party?.invited.map((entry) => entry.profile.id));
-  const candidates = friends.data?.filter((friend) => !memberIds.has(friend.profile.id)) ?? [];
+  const { data: statuses } = useFriendStatuses();
+  // Friends who are online first: they can join right away.
+  const candidates = (friends.data ?? [])
+    .filter((friend) => !memberIds.has(friend.profile.id))
+    .sort(
+      (a, b) =>
+        PRESENCE_ORDER[statuses?.get(a.profile.id)?.state ?? 'offline'] -
+        PRESENCE_ORDER[statuses?.get(b.profile.id)?.state ?? 'offline'],
+    );
 
   return (
     <Modal

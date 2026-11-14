@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { IconButton } from '@/components/ui/IconButton';
 import { Modal } from '@/components/ui/Modal';
+import { useFriendStatuses } from '@/features/presence/queries';
+import { PRESENCE_ORDER } from '@/features/presence/useStatusLabel';
 import { formatDate } from '@/lib/format';
 import type { Friend } from '@/types/models';
 
@@ -16,6 +18,14 @@ interface FriendListProps {
 
 export function FriendList({ friends }: FriendListProps) {
   const removeFriend = useRemoveFriend();
+  const { data: statuses } = useFriendStatuses();
+  // Playing first, then online, then offline; by name within each group.
+  const sorted = [...friends].sort(
+    (a, b) =>
+      PRESENCE_ORDER[statuses?.get(a.profile.id)?.state ?? 'offline'] -
+        PRESENCE_ORDER[statuses?.get(b.profile.id)?.state ?? 'offline'] ||
+      a.profile.username.localeCompare(b.profile.username),
+  );
   // The friend the "remove" dialog is asking about, if it is open.
   const [pendingRemoval, setPendingRemoval] = useState<Friend | null>(null);
 
@@ -29,11 +39,11 @@ export function FriendList({ friends }: FriendListProps) {
   return (
     <>
       <ul className="-mx-2.5 flex flex-col gap-1">
-        {friends.map((friend) => (
+        {sorted.map((friend) => (
           <UserRow
             key={friend.profile.id}
             profile={friend.profile}
-            meta={`Friends since ${formatDate(friend.since)}`}
+            metaFallback={`Friends since ${formatDate(friend.since)}`}
             actions={
               <IconButton
                 label={`Remove ${friend.profile.username} from friends`}

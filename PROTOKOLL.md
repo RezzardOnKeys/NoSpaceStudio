@@ -15,6 +15,32 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 16 – 2026-11-14 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Datenschutzbehörde für Hessen eintragen, „typeshit“ wieder normal machen
+**Änderungen:**
+- Titel im Browser-Tab (`index.html`) war `typeshit`; jetzt wieder automatisch Name und Slogan aus `src/config/brand.ts` („NoSpaceStudio – No downloads. No space needed.“)
+- Datenschutzerklärung: zuständige Aufsichtsbehörde für Hessen eingetragen (Der Hessische Beauftragte für Datenschutz und Informationsfreiheit, Wiesbaden)
+- Erledigten Punkt zum Tab-Titel aus der Roadmap entfernt
+**Geänderte Dateien:** index.html, legal/privacy.md, docs/ROADMAP.md, PROTOKOLL.md
+**Commit-Message:** `[v16] fix: restore page title and add data protection authority`
+**GitHub-Commit:** _ausstehend_
+
+## Version 15 – 2026-11-14 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Online-Status für Freunde (mit „zuletzt gesehen“, ohne Unsichtbar-Modus); Impressum und Datenschutzerklärung schreiben und einfügen
+**Änderungen:**
+- Online-Status: Freunde sehen „Online“, „Playing <Spiel>“ oder „Offline · last seen …“; farbiger Punkt am Profilbild (grün online, violett spielt, grau offline) in Freundesliste, Party, Einladen-Fenster, „Friends who play“, Profil und bei den gestapelten Bildern neben „Party“
+- Freundesliste und Einladen-Fenster zeigen Online-Freunde zuerst; neben „Friends“ in der Seitenleiste steht „N online“; das Profil eines Freundes zeigt den Status unter dem Namen
+- Nur bestätigte Freunde sehen den Status; „als offline anzeigen“ gibt es bewusst nicht
+- Neue SQL-Datei `0008_online_status.sql` (Tabelle `user_status`, Funktionen `report_status` und `friend_statuses`, Echtzeit), ausführlich kommentiert
+- Impressum und Datenschutzerklärung auf Englisch geschrieben, als Dateien `legal/imprint.md` und `legal/privacy.md`; Name, Adresse, Kontakt-E-Mail und Datenschutzbehörde sind als `[TODO]` markiert, die Seiten zeigen bis dahin einen Warnhinweis
+- Registrieren nur mit Bestätigung „mindestens 16 Jahre und Datenschutzerklärung gelesen“
+- WPM Trainer lädt YouTube-Videos jetzt im erweiterten Datenschutzmodus (youtube-nocookie.com)
+- Neuer Launcher-Patchnote 1.7.0; Doku angepasst (ROADMAP, DECISIONS 30 und 31, SUPABASE-SETUP, CLAUDE.md); Commit-Hash für Version 14 nachgetragen
+- Noch offen: `0008_online_status.sql` in Supabase ausführen; die TODOs in `legal/` und die E-Mail in `src/config/brand.ts` ausfüllen; Online-Status mit echten Konten testen
+**Geänderte Dateien:** supabase/migrations/0008_online_status.sql (neu), src/features/presence/ (neu: api.ts, queries.ts, PresenceReporter.tsx, PresenceAvatar.tsx, StatusLine.tsx, useStatusLabel.ts), src/features/legal/legal-texts.ts (neu), legal/imprint.md (neu), legal/privacy.md (neu), news/2026-11-14-launcher-1-7.md (neu), src/components/ui/ (Avatar.tsx, AvatarStack.tsx, Checkbox.tsx neu), src/components/layout/ (RootLayout.tsx, Sidebar.tsx), src/features/friends/ (UserRow.tsx, FriendList.tsx, queries.ts), src/features/party/ (InviteFriendsModal.tsx, PartyMembers.tsx), src/features/games/FriendsPlaytime.tsx, src/features/profile/ProfileView.tsx, src/features/auth/ (api.ts, username.ts), src/pages/ (LegalPage.tsx, SignUpPage.tsx, UiKitPage.tsx), src/types/ (models.ts, database.ts), src/lib/query-keys.ts, games/wpm-trainer/index.html, news/2026-11-14-wpm-trainer-1-1.md, docs/ROADMAP.md, docs/DECISIONS.md, docs/SUPABASE-SETUP.md, CLAUDE.md, PROTOKOLL.md
+**Commit-Message:** `[v15] feat: add online status for friends, imprint and privacy policy`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 14 – 2026-11-14 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** WPM-Spiel komplett auf Englisch, Hinweis „Menüs auf Deutsch“ aus der Beschreibung streichen, Patchnotes für das Spiel und alle Launcher-Versionen als Zeitleiste, YouTube-Feld ohne Video schwer anklickbar beheben
 **Änderungen:**
@@ -26,7 +52,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Commit-Hash für Version 13 nachgetragen
 **Geänderte Dateien:** games/wpm-trainer/ (index.html, game.json, description.md), news/ (9 neue Beiträge: 2026-11-14-launcher-1-0.md bis 1-6.md, 2026-11-14-wpm-trainer-1-0.md, 2026-11-14-wpm-trainer-1-1.md), src/features/news/NewsTimeline.tsx (neu), src/pages/NewsPage.tsx, PROTOKOLL.md
 **Commit-Message:** `[v14] feat: translate WPM trainer to English, add patch notes and news timeline`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`0f52884`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/0f52884)
 
 ## Version 13 – 2026-11-14 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Block „Play together“ auf der Party-Seite löschen, Knopf „Play alone“ deutlicher machen (wie der Play-Knopf in der Library)

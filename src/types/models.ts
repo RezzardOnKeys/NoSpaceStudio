@@ -84,6 +84,18 @@ export interface UserPlaytime {
   playtime: PlaytimeEntry[] | null;
 }
 
+/** What a friend is doing right now. */
+export type PresenceState = 'online' | 'playing' | 'offline';
+
+export interface FriendStatus {
+  userId: string;
+  state: PresenceState;
+  /** The game they are playing, while state is 'playing'. */
+  gameSlug: string | null;
+  /** ISO date string of the last time their launcher was open. */
+  lastSeenAt: string;
+}
+
 export interface PartyMember {
   profile: Profile;
   /** ISO date string. */

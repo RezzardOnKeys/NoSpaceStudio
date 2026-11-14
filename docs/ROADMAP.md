@@ -43,8 +43,8 @@ table whenever a phase is finished.
   members are pulled into it.
   Single player games say that the party does not come along. How a game
   supports parties: [PARTY-GAMES.md](PARTY-GAMES.md).
-- The database schema is in `supabase/migrations/` (0001 to 0007). Each file
-  is run once in the Supabase SQL editor; **0007_party_host_tools.sql is new and still
+- The database schema is in `supabase/migrations/` (0001 to 0008). Each file
+  is run once in the Supabase SQL editor; **0008_online_status.sql is new and still
   has to be run.** Games are referenced by their slug (folder name).
 - **Claude cannot test anything that needs an account** (no passwords).
   Playtime saving, the profile picture upload and all party flows are only
@@ -53,7 +53,14 @@ table whenever a phase is finished.
   browser tabs.
 - Without Supabase values in `.env` the app still starts: the store, news
   and games work, everyone is a guest.
-- `/imprint` and `/privacy` are placeholder pages.
+- **Online status:** friends see "Online", "Playing …" or "Offline · last
+  seen …" (dot on the avatar, text in lists and on the profile, "N online"
+  next to Friends). There is deliberately no way to appear offline
+  (decision 30).
+- **Imprint and privacy policy are written** (English, `legal/*.md`). Name,
+  address and contact email are still
+  `[TODO]` placeholders; the pages show a warning until they are filled in.
+  Sign-up requires confirming a minimum age of 16.
 
 ## How we work
 
@@ -103,7 +110,9 @@ table whenever a phase is finished.
    multiplayer game, everybody is pulled into it; the game gets a shared
    room code and connects the players itself (e.g. PeerJS). Games declare
    `maxPlayers` in `game.json`.
-10. **Legal:** `/imprint` and `/privacy` as clearly marked placeholders with
+10. **Legal:** `/imprint` and `/privacy` with real texts from `legal/*.md`; the
+    developers' personal details are filled in before going public. Until then
+    clearly marked placeholders with
     TODO notes, linked in the footer. No invented legal texts.
 11. **PWA:** web app manifest and icons, so the site can be added to the Dock
     in Safari and used like an app.
@@ -213,8 +222,6 @@ Requirements:
 - The built-in Supabase email service only sends a few emails per hour. A
   real SMTP provider is needed before going public (phase 7).
 - `brand.contactEmail` is still the placeholder `contact@example.com`.
-- The tab title in `index.html` is currently a fixed text instead of the
-  `%BRAND_NAME%` placeholder, so it does not follow `src/config/brand.ts`.
 - Fullscreen in the player and Safari in general have not been tested yet.
 - The WPM trainer loads YouTube videos inside the sandboxed player. Check
   once with a real link that videos play.

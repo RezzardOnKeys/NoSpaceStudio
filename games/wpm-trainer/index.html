@@ -922,6 +922,8 @@ async function loadYouTube(url) {
   if (ytp) { try { ytp.destroy(); } catch (e) {} }
   $('ytwrap').innerHTML = '<div id="yt"></div>';
   ytp = new YT.Player('yt', {
+    // Privacy-enhanced mode: YouTube sets no tracking cookies until playback.
+    host: 'https://www.youtube-nocookie.com',
     videoId: id, width: '100%', height: '100%',
     playerVars: { controls: 0, disablekb: 1, rel: 0, playsinline: 1, iv_load_policy: 3, fs: 0, modestbranding: 1, origin: location.origin },
     events: {

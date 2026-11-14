@@ -1,9 +1,9 @@
 import { Link } from 'react-router';
 
-import { Avatar } from '@/components/ui/Avatar';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useAuth } from '@/features/auth/auth-context';
 import { useFriendsPlaytimeForGame } from '@/features/library/queries';
+import { PresenceAvatar } from '@/features/presence/PresenceAvatar';
 import { formatPlaytime } from '@/lib/format';
 import { paths } from '@/routes/paths';
 
@@ -64,7 +64,7 @@ export function FriendsPlaytime({ gameId }: FriendsPlaytimeProps) {
             to={paths.user(profile.username)}
             className="hover:bg-surface-overlay -mx-2 flex items-center gap-3 rounded-lg px-2 py-1.5 transition-colors"
           >
-            <Avatar username={profile.username} src={profile.avatarUrl} size="sm" />
+            <PresenceAvatar profile={profile} size="sm" />
             <span className="min-w-0 flex-1 truncate text-sm font-medium">{profile.username}</span>
             <span className="text-fg-muted text-sm tabular-nums">
               {formatPlaytime(totalSeconds)}

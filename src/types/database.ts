@@ -60,6 +60,12 @@ type PartyInviteRow = {
   created_at: string;
 };
 
+type UserStatusRow = {
+  user_id: string;
+  game_slug: string | null;
+  last_seen_at: string;
+};
+
 type GameStatsRow = {
   game_slug: string;
   total_seconds: number;
@@ -111,6 +117,12 @@ export type Database = {
       };
       game_stats: {
         Row: GameStatsRow;
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      user_status: {
+        Row: UserStatusRow;
         Insert: never;
         Update: never;
         Relationships: [];
@@ -191,6 +203,16 @@ export type Database = {
       accept_party_invite: { Args: { invite_id: string }; Returns: string };
       start_party_game: { Args: { p_game_slug: string }; Returns: string };
       stop_party_game: { Args: Record<never, never>; Returns: undefined };
+      report_status: { Args: { p_game_slug: string | null }; Returns: undefined };
+      friend_statuses: {
+        Args: Record<never, never>;
+        Returns: {
+          user_id: string;
+          game_slug: string | null;
+          last_seen_at: string;
+          is_online: boolean;
+        }[];
+      };
       kick_party_member: { Args: { target_user: string }; Returns: undefined };
       transfer_party_host: { Args: { target_user: string }; Returns: undefined };
       set_avatar: { Args: Record<never, never>; Returns: string };

@@ -1,4 +1,5 @@
 import { cn } from '@/lib/cn';
+import type { PresenceState } from '@/types/models';
 
 type AvatarSize = 'sm' | 'md' | 'lg' | 'xl';
 
@@ -7,6 +8,20 @@ const sizes: Record<AvatarSize, string> = {
   md: 'size-10 text-sm',
   lg: 'size-14 text-lg',
   xl: 'size-24 text-3xl',
+};
+
+/** Size of the status dot in the bottom right corner, per avatar size. */
+const dotSizes: Record<AvatarSize, string> = {
+  sm: 'size-2.5 ring-2',
+  md: 'size-3 ring-2',
+  lg: 'size-3.5 ring-[3px]',
+  xl: 'size-5 ring-4',
+};
+
+const dotColors: Record<PresenceState, string> = {
+  online: 'bg-success',
+  playing: 'bg-accent-bright',
+  offline: 'bg-fg-subtle',
 };
 
 /** Fallback colours for users without a picture, picked by username. */
@@ -27,27 +42,38 @@ interface AvatarProps {
   username: string;
   src?: string | null;
   size?: AvatarSize;
+  /** Shows a coloured dot: green = online, violet = playing, grey = offline. */
+  status?: PresenceState;
   className?: string;
 }
 
 /** Profile picture, or the first letter of the username when there is none. */
-export function Avatar({ username, src, size = 'md', className }: AvatarProps) {
-  const shared = cn('shrink-0 rounded-full', sizes[size], className);
-
-  if (src) {
-    return <img src={src} alt="" className={cn(shared, 'object-cover')} />;
-  }
-
+export function Avatar({ username, src, size = 'md', status, className }: AvatarProps) {
   return (
-    <span
-      aria-hidden="true"
-      className={cn(
-        shared,
-        'inline-flex items-center justify-center font-semibold uppercase select-none',
-        pickPalette(username),
+    <span className={cn('relative inline-flex shrink-0 rounded-full', sizes[size], className)}>
+      {src ? (
+        <img src={src} alt="" className="size-full rounded-full object-cover" />
+      ) : (
+        <span
+          aria-hidden="true"
+          className={cn(
+            'inline-flex size-full items-center justify-center rounded-full font-semibold uppercase select-none',
+            pickPalette(username),
+          )}
+        >
+          {username.charAt(0)}
+        </span>
       )}
-    >
-      {username.charAt(0)}
+      {status && (
+        <span
+          aria-hidden="true"
+          className={cn(
+            'absolute right-0 bottom-0 rounded-full ring-surface',
+            dotSizes[size],
+            dotColors[status],
+          )}
+        />
+      )}
     </span>
   );
 }

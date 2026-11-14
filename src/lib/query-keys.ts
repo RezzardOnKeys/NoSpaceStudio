@@ -14,4 +14,6 @@ export const queryKeys = {
   /** The signed-in user's party and the invitations they received. */
   party: ['party', 'mine'],
   partyInvites: ['party', 'invites'],
+  /** Online status of the signed-in user's friends. */
+  friendStatuses: ['friend-statuses'],
 } as const;

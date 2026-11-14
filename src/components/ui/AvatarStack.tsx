@@ -1,5 +1,5 @@
 import { cn } from '@/lib/cn';
-import type { Profile } from '@/types/models';
+import type { PresenceState, Profile } from '@/types/models';
 
 import { Avatar } from './Avatar';
 
@@ -7,11 +7,13 @@ interface AvatarStackProps {
   profiles: Profile[];
   /** How many pictures are shown; the rest is summed up as "+3". */
   max?: number;
+  /** Online dot per profile, e.g. for friends. */
+  statusOf?: (profileId: string) => PresenceState | undefined;
   className?: string;
 }
 
 /** Profile pictures overlapping each other, e.g. the members of a party. */
-export function AvatarStack({ profiles, max = 3, className }: AvatarStackProps) {
+export function AvatarStack({ profiles, max = 3, statusOf, className }: AvatarStackProps) {
   const shown = profiles.slice(0, max);
   const hidden = profiles.length - shown.length;
 
@@ -23,6 +25,7 @@ export function AvatarStack({ profiles, max = 3, className }: AvatarStackProps) 
           username={profile.username}
           src={profile.avatarUrl}
           size="sm"
+          status={statusOf?.(profile.id)}
           className="ring-2 ring-surface"
         />
       ))}

@@ -3,6 +3,7 @@ import { useState, type FormEvent } from 'react';
 import { useLocation } from 'react-router';
 
 import { Button } from '@/components/ui/Button';
+import { Checkbox } from '@/components/ui/Checkbox';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Input } from '@/components/ui/Input';
 import { Notice } from '@/components/ui/Notice';
@@ -11,7 +12,7 @@ import { describeAuthError } from '@/features/auth/auth-errors';
 import { AuthCard } from '@/features/auth/AuthCard';
 import { useSignUp } from '@/features/auth/queries';
 import { TextLink } from '@/features/auth/TextLink';
-import { normalizeUsername, PASSWORD_MIN_LENGTH } from '@/features/auth/username';
+import { MINIMUM_AGE, normalizeUsername, PASSWORD_MIN_LENGTH } from '@/features/auth/username';
 import { UsernameField } from '@/features/auth/UsernameField';
 import { useUsernameCheck } from '@/features/auth/useUsernameCheck';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
@@ -95,6 +96,19 @@ export function SignUpPage() {
           required
           icon={<Lock />}
           hint={`At least ${PASSWORD_MIN_LENGTH} characters.`}
+        />
+        <Checkbox
+          name="age"
+          required
+          label={
+            <>
+              I am at least {MINIMUM_AGE} years old and have read the{' '}
+              <TextLink to={paths.privacy} target="_blank">
+                privacy policy
+              </TextLink>
+              .
+            </>
+          }
         />
         <Button type="submit" size="lg" fullWidth loading={signUp.isPending}>
           Create account

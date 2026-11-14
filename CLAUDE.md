@@ -123,6 +123,12 @@ files owned by root. Do not work around it silently; tell the developer to run
   members into the host's game. The player passes `#party=…&role=…&name=…`
   to the game; how a game uses it is in `docs/PARTY-GAMES.md`. Games set
   `maxPlayers` in `game.json`.
+- **Online status** (decision 30): `features/presence/`. `PresenceReporter`
+  (in RootLayout) reports every 30 s; show a friend's status with
+  `PresenceAvatar`, `useStatusLabel` or `StatusLine`. There is no "appear
+  offline" option on purpose.
+- **Legal texts** are `legal/*.md` (decision 31). When a feature processes new
+  personal data or talks to a new service, update `legal/privacy.md`.
 - Third-party code a game needs is shipped in the game folder (`vendor/`),
   not loaded from a CDN (decision 27).
 - SQL changes go into numbered files in `supabase/migrations/`, with comments
@@ -139,7 +145,8 @@ src/
                   EmptyState, ErrorState, Avatar, Chip, Select, Markdown, Lightbox, ...)
   components/layout/  RootLayout, AppShell, Sidebar, TopBar, Footer, MobileNav
   components/brand/   Logo
-  features/<feature>/  feature code: games, player, library, friends, party, news, profile, auth
+  features/<feature>/  feature code: games, player, library, friends, party, presence, legal,
+                       news, profile, auth
                        (queries.ts holds the data hooks, api.ts loads the data)
   hooks/          shared hooks
   lib/            helpers without UI (format.ts, query-client.ts, query-keys.ts,
@@ -152,6 +159,7 @@ src/
 games/            static games (plain HTML/JS, not linted); each folder's game.json
                   is the store entry and IS read by the launcher build
 news/             news posts as Markdown files
+legal/            imprint.md and privacy.md, rendered by /imprint and /privacy
 supabase/         migrations
 docs/             ROADMAP.md (plan and status), DECISIONS.md, guides
 ```

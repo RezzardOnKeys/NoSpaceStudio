@@ -23,7 +23,8 @@ export async function signUp({ email, password, username }: SignUpInput): Promis
     password,
     options: {
       // The database trigger reads the username from here to create the profile.
-      data: { username },
+      // age_confirmed records that the user confirmed being at least 16.
+      data: { username, age_confirmed: true },
       emailRedirectTo: absoluteUrl(paths.store),
     },
   });

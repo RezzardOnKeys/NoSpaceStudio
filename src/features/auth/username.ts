@@ -1,6 +1,8 @@
 export const USERNAME_MIN_LENGTH = 3;
 export const USERNAME_MAX_LENGTH = 20;
 export const PASSWORD_MIN_LENGTH = 8;
+/** Accounts are for people of this age and older (see legal/privacy.md). */
+export const MINIMUM_AGE = 16;
 
 const USERNAME_PATTERN = /^[a-z0-9_]+$/;
 

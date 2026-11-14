@@ -281,3 +281,30 @@ every game is one cover in the same grid, and the `featured` field in
 
 **Why:** The developers want the party always in view and the store to look
 uniform, with all covers the same size.
+
+## 30. Online status through a database heartbeat, visible to friends only
+
+**Decision:** The launcher calls `report_status()` every 30 seconds with the
+game that is open. `friend_statuses()` decides in the database who is online
+(last report less than 75 seconds ago), so wrong clocks do not matter. Only
+confirmed friends can read a status. There is no "appear offline" option:
+the developers decided that everybody's status is visible to their friends.
+
+**Why:** Supabase Realtime presence would be instant, but every signed-in
+user could see everybody else on the channel. The table keeps the friends
+rule in one place (RLS) and also gives "last seen". Going offline shows up
+after at most 75 seconds, which is fine for a friend list.
+
+## 31. Legal texts are Markdown files, in English
+
+**Decision:** Imprint and privacy policy live in `legal/imprint.md` and
+`legal/privacy.md` and are rendered by `/imprint` and `/privacy`. `{{brand}}`
+and `{{email}}` are filled in from `src/config/brand.ts`. Missing personal
+details are written as `[TODO: …]`; the page shows a warning while one is
+left. The texts are English like the rest of the site. Accounts require a
+confirmed minimum age of 16, recorded as `age_confirmed` in the user
+metadata.
+
+**Why:** The developers can update the texts without touching code, and an
+unfinished page cannot go unnoticed. The texts were drafted by Claude and are
+not legal advice.

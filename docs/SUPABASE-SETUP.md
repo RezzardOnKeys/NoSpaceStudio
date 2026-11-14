@@ -44,6 +44,7 @@ ausgeführt werden, jede genau einmal. In jeder Datei steht in Kommentaren
 | `0005_one_time_avatar.sql`  | Profilbild kann nur einmal gewählt werden                 |
 | `0006_parties.sql`          | Partys: zusammen in Spiele gehen                          |
 | `0007_party_host_tools.sql` | Party: Mitglieder entfernen, Host weitergeben             |
+| `0008_online_status.sql`    | Online-Status und „zuletzt gesehen“ für Freunde           |
 
 Für jede Datei, beginnend mit `0001`:
 

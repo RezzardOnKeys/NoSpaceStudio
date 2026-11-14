@@ -3,6 +3,7 @@ import { useState, type ReactNode } from 'react';
 import { Link } from 'react-router';
 
 import { Logo } from '@/components/brand/Logo';
+import { Avatar } from '@/components/ui/Avatar';
 import { AvatarStack } from '@/components/ui/AvatarStack';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -23,6 +24,11 @@ const demoProfiles = ['morris', 'balls', 'pixel', 'nova', 'kai'].map((username) 
   avatarUrl: null,
   createdAt: '2026-11-14T12:00:00Z',
 }));
+
+/** Example online states for the avatar stack. */
+function demoStatus(id: string) {
+  return id === 'morris' ? 'playing' : id === 'balls' ? 'online' : 'offline';
+}
 
 const swatches = [
   { name: 'canvas', className: 'bg-canvas' },
@@ -183,13 +189,19 @@ export function UiKitPage() {
         </div>
       </Section>
 
-      <Section title="Avatar stack and party roles">
+      <Section title="Avatar stack, online status and party roles">
         <div className="flex flex-col gap-4">
           {/* Same markup as the "Party" entry in the sidebar. */}
           <div className="flex h-10 max-w-60 items-center gap-3 rounded-lg bg-surface-raised px-3 text-sm font-medium text-fg-muted">
             <PartyPopper className="size-5 shrink-0" aria-hidden="true" />
             <span className="min-w-0 flex-1 truncate">Party</span>
-            <AvatarStack profiles={demoProfiles.slice(0, 3)} />
+            <AvatarStack profiles={demoProfiles.slice(0, 3)} statusOf={demoStatus} />
+          </div>
+          <div className="flex flex-wrap items-center gap-4">
+            <Avatar username="online" size="lg" status="online" />
+            <Avatar username="playing" size="lg" status="playing" />
+            <Avatar username="offline" size="lg" status="offline" />
+            <span className="text-sm text-fg-muted">Online · playing · offline</span>
           </div>
           <div className="flex flex-wrap items-center gap-4">
             <AvatarStack profiles={demoProfiles.slice(0, 2)} />

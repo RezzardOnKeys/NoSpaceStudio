@@ -80,6 +80,7 @@ function useFriendAction<TInput>(action: (input: TInput) => Promise<unknown>, su
         queryClient.invalidateQueries({ queryKey: ['user-search'] }),
         // Becoming friends (or not) changes whose playtime is visible.
         queryClient.invalidateQueries({ queryKey: ['playtime'] }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.friendStatuses }),
       ]),
   });
 }

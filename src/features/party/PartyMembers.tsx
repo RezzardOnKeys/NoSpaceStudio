@@ -53,7 +53,8 @@ export function PartyMembers({ party }: PartyMembersProps) {
             <UserRow
               key={profile.id}
               profile={profile}
-              meta={isMe ? 'You' : `Joined ${formatRelative(joinedAt)}`}
+              meta={isMe ? 'You' : undefined}
+              metaFallback={`Joined ${formatRelative(joinedAt)}`}
               actions={
                 <>
                   <PartyRoleBadge isHost={isHost} />
