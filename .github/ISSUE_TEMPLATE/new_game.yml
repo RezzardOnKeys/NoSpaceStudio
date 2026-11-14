@@ -1,0 +1,44 @@
+name: New game
+description: Track a game that should be added to the platform
+title: 'game: '
+labels: [game]
+body:
+  - type: input
+    id: title
+    attributes:
+      label: Title
+    validations:
+      required: true
+  - type: input
+    id: slug
+    attributes:
+      label: Slug / folder name in games/
+      description: Lowercase letters, numbers and hyphens only.
+      placeholder: e.g. neon-drift
+    validations:
+      required: true
+  - type: dropdown
+    id: engine
+    attributes:
+      label: Engine
+      options: [HTML5, Unity, Godot, Other]
+    validations:
+      required: true
+  - type: input
+    id: genres
+    attributes:
+      label: Genres
+      placeholder: e.g. Arcade, Puzzle
+  - type: textarea
+    id: description
+    attributes:
+      label: Short description
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: Game folder with index.html is in games/
+        - label: Cover, banner and screenshots are ready
+        - label: Tested in Safari and Chrome
+        - label: Entered in the admin panel and published

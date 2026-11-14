@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+*.tsbuildinfo
+
+# Environment variables – never commit real keys
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Supabase CLI (local state)
+supabase/.branches/
+supabase/.temp/
+
+# Cloudflare
+.wrangler/
+
+# Editors and OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# Claude Code (personal, per-developer settings)
+.claude/settings.local.json
+
+# Test and tooling caches
+coverage/
+.eslintcache

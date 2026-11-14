@@ -1,0 +1,23 @@
+name: Feature request
+description: An idea for the platform
+title: 'feat: '
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Who needs this, and why?
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What should it look like?
+      description: Describe the behaviour. Sketches are welcome.
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else?

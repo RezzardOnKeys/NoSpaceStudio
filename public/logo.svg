@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 236 32" role="img" aria-label="NoSpaceStudio">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#9580ff" />
+      <stop offset="1" stop-color="#6d4aff" />
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="8" fill="url(#g)" />
+  <path d="M10 22.5V9.5l12 13V9.5" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" />
+  <text x="44" y="23" font-family="Inter, 'Helvetica Neue', Arial, sans-serif" font-size="21" letter-spacing="-0.5" fill="#eceef5">
+    <tspan font-weight="700">NoSpace</tspan><tspan font-weight="300" fill="#a3a9bd">Studio</tspan>
+  </text>
+</svg>
