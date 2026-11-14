@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { queryKeys } from '@/lib/query-keys';
-import { fetchGames } from '@/mocks/api';
+
+import { fetchGames } from './api';
 
 export function useGames() {
   return useQuery({ queryKey: queryKeys.games, queryFn: fetchGames });

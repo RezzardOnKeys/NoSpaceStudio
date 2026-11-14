@@ -6,6 +6,7 @@
 export type GameStatus = 'draft' | 'published';
 
 export interface Game {
+  /** Same as the slug: the folder name identifies a game everywhere. */
   id: string;
   slug: string;
   title: string;
@@ -33,7 +34,6 @@ export interface Profile {
   id: string;
   username: string;
   avatarUrl: string | null;
-  isAdmin: boolean;
   /** ISO date string. */
   createdAt: string;
 }
@@ -53,6 +53,7 @@ export interface NewsPost {
   /** Post content in Markdown. */
   bodyMd: string;
   type: NewsType;
+  /** Id (folder name) of the game this post is about, if any. */
   gameId: string | null;
   version: string | null;
   /** ISO date string. */

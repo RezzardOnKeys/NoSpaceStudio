@@ -13,8 +13,8 @@ in-app purchases.
 
 </div>
 
-> **Status:** early prototype. The complete interface is built and starts with
-> an empty catalogue; real accounts and a database are next.
+> **Status:** early prototype. Accounts work, games and news are added as files
+> in this repository; playtime tracking and friends are next.
 
 <!-- TODO: replace with a real screenshot once the store page exists. -->
 <p align="center"><em>Screenshot coming soon</em></p>
@@ -24,12 +24,12 @@ in-app purchases.
 | Feature                                                    | Status           |
 | ---------------------------------------------------------- | ---------------- |
 | Design system (tokens, base components)                    | Done             |
-| Store with search, genre and engine filters, sorting       | Done (mock data) |
-| Game pages with gallery, patch notes and in-browser player | Done (mock data) |
-| Library, friends, news and profile pages                   | Done (mock data) |
-| Accounts with unique usernames                             | Planned          |
+| Store with search, genre and engine filters, sorting       | Done             |
+| Game pages with gallery, patch notes and in-browser player | Done             |
+| News feed                                                  | Done             |
+| Accounts with unique usernames, password reset             | Done             |
+| Library, friends and profile pages                         | Done (mock data) |
 | Real playtime tracking                                     | Planned          |
-| Admin panel for games and news                             | Planned          |
 | Installable as a web app (PWA)                             | Planned          |
 
 ## Tech stack
@@ -47,6 +47,7 @@ in-app purchases.
 | Code quality            | ESLint, Prettier, GitHub Actions            |
 
 The reasoning behind these choices is recorded in [docs/DECISIONS.md](docs/DECISIONS.md).
+The plan and the current status are in [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Getting started
 
@@ -59,6 +60,13 @@ npm install
 ```bash
 cp .env.example .env
 ```
+
+Then connect the database: [docs/SUPABASE-SETUP.md](docs/SUPABASE-SETUP.md)
+(in German) explains step by step how to create the Supabase project, run the
+SQL and fill in `.env`. Without it the app starts, but nobody can sign in.
+
+Adding a game or a news post is a commit, no database needed:
+[docs/ADDING-A-GAME.md](docs/ADDING-A-GAME.md) (in German).
 
 ```bash
 npm run dev
@@ -92,9 +100,10 @@ The component reference lives at <http://localhost:5173/dev/ui>.
 ├── .github/            CI workflow, pull request and issue templates
 ├── docs/               Decisions and guides
 ├── games/              Static games, served from a separate origin
-│   └── _template/      Starting point for a new game
+│   └── _template/      Starting point for a new game (with game.json)
 ├── public/             Favicon, logo and other static files
-├── supabase/           Database migrations and seed data (coming in phase 3)
+├── news/               News posts, one Markdown file each
+├── supabase/           Database migrations (accounts, playtime, friends)
 └── src/
     ├── config/         brand.ts (name, slogan, logo, contact), env.ts
     ├── components/
@@ -104,18 +113,19 @@ The component reference lives at <http://localhost:5173/dev/ui>.
     ├── features/       One folder per feature: games, player, library,
     │                   friends, news, profile, auth
     ├── hooks/          Shared React hooks
-    ├── lib/            Helpers without UI (formatting, query client)
-    ├── mocks/          Mock data and an in-memory stand-in for the backend
+    ├── lib/            Helpers without UI (formatting, query client, Supabase client)
+    ├── mocks/          In-memory stand-in for the parts not on the database yet
     ├── pages/          One file per route
     ├── routes/         Router definition and path constants
     ├── styles/         Design tokens and global CSS
-    └── types/          Data shapes shared across the app
+    └── types/          App-level data shapes and the database types
 ```
 
 ## How games are hosted
 
 Games are plain static folders in `games/<slug>/` and are served from their
-**own origin**, separate from the launcher. The launcher embeds them in a
+**own origin**, separate from the launcher. Each folder also holds the game's
+store entry (`game.json`) and its images. The launcher embeds them in a
 sandboxed `<iframe>`. This way a game can never read a player's login session.
 See [games/README.md](games/README.md) for the rules a game has to follow.
 

@@ -1,0 +1,13 @@
+{
+  "title": "My Game",
+  "shortDescription": "One sentence that makes people want to play.",
+  "genres": ["Arcade"],
+  "engine": "HTML5",
+  "version": "1.0.0",
+  "status": "draft",
+  "featured": false,
+  "publishedAt": "2026-01-31",
+  "cover": "cover.webp",
+  "banner": "banner.webp",
+  "screenshots": ["screenshot-1.webp"]
+}

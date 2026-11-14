@@ -3,6 +3,11 @@
 Every game is a static folder: `games/<slug>/` with an `index.html` as its
 entry point. No build step. Whatever is in the folder gets served as is.
 
+The folder also holds the game's store entry: `game.json` (title, genres,
+status, ...), an optional `description.md` and the images. The launcher reads
+these files when it is built. Step by step:
+[docs/ADDING-A-GAME.md](../docs/ADDING-A-GAME.md) (in German).
+
 | Folder | What it is |
 | --- | --- |
 | `_template/` | Starting point for a new game. Copy it and rename the copy |

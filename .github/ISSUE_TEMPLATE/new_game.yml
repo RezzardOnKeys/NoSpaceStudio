@@ -41,4 +41,4 @@ body:
         - label: Game folder with index.html is in games/
         - label: Cover, banner and screenshots are ready
         - label: Tested in Safari and Chrome
-        - label: Entered in the admin panel and published
+        - label: game.json filled in and status set to published

@@ -12,12 +12,13 @@ import { collectEngines, collectGenres, filterGames } from '@/features/games/sto
 import { StoreFilterBar } from '@/features/games/StoreFilterBar';
 import { useStoreFilters } from '@/features/games/useStoreFilters';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { describeLoadError } from '@/lib/errors';
 
 const SKELETON_COUNT = 10;
 
 export function StorePage() {
   useDocumentTitle('Store');
-  const { data: games, isPending, isError, refetch } = useGames();
+  const { data: games, isPending, isError, error, refetch } = useGames();
   const filters = useStoreFilters();
   const { query, genres, engine, sort } = filters;
 
@@ -28,7 +29,13 @@ export function StorePage() {
   const featured = useMemo(() => (games ?? []).filter((game) => game.isFeatured), [games]);
 
   if (isError) {
-    return <ErrorState title="We could not load the games" onRetry={() => void refetch()} />;
+    return (
+      <ErrorState
+        title="We could not load the games"
+        description={describeLoadError(error)}
+        onRetry={() => void refetch()}
+      />
+    );
   }
 
   const trimmedQuery = query.trim();

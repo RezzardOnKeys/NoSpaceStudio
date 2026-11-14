@@ -1,8 +1,7 @@
-import { Clock, Gamepad2, Lock, ShieldCheck, Trophy, UserX } from 'lucide-react';
+import { Clock, Gamepad2, Lock, Trophy, UserX } from 'lucide-react';
 import { Link } from 'react-router';
 
 import { Avatar } from '@/components/ui/Avatar';
-import { Badge } from '@/components/ui/Badge';
 import { buttonStyles } from '@/components/ui/button-styles';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
@@ -91,15 +90,7 @@ export function ProfileView({ username, isOwn }: ProfileViewProps) {
       <header className="flex flex-wrap items-center gap-5">
         <Avatar username={profile.username} src={profile.avatarUrl} size="xl" />
         <div className="flex flex-col gap-2">
-          <div className="flex flex-wrap items-center gap-2.5">
-            <h1 className="text-3xl font-bold">{profile.username}</h1>
-            {profile.isAdmin && (
-              <Badge variant="accent">
-                <ShieldCheck aria-hidden="true" />
-                Admin
-              </Badge>
-            )}
-          </div>
+          <h1 className="text-3xl font-bold">{profile.username}</h1>
           <p className="text-fg-muted">
             Member since <time dateTime={profile.createdAt}>{formatDate(profile.createdAt)}</time>
           </p>

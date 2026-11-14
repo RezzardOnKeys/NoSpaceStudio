@@ -14,6 +14,9 @@ payments, no ads, no in-app purchases.
   beginner-friendly.
 - **UI text, code, comments and commit messages are English only.**
 - Desktop first (MacBooks, Safari + Chrome), responsive down to phones.
+- **The plan lives in `docs/ROADMAP.md`:** target features, data model, the
+  phases and their status. Read it before starting a phase, work phase by
+  phase, and update its status table when a phase is done.
 
 ## Git rules (strict)
 
@@ -105,11 +108,20 @@ files owned by root. Do not work around it silently; tell the developer to run
   as a **second** Pages project on a separate origin. The launcher embeds them
   in a sandboxed `<iframe>`. The base URL comes from `VITE_GAMES_BASE_URL`.
   Reason: a game must never be able to read the user's login session.
-- Supabase Storage is for images only (covers, banners, screenshots, avatars).
-  Compress and resize images in the browser before upload.
-- SQL changes go into numbered files in `supabase/migrations/`. RLS on every
-  table. `is_admin` is set manually in the Supabase dashboard and must never
-  be writable by users.
+- Supabase Storage is for avatars only. Compress and resize them in the
+  browser before upload. Game images live in the game's folder.
+- **Games and news are files, not database rows** (decision 22). A game's
+  store entry is `games/<slug>/game.json` (+ optional `description.md`, cover,
+  banner, screenshots in the same folder); a news post is `news/<name>.md`
+  with a header block. There is no admin panel and no admin role. To add
+  content follow `docs/ADDING-A-GAME.md`; the file formats are defined in
+  `features/games/api.ts` and `features/news/api.ts`.
+- Supabase holds accounts, playtime, friendships and avatars only. Games are
+  referenced by their slug.
+- SQL changes go into numbered files in `supabase/migrations/`, with comments
+  that explain every part in simple English (the developers read them to
+  learn). RLS on every table. Never edit a migration that may already have
+  been run in Supabase; add a new numbered file instead.
 
 ## Folder structure
 
@@ -121,26 +133,39 @@ src/
   components/layout/  AppShell, Sidebar, TopBar, Footer, MobileNav
   components/brand/   Logo
   features/<feature>/  feature code: games, player, library, friends, news, profile, auth
-                       (each has a queries.ts with its data hooks)
+                       (queries.ts holds the data hooks, api.ts loads the data)
   hooks/          shared hooks
-  lib/            helpers without UI (format.ts, query-client.ts, query-keys.ts)
-  mocks/          mock data + api.ts, an in-memory stand-in for the backend
+  lib/            helpers without UI (format.ts, query-client.ts, query-keys.ts,
+                  supabase.ts, content.ts for reading content files)
+  mocks/          api.ts, an in-memory stand-in for what is not on Supabase yet
+                  (playtime, friends)
   pages/          one file per route
   routes/         router and path constants (paths.ts)
   styles/         index.css with all design tokens
-  types/          models.ts: app-level data shapes
-games/            static games (plain HTML/JS, not linted, not part of the build)
-supabase/         migrations and seed.sql
-docs/             DECISIONS.md and guides
+  types/          models.ts: app-level data shapes; database.ts: database rows
+                  (hand-written, keep in sync with supabase/migrations/)
+games/            static games (plain HTML/JS, not linted); each folder's game.json
+                  is the store entry and IS read by the launcher build
+news/             news posts as Markdown files
+supabase/         migrations
+docs/             ROADMAP.md (plan and status), DECISIONS.md, guides
 ```
 
 ## Data flow
 
 Components never fetch data themselves. They call a hook from
 `features/<feature>/queries.ts` (TanStack Query). The hooks call async functions
-that currently live in `src/mocks/api.ts`. When a feature moves to Supabase,
-only the query function changes; components and types stay as they are. Query
-keys come from `lib/query-keys.ts`.
+from `features/<feature>/api.ts` (Supabase rows or content files from the
+repository, mapped to the camelCase shapes in `types/models.ts` there) or, for
+features that are not connected yet, from `src/mocks/api.ts`. When a feature moves to Supabase, only the query
+function changes; components and types stay as they are. Query keys come from
+`lib/query-keys.ts`.
+
+Auth: `useAuth()` (`features/auth/auth-context.ts`) gives the raw sign-in
+state, `useCurrentUser()` the profile (`null` for guests). Routes are guarded
+in `routes/router.tsx` with `RequireAuth` and `GuestOnly`.
+Get the client with `getSupabase()` from `lib/supabase.ts`; it throws a
+helpful error while `.env` is not filled in.
 
 ## Code conventions
 

@@ -1,6 +1,8 @@
 /** Cache keys for all queries, in one place so invalidation never mistypes one. */
 export const queryKeys = {
-  currentUser: ['current-user'],
+  /** `null` is the guest: nobody is signed in. */
+  currentUser: (userId: string | null) => ['current-user', userId],
+  usernameTaken: (username: string) => ['username-taken', username],
   games: ['games'],
   news: ['news'],
   myPlaytime: ['playtime', 'me'],

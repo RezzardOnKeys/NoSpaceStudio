@@ -16,6 +16,7 @@ import { ScreenshotGallery } from '@/features/games/ScreenshotGallery';
 import { useMyPlaytime } from '@/features/library/queries';
 import { PatchNotes } from '@/features/news/PatchNotes';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { describeLoadError } from '@/lib/errors';
 import { formatDate, formatPlaytime, formatRelative } from '@/lib/format';
 import { paths } from '@/routes/paths';
 
@@ -66,14 +67,20 @@ function GamePageSkeleton() {
 
 export function GamePage() {
   const { slug } = useParams();
-  const { data: game, isPending, isError, refetch } = useGame(slug);
+  const { data: game, isPending, isError, error, refetch } = useGame(slug);
   const { data: playtime } = useMyPlaytime();
   useDocumentTitle(game?.title ?? 'Game');
 
   if (isPending) return <GamePageSkeleton />;
 
   if (isError) {
-    return <ErrorState title="We could not load this game" onRetry={() => void refetch()} />;
+    return (
+      <ErrorState
+        title="We could not load this game"
+        description={describeLoadError(error)}
+        onRetry={() => void refetch()}
+      />
+    );
   }
 
   if (!game) {

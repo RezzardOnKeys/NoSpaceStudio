@@ -19,7 +19,8 @@ export function ProfilePage() {
     );
   }
 
-  if (currentUser.isPending) return <ListSkeleton rows={3} />;
+  // Guests never get here (RequireAuth), so no data means it is still loading.
+  if (!currentUser.data) return <ListSkeleton rows={3} />;
 
   const shownUsername = (username ?? currentUser.data.username).toLowerCase();
 

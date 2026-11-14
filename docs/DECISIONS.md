@@ -92,9 +92,8 @@ only contains `_template/`, the starting point for a new game. This replaces
 the earlier approach of eight mock entries with generated artwork.
 
 **Why:** The platform should show only what we really publish, so we fill it
-ourselves, entry by entry. Every page has an empty state for this. Until the
-database and the admin panel exist, entries can be added by hand in
-`src/mocks/games.ts` and `src/mocks/news.ts`.
+ourselves, entry by entry. Every page has an empty state for this. How to
+add entries: decision 22.
 
 ## 12. (withdrawn)
 
@@ -127,3 +126,83 @@ tab bar.
 
 **Why:** A fixed sidebar takes too much width on phones and tablets, and a
 bottom bar is within thumb reach.
+
+## 16. Guests can browse and play
+
+**Decision:** The store, game pages, news and the player work without an
+account. Library, friends and profile redirect guests to the sign-in
+page and bring them back afterwards.
+
+**Why:** "No downloads" should also mean no hurdle before the first game.
+Playtime only counts for signed-in players, which is the reason to sign up.
+The rule lives in one place (`RequireAuth` in the router) and is easy to
+change.
+
+## 17. Usernames are stored in lower case and cannot be changed
+
+**Decision:** The database only accepts `^[a-z0-9_]{3,20}$`. The sign-up form
+lower-cases the input. Users may change their avatar and nothing else on
+their profile; this is enforced with column-level privileges, not only RLS.
+
+**Why:** Lower case makes names case-insensitive without an extension, and
+profile links (`/u/name`) stay stable. Column privileges make it impossible
+to write any other column, whatever a policy allows.
+
+## 18. The profile is created by a database trigger
+
+**Decision:** The sign-up form sends the username as user metadata. A trigger
+on `auth.users` creates the profile row in the same transaction. If the name
+is taken, the whole sign-up fails.
+
+**Why:** There can never be an account without a profile or a profile without
+a unique name, even if two people pick the same name at the same moment.
+
+## 19. Database types are written by hand
+
+**Decision:** `src/types/database.ts` mirrors the migrations by hand instead
+of being generated with the Supabase CLI.
+
+**Why:** Generating needs the CLI and a login, one more tool for a small
+schema. The cost: the file must be updated together with every migration.
+
+## 20. The app runs without Supabase values
+
+**Decision:** If `.env` has no (or only the example) Supabase values, no
+client is created. Everyone is a guest, the store and news still work, and
+the account pages name the missing values and the setup guide.
+
+**Why:** A fresh clone should start and explain itself instead of crashing
+with a blank page.
+
+## 21. Total playtime per game is a public counter
+
+**Decision:** The table `game_stats` holds one running total per game.
+Only `record_playtime()` adds to it; nobody can write it directly.
+
+**Why:** "Most played" needs a number everyone may read, while the playtime
+rows themselves are private. A counter avoids a public aggregate over private
+data.
+
+## 22. Games and news are files in the repository, there is no admin panel
+
+**Decision:** A game is a folder `games/<slug>/` with a `game.json` (store
+entry), an optional `description.md` and its images. A news post is a
+Markdown file in `news/`. Vite collects them at build time
+(`import.meta.glob`). The database has no games or news tables, no `is_admin`
+flag and no image storage for games; it identifies a game by its slug. This
+replaces the planned admin panel and the short-lived Supabase catalogue.
+
+**Why:** A new game needs a push anyway (its folder). With the store entry
+next to it, adding a game or a post is a single commit that can be reviewed,
+reverted and written by Claude. It removes a whole phase of work (admin
+forms, image upload, admin-only RLS). The price: every content change needs a
+push, and the database cannot check that a slug belongs to a real game.
+
+## 23. Drafts and future posts only show locally
+
+**Decision:** A game with `"status": "draft"` and a news post dated in the
+future are visible with `npm run dev`, but not in a production build.
+
+**Why:** It gives us a preview without a separate preview system. Note that a
+draft game's folder is still deployed and reachable by its direct URL, and
+the text of hidden entries is part of the shipped bundle. Hidden is not secret.

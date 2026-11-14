@@ -1,4 +1,4 @@
-import { ShieldCheck } from 'lucide-react';
+import { LogIn } from 'lucide-react';
 import { Link } from 'react-router';
 
 import { Logo } from '@/components/brand/Logo';
@@ -13,7 +13,7 @@ import { useIncomingRequestCount } from './useIncomingRequestCount';
 
 /** Fixed navigation on the left. Only shown on large screens. */
 export function Sidebar() {
-  const { data: user } = useCurrentUser();
+  const { data: user, isPending } = useCurrentUser();
   const requestCount = useIncomingRequestCount();
 
   return (
@@ -36,7 +36,6 @@ export function Sidebar() {
       </nav>
 
       <nav aria-label="Account" className="flex flex-col gap-1 border-t border-line p-3">
-        {user?.isAdmin && <SidebarLink to={paths.admin} label="Admin" icon={ShieldCheck} />}
         {user ? (
           <SidebarLink
             to={paths.profile}
@@ -45,11 +44,13 @@ export function Sidebar() {
               <Avatar username={user.username} src={user.avatarUrl} size="sm" className="-ml-1.5" />
             }
           />
-        ) : (
+        ) : isPending ? (
           <div className="flex h-10 items-center gap-3 px-1.5" aria-busy="true">
             <Skeleton className="size-8 rounded-full" />
             <Skeleton className="h-3.5 w-24" />
           </div>
+        ) : (
+          <SidebarLink to={paths.signIn} label="Sign in" icon={LogIn} />
         )}
       </nav>
     </aside>

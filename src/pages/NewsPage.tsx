@@ -12,6 +12,7 @@ import { NEWS_TYPE_LABELS } from '@/features/news/news-types';
 import { NewsCard } from '@/features/news/NewsCard';
 import { useNews } from '@/features/news/queries';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { describeLoadError } from '@/lib/errors';
 import type { NewsType } from '@/types/models';
 
 const FILTERS: { value: NewsType | null; label: string }[] = [
@@ -23,7 +24,7 @@ const FILTERS: { value: NewsType | null; label: string }[] = [
 
 export function NewsPage() {
   useDocumentTitle('News');
-  const { data: posts, isPending, isError, refetch } = useNews();
+  const { data: posts, isPending, isError, error, refetch } = useNews();
   const { data: games } = useGames();
   const [type, setType] = useState<NewsType | null>(null);
 
@@ -46,7 +47,11 @@ export function NewsPage() {
       </div>
 
       {isError ? (
-        <ErrorState title="We could not load the news" onRetry={() => void refetch()} />
+        <ErrorState
+          title="We could not load the news"
+          description={describeLoadError(error)}
+          onRetry={() => void refetch()}
+        />
       ) : isPending || !visiblePosts ? (
         <div className="flex flex-col gap-5" aria-busy="true">
           {[0, 1, 2].map((item) => (

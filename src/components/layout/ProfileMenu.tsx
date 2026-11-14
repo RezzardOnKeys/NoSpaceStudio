@@ -1,11 +1,13 @@
 import { ChevronDown, Library, LogOut, UserRound, Users, type LucideIcon } from 'lucide-react';
 import { useEffect, useId, useRef, useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 
 import { Avatar } from '@/components/ui/Avatar';
+import { buttonStyles } from '@/components/ui/button-styles';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToast } from '@/components/ui/toast-context';
-import { useCurrentUser } from '@/features/auth/queries';
+import { describeAuthError } from '@/features/auth/auth-errors';
+import { useCurrentUser, useSignOut } from '@/features/auth/queries';
 import { cn } from '@/lib/cn';
 import { paths } from '@/routes/paths';
 
@@ -18,9 +20,11 @@ const links: { label: string; to: string; icon: LucideIcon }[] = [
   { label: 'Friends', to: paths.friends, icon: Users },
 ];
 
-/** Avatar button in the top bar with a small dropdown menu. */
+/** Avatar button in the top bar with a small dropdown menu. Guests get a sign-in button. */
 export function ProfileMenu() {
-  const { data: user } = useCurrentUser();
+  const { data: user, isPending } = useCurrentUser();
+  const signOut = useSignOut();
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -43,16 +47,32 @@ export function ProfileMenu() {
     };
   }, [open]);
 
-  if (!user) {
+  if (isPending) {
     return <Skeleton className="size-10 rounded-full" />;
+  }
+
+  if (!user) {
+    return (
+      <Link to={paths.signIn} className={buttonStyles({ size: 'sm' })}>
+        Sign in
+      </Link>
+    );
   }
 
   function handleSignOut() {
     setOpen(false);
-    // TODO(phase 3): sign out through Supabase once real accounts exist.
-    toast({
-      title: 'Accounts are not connected yet',
-      description: 'Signing in and out arrives together with real accounts.',
+    signOut.mutate(undefined, {
+      onSuccess: () => {
+        toast({ title: 'Signed out', variant: 'success' });
+        void navigate(paths.store);
+      },
+      onError: (error) => {
+        toast({
+          title: 'Signing out did not work',
+          description: describeAuthError(error),
+          variant: 'error',
+        });
+      },
     });
   }
 

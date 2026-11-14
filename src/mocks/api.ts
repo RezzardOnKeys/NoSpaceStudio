@@ -1,24 +1,21 @@
 /**
- * In-memory stand-in for the backend. Every function is async and has the
- * shape the real data layer will have, so swapping mocks for Supabase later
- * only touches the query functions, not the components.
+ * In-memory stand-in for the parts of the backend that are not connected to
+ * Supabase yet: playtime (phase 4) and friends (phase 5). Accounts, games and
+ * news already come from the database (see features/<feature>/api.ts).
  *
- * State lives in module variables and resets on page reload.
+ * Every function is async and has the shape the real data layer will have,
+ * so swapping a mock for Supabase only touches the query functions, not the
+ * components. State lives in module variables and resets on page reload.
  */
 import type {
   Friend,
   FriendGamePlaytime,
   FriendRequest,
-  Game,
-  NewsPost,
   PlaytimeEntry,
   Profile,
-  UserPlaytime,
 } from '@/types/models';
 
-import { mockGames } from './games';
-import { mockNews } from './news';
-import { mockCurrentUser, mockUsers } from './users';
+import { mockUsers } from './users';
 
 const LATENCY_MS = 350;
 
@@ -32,7 +29,10 @@ function requireUser(userId: string): Profile {
   return user;
 }
 
-/** Playtime per user id. Empty until someone has games to play. */
+/** The signed-in user's playtime. Empty until tracking is built. */
+const myPlaytime: PlaytimeEntry[] = [];
+
+/** Playtime of other players, by user id. */
 const playtimeByUser: Record<string, PlaytimeEntry[]> = {};
 
 let friends: Friend[] = [];
@@ -43,43 +43,15 @@ function isFriend(userId: string): boolean {
   return friends.some((friend) => friend.profile.id === userId);
 }
 
-// --- Session -----------------------------------------------------------------
-
-export function fetchCurrentUser(): Promise<Profile> {
-  return respond(mockCurrentUser);
-}
-
-// --- Games and news ----------------------------------------------------------
-
-export function fetchGames(): Promise<Game[]> {
-  return respond(mockGames.filter((game) => game.status === 'published'));
-}
-
-export function fetchNews(): Promise<NewsPost[]> {
-  return respond([...mockNews].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)));
-}
-
 // --- Playtime ----------------------------------------------------------------
 
 export function fetchMyPlaytime(): Promise<PlaytimeEntry[]> {
-  return respond(playtimeByUser[mockCurrentUser.id] ?? []);
+  return respond(myPlaytime);
 }
 
-/** Returns null when no user has this username. */
-export function fetchUserPlaytime(username: string): Promise<UserPlaytime | null> {
-  const wanted = username.toLowerCase();
-  if (wanted === mockCurrentUser.username) {
-    return respond({
-      profile: mockCurrentUser,
-      playtime: playtimeByUser[mockCurrentUser.id] ?? [],
-    });
-  }
-  const profile = mockUsers.find((user) => user.username === wanted);
-  if (!profile) return respond(null);
-  return respond({
-    profile,
-    playtime: isFriend(profile.id) ? (playtimeByUser[profile.id] ?? []) : null,
-  });
+/** Another player's playtime. Null when they are not a confirmed friend. */
+export function fetchPlaytimeOfUser(userId: string): Promise<PlaytimeEntry[] | null> {
+  return respond(isFriend(userId) ? (playtimeByUser[userId] ?? []) : null);
 }
 
 export function fetchFriendsPlaytimeForGame(gameId: string): Promise<FriendGamePlaytime[]> {

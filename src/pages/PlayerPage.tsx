@@ -12,6 +12,7 @@ import { GameFrame } from '@/features/player/GameFrame';
 import { useFullscreen } from '@/features/player/useFullscreen';
 import { useSessionTimer } from '@/features/player/useSessionTimer';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { describeLoadError } from '@/lib/errors';
 import { formatTimer } from '@/lib/format';
 import { paths } from '@/routes/paths';
 import type { Game } from '@/types/models';
@@ -65,7 +66,7 @@ function Player({ game }: PlayerProps) {
 
 export function PlayerPage() {
   const { slug } = useParams();
-  const { data: game, isPending, isError, refetch } = useGame(slug);
+  const { data: game, isPending, isError, error, refetch } = useGame(slug);
   useDocumentTitle(game ? `Playing ${game.title}` : 'Player');
 
   if (isPending) {
@@ -80,7 +81,11 @@ export function PlayerPage() {
   if (isError) {
     return (
       <main className="flex h-dvh items-center justify-center">
-        <ErrorState title="We could not load this game" onRetry={() => void refetch()} />
+        <ErrorState
+          title="We could not load this game"
+          description={describeLoadError(error)}
+          onRetry={() => void refetch()}
+        />
       </main>
     );
   }
