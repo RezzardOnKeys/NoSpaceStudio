@@ -10,17 +10,17 @@ export function NotFoundPage() {
   useDocumentTitle('Page not found');
 
   return (
-    <main className="flex min-h-dvh items-center justify-center">
+    <div className="flex min-h-[50dvh] items-center justify-center">
       <EmptyState
         icon={<Compass />}
         title="This page does not exist"
-        description="The link may be outdated or mistyped. Head back home and try again from there."
+        description="The link may be outdated or mistyped. Head back to the store and try again from there."
         action={
-          <Link to={paths.home} className={buttonStyles()}>
-            Back to home
+          <Link to={paths.store} className={buttonStyles()}>
+            Back to store
           </Link>
         }
       />
-    </main>
+    </div>
   );
 }

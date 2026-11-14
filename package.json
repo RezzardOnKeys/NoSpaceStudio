@@ -8,7 +8,9 @@
     "node": ">=22"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently --names web,games --prefix-colors magenta,cyan \"npm:dev:web\" \"npm:dev:games\"",
+    "dev:web": "vite",
+    "dev:games": "vite --config vite.games.config.ts",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "lint": "eslint .",
@@ -18,11 +20,13 @@
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.3.0",
+    "@tanstack/react-query": "^5.107.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.73.0",
     "motion": "^14.14.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
+    "react-markdown": "^10.1.0",
     "react-router": "^8.5.1",
     "tailwind-merge": "^3.7.0"
   },
@@ -33,6 +37,7 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.3.0",
+    "concurrently": "^10.0.7",
     "eslint": "^10.15.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react-hooks": "^7.1.1",

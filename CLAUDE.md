@@ -79,15 +79,16 @@ The frontend may only use the public Supabase anon key, never `service_role`.
 
 ## Tech stack
 
-Vite, React 19, TypeScript (strict), Tailwind CSS v4, React Router, Motion
-(`motion/react`, use sparingly), Lucide icons, Supabase (auth with email +
-password, Postgres with RLS, storage for images only), Cloudflare Pages.
-Deviations and their reasons are recorded in `docs/DECISIONS.md`; add new
-decisions there.
+Vite, React 19, TypeScript (strict), Tailwind CSS v4, React Router, TanStack
+Query, Motion (`motion/react`, use sparingly), Lucide icons, react-markdown,
+Supabase (auth with email + password, Postgres with RLS, storage for images
+only), Cloudflare Pages. Deviations and their reasons are recorded in
+`docs/DECISIONS.md`; add new decisions there.
 
 ## Commands
 
-- `npm run dev` – dev server on http://localhost:5173
+- `npm run dev` – launcher on http://localhost:5173 and the games server on
+  http://localhost:5174 (`dev:web` / `dev:games` start one of them)
 - `npm run lint`, `npm run typecheck`, `npm run build` – must all pass before
   handing over
 - `npm run format` – Prettier
@@ -114,19 +115,32 @@ files owned by root. Do not work around it silently; tell the developer to run
 
 ```
 src/
-  config/         brand.ts (single source for name, slogan, logo, contact)
-  components/ui/  base components (Button, Input, Badge, Card, Modal, Toast, Skeleton, EmptyState)
-  components/brand/  Logo
-  features/<feature>/  feature code (auth, store, game, player, library, friends, news, profile, admin)
+  config/         brand.ts (single source for name, slogan, logo, contact), env.ts
+  components/ui/  base components (Button, Input, Badge, Card, Modal, Toast, Skeleton,
+                  EmptyState, ErrorState, Avatar, Chip, Select, Markdown, Lightbox, ...)
+  components/layout/  AppShell, Sidebar, TopBar, Footer, MobileNav
+  components/brand/   Logo
+  features/<feature>/  feature code: games, player, library, friends, news, profile, auth
+                       (each has a queries.ts with its data hooks)
   hooks/          shared hooks
-  lib/            helpers without UI
+  lib/            helpers without UI (format.ts, query-client.ts, query-keys.ts)
+  mocks/          mock data + api.ts, an in-memory stand-in for the backend
   pages/          one file per route
   routes/         router and path constants (paths.ts)
   styles/         index.css with all design tokens
-games/            static games
+  types/          models.ts: app-level data shapes
+games/            static games (plain HTML/JS, not linted, not part of the build)
 supabase/         migrations and seed.sql
 docs/             DECISIONS.md and guides
 ```
+
+## Data flow
+
+Components never fetch data themselves. They call a hook from
+`features/<feature>/queries.ts` (TanStack Query). The hooks call async functions
+that currently live in `src/mocks/api.ts`. When a feature moves to Supabase,
+only the query function changes; components and types stay as they are. Query
+keys come from `lib/query-keys.ts`.
 
 ## Code conventions
 
@@ -138,9 +152,10 @@ docs/             DECISIONS.md and guides
   components.
 - Never hard-code the product name; use `brand` from `@/config/brand`.
 - Never hand-type route URLs; use `paths` from `@/routes/paths`.
+- Filters that should survive navigation live in the URL (see `useStoreFilters`).
 - Buttons that are links: `<Link className={buttonStyles({ … })}>`.
 - Every data view has loading (Skeleton), error (with a hint how to fix it)
-  and empty states (EmptyState). Feedback via `useToast()`.
+  and empty states (EmptyState, ErrorState). Feedback via `useToast()`.
 - Accessibility: visible focus, labels on all inputs, `aria-label` on icon
   buttons (use `IconButton`), respect `prefers-reduced-motion`.
 - No dead files, no commented-out code.

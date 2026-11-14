@@ -74,3 +74,58 @@ be freely reusable, give its folder its own license file.
 
 **Why:** At setup time it did not yet support ESLint 10. Accessibility rules
 are enforced by convention (see CLAUDE.md) until it does.
+
+## 10. TanStack Query as the data layer
+
+**Decision:** All data access goes through TanStack Query hooks in
+`features/<feature>/queries.ts`.
+
+**Why:** It gives every view loading, error and cached states without
+hand-written plumbing. It also lets the interface be built against mock
+functions first: moving to Supabase only replaces the query functions.
+
+## 11. Mock artwork is generated, not stored
+
+**Decision:** Covers, banners and screenshots of mock games are SVG data URLs
+generated in `src/mocks/art.ts`.
+
+**Why:** The store needs to look like a real store, but we do not want
+placeholder image files in the repository. The generator disappears together
+with the mocks.
+
+## 12. Mock entries without a real game use `games/_template/`
+
+**Decision:** Only two catalogue entries are real games. The others point to
+the starter template, which says that the game is not uploaded yet.
+
+**Why:** The store needs enough entries to test filters and sorting, and the
+player must never show a broken page. The template doubles as the starting
+point for new games.
+
+## 13. iframe sandbox for games
+
+**Decision:** Games are embedded with
+`sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-orientation-lock"`
+and `allow="fullscreen; gamepad; autoplay"`.
+
+**Why:** `allow-same-origin` is needed so a game can use its own storage (save
+games, Unity's asset cache). This is safe only because games are served from
+a different origin than the launcher, so "same origin" never includes the
+login session. Popups, top-level navigation, forms and downloads stay blocked.
+
+## 14. Store filters live in the URL
+
+**Decision:** Search text, genres, engine and sorting are query parameters
+(`/?q=drift&genre=Arcade&sort=az`).
+
+**Why:** A filtered view can be shared and survives going to a game and back.
+The search field in the top bar writes the same parameter, so it works from
+every page.
+
+## 15. Tab bar instead of sidebar on small screens
+
+**Decision:** Below the `lg` breakpoint the sidebar is replaced by a bottom
+tab bar.
+
+**Why:** A fixed sidebar takes too much width on phones and tablets, and a
+bottom bar is within thumb reach.

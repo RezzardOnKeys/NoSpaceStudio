@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tile Shift</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Tile Shift</h1>
+        <dl>
+          <div>
+            <dt>Moves</dt>
+            <dd id="moves">0</dd>
+          </div>
+          <div>
+            <dt>Time</dt>
+            <dd id="time">0:00</dd>
+          </div>
+        </dl>
+      </header>
+      <div id="board" role="grid" aria-label="Puzzle board"></div>
+      <p id="message" role="status">Click a tile next to the gap, or use the arrow keys.</p>
+      <button id="new-game" type="button">New game</button>
+    </main>
+    <script src="game.js"></script>
+  </body>
+</html>

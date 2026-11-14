@@ -69,11 +69,11 @@ export function UiKitPage() {
         <div className="flex flex-wrap items-center justify-between gap-4">
           <Logo />
           <Link
-            to={paths.home}
+            to={paths.store}
             className="inline-flex items-center gap-1.5 rounded-md text-sm text-fg-muted transition-colors hover:text-fg"
           >
             <ArrowLeft className="size-4" aria-hidden="true" />
-            Back to home
+            Back to store
           </Link>
         </div>
         <div className="flex flex-col gap-2">

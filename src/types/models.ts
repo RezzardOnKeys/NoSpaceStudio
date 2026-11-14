@@ -1,0 +1,88 @@
+/**
+ * App-level data shapes. Components only ever see these types, no matter
+ * whether the data comes from mocks or from the database.
+ */
+
+export type GameStatus = 'draft' | 'published';
+
+export interface Game {
+  id: string;
+  slug: string;
+  title: string;
+  shortDescription: string;
+  /** Long description in Markdown. */
+  description: string;
+  genres: string[];
+  /** Engine label shown as a badge, e.g. "HTML5", "Unity", "Godot". */
+  engine: string;
+  coverUrl: string;
+  bannerUrl: string;
+  screenshots: string[];
+  /** Folder name inside games/. */
+  gamePath: string;
+  version: string;
+  status: GameStatus;
+  isFeatured: boolean;
+  /** ISO date string. */
+  publishedAt: string;
+  /** Playtime of all players combined, used for the "Most played" sorting. */
+  totalPlaytimeSeconds: number;
+}
+
+export interface Profile {
+  id: string;
+  username: string;
+  avatarUrl: string | null;
+  isAdmin: boolean;
+  /** ISO date string. */
+  createdAt: string;
+}
+
+export interface PlaytimeEntry {
+  gameId: string;
+  totalSeconds: number;
+  /** ISO date string. */
+  lastPlayedAt: string;
+}
+
+export type NewsType = 'game_update' | 'launcher_update' | 'announcement';
+
+export interface NewsPost {
+  id: string;
+  title: string;
+  /** Post content in Markdown. */
+  bodyMd: string;
+  type: NewsType;
+  gameId: string | null;
+  version: string | null;
+  /** ISO date string. */
+  publishedAt: string;
+  authorName: string;
+}
+
+export interface Friend {
+  profile: Profile;
+  /** ISO date string of when the request was accepted. */
+  since: string;
+}
+
+export interface FriendRequest {
+  id: string;
+  profile: Profile;
+  /** "incoming": they asked us. "outgoing": we asked them. */
+  direction: 'incoming' | 'outgoing';
+  /** ISO date string. */
+  createdAt: string;
+}
+
+/** A user's playtime, as visible to themselves and confirmed friends. */
+export interface UserPlaytime {
+  profile: Profile;
+  /** null when the viewer is not allowed to see it (not a friend). */
+  playtime: PlaytimeEntry[] | null;
+}
+
+export interface FriendGamePlaytime {
+  profile: Profile;
+  totalSeconds: number;
+}
