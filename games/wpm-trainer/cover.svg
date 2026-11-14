@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1d2028"/>
+      <stop offset="1" stop-color="#14161b"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="800" fill="url(#bg)"/>
+  <g font-family="Menlo, Consolas, monospace" font-weight="700" text-anchor="middle">
+    <g transform="translate(90 230)">
+      <rect width="120" height="120" rx="18" fill="#6fcf7a"/>
+      <text x="60" y="82" font-size="64" fill="#15171c">W</text>
+    </g>
+    <g transform="translate(240 230)">
+      <rect width="120" height="120" rx="18" fill="#f5b942"/>
+      <text x="60" y="82" font-size="64" fill="#15171c">P</text>
+    </g>
+    <g transform="translate(390 230)">
+      <rect width="120" height="120" rx="18" fill="#5cc4d6"/>
+      <text x="60" y="82" font-size="64" fill="#15171c">M</text>
+    </g>
+  </g>
+  <rect x="90" y="380" width="420" height="10" rx="5" fill="#252935"/>
+  <rect x="90" y="380" width="290" height="10" rx="5" fill="#f5b942"/>
+  <rect x="376" y="374" width="6" height="22" rx="3" fill="#4bffa2"/>
+  <g font-family="-apple-system, Segoe UI, Roboto, sans-serif" text-anchor="middle">
+    <text x="300" y="520" font-size="58" font-weight="800" fill="#e6e8ee">99-Finger</text>
+    <text x="300" y="590" font-size="46" font-weight="800" fill="#f5b942">WPM Trainer</text>
+    <text x="300" y="660" font-size="24" fill="#8a90a2">Type fast. Drive the video.</text>
+  </g>
+</svg>

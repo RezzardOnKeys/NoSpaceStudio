@@ -223,3 +223,48 @@ Removing a picture is possible by hand in the Supabase dashboard
 
 **How:** The picture is cut to a square and shrunk to 512 × 512 pixels WebP
 (JPEG where the browser cannot write WebP) on the device before the upload.
+
+## 25. Parties live in Supabase, game traffic stays in the game
+
+**Decision:** The launcher organises parties in Supabase (tables `parties`,
+`party_members`, `party_invites`, changes only through functions). When the
+host starts a game, a new `session_id` is written; every member's launcher
+notices it (Realtime, plus a refresh every 20 seconds) and opens the game. The
+game gets room code, role and name after `#` in its address and connects the
+players itself, e.g. with PeerJS.
+
+**Why:** The launcher cannot know how each game exchanges data, and fast
+game data should not go through our database (latency, free tier limits).
+Passing the details in the address works for every kind of game, needs no
+messages between launcher and game, and the game still works on its own.
+Format and requirements: docs/PARTY-GAMES.md.
+
+## 26. Only the host pulls the party into a game
+
+**Decision:** Only the host can start a game for the party. Members are
+pulled in only when the session changes while their launcher is open; after
+a reload they get a "Join game" notice instead. When the host leaves the
+player, the party game is stopped.
+
+**Why:** It avoids surprise jumps into a game that was started earlier, and
+makes it clear who decides. A running game is never reloaded because the
+party changed.
+
+## 27. Third-party code of a game is shipped in its folder
+
+**Decision:** The WPM trainer loaded PeerJS from unpkg.com at runtime. It now
+ships `vendor/peerjs.min.js` (same version, 1.5.4, MIT license file next to
+it). YouTube is still loaded from YouTube, because it cannot be otherwise.
+
+**Why:** A game should not depend on a third-party CDN being up, and the
+version cannot change under us.
+
+## 28. Games declare their player count; screen recording is not offered
+
+**Decision:** `game.json` has an optional `maxPlayers` (default 1). The
+player's sandbox stays the same for every game. The WPM trainer's screen
+recording was removed: it would have needed downloads and screen capture in
+the sandbox.
+
+**Why:** The developers did not want the recording. Keeping one sandbox for
+all games keeps decision 13 simple.

@@ -116,8 +116,15 @@ files owned by root. Do not work around it silently; tell the developer to run
   with a header block. There is no admin panel and no admin role. To add
   content follow `docs/ADDING-A-GAME.md`; the file formats are defined in
   `features/games/api.ts` and `features/news/api.ts`.
-- Supabase holds accounts, playtime, friendships and avatars only. Games are
-  referenced by their slug.
+- Supabase holds accounts, playtime, friendships, parties and avatars only.
+  Games are referenced by their slug.
+- **Parties** (decision 25): `features/party/`. `PartyWatcher` (mounted once in
+  `components/layout/RootLayout.tsx`) listens to Supabase Realtime and pulls
+  members into the host's game. The player passes `#party=…&role=…&name=…`
+  to the game; how a game uses it is in `docs/PARTY-GAMES.md`. Games set
+  `maxPlayers` in `game.json`.
+- Third-party code a game needs is shipped in the game folder (`vendor/`),
+  not loaded from a CDN (decision 27).
 - SQL changes go into numbered files in `supabase/migrations/`, with comments
   that explain every part in simple English (the developers read them to
   learn). RLS on every table. Never edit a migration that may already have
@@ -130,9 +137,9 @@ src/
   config/         brand.ts (single source for name, slogan, logo, contact), env.ts
   components/ui/  base components (Button, Input, Badge, Card, Modal, Toast, Skeleton,
                   EmptyState, ErrorState, Avatar, Chip, Select, Markdown, Lightbox, ...)
-  components/layout/  AppShell, Sidebar, TopBar, Footer, MobileNav
+  components/layout/  RootLayout, AppShell, Sidebar, TopBar, Footer, MobileNav
   components/brand/   Logo
-  features/<feature>/  feature code: games, player, library, friends, news, profile, auth
+  features/<feature>/  feature code: games, player, library, friends, party, news, profile, auth
                        (queries.ts holds the data hooks, api.ts loads the data)
   hooks/          shared hooks
   lib/            helpers without UI (format.ts, query-client.ts, query-keys.ts,

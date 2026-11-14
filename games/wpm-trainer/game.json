@@ -1,0 +1,13 @@
+{
+  "title": "99-Finger WPM Trainer",
+  "shortDescription": "Touch-type against a friend. Every correct key drives the video forward.",
+  "genres": ["Typing", "Party"],
+  "engine": "HTML5",
+  "version": "1.0.0",
+  "status": "published",
+  "featured": true,
+  "publishedAt": "2026-11-14",
+  "maxPlayers": 2,
+  "cover": "cover.svg",
+  "banner": "banner.svg"
+}

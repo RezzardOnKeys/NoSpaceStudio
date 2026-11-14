@@ -9,12 +9,12 @@ import { paths } from '@/routes/paths';
 
 import { mainNavItems } from './nav-items';
 import { SidebarLink } from './SidebarLink';
-import { useIncomingRequestCount } from './useIncomingRequestCount';
+import { useNavBadges } from './useNavBadges';
 
 /** Fixed navigation on the left. Only shown on large screens. */
 export function Sidebar() {
   const { data: user, isPending } = useCurrentUser();
-  const requestCount = useIncomingRequestCount();
+  const badges = useNavBadges();
 
   return (
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 flex-col border-r border-line bg-surface lg:flex">
@@ -29,8 +29,8 @@ export function Sidebar() {
             to={item.to}
             label={item.label}
             icon={item.icon}
-            count={item.to === paths.friends ? requestCount : 0}
-            countLabel="friend requests"
+            count={badges[item.to]?.count}
+            countLabel={badges[item.to]?.label}
           />
         ))}
       </nav>

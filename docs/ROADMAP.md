@@ -6,51 +6,52 @@ table whenever a phase is finished.
 
 ## Status
 
-| Phase | Topic                                | Status   |
-| ----- | ------------------------------------ | -------- |
-| 0     | Review and plan                      | Done     |
-| 1     | Project foundation and GitHub basics | Done     |
-| 2     | App shell and interface on mock data | Done     |
-| 3     | Supabase: database and accounts      | Done     |
-| 4     | Playtime, library and profile        | **Next** |
-| 5     | Friends                              | Done     |
-| 6     | Content guides and engine notes      | Open     |
-| 7     | Polish and deployment                | Open     |
+| Phase | Topic                                | Status |
+| ----- | ------------------------------------ | ------ |
+| 0     | Review and plan                      | Done   |
+| 1     | Project foundation and GitHub basics | Done   |
+| 2     | App shell and interface on mock data | Done   |
+| 3     | Supabase: database and accounts      | Done   |
+| 4     | Playtime, library and profile        | Done   |
+| 5     | Friends                              | Done   |
+| 6     | Content guides and engine notes      | Open   |
+| 7     | Polish and deployment                | Open   |
+| 8     | Parties and multiplayer              | Done   |
 
 ### Where things stand
 
+- **The first game is in:** `games/wpm-trainer/` (99-Finger WPM Trainer by
+  Balls), a typing race for 2 players. Screen recording was removed on
+  request; PeerJS is shipped in the game folder (`vendor/`).
 - **Games and news are files in the repository**, not database rows
   (decision 22). A game is a folder `games/<slug>/` with a `game.json`
   (store entry), an optional `description.md` and its images. A news post is
   a Markdown file in `news/`. Adding content is one commit; see
   [ADDING-A-GAME.md](ADDING-A-GAME.md). **There is no admin panel.**
 - **Accounts are real** (Supabase): sign-up with unique username, sign-in,
-  sign-out, forgot and reset password. Setup:
+  sign-out, forgot and reset password, one-time profile picture. Setup:
   [SUPABASE-SETUP.md](SUPABASE-SETUP.md).
-- The database schema for all phases is in `supabase/migrations/`: profiles,
-  friendships, playtime, game stats, avatar storage, RLS and the RPC functions
-  `record_playtime`, `send_friend_request`, `accept_friend_request`,
-  `is_friend_of`. Games are referenced by their slug (folder name).
-- **The migrations have not been run against a real project by Claude.** They
-  were written without a local database. The first run in the Supabase SQL
-  editor is the real test; report any error message.
-- **Friends are real** (phase 5 was done before phase 4, because the
-  developers wanted to add each other first). Search by username, send,
-  accept, decline and cancel requests, remove friends, an "Add friend" button
-  on other players' profiles and a badge for open requests (refreshed every
-  minute).
-- **Playtime is read from the database, but nothing writes it yet.** All
-  playtime is 0 until phase 4 adds the heartbeat in the player. The mock
-  backend (`src/mocks/`) is gone.
-- Without Supabase values in `.env` the app still starts: the store and news
-  work, everyone is a guest, and the account pages point to the setup guide.
-- Guests can browse the store, read news and play. Library, friends and
-  profile need an account (decision 16).
-- **There is no demo content.** Everything starts empty (decision 11).
-  `games/` only contains `_template/`, `news/` only `_template.md`.
+- **Friends are real:** search, requests, friend profiles with playtime,
+  "Add friend" on profiles, badge for open requests.
+- **Playtime is tracked:** a heartbeat every 30 visible seconds (and when the
+  tab is hidden or the player closes) calls `record_playtime`. Library,
+  "Continue playing", profile statistics and the "Most played" sorting use
+  real data. Guests can play, but their time is not saved.
+- **Parties** (phase 8): start a party in the library, invite friends, the
+  host starts a multiplayer game and all members are pulled into it.
+  Single player games say that the party does not come along. How a game
+  supports parties: [PARTY-GAMES.md](PARTY-GAMES.md).
+- The database schema is in `supabase/migrations/` (0001 to 0006). Each file
+  is run once in the Supabase SQL editor; **0006_parties.sql is new and still
+  has to be run.** Games are referenced by their slug (folder name).
+- **Claude cannot test anything that needs an account** (no passwords).
+  Playtime saving, the profile picture upload and all party flows are only
+  checked by typecheck and as a guest; the developers test them with their
+  two accounts. The game's party connection itself was tested with two
+  browser tabs.
+- Without Supabase values in `.env` the app still starts: the store, news
+  and games work, everyone is a guest.
 - `/imprint` and `/privacy` are placeholder pages.
-- Testing the player needs at least one game in `games/`. Phase 4 cannot be
-  verified without one.
 
 ## How we work
 
@@ -96,9 +97,13 @@ table whenever a phase is finished.
 8. **Content without an admin panel:** games and news are added by committing
    files (decision 22). A draft game (`"status": "draft"`) is only visible
    when running locally.
-9. **Legal:** `/imprint` and `/privacy` as clearly marked placeholders with
-   TODO notes, linked in the footer. No invented legal texts.
-10. **PWA:** web app manifest and icons, so the site can be added to the Dock
+9. **Parties:** friends form a party in the launcher. When the host starts a
+   multiplayer game, everybody is pulled into it; the game gets a shared
+   room code and connects the players itself (e.g. PeerJS). Games declare
+   `maxPlayers` in `game.json`.
+10. **Legal:** `/imprint` and `/privacy` as clearly marked placeholders with
+    TODO notes, linked in the footer. No invented legal texts.
+11. **PWA:** web app manifest and icons, so the site can be added to the Dock
     in Safari and used like an app.
 
 Everything is free: no payments, no ads, no in-app purchases. The interface is
@@ -117,6 +122,11 @@ formats). The database holds:
 - `playtime`: `user_id`, `game_slug`, `total_seconds`, `last_played_at`;
   primary key (`user_id`, `game_slug`)
 - `game_stats`: `game_slug`, `total_seconds` (all players combined, public)
+- `parties`: `id`, `host_id`, `game_slug` (running game or null),
+  `session_id` (new per game start), `created_at`
+- `party_members`: `party_id`, `user_id` (unique: one party per user),
+  `joined_at`
+- `party_invites`: `id`, `party_id`, `inviter_id`, `invitee_id`, `created_at`
 
 Requirements:
 
@@ -163,7 +173,8 @@ Requirements:
   (set compression so it works on static hosting, e.g. "Disabled" or
   "Decompression Fallback") and notes for HTML5 and Godot exports.
 - Image guidance: sizes and formats for covers, banners and screenshots.
-- Add the first real game and check the whole path from folder to store.
+- The first real game is in (`wpm-trainer`); check the whole path from
+  folder to store once more with a game that has screenshots.
 
 ### Phase 7 – Polish and deployment
 
@@ -179,16 +190,29 @@ Requirements:
 - Final README update.
 - Final report: what is done, known limitations, sensible next steps.
 
+### Phase 8 – Parties and multiplayer
+
+- Parties in Supabase (`0006_parties.sql`): create, invite friends, accept or
+  decline, leave (host passes on), start and stop a party game. Realtime
+  updates plus a 20-second refresh as a fallback.
+- Library: party panel with members, invitations, "Play together" list for
+  the host. Notices on every page for invitations and a running party game.
+  Badge for invitations on "Library".
+- Game page: "Play with party" for the host, a hint for single player games.
+- The player passes room code, role and name to the game (`#party=...`).
+- `docs/PARTY-GAMES.md`: what a game needs to support parties.
+- Possible next steps: kick members, pass the host role by hand, a TURN
+  server if direct connections fail too often.
+
 ## Open points carried forward
 
-- Sign-up, sign-in and password reset have only been tested without a
-  Supabase project (forms, validation, redirects). The real flows need a
-  check once the project exists.
 - The built-in Supabase email service only sends a few emails per hour. A
   real SMTP provider is needed before going public (phase 7).
 - `brand.contactEmail` is still the placeholder `contact@example.com`.
 - The tab title in `index.html` is currently a fixed text instead of the
   `%BRAND_NAME%` placeholder, so it does not follow `src/config/brand.ts`.
 - Fullscreen in the player and Safari in general have not been tested yet.
+- The WPM trainer loads YouTube videos inside the sandboxed player. Check
+  once with a real link that videos play.
 - Route-level lazy loading is still to do (the bundle is one large chunk).
 - `eslint-plugin-jsx-a11y` can be added once it supports ESLint 10.

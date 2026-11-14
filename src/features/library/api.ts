@@ -53,3 +53,16 @@ export async function fetchFriendsPlaytimeForGame(
     row.profile ? [{ profile: toProfile(row.profile), totalSeconds: row.total_seconds }] : [],
   );
 }
+
+/**
+ * Heartbeat from the player: adds the seconds played since the last call.
+ * The database caps what one call can add (see record_playtime in
+ * supabase/migrations/0003_playtime.sql), so a wrong number cannot cheat.
+ */
+export async function recordPlaytime(gameSlug: string, seconds: number): Promise<void> {
+  const { error } = await getSupabase().rpc('record_playtime', {
+    p_game_slug: gameSlug,
+    p_seconds: Math.round(seconds),
+  });
+  if (error) throw error;
+}

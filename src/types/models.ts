@@ -28,6 +28,8 @@ export interface Game {
   publishedAt: string;
   /** Playtime of all players combined, used for the "Most played" sorting. */
   totalPlaytimeSeconds: number;
+  /** 1 = single player only. More = can be played together in a party. */
+  maxPlayers: number;
 }
 
 export interface Profile {
@@ -81,6 +83,35 @@ export interface UserPlaytime {
   profile: Profile;
   /** null when the viewer is not allowed to see it (not a friend). */
   playtime: PlaytimeEntry[] | null;
+}
+
+export interface PartyMember {
+  profile: Profile;
+  /** ISO date string. */
+  joinedAt: string;
+}
+
+/** The party the signed-in user is in. */
+export interface Party {
+  id: string;
+  hostId: string;
+  /** Oldest member first. */
+  members: PartyMember[];
+  /** Friends who were invited but have not answered yet. */
+  invited: { inviteId: string; profile: Profile }[];
+  /** The game the party is playing right now, or null. */
+  gameSlug: string | null;
+  /** Changes with every game start; games use it as their room code. */
+  sessionId: string | null;
+}
+
+/** An invitation the signed-in user received. */
+export interface PartyInvite {
+  id: string;
+  partyId: string;
+  from: Profile;
+  /** ISO date string. */
+  createdAt: string;
 }
 
 export interface FriendGamePlaytime {

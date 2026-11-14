@@ -1,4 +1,4 @@
-import { Ghost, Play } from 'lucide-react';
+import { Ghost } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Link, useParams } from 'react-router';
 
@@ -15,6 +15,7 @@ import { useGame } from '@/features/games/queries';
 import { ScreenshotGallery } from '@/features/games/ScreenshotGallery';
 import { useMyPlaytime } from '@/features/library/queries';
 import { PatchNotes } from '@/features/news/PatchNotes';
+import { GamePlayActions } from '@/features/party/GamePlayActions';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { describeLoadError } from '@/lib/errors';
 import { formatDate, formatPlaytime, formatRelative } from '@/lib/format';
@@ -124,20 +125,14 @@ export function GamePage() {
             <p className="text-fg-muted sm:text-lg">{game.shortDescription}</p>
           </div>
 
-          <div className="flex flex-col items-stretch gap-2 sm:items-end">
-            <Link
-              to={paths.play(game.slug)}
-              className={buttonStyles({ size: 'lg', className: 'h-14 px-10 text-lg' })}
-            >
-              <Play className="size-5 fill-current" aria-hidden="true" />
-              Play
-            </Link>
-            <p className="text-center text-sm text-fg-muted sm:text-right">
-              {myEntry
+          <GamePlayActions
+            game={game}
+            note={
+              myEntry
                 ? `You played ${formatPlaytime(myEntry.totalSeconds)}`
-                : 'Free. Runs in your browser.'}
-            </p>
-          </div>
+                : 'Free. Runs in your browser.'
+            }
+          />
         </div>
       </header>
 
@@ -162,6 +157,9 @@ export function GamePage() {
           <Card>
             <dl>
               <Fact label="Engine">{game.engine}</Fact>
+              <Fact label="Players">
+                {game.maxPlayers === 1 ? 'Single player' : `1–${game.maxPlayers}, party`}
+              </Fact>
               <Fact label="Version">{game.version}</Fact>
               <Fact label="Released">
                 <time dateTime={game.publishedAt}>{formatDate(game.publishedAt)}</time>

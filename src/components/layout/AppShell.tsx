@@ -1,5 +1,7 @@
 import { Outlet, ScrollRestoration } from 'react-router';
 
+import { PartyNotices } from '@/features/party/PartyNotices';
+
 import { Footer } from './Footer';
 import { MobileNav } from './MobileNav';
 import { Sidebar } from './Sidebar';
@@ -23,6 +25,7 @@ export function AppShell() {
           id="main"
           className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-8"
         >
+          <PartyNotices />
           <Outlet />
         </main>
         <Footer />

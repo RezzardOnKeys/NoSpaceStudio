@@ -1,4 +1,4 @@
-import { Play } from 'lucide-react';
+import { Play, Users } from 'lucide-react';
 import { Link } from 'react-router';
 
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -26,6 +26,13 @@ export function GameCard({ game }: GameCardProps) {
           className="ease-out-soft size-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
         <EngineBadge engine={game.engine} variant="overlay" className="absolute top-2.5 left-2.5" />
+        {game.maxPlayers > 1 && (
+          <span className="absolute top-2.5 right-2.5 inline-flex h-6 items-center gap-1 rounded-md bg-black/65 px-2 text-xs font-medium text-white backdrop-blur-sm">
+            <Users className="size-3" aria-hidden="true" />
+            {`1–${game.maxPlayers}`}
+            <span className="sr-only"> players</span>
+          </span>
+        )}
         <div className="absolute inset-x-0 bottom-0 flex translate-y-2 justify-center bg-gradient-to-t from-black/80 to-transparent p-3 pt-10 opacity-0 transition-[opacity,transform] duration-200 group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:translate-y-0 group-hover:opacity-100">
           <Link
             to={paths.play(game.slug)}

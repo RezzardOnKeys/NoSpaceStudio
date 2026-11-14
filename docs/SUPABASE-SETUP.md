@@ -42,6 +42,7 @@ ausgeführt werden, jede genau einmal. In jeder Datei steht in Kommentaren
 | `0003_playtime.sql`        | Spielzeit pro Nutzer und die Gesamtspielzeit pro Spiel    |
 | `0004_storage.sql`         | Speicherplatz für Profilbilder                            |
 | `0005_one_time_avatar.sql` | Profilbild kann nur einmal gewählt werden                 |
+| `0006_parties.sql`         | Partys: zusammen in Spiele gehen                          |
 
 Für jede Datei, beginnend mit `0001`:
 
@@ -65,7 +66,7 @@ nicht noch einmal ausführen (das gäbe den Fehler „already exists“).
 **Kontrolle:** Links auf **Table Editor** klicken. Dort müssen vier Tabellen
 stehen: `friendships`, `game_stats`, `playtime`, `profiles`.
 
-**Später kommen neue Dateien dazu** (z. B. `0005`). Dann führt **einer** von
+**Später kommen neue Dateien dazu** (z. B. `0006`). Dann führt **einer** von
 euch nur die neue Datei aus, auf dieselbe Weise. Die älteren nicht noch
 einmal. Welche Dateien schon gelaufen sind, steht im Protokoll bzw. merkt ihr
 euch am besten in einer Notiz.

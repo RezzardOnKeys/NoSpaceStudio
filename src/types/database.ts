@@ -36,6 +36,30 @@ type PlaytimeRow = {
   last_played_at: string;
 };
 
+type PartyRow = {
+  id: string;
+  host_id: string;
+  /** Folder name of the running game, or null. */
+  game_slug: string | null;
+  /** New for every game start; the game uses it as its room code. */
+  session_id: string | null;
+  created_at: string;
+};
+
+type PartyMemberRow = {
+  party_id: string;
+  user_id: string;
+  joined_at: string;
+};
+
+type PartyInviteRow = {
+  id: string;
+  party_id: string;
+  inviter_id: string;
+  invitee_id: string;
+  created_at: string;
+};
+
 type GameStatsRow = {
   game_slug: string;
   total_seconds: number;
@@ -91,12 +115,82 @@ export type Database = {
         Update: never;
         Relationships: [];
       };
+      parties: {
+        Row: PartyRow;
+        Insert: never;
+        Update: never;
+        Relationships: [
+          {
+            foreignKeyName: 'parties_host_id_fkey';
+            columns: ['host_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      party_members: {
+        Row: PartyMemberRow;
+        Insert: never;
+        Update: never;
+        Relationships: [
+          {
+            foreignKeyName: 'party_members_party_id_fkey';
+            columns: ['party_id'];
+            isOneToOne: false;
+            referencedRelation: 'parties';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'party_members_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: true;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      party_invites: {
+        Row: PartyInviteRow;
+        Insert: never;
+        Update: never;
+        Relationships: [
+          {
+            foreignKeyName: 'party_invites_party_id_fkey';
+            columns: ['party_id'];
+            isOneToOne: false;
+            referencedRelation: 'parties';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'party_invites_inviter_id_fkey';
+            columns: ['inviter_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'party_invites_invitee_id_fkey';
+            columns: ['invitee_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
     };
     Views: Record<never, never>;
     Functions: {
       is_friend_of: { Args: { other_user: string }; Returns: boolean };
       send_friend_request: { Args: { target_user: string }; Returns: FriendshipRow };
       accept_friend_request: { Args: { request_id: string }; Returns: FriendshipRow };
+      my_party_id: { Args: Record<never, never>; Returns: string | null };
+      create_party: { Args: Record<never, never>; Returns: string };
+      leave_party: { Args: Record<never, never>; Returns: undefined };
+      invite_to_party: { Args: { target_user: string }; Returns: undefined };
+      accept_party_invite: { Args: { invite_id: string }; Returns: string };
+      start_party_game: { Args: { p_game_slug: string }; Returns: string };
+      stop_party_game: { Args: Record<never, never>; Returns: undefined };
       set_avatar: { Args: Record<never, never>; Returns: string };
       record_playtime: { Args: { p_game_slug: string; p_seconds: number }; Returns: number };
     };

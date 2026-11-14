@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>99-Finger WPM Trainer</title>
+<style>
+  :root {
+    --bg: #14161b;
+    --panel: #1d2028;
+    --panel2: #252935;
+    --text: #e6e8ee;
+    --muted: #8a90a2;
+    --accent: #f5b942;
+    --good: #4bffa2;
+    --bad: #ff5d6c;
+    --cur: #3a4152;
+    --lp: #e57373; --lr: #f0a35b; --lm: #e8d35c; --li: #6fcf7a;
+    --ri: #5cc4d6; --rm: #6f8fe8; --rr: #a77be0; --rp: #e07bc4; --th: #9aa0ad;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text); overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex; flex-direction: column;
+  }
+  /* obere Hälfte: Video */
+  .video-pane { flex: 1 1 auto; min-height: 0; background: #000; position: relative; }
+  .video-pane video { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .vbar { position: absolute; left: 0; right: 0; bottom: 0; height: 5px; background: rgba(255,255,255,.12); }
+  .vbar .play { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent); width: 0; }
+  .vbar .goal { position: absolute; top: -3px; bottom: -3px; width: 3px; background: var(--good); left: 0; }
+  .vinfo {
+    position: absolute; top: 10px; right: 12px; display: flex; gap: 8px; align-items: center;
+    font-size: 12px; color: #fff; font-variant-numeric: tabular-nums;
+  }
+  .ytwrap { position: absolute; inset: 0; }
+  .ytwrap iframe { width: 100%; height: 100%; border: 0; pointer-events: none; display: block; }
+  .vbar, .vinfo { z-index: 2; }
+  .drop { z-index: 3; background: rgba(0,0,0,.6); }
+  .drop #dropMsg { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+  .vinfo .yt-in { background: rgba(0,0,0,.55); color: #fff; border: 1px solid rgba(255,255,255,.2); border-radius: 20px; padding: 4px 12px; font-size: 13px; width: 240px; outline: none; }
+  .vinfo .yt-in:focus { border-color: var(--accent); }
+  .roombar { position: absolute; top: 10px; left: 12px; z-index: 2; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; font-size: 12px; color: #fff; }
+  .roombar { max-width: calc(50% - 20px); }
+  .vinfo { max-width: calc(50% - 20px); flex-wrap: wrap; justify-content: flex-end; }
+  .roombar .rrow { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .roombar .pill { background: rgba(0,0,0,.6); padding: 4px 10px; border-radius: 20px; }
+  .roombar button { background: rgba(0,0,0,.6); color: #fff; border: 0; border-radius: 20px; padding: 4px 10px; cursor: pointer; font-size: 12px; }
+  .roombar button.go { background: var(--accent); color: #1a1a1a; font-weight: 700; }
+  .roombar .room-in { background: rgba(0,0,0,.6); color: #fff; border: 1px solid rgba(255,255,255,.2); border-radius: 20px; padding: 4px 10px; font-size: 12px; width: 70px; outline: none; text-transform: uppercase; letter-spacing: 1px; }
+  .roombar .room-in:focus { border-color: var(--accent); }
+  .roombar .code { color: var(--accent); letter-spacing: 1px; cursor: pointer; }
+  .roombar .okc { color: var(--good); }
+  .roombar .rmsg { background: rgba(245, 185, 66, .9); color: #1a1a1a; font-weight: 600; }
+  .vinfo button:disabled, .vinfo input:disabled { opacity: .4; cursor: not-allowed; }
+  .countdown { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; font-size: 52px; font-weight: 800; color: var(--accent); background: rgba(29, 32, 40, .9); border-radius: 12px; z-index: 3; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+  .countdown.show { display: flex; }
+  .vs { margin-bottom: 16px; }
+  .vs-verdict { text-align: center; font-size: 20px; font-weight: 800; margin-bottom: 10px; }
+  .vs-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: stretch; }
+  .vs-mid { align-self: center; color: var(--muted); font-weight: 800; }
+  .vs-col { background: var(--panel2); border-radius: 14px; padding: 14px; text-align: center; border: 2px solid transparent; }
+  .vs-col.win { border-color: var(--good); }
+  .vs-col.lose { opacity: .75; }
+  .vs-name { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; }
+  .vs-net { font-size: 44px; font-weight: 800; color: var(--good); line-height: 1.1; margin-top: 4px; }
+  .vs-sub { font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+  .vs-row { display: flex; justify-content: space-between; font-size: 13px; padding: 2px 0; }
+  .vs-wait { margin-top: 30px; color: var(--muted); }
+  .vinfo .pill { background: rgba(0,0,0,.55); padding: 4px 9px; border-radius: 20px; }
+  .vinfo button { background: rgba(0,0,0,.55); color: #fff; border: 0; border-radius: 20px; padding: 4px 10px; cursor: pointer; font-size: 13px; }
+  .drop {
+    position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center;
+    gap: 12px; text-align: center; color: var(--muted); padding: 20px; border: 2px dashed #333; margin: 14px; border-radius: 14px;
+  }
+  .drop.show { display: flex; }
+  .drop.over { border-color: var(--accent); color: var(--text); }
+  .drop b { color: var(--text); font-size: 18px; }
+  .drop label { background: var(--accent); color: #1a1a1a; font-weight: 700; padding: 9px 16px; border-radius: 10px; cursor: pointer; }
+  /* untere Hälfte: Trainer */
+  .bottom { flex: 0 0 auto; max-height: 60vh; overflow-y: auto; display: flex; justify-content: center; padding: 8px 16px 10px; }
+  .wrap { width: 100%; max-width: 980px; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+  h1 { font-size: 16px; margin: 0; letter-spacing: .3px; }
+  h1 span { color: var(--accent); }
+  .controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .seg { display: inline-flex; background: var(--panel); border-radius: 10px; padding: 3px; }
+  .seg button {
+    background: transparent; border: 0; color: var(--muted); padding: 5px 10px; border-radius: 8px;
+    font-size: 13px; cursor: pointer; font-weight: 600;
+  }
+  .seg button.on { background: var(--panel2); color: var(--text); }
+  .seg button:disabled { cursor: not-allowed; opacity: .5; }
+
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 8px; }
+  .stat { background: var(--panel); border-radius: 10px; padding: 4px 12px; display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .stat .lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; }
+  .stat .val { font-size: 17px; font-weight: 700; margin-top: 0; font-variant-numeric: tabular-nums; }
+  .stat.timer .val { color: var(--accent); }
+  .stat.net .val { color: var(--good); }
+
+  .words-box {
+    background: var(--panel); border-radius: 12px; padding: 6px 18px; position: relative;
+    height: calc(2 * 2em + 12px); overflow: hidden; font-size: 22px; line-height: 2em;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+  }
+  .words { position: relative; transition: transform .15s ease; }
+  .w { display: inline-block; padding: 0 6px; margin: 0 2px; border-radius: 6px; line-height: 1.6em; }
+  .w.cur { background: var(--cur); }
+  .w.cur.err { box-shadow: inset 0 0 0 2px rgba(255, 93, 108, .7); }
+  .w .c.ok { color: var(--good); }
+  .w .c.bad { color: var(--bad); background: rgba(255, 93, 108, .18); border-radius: 3px; }
+  .w .c.extra { color: var(--bad); opacity: .65; }
+  .w .c.miss { color: var(--bad); opacity: .45; }
+  .w.done .c:not(.ok):not(.bad):not(.extra):not(.miss) { color: var(--muted); }
+  .w.no { text-decoration: underline wavy rgba(255, 93, 108, .6); text-underline-offset: 6px; }
+
+  .input-row { display: flex; gap: 8px; margin-top: 8px; }
+  #inp {
+    flex: 1; font-size: 18px; padding: 7px 12px; border-radius: 12px; border: 2px solid var(--panel2);
+    background: var(--panel); color: var(--text); outline: none; font-family: "SF Mono", Menlo, Consolas, monospace;
+  }
+  #inp:focus { border-color: var(--accent); }
+  #inp.err { border-color: var(--bad); }
+  #inp.nope { animation: shake .15s; }
+  @keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+  .btn {
+    background: var(--accent); color: #1a1a1a; border: 0; border-radius: 12px; padding: 0 20px;
+    font-size: 16px; font-weight: 700; cursor: pointer;
+  }
+  .hint { color: var(--muted); font-size: 11.5px; margin-top: 5px; }
+  kbd { background: var(--panel2); border-radius: 4px; padding: 1px 6px; font-size: 12px; }
+
+  /* Keyboard */
+  .kb { margin-top: 14px; background: var(--panel); border-radius: 14px; padding: 14px; user-select: none; }
+  .kb-row { display: flex; gap: 5px; margin-bottom: 5px; justify-content: center; }
+  .key {
+    height: 44px; min-width: 44px; border-radius: 7px; display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 600; color: #15171c; opacity: .38; transition: opacity .08s, transform .08s, box-shadow .08s;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+  }
+  .key.next { opacity: 1; transform: translateY(-2px); box-shadow: 0 0 0 3px #fff, 0 6px 14px rgba(0,0,0,.4); }
+  .key.home::after { content: ""; position: absolute; }
+  .key.home { text-decoration: underline; text-underline-offset: 4px; }
+  .f-lp { background: var(--lp); } .f-lr { background: var(--lr); } .f-lm { background: var(--lm); } .f-li { background: var(--li); }
+  .f-ri { background: var(--ri); } .f-rm { background: var(--rm); } .f-rr { background: var(--rr); } .f-rp { background: var(--rp); }
+  .f-th { background: var(--th); }
+  .kb.hidden, .legend.hidden, .finger-info.hidden { display: none; }
+  .finger-info { text-align: center; margin-top: 8px; font-size: 14px; color: var(--muted); min-height: 20px; }
+  .finger-info b { color: var(--text); }
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 8px; font-size: 12px; color: var(--muted); }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+
+  /* Results */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(8, 9, 12, .75); display: none; align-items: center; justify-content: center; padding: 16px; z-index: 5;
+  }
+  .overlay.show { display: flex; }
+  .result { background: var(--panel); border-radius: 18px; padding: 26px; width: 100%; max-width: 620px; max-height: 90vh; overflow: auto; }
+  .result h2 { margin: 0 0 16px; font-size: 22px; }
+  .big { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+  .big .box { background: var(--panel2); border-radius: 14px; padding: 16px; text-align: center; }
+  .big .box .val { font-size: 52px; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .big .box .lbl { color: var(--muted); font-size: 13px; }
+  .big .box.net .val { color: var(--good); }
+  .details { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
+  .details div { background: var(--panel2); border-radius: 10px; padding: 10px; text-align: center; }
+  .details b { display: block; font-size: 20px; }
+  .details small { color: var(--muted); font-size: 11px; }
+  .best { color: var(--accent); font-weight: 600; margin-bottom: 12px; text-align: center; }
+  .wrong-list { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 14px; background: var(--panel2); border-radius: 10px; padding: 10px 12px; max-height: 150px; overflow: auto; }
+  .wrong-list div { padding: 2px 0; }
+  .wrong-list .exp { color: var(--good); }
+  .wrong-list .got { color: var(--bad); }
+  .history { margin-top: 12px; font-size: 13px; color: var(--muted); }
+  .history table { width: 100%; border-collapse: collapse; }
+  .history td, .history th { padding: 4px 6px; text-align: left; border-bottom: 1px solid var(--panel2); }
+  .result .actions { display: flex; justify-content: center; margin-top: 18px; }
+  .result .btn { padding: 12px 26px; }
+  .result .btn:disabled { opacity: .55; cursor: default; }
+  .formula { font-size: 12px; color: var(--muted); margin-top: 10px; line-height: 1.5; }
+
+  @media (max-width: 700px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .key { min-width: 26px; height: 34px; font-size: 12px; }
+    .words-box { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="video-pane" id="vpane">
+  <video id="vid" preload="auto" playsinline></video>
+  <div class="ytwrap" id="ytwrap"></div>
+  <div class="vbar"><div class="play" id="vPlay"></div><div class="goal" id="vGoal"></div></div>
+  <div class="roombar" id="roombar">
+    <div class="rrow" id="roomIdle">
+      <button id="roomCreate" title="Raum erstellen und Code an einen Freund schicken">👥 Raum erstellen</button>
+      <input id="roomCode" class="room-in" placeholder="Code" maxlength="8" spellcheck="false" autocomplete="off">
+      <button id="roomJoin">Beitreten</button>
+    </div>
+    <div class="rrow" id="roomActive" style="display:none">
+      <span class="pill" id="roomStatus"></span>
+      <span class="pill" id="roomOpp" style="display:none"></span>
+      <button id="roomStart" class="go" style="display:none">▶ Runde starten</button>
+      <button id="roomLink" style="display:none">🔗 Link kopieren</button>
+      <button id="roomLeave">Verlassen</button>
+    </div>
+    <div class="pill rmsg" id="roomMsg" style="display:none"></div>
+  </div>
+  <div class="vinfo">
+    <span class="pill" id="vRate">⏸ 0.00×</span>
+    <input id="ytUrl" class="yt-in" placeholder="YouTube-Link einfügen…" spellcheck="false" autocomplete="off">
+    <button id="ytLoad" title="YouTube-Video laden">▶ Laden</button>
+    <button id="vChoose" title="Eigenes MP4 laden">Eigenes Video</button>
+    <button id="vMute" title="Ton an/aus">🔊</button>
+  </div>
+  <div class="drop" id="drop">
+    <div id="dropMsg"><b>Kein Video gefunden</b></div>
+    <label>Video auswählen<input type="file" id="vFile" accept=".mp4,video/mp4" hidden></label>
+  </div>
+</div>
+<div class="bottom">
+<div class="wrap">
+  <header>
+    <h1>10-Finger <span>WPM</span> Trainer</h1>
+    <div class="controls">
+      <div class="seg" id="langSeg">
+        <button data-lang="de" class="on">Deutsch</button>
+        <button data-lang="en">English</button>
+      </div>
+      <div class="seg" id="layoutSeg" title="Tastaturlayout">
+        <button data-layout="qwertz" class="on">QWERTZ</button>
+        <button data-layout="qwerty">QWERTY</button>
+      </div>
+      <div class="seg" id="timeSeg" title="Dauer">
+        <button data-time="30">30s</button>
+        <button data-time="60" class="on">1 min</button>
+        <button data-time="120">2 min</button>
+      </div>
+      <div class="seg" id="goalSeg" title="Ziel-WPM: bei diesem Tempo läuft das Video in Echtzeit">
+        <button data-goal="40" class="on">Ziel 40</button>
+        <button data-goal="60">60</button>
+        <button data-goal="80">80</button>
+        <button data-goal="120">120</button>
+        <button data-goal="140">140</button>
+      </div>
+      <div class="seg" id="kbSeg"><button id="kbToggle">⌨︎ Tastatur</button></div>
+      <div class="seg" id="capsSeg" title="Groß-/Kleinschreibung">
+        <button data-caps="1" class="on">Aa</button>
+        <button data-caps="0">aa</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="stats">
+    <div class="stat timer"><div class="lbl">Zeit</div><div class="val" id="sTime">60</div></div>
+    <div class="stat"><div class="lbl">WPM total</div><div class="val" id="sGross">0</div></div>
+    <div class="stat net"><div class="lbl">WPM tatsächlich</div><div class="val" id="sNet">0</div></div>
+    <div class="stat"><div class="lbl">Wörter ✓ / ✗</div><div class="val" id="sWords">0 / 0</div></div>
+  </div>
+
+  <div class="words-box"><div class="words" id="words"></div><div class="countdown" id="countdown"></div></div>
+
+  <div class="input-row">
+    <input id="inp" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Hier tippen – der Timer startet beim ersten Buchstaben">
+    <button class="btn" id="restart" title="Neustart (Esc)">↻</button>
+  </div>
+  <div class="hint">Leertaste = nächstes Wort · <b>kein Löschen möglich</b> – jeder Anschlag zählt · Nur richtige Buchstaben treiben das Video an · <kbd>Esc</kbd> = Neustart</div>
+
+  <div class="kb" id="kb"></div>
+  <div class="finger-info" id="fingerInfo"></div>
+  <div class="legend" id="legend"></div>
+</div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="result">
+    <h2 id="rTitle">Ergebnis</h2>
+    <div id="rVs" class="vs" style="display:none"></div>
+    <div class="big">
+      <div class="box"><div class="val" id="rGross">0</div><div class="lbl">WPM total<br>(alle Wörter, richtig + falsch)</div></div>
+      <div class="box net"><div class="val" id="rNet">0</div><div class="lbl">WPM tatsächlich<br>(mit Abzug der Fehler)</div></div>
+    </div>
+    <div class="best" id="rBest"></div>
+    <div class="best" id="rVideo" style="color:var(--text)"></div>
+    <div class="details">
+      <div><b id="rOk">0</b><small>richtige Wörter</small></div>
+      <div><b id="rBad">0</b><small>falsche Wörter</small></div>
+      <div><b id="rAcc">0%</b><small>Genauigkeit</small></div>
+      <div><b id="rKeys">0</b><small>Anschläge</small></div>
+    </div>
+    <div id="rWrongWrap">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:6px">Falsche Wörter (erwartet → getippt):</div>
+      <div class="wrong-list" id="rWrong"></div>
+    </div>
+    <div class="history" id="rHistory"></div>
+    <div class="formula">
+      <b>WPM total</b> = alle getippten Zeichen (inkl. Leerzeichen) ÷ 5 ÷ Minuten.<br>
+      <b>WPM tatsächlich</b> = nur Zeichen aus richtig getippten Wörtern ÷ 5 ÷ Minuten. Falsche Wörter zählen nicht.
+    </div>
+    <div class="actions"><button class="btn" id="again">Nochmal (Enter)</button></div>
+  </div>
+</div>
+
+<script>
+// ---------- Wortlisten ----------
+const WORDS = {
+  de: `der die und in den von zu das mit sich des auf für ist im dem nicht ein eine als auch es an werden aus er hat dass sie nach wird bei einer um am sind noch wie einem über einen so zum war haben nur oder aber vor zur bis mehr durch man sein wurde sei kann
+  Jahr Zeit Mensch Tag Hand Haus Welt Leben Frau Mann Kind Arbeit Stadt Land Weg Frage Wasser Schule Freund Auge Geld Name Seite Teil Platz Ende Nacht Morgen Abend Woche Monat Musik Spiel Buch Tisch Stuhl Fenster Tür Straße Auto Zug Baum Blume Sonne Mond Himmel Wetter Regen Schnee Hund Katze Vogel Essen Brot Milch Kaffee Wort Sprache Familie Vater Mutter Bruder Schwester Problem Beispiel Zimmer Garten Berg Meer Insel Wald Feuer Luft Licht Farbe Bild Film Idee Grund Anfang Geschichte Uhr Stunde Minute Sekunde Computer Tastatur Finger Brief Zeitung Lehrer Schüler Klasse Reise Urlaub Ferien Glück Hunger Durst Herz Kopf Fuß Arm Gesicht
+  groß klein gut neu alt lang kurz hoch schnell langsam schön warm kalt früh spät leicht schwer richtig falsch wichtig einfach möglich ganz viel wenig jung stark offen weit nah klar frei voll leer müde froh still laut heiß rund weich dunkel hell grün blau rot gelb weiß schwarz
+  gehen kommen sehen machen sagen geben stehen finden bleiben liegen heißen denken nehmen tun halten nennen zeigen führen sprechen bringen leben fahren meinen fragen kennen stellen spielen arbeiten brauchen folgen lernen verstehen setzen bekommen beginnen erzählen versuchen schreiben laufen erklären sitzen ziehen scheinen fallen gehören treffen suchen legen tragen schaffen lesen verlieren erkennen reden bilden erwarten wohnen warten helfen gewinnen schließen fühlen bieten erinnern studieren fehlen bedeuten kaufen essen trinken schlafen singen tanzen lachen hören öffnen üben tippen
+  heute immer wieder schon jetzt hier dort sehr dann doch nie oft gern zusammen vielleicht natürlich wirklich gleich etwas nichts alles jeder dieser unser mein dein kein welche warum wann wo was wer weil wenn ob ohne gegen unter zwischen während seit fast genau bald morgens abends draußen drinnen links rechts oben unten vorne hinten`,
+  en: `the be to of and a in that have I it for not on with he as you do at this but his by from they we say her she or an will my one all would there their what so up out if about who get which go me when make can like time no just him know take people into year your good some could them see other than then now look only come its over think also back after use two how our work first well way even new want because any these give day most us
+  house water world school hand life place week case point home room family friend story money night city word game book door table window paper river mountain tree flower sun moon rain snow dog cat bird food bread coffee music picture garden island forest fire light color idea reason morning evening minute hour keyboard finger letter teacher student class travel holiday heart head face voice question answer problem example number system country problem street car train
+  small large great little old big high different long young important right left last next early late fresh light heavy warm cold quick slow easy hard simple happy quiet loud green blue red yellow white black open full empty clear strong free sure real best better
+  start begin learn read write speak open close keep find tell ask feel try leave call put mean become show hear play run move live believe hold bring happen stand lose pay meet include continue set change lead understand watch follow stop create spend grow walk win offer remember love consider appear buy wait serve send expect build stay fall reach remain sing dance laugh sleep drink type practice travel explain carry
+  always never often again already here there very really maybe together today tomorrow yesterday soon almost nothing everything something every each while since until without against between under above behind inside outside why where when what who because though`
+};
+for (const k in WORDS) {
+  WORDS[k] = [...new Set(WORDS[k].split(/\s+/).filter(Boolean))];
+}
+
+// ---------- Tastatur-Layouts ----------
+// Jede Zeile: [Zeichen-String, Finger-Array]
+const LAYOUTS = {
+  qwertz: {
+    rows: [
+      { keys: '^1234567890ß´', fingers: ['lp','lp','lr','lm','li','li','ri','ri','rm','rr','rp','rp','rp'], pre: [], post: [['⌫','rp',1.6,'Backspace']] },
+      { keys: 'qwertzuiopü+', fingers: ['lp','lr','lm','li','li','ri','ri','rm','rr','rp','rp','rp'], pre: [['⇥','lp',1.5]], post: [] },
+      { keys: 'asdfghjklöä#', fingers: ['lp','lr','lm','li','li','ri','ri','rm','rr','rp','rp','rp'], pre: [['⇪','lp',1.8]], post: [] , home: 'fj' },
+      { keys: '<yxcvbnm,.-', fingers: ['lp','lp','lr','lm','li','li','ri','ri','rm','rr','rp'], pre: [['⇧','lp',1.3,'ShiftL']], post: [['⇧','rp',2.4,'ShiftR']] },
+    ],
+    shifted: { '°':'^','!':'1','"':'2','§':'3','$':'4','%':'5','&':'6','/':'7','(':'8',')':'9','=':'0','?':'ß','`':'´','*':'+',"'":'#','>':'<',';':',',':':'.','_':'-' }
+  },
+  qwerty: {
+    rows: [
+      { keys: '`1234567890-=', fingers: ['lp','lp','lr','lm','li','li','ri','ri','rm','rr','rp','rp','rp'], pre: [], post: [['⌫','rp',1.6,'Backspace']] },
+      { keys: "qwertyuiop[]\\", fingers: ['lp','lr','lm','li','li','ri','ri','rm','rr','rp','rp','rp','rp'], pre: [['⇥','lp',1.5]], post: [] },
+      { keys: "asdfghjkl;'", fingers: ['lp','lr','lm','li','li','ri','ri','rm','rr','rp','rp'], pre: [['⇪','lp',1.8]], post: [['↵','rp',1.8]], home: 'fj' },
+      { keys: 'zxcvbnm,./', fingers: ['lp','lr','lm','li','li','ri','ri','rm','rr','rp'], pre: [['⇧','lp',2.3,'ShiftL']], post: [['⇧','rp',2.6,'ShiftR']] },
+    ],
+    shifted: { '~':'`','!':'1','@':'2','#':'3','$':'4','%':'5','^':'6','&':'7','*':'8','(':'9',')':'0','_':'-','+':'=','{':'[','}':']','|':'\\',':':';','"':"'",'<':',','>':'.','?':'/' }
+  }
+};
+const FINGER_NAMES = {
+  lp: 'linker kleiner Finger', lr: 'linker Ringfinger', lm: 'linker Mittelfinger', li: 'linker Zeigefinger',
+  ri: 'rechter Zeigefinger', rm: 'rechter Mittelfinger', rr: 'rechter Ringfinger', rp: 'rechter kleiner Finger', th: 'Daumen'
+};
+
+// ---------- State ----------
+const S = {
+  lang: 'de', layout: 'qwertz', duration: 60, caps: true, goal: 40, showKb: false,
+  correctKeys: 0, prevVal: '',
+  list: [], idx: 0, results: [], // {word, typed, ok}
+  started: false, finished: false, startTime: 0, timer: null, keystrokes: 0
+};
+const $ = id => document.getElementById(id);
+const wordsEl = $('words'), inp = $('inp');
+let keyEls = {}; // char -> element
+let specialEls = {};
+
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+
+// Einstellungen laden
+(() => {
+  const s = store.get('wpm-settings', null);
+  if (s) Object.assign(S, { lang: s.lang || 'de', layout: s.layout || 'qwertz', duration: s.duration || 60, caps: s.caps !== false, goal: [40, 60, 80, 120, 140].includes(s.goal) ? s.goal : 40, showKb: !!s.showKb });
+})();
+function saveSettings() { store.set('wpm-settings', { lang: S.lang, layout: S.layout, duration: S.duration, caps: S.caps, goal: S.goal, showKb: S.showKb }); }
+
+// ---------- Wörter erzeugen ----------
+let RNG = Math.random; // im Raum: gemeinsamer Seed → gleiche Wörter
+function genWords(n) {
+  const src = WORDS[S.lang];
+  const out = [];
+  let last = '';
+  for (let i = 0; i < n; i++) {
+    let w;
+    do { w = src[Math.floor(RNG() * src.length)]; } while (w === last);
+    last = w;
+    out.push(S.caps ? w : w.toLowerCase());
+  }
+  return out;
+}
+
+function renderWords() {
+  wordsEl.innerHTML = '';
+  S.list.forEach((w, i) => {
+    const s = document.createElement('span');
+    s.className = 'w';
+    s.id = 'w' + i;
+    fillLetters(s, w);
+    wordsEl.appendChild(s);
+  });
+  wordsEl.style.transform = 'translateY(0)';
+  markCurrent();
+}
+
+function appendWords(n) {
+  const more = genWords(n);
+  const start = S.list.length;
+  S.list.push(...more);
+  more.forEach((w, j) => {
+    const s = document.createElement('span');
+    s.className = 'w'; s.id = 'w' + (start + j); fillLetters(s, w);
+    wordsEl.appendChild(s);
+  });
+}
+
+function fillLetters(el, w) {
+  el.innerHTML = '';
+  for (const ch of w) {
+    const c = document.createElement('span');
+    c.className = 'c'; c.textContent = ch;
+    el.appendChild(c);
+  }
+}
+
+// Färbt jeden Buchstaben: grün = richtig, rot = falsch, zu viel getippte Zeichen werden rot angehängt.
+// final=true: nicht getippte Buchstaben eines abgeschlossenen Wortes als fehlend markieren.
+function paintWord(idx, typed, final) {
+  const el = $('w' + idx);
+  if (!el) return;
+  const word = S.list[idx];
+  el.querySelectorAll('.c.extra').forEach(x => x.remove());
+  const cs = el.querySelectorAll('.c');
+  for (let i = 0; i < word.length; i++) {
+    let cls = 'c';
+    if (i < typed.length) cls += typed[i] === word[i] ? ' ok' : ' bad';
+    else if (final) cls += ' miss';
+    cs[i].className = cls;
+  }
+  for (let i = word.length; i < typed.length; i++) {
+    const c = document.createElement('span');
+    c.className = 'c extra'; c.textContent = typed[i];
+    el.appendChild(c);
+  }
+}
+
+function markCurrent() {
+  const el = $('w' + S.idx);
+  if (!el) return;
+  el.classList.add('cur');
+  // Scrollen: aktuelles Wort immer in der ersten sichtbaren Zeile halten
+  const top = el.offsetTop;
+  wordsEl.style.transform = `translateY(${-top}px)`;
+}
+
+// ---------- Tastatur ----------
+function buildKeyboard() {
+  const kb = $('kb');
+  kb.innerHTML = ''; keyEls = {}; specialEls = {};
+  const L = LAYOUTS[S.layout];
+  L.rows.forEach(row => {
+    const r = document.createElement('div');
+    r.className = 'kb-row';
+    const mk = (label, finger, w, id) => {
+      const k = document.createElement('div');
+      k.className = 'key f-' + finger;
+      k.textContent = label;
+      k.style.minWidth = (44 * (w || 1)) + 'px';
+      k.style.flex = '0 0 auto';
+      k.style.width = (44 * (w || 1)) + 'px';
+      if (id) specialEls[id] = k;
+      r.appendChild(k);
+      return k;
+    };
+    row.pre.forEach(p => mk(p[0], p[1], p[2], p[3]));
+    [...row.keys].forEach((ch, i) => {
+      const k = mk(ch.toUpperCase().length === 1 ? ch.toUpperCase() : ch, row.fingers[i]);
+      k.dataset.finger = row.fingers[i];
+      if (row.home && row.home.includes(ch)) k.classList.add('home');
+      keyEls[ch] = k;
+    });
+    row.post.forEach(p => mk(p[0], p[1], p[2], p[3]));
+    kb.appendChild(r);
+  });
+  const sp = document.createElement('div');
+  sp.className = 'kb-row';
+  const space = document.createElement('div');
+  space.className = 'key f-th'; space.textContent = 'Leertaste';
+  space.style.width = '340px';
+  sp.appendChild(space);
+  specialEls.Space = space;
+  kb.appendChild(sp);
+
+  // Legende
+  const lg = $('legend'); lg.innerHTML = '';
+  ['lp','lr','lm','li','ri','rm','rr','rp','th'].forEach(f => {
+    const s = document.createElement('span');
+    s.innerHTML = `<i class="f-${f}"></i>${FINGER_NAMES[f].replace('linker ','L ').replace('rechter ','R ')}`;
+    lg.appendChild(s);
+  });
+}
+
+function clearHighlights() {
+  document.querySelectorAll('.key.next').forEach(k => k.classList.remove('next'));
+}
+
+function highlightChar(ch) {
+  clearHighlights();
+  const info = $('fingerInfo');
+  if (ch == null) { info.textContent = ''; return; }
+  if (ch === ' ') {
+    specialEls.Space.classList.add('next');
+    info.innerHTML = 'Nächste Taste: <b>Leertaste</b> – Daumen';
+    return;
+  }
+  if (ch === 'BACK') {
+    specialEls.Backspace.classList.add('next');
+    info.innerHTML = '<b>Tippfehler!</b> Mit ⌫ korrigieren (rechter kleiner Finger)';
+    return;
+  }
+  const L = LAYOUTS[S.layout];
+  let base = ch, shift = false;
+  if (keyEls[ch]) base = ch;
+  else if (keyEls[ch.toLowerCase()] && ch !== ch.toLowerCase()) { base = ch.toLowerCase(); shift = true; }
+  else if (L.shifted[ch]) { base = L.shifted[ch]; shift = true; }
+  const k = keyEls[base];
+  if (!k) { info.innerHTML = `Nächstes Zeichen: <b>${ch}</b>`; return; }
+  k.classList.add('next');
+  const f = k.dataset.finger;
+  let txt = `Nächste Taste: <b>${ch}</b> – ${FINGER_NAMES[f]}`;
+  if (shift) {
+    const left = f.startsWith('l');
+    const sh = left ? specialEls.ShiftR : specialEls.ShiftL;
+    if (sh) sh.classList.add('next');
+    txt += ` + <b>Shift ${left ? 'rechts' : 'links'}</b> (${left ? 'rechter' : 'linker'} kleiner Finger)`;
+  }
+  info.innerHTML = txt;
+}
+
+function updateKeyHint() {
+  if (S.finished) { highlightChar(null); return; }
+  const word = S.list[S.idx], typed = inp.value;
+  if (typed.length >= word.length) highlightChar(' ');
+  else highlightChar(word[typed.length]);
+}
+
+// ---------- Statistik ----------
+function computeStats(elapsedSec) {
+  let allChars = 0, okChars = 0, ok = 0, bad = 0;
+  S.results.forEach(r => {
+    allChars += r.typed.length + 1; // +1 Leerzeichen
+    if (r.ok) { okChars += r.word.length + 1; ok++; } else bad++;
+  });
+  const min = Math.max(elapsedSec, 1) / 60;
+  return {
+    gross: Math.round(allChars / 5 / min),
+    net: Math.round(okChars / 5 / min),
+    ok, bad, allChars, okChars
+  };
+}
+
+function elapsed() {
+  if (!S.started) return 0;
+  return Math.min((performance.now() - S.startTime) / 1000, S.duration);
+}
+
+function refreshStats() {
+  const e = elapsed();
+  const st = computeStats(e);
+  $('sTime').textContent = Math.ceil(S.duration - e);
+  $('sGross').textContent = S.started ? st.gross : 0;
+  $('sNet').textContent = S.started ? st.net : 0;
+  $('sWords').textContent = `${st.ok} / ${st.bad}`;
+}
+
+// ---------- Ablauf ----------
+function reset() {
+  clearInterval(S.timer);
+  S.list = genWords(250);
+  S.idx = 0; S.results = []; S.started = false; S.finished = false; S.keystrokes = 0;
+  S.correctKeys = 0; S.prevVal = '';
+  videoReset();
+  inp.value = ''; inp.disabled = false; inp.classList.remove('err');
+  $('overlay').classList.remove('show');
+  renderWords();
+  buildKeyboard();
+  applyKbVisibility();
+  refreshStats();
+  updateKeyHint();
+  $('again').textContent = 'Nochmal (Enter)';
+  $('again').disabled = false; clearInterval(resultLockTimer); resultLockUntil = 0;
+  if (Room && Room.active) roomLobby();
+  setTimeout(() => inp.focus(), 0);
+}
+
+function start() {
+  S.started = true;
+  S.startTime = performance.now();
+  S.timer = setInterval(() => {
+    refreshStats();
+    if (elapsed() >= S.duration) finish();
+  }, 100);
+  setSegDisabled(true);
+}
+
+function submitWord() {
+  const typed = inp.value.trim();
+  if (!typed) { inp.value = ''; return; }
+  const word = S.list[S.idx];
+  const ok = typed === word;
+  if (ok) S.correctKeys++; // Leerzeichen nach einem komplett richtigen Wort zählt als richtiger Anschlag
+  S.results.push({ word, typed, ok });
+  const el = $('w' + S.idx);
+  el.classList.remove('cur', 'err');
+  el.classList.add('done', ok ? 'ok' : 'no');
+  paintWord(S.idx, typed, true);
+  S.idx++;
+  if (S.list.length - S.idx < 60) appendWords(150);
+  inp.value = ''; S.prevVal = '';
+  inp.classList.remove('err');
+  markCurrent();
+  refreshStats();
+  updateKeyHint();
+}
+
+function finish() {
+  if (S.finished) return;
+  S.finished = true;
+  clearInterval(S.timer);
+  inp.disabled = true;
+  setSegDisabled(false);
+  const st = computeStats(S.duration);
+  refreshStats();
+  highlightChar(null);
+
+  const totalTyped = st.allChars;
+  const acc = totalTyped ? Math.round(st.okChars / totalTyped * 100) : 0;
+
+  // Bestwert & Verlauf
+  const key = `wpm-best-${S.lang}-${S.duration}`;
+  const best = store.get(key, 0);
+  const isBest = st.net > best;
+  if (isBest) store.set(key, st.net);
+  const hist = store.get('wpm-history', []);
+  hist.unshift({ d: new Date().toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'short' }), lang: S.lang, dur: S.duration, gross: st.gross, net: st.net, acc });
+  store.set('wpm-history', hist.slice(0, 10));
+
+  $('rTitle').textContent = `Ergebnis – ${S.lang === 'de' ? 'Deutsch' : 'English'}, ${S.duration === 60 ? '1 Minute' : S.duration + ' s'}`;
+  $('rGross').textContent = st.gross;
+  $('rNet').textContent = st.net;
+  $('rOk').textContent = st.ok;
+  $('rBad').textContent = st.bad;
+  $('rAcc').textContent = acc + '%';
+  $('rKeys').textContent = S.keystrokes;
+  $('rVideo').textContent = V.dur ? `🎬 Video angetrieben: ${Math.round(Math.min(P.time() / V.dur, 1) * 100)} %  (${P.time().toFixed(1)} von ${V.dur.toFixed(0)} s)` : '';
+  $('rBest').textContent = isBest ? `🏆 Neuer Rekord! (vorher ${best} WPM)` : `Dein Rekord: ${Math.max(best, st.net)} WPM tatsächlich`;
+
+  const wrong = S.results.filter(r => !r.ok);
+  $('rWrongWrap').style.display = wrong.length ? '' : 'none';
+  $('rWrong').innerHTML = wrong.map(r => `<div><span class="exp">${esc(r.word)}</span> → <span class="got">${esc(r.typed)}</span></div>`).join('');
+
+  const h = store.get('wpm-history', []);
+  $('rHistory').innerHTML = h.length > 1 ? `<div style="margin-bottom:4px">Letzte Durchgänge:</div><table><tr><th>Datum</th><th>Sprache</th><th>Dauer</th><th>Total</th><th>Tatsächlich</th><th>Genauigkeit</th></tr>${h.map(x => `<tr><td>${x.d}</td><td>${x.lang.toUpperCase()}</td><td>${x.dur}s</td><td>${x.gross}</td><td>${x.net}</td><td>${x.acc}%</td></tr>`).join('')}</table>` : '';
+
+  $('rVs').style.display = 'none';
+  if (Room && Room.active) { roomOnFinish(st, acc); roomLockControls(); }
+  $('overlay').classList.add('show');
+  // Fokus vom Button weg, sonst würde eine nachträglich gedrückte Leertaste die Ergebnisse überspringen
+  setTimeout(() => { if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur(); }, 0);
+  lockResults(3);
+}
+
+function esc(s) { return s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+
+// ---------- Events ----------
+// --- Löschen / Cursor bewegen verbieten ---
+const BLOCKED = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'];
+inp.addEventListener('keydown', e => {
+  if (BLOCKED.includes(e.key) || ((e.metaKey || e.ctrlKey) && /^[azxv]$/i.test(e.key))) {
+    e.preventDefault();
+    inp.classList.add('nope'); setTimeout(() => inp.classList.remove('nope'), 150);
+    return;
+  }
+  if (S.finished) return;
+  if (e.key === ' ') {
+    e.preventDefault();
+    if (S.started) submitWord();
+    return;
+  }
+  if (e.key === 'Enter') { e.preventDefault(); return; }
+});
+
+inp.addEventListener('beforeinput', e => {
+  const t = e.inputType || '';
+  if (t.startsWith('delete') || t.startsWith('history') || t === 'insertFromPaste' || t === 'insertFromDrop') e.preventDefault();
+});
+const caretToEnd = () => { const n = inp.value.length; inp.setSelectionRange(n, n); };
+['click', 'mouseup', 'select', 'focus'].forEach(ev => inp.addEventListener(ev, caretToEnd));
+inp.addEventListener('paste', e => e.preventDefault());
+inp.addEventListener('drop', e => e.preventDefault());
+
+inp.addEventListener('input', () => {
+  if (S.finished) return;
+  // Falls trotzdem etwas gelöscht wurde (z. B. Autokorrektur): alten Stand wiederherstellen
+  if (inp.value.length < S.prevVal.length || !inp.value.startsWith(S.prevVal.replace(/ /g, ''))) {
+    if (!inp.value.includes(' ')) { inp.value = S.prevVal; return; }
+  }
+  // Leerzeichen, das z. B. per Mobile-Tastatur reinkommt
+  if (inp.value.includes(' ')) {
+    inp.value = inp.value.replace(/ /g, '');
+    if (S.started) submitWord(); else { inp.value = ''; S.prevVal = ''; }
+    return;
+  }
+  if (!S.started && inp.value.length) start();
+  const word = S.list[S.idx];
+  // neue Zeichen bewerten: richtiger Buchstabe an richtiger Stelle = Video-Guthaben
+  for (let i = S.prevVal.length; i < inp.value.length; i++) {
+    S.keystrokes++;
+    if (inp.value[i] === word[i]) S.correctKeys++;
+  }
+  S.prevVal = inp.value;
+  const err = !word.startsWith(inp.value);
+  inp.classList.toggle('err', err);
+  $('w' + S.idx).classList.toggle('err', err);
+  paintWord(S.idx, inp.value, false);
+  updateKeyHint();
+});
+
+document.addEventListener('keydown', e => {
+  const inRoom = Room && Room.connected;
+  if (e.key === 'Escape') { e.preventDefault(); if (inRoom) { if (S.finished) playAgain(); } else reset(); }
+  else if (e.key === 'Enter' && S.finished) { e.preventDefault(); playAgain(); }
+  else if (e.key === 'Enter' && inRoom && Room.role === 'host' && !S.started && !Room.counting) { e.preventDefault(); hostStartRound(); }
+});
+
+$('restart').onclick = () => { if (Room && Room.connected) { if (S.finished) playAgain(); } else reset(); };
+$('again').onclick = () => playAgain();
+// Leertaste darf den Button nie auslösen – nur Enter oder Mausklick
+['keydown', 'keyup'].forEach(ev => $('again').addEventListener(ev, e => { if (e.key === ' ' || e.code === 'Space') e.preventDefault(); }));
+
+function setSegDisabled(d) {
+  document.querySelectorAll('.seg button:not(#kbToggle)').forEach(b => b.disabled = d);
+}
+
+function bindSeg(id, attr, apply) {
+  const seg = $(id);
+  seg.querySelectorAll('button').forEach(b => {
+    b.onclick = () => {
+      seg.querySelectorAll('button').forEach(x => x.classList.remove('on'));
+      b.classList.add('on');
+      apply(b.dataset[attr]);
+      saveSettings();
+      reset();
+    };
+  });
+}
+function syncSeg(id, attr, val) {
+  $(id).querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset[attr] === String(val)));
+}
+bindSeg('langSeg', 'lang', v => { S.lang = v; });
+bindSeg('layoutSeg', 'layout', v => { S.layout = v; });
+bindSeg('timeSeg', 'time', v => { S.duration = +v; });
+bindSeg('capsSeg', 'caps', v => { S.caps = v === '1'; });
+bindSeg('goalSeg', 'goal', v => { S.goal = +v; });
+syncSeg('goalSeg', 'goal', S.goal);
+syncSeg('langSeg', 'lang', S.lang);
+syncSeg('layoutSeg', 'layout', S.layout);
+syncSeg('timeSeg', 'time', S.duration);
+syncSeg('capsSeg', 'caps', S.caps ? 1 : 0);
+
+// =====================================================================
+//  VIDEO-ANTRIEB
+//  Jeder richtige Anschlag gibt Video-Guthaben:
+//     s = D / (Ziel-WPM · 5 · T)          D = Videolänge [s], T = Testdauer [min]
+//     Ziel  Z = min(D, richtigeAnschläge · s)
+//  Die Abspielgeschwindigkeit jagt dem Ziel weich hinterher:
+//  Das Ziel darf der Videozeit höchstens L = 0.7 s voraus sein (kein großes Guthaben-Polster).
+//     r* = clamp((Z − t) / τ, 0, rMax)    t = aktuelle Videozeit, τ = 0.3 s Vorlauf
+//     r  ← r + (r* − r) · (1 − e^(−Δt/λ)) λ = 0.15 s Glättung
+//  Leerlauf: kommt 0.3 s kein richtiger Anschlag, gilt r* = 0 mit λ = 0.08 s,
+//  und das restliche Guthaben verfällt → das Video steht nach ca. 0.5 s.
+//  Wer genau im Ziel-Tempo tippt, sieht das Video in Echtzeit (r ≈ 1).
+//  YouTube-Modus: YouTube erlaubt nur feste Stufen (0.25 … 2×). Das Tempo wird deshalb
+//  auf die nächste erlaubte Stufe gerundet und höchstens alle 0.45 s gewechselt.
+// =====================================================================
+const vid = $('vid');
+const V = { ready: false, dur: 0, rate: 0, target: 0, last: performance.now(), applied: -1, keysSeen: 0, lastKey: 0, mode: 'file' };
+const TAU = 0.3, LAMBDA = 0.15, LAMBDA_STOP = 0.08, RMIN = 0.15, MAX_LEAD = 0.7, IDLE = 0.3;
+vid.preservesPitch = true;
+let muted = false;
+
+// ---------- Quelle 1: lokale Videodatei ----------
+const FileSrc = {
+  rmax: 2.5,
+  time: () => vid.currentTime,
+  paused: () => vid.paused,
+  play: () => { vid.play().catch(() => {}); },
+  pause: () => vid.pause(),
+  seek0: () => { vid.currentTime = 0; },
+  applyRate(r) { if (Math.abs(r - V.applied) > 0.03) { vid.playbackRate = r; V.applied = r; } },
+  setMuted(m) { vid.muted = m; }
+};
+
+// ---------- Quelle 2: YouTube (IFrame API) ----------
+let ytp = null, ytPlaying = false, ytPrimed = false, ytLastRateChange = 0, ytRates = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
+const YtSrc = {
+  rmax: 2,
+  time: () => (ytp && ytp.getCurrentTime ? ytp.getCurrentTime() : 0),
+  paused: () => !ytPlaying,
+  play: () => { ytPlaying = true; ytp.playVideo(); },
+  pause: () => { ytPlaying = false; ytp.pauseVideo(); },
+  seek0: () => { ytp.seekTo(0, true); },
+  applyRate(r, now) {
+    // auf erlaubte Stufe runden, nicht öfter als alle 450 ms wechseln (sonst ruckelt YouTube)
+    let q = ytRates[0];
+    for (const x of ytRates) if (Math.abs(x - r) < Math.abs(q - r)) q = x;
+    if (V.applied < 0) q = Math.max(q, 1); // beim Anlaufen nicht mit Zeitlupe starten
+    if (q !== V.applied && (V.applied < 0 || now - ytLastRateChange > 450)) {
+      ytp.setPlaybackRate(q); V.applied = q; ytLastRateChange = now;
+    }
+  },
+  setMuted(m) { if (ytp && ytp.mute) (m ? ytp.mute() : ytp.unMute()); }
+};
+
+let P = FileSrc;
+
+function vMsg(html) {
+  $('dropMsg').innerHTML = html;
+  $('drop').classList.add('show');
+}
+
+function videoReset() {
+  V.rate = 0; V.target = 0; V.applied = -1; V.keysSeen = 0; V.lastKey = 0;
+  if (V.ready) { P.pause(); P.seek0(); }
+}
+
+// ---------- Lokale Datei laden ----------
+vid.addEventListener('loadedmetadata', () => {
+  if (V.mode !== 'file') return;
+  V.ready = true; V.dur = vid.duration || 60;
+  $('drop').classList.remove('show');
+  vid.currentTime = 0;
+});
+// Das Sekiro-Video video.mp4 ist der Standard; weitere Formate dienen als Fallback.
+const CANDIDATES = ['video.mp4', 'video.webm', 'video.mov'];
+let candIdx = 0, userFile = false;
+vid.addEventListener('error', () => {
+  if (V.mode !== 'file') return;
+  V.ready = false;
+  if (!userFile && ++candIdx < CANDIDATES.length) { vid.src = CANDIDATES[candIdx]; return; }
+  // kein lokales Video (z. B. online auf Vercel): zuletzt benutzten YouTube-Link laden
+  const saved = store.get('wpm-yt', '');
+  if (!userFile && saved && location.protocol !== 'file:') { loadYouTube(saved); return; }
+  vMsg('<b>Kein Video gefunden</b><div>Füge oben rechts einen <b>YouTube-Link</b> ein,<br>zieh ein Video hier hinein oder wähle eine Datei.</div>');
+});
+vid.addEventListener('ended', () => vid.pause());
+
+function useFileMode() {
+  if (ytp) { try { ytp.destroy(); } catch (e) {} ytp = null; }
+  $('ytwrap').innerHTML = '';
+  vid.style.display = '';
+  V.mode = 'file'; P = FileSrc; V.ready = false; V.applied = -1;
+  P.setMuted(muted);
+}
+
+function loadVideoFile(f) {
+  if (!f || !f.type.startsWith('video')) return;
+  useFileMode();
+  userFile = true;
+  if (Room && Room.active && Room.role === 'host') setTimeout(roomSendVideo, 0);
+  vid.src = URL.createObjectURL(f);
+  vid.load();
+  reset();
+}
+
+// ---------- YouTube laden ----------
+let ytApi = null;
+function loadYTApi() {
+  if (ytApi) return ytApi;
+  ytApi = new Promise((resolve, reject) => {
+    window.onYouTubeIframeAPIReady = () => resolve();
+    const sc = document.createElement('script');
+    sc.src = 'https://www.youtube.com/iframe_api';
+    sc.onerror = () => { ytApi = null; reject(); };
+    document.head.appendChild(sc);
+  });
+  return ytApi;
+}
+
+function parseYT(u) {
+  u = (u || '').trim();
+  if (/^[\w-]{11}$/.test(u)) return u;
+  try {
+    const x = new URL(u.startsWith('http') ? u : 'https://' + u);
+    if (x.hostname.endsWith('youtu.be')) return x.pathname.slice(1, 12) || null;
+    if (x.searchParams.get('v')) return x.searchParams.get('v').slice(0, 11);
+    const m = x.pathname.match(/\/(embed|shorts|live|v)\/([\w-]{11})/);
+    if (m) return m[2];
+  } catch (e) {}
+  return null;
+}
+
+async function loadYouTube(url) {
+  const id = parseYT(url);
+  if (!id) { vMsg('<b>Ungültiger Link</b><div>Das sieht nicht nach einem YouTube-Link aus.</div>'); return; }
+  if (location.protocol === 'file:') {
+    vMsg('<b>YouTube geht nur online</b><div>YouTube-Videos lassen sich nur einbetten, wenn die Seite über eine Webadresse geöffnet ist<br>(z. B. auf Vercel) – nicht per Doppelklick auf die Datei.</div>');
+    return;
+  }
+  store.set('wpm-yt', url.trim());
+  $('ytUrl').value = url.trim();
+  if (Room && Room.active && Room.role === 'host') setTimeout(roomSendVideo, 0);
+  // Datei-Modus abschalten
+  vid.pause(); vid.removeAttribute('src'); vid.load(); vid.style.display = 'none';
+  V.mode = 'yt'; P = YtSrc; V.ready = false; V.dur = 0; ytPlaying = false; ytPrimed = false;
+  $('drop').classList.remove('show');
+  reset();
+  try { await loadYTApi(); } catch (e) {
+    vMsg('<b>YouTube konnte nicht geladen werden</b><div>Besteht eine Internetverbindung?</div>');
+    return;
+  }
+  if (ytp) { try { ytp.destroy(); } catch (e) {} }
+  $('ytwrap').innerHTML = '<div id="yt"></div>';
+  ytp = new YT.Player('yt', {
+    videoId: id, width: '100%', height: '100%',
+    playerVars: { controls: 0, disablekb: 1, rel: 0, playsinline: 1, iv_load_policy: 3, fs: 0, modestbranding: 1, origin: location.origin },
+    events: {
+      onReady: () => {
+        // Video kurz stumm anspielen, damit es gepuffert ist (und Werbung vor dem Start schon durch ist)
+        ytp.mute(); ytp.playVideo();
+      },
+      onStateChange: e => {
+        if (!ytPrimed && e.data === YT.PlayerState.PLAYING) {
+          ytPrimed = true;
+          ytp.pauseVideo(); ytp.seekTo(0, true);
+          if (!muted) ytp.unMute();
+          const r = ytp.getAvailablePlaybackRates ? ytp.getAvailablePlaybackRates() : [];
+          const ok = r.filter(x => x >= 0.5 && x <= 2);
+          if (ok.length) ytRates = ok;
+          V.dur = ytp.getDuration() || 60;
+          V.ready = true; ytPlaying = false;
+          inp.focus();
+        }
+        if (e.data === YT.PlayerState.ENDED) ytPlaying = false;
+      },
+      onError: e => {
+        const why = (e.data === 101 || e.data === 150) ? 'Der Besitzer erlaubt nicht, dass dieses Video eingebettet wird.' :
+                    (e.data === 100 ? 'Das Video wurde nicht gefunden (privat oder gelöscht).' : 'YouTube meldet einen Fehler (' + e.data + ').');
+        V.ready = false;
+        vMsg('<b>Video nicht abspielbar</b><div>' + why + '<br>Probier einen anderen Link.</div>');
+      }
+    }
+  });
+}
+
+$('ytLoad').addEventListener('click', () => loadYouTube($('ytUrl').value));
+$('ytUrl').addEventListener('keydown', e => {
+  e.stopPropagation();
+  if (e.key === 'Enter') { e.preventDefault(); loadYouTube($('ytUrl').value); }
+});
+
+$('vFile').addEventListener('change', e => { loadVideoFile(e.target.files[0]); inp.focus(); });
+$('vChoose').addEventListener('click', () => $('vFile').click());
+const vpane = $('vpane');
+['dragenter', 'dragover'].forEach(ev => vpane.addEventListener(ev, e => { e.preventDefault(); $('drop').classList.add('over'); }));
+['dragleave', 'drop'].forEach(ev => vpane.addEventListener(ev, e => { e.preventDefault(); $('drop').classList.remove('over'); }));
+vpane.addEventListener('drop', e => {
+  const f = e.dataTransfer.files[0];
+  if (f) loadVideoFile(f);
+  else { const t = e.dataTransfer.getData('text'); if (parseYT(t)) loadYouTube(t); }
+});
+
+$('vMute').onclick = () => { muted = !muted; P.setMuted(muted); $('vMute').textContent = muted ? '🔇' : '🔊'; inp.focus(); };
+
+// Startquelle: ?yt=… in der Adresse hat Vorrang, sonst lokale Datei (Fallback siehe oben)
+(() => {
+  const q = new URLSearchParams(location.search).get('yt');
+  if (q && location.protocol !== 'file:') loadYouTube(q);
+  else vid.src = CANDIDATES[0];
+  const saved = store.get('wpm-yt', '');
+  if (saved && !q) $('ytUrl').value = saved;
+})();
+
+function videoLoop(now) {
+  const dt = Math.min((now - V.last) / 1000, 0.1);
+  V.last = now;
+  let t = 0;
+  if (V.ready) t = P.time();
+  if (V.ready && S.started) {
+    const D = V.dur;
+    const s = D / (S.goal * 5 * (S.duration / 60));
+    const newKeys = S.correctKeys - V.keysSeen;
+    if (newKeys > 0) { V.target += newKeys * s; V.keysSeen = S.correctKeys; V.lastKey = now; }
+    V.target = Math.min(D, V.target, t + MAX_LEAD);
+    const idle = (now - V.lastKey) / 1000 > IDLE;
+    if (idle) V.target = Math.min(V.target, t); // Restguthaben verfällt
+    const gap = V.target - t;
+    const want = idle ? 0 : Math.max(0, Math.min(gap / TAU, P.rmax));
+    V.rate += (want - V.rate) * (1 - Math.exp(-dt / (idle ? LAMBDA_STOP : LAMBDA)));
+    if (gap <= 0.01 || V.rate < RMIN || t >= D - 0.05) {
+      if (!P.paused()) P.pause();
+      if (gap <= 0.01) V.rate = 0;
+    } else {
+      P.applyRate(V.rate, now);
+      if (P.paused()) P.play();
+    }
+  }
+  if (V.dur) {
+    $('vPlay').style.width = (t / V.dur * 100) + '%';
+    $('vGoal').style.left = `calc(${V.target / V.dur * 100}% - 1px)`;
+  }
+  const shown = V.mode === 'yt' && V.applied > 0 ? V.applied : V.rate;
+  $('vRate').textContent = (P.paused() ? '⏸ ' : '▶ ') + (P.paused() ? 0 : shown).toFixed(2) + '×';
+  requestAnimationFrame(videoLoop);
+}
+requestAnimationFrame(videoLoop);
+
+// =====================================================================
+//  MEHRSPIELER-RAUM (PeerJS, direkte Browser-zu-Browser-Verbindung)
+//  Host erstellt Raum → Code/Link teilen → Gast tritt bei.
+//  Host bestimmt Video, Sprache, Dauer, Ziel und startet die Runden.
+//  Beide bekommen über einen gemeinsamen Zufalls-Seed exakt dieselben Wörter.
+// =====================================================================
+const PEER_PREFIX = 'wpm10f-room-';
+var Room = {
+  active: false, role: null, code: '', peer: null, conn: null, connected: false,
+  inRound: false, counting: false, oppLive: null, oppResult: null, myResult: null,
+  oppReady: false, liveTimer: null, cdTimer: null, oppName: ''
+};
+
+// ---------------------------------------------------------------------
+//  NoSpaceStudio launcher integration
+//  EMBEDDED: the game runs inside the launcher. An invite link would open
+//  the game without the launcher, so only the code is copied there.
+//  PARTY: the launcher started this game for a party and passes the room
+//  in the address: #party=<code>&role=host|guest&name=<username>
+//  The game then connects by itself; nobody has to create or join a room.
+//  Details: docs/PARTY-GAMES.md in the NoSpaceStudio repository.
+// ---------------------------------------------------------------------
+const EMBEDDED = window.parent !== window;
+const PARTY = (() => {
+  const h = new URLSearchParams(location.hash.slice(1));
+  const code = (h.get('party') || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const role = h.get('role');
+  if (!code || (role !== 'host' && role !== 'guest')) return null;
+  return { code, role, name: (h.get('name') || '').slice(0, 20) };
+})();
+const MY_NAME = PARTY ? PARTY.name : '';
+const oppName = () => Room.oppName || 'Gegner';
+
+// --- gemeinsamer Zufallsgenerator (gleiche Wörter für beide) ---
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+// --- PeerJS nachladen ---
+let peerLib = null;
+function loadPeerLib() {
+  if (window.Peer) return Promise.resolve();
+  if (peerLib) return peerLib;
+  peerLib = new Promise((resolve, reject) => {
+    const sc = document.createElement('script');
+    // Shipped with the game (vendor/), so nothing is loaded from other sites.
+    sc.src = 'vendor/peerjs.min.js';
+    sc.onload = () => resolve();
+    sc.onerror = () => { peerLib = null; reject(); };
+    document.head.appendChild(sc);
+  });
+  return peerLib;
+}
+
+function randomCode() {
+  const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let c = '';
+  for (let i = 0; i < 5; i++) c += A[Math.floor(Math.random() * A.length)];
+  return c;
+}
+
+// ---------- Anzeige oben links ----------
+function roomUi() {
+  const bar = $('roomStatus'), opp = $('roomOpp');
+  $('roomIdle').style.display = Room.active ? 'none' : '';
+  $('roomActive').style.display = Room.active ? '' : 'none';
+  if (!Room.active) return;
+  const codeHtml = PARTY && Room.code === PARTY.code
+    ? '<b class="code">Party</b>'
+    : `<b class="code" id="roomCodeTxt" title="Klicken: Einladungslink kopieren">${Room.code}</b>`;
+  if (!Room.connected) {
+    bar.innerHTML = Room.role === 'host'
+      ? `🟡 Raum ${codeHtml} · warte auf Gegner…`
+      : `🟡 Verbinde mit Raum ${codeHtml}…`;
+  } else {
+    bar.innerHTML = `🟢 Raum ${codeHtml} · ${Room.role === 'host' ? 'du bist Host' : 'du bist Gast'}`;
+  }
+  const c = $('roomCodeTxt');
+  if (c) c.onclick = copyRoomLink;
+  // Gegner-WPM
+  if (Room.connected) {
+    const live = Room.oppLive;
+    const who = esc(oppName());
+    let txt = `${who}: –`;
+    if (Room.inRound || Room.counting) txt = `${who}: <b>${live ? live.gross : 0}</b> WPM total`;
+    else if (Room.oppResult) txt = `${who} letzte Runde: <b>${Room.oppResult.gross}</b> WPM total`;
+    if (!Room.inRound && !Room.counting && Room.role === 'host') txt += Room.oppReady ? ' · <span class="okc">bereit ✓</span>' : '';
+    opp.innerHTML = txt;
+    opp.style.display = '';
+  } else opp.style.display = 'none';
+  $('roomStart').style.display = (Room.role === 'host' && Room.connected && !Room.inRound && !Room.counting) ? '' : 'none';
+  $('roomLink').style.display = (Room.role === 'host' && !Room.connected && !PARTY) ? '' : 'none';
+}
+
+function roomInfo(msg, ms) {
+  const el = $('roomMsg');
+  el.textContent = msg; el.style.display = msg ? '' : 'none';
+  clearTimeout(roomInfo.t);
+  if (msg && ms) roomInfo.t = setTimeout(() => { el.style.display = 'none'; }, ms);
+}
+
+function copyRoomLink() {
+  const codeOnly = location.protocol === 'file:' || EMBEDDED;
+  const url = codeOnly ? Room.code : `${location.origin}${location.pathname}?room=${Room.code}`;
+  (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(
+    () => roomInfo(codeOnly ? 'Code kopiert' : 'Einladungslink kopiert ✓', 2500),
+    () => roomInfo('Code: ' + Room.code, 4000));
+  inp.focus();
+}
+
+// Gast darf Video & Einstellungen nicht ändern – das macht der Host
+function roomLockControls() {
+  const guest = Room.active && Room.role === 'guest';
+  ['ytUrl', 'ytLoad', 'vChoose'].forEach(id => { const el = $(id); if (el) el.disabled = guest; });
+  document.querySelectorAll('#langSeg button, #timeSeg button, #goalSeg button, #capsSeg button')
+    .forEach(b => { if (!S.started || S.finished) b.disabled = guest; });
+}
+
+// ---------- Raum erstellen / beitreten / verlassen ----------
+async function createRoom(tries = 0, fixedCode = '') {
+  try { await loadPeerLib(); } catch (e) { roomInfo('Mehrspieler-Dienst nicht erreichbar (Internet?)', 5000); return; }
+  roomCleanup();
+  Room.active = true; Room.role = 'host'; Room.code = fixedCode || randomCode();
+  roomUi(); roomLockControls();
+  const peer = new Peer(PEER_PREFIX + Room.code, { debug: 0 });
+  Room.peer = peer;
+  peer.on('open', () => { roomUi(); if (!fixedCode) copyRoomLink(); });
+  peer.on('connection', c => {
+    if (Room.conn && Room.connected) { c.on('open', () => { c.send({ t: 'full' }); setTimeout(() => c.close(), 300); }); return; }
+    setupConn(c);
+  });
+  peer.on('error', err => {
+    // Party code taken: usually our own old connection after a reload. It is
+    // released after a few seconds, so try the same code again.
+    if (err.type === 'unavailable-id' && fixedCode && tries < 10) { peer.destroy(); roomInfo('Party-Raum wird vorbereitet…', 3000); setTimeout(() => createRoom(tries + 1, fixedCode), 3000); return; }
+    if (err.type === 'unavailable-id' && tries < 3) { peer.destroy(); createRoom(tries + 1); return; }
+    if (err.type === 'network' || err.type === 'server-error' || err.type === 'socket-error') roomInfo('Verbindung zum Mehrspieler-Dienst verloren', 5000);
+  });
+}
+
+async function joinRoom(code, tries = 0) {
+  code = (code || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (code.length < 4) { roomInfo('Bitte einen gültigen Raum-Code eingeben', 3000); return; }
+  try { await loadPeerLib(); } catch (e) { roomInfo('Mehrspieler-Dienst nicht erreichbar (Internet?)', 5000); return; }
+  roomCleanup();
+  Room.active = true; Room.role = 'guest'; Room.code = code;
+  roomUi(); roomLockControls();
+  const peer = new Peer({ debug: 0 });
+  Room.peer = peer;
+  peer.on('open', () => setupConn(peer.connect(PEER_PREFIX + code, { reliable: true })));
+  peer.on('error', err => {
+    if (err.type === 'peer-unavailable' && PARTY && code === PARTY.code && tries < 40) {
+      // The host's game is not ready yet: wait a moment and try again.
+      peer.destroy(); roomInfo('Warte auf den Host…', 2000);
+      setTimeout(() => joinRoom(code, tries + 1), 1500);
+      return;
+    }
+    if (err.type === 'peer-unavailable') { roomInfo(`Raum ${code} nicht gefunden`, 5000); leaveRoom(); }
+    else if (err.type === 'network' || err.type === 'server-error' || err.type === 'socket-error') { roomInfo('Mehrspieler-Dienst nicht erreichbar', 5000); leaveRoom(); }
+  });
+}
+
+function setupConn(c) {
+  Room.conn = c;
+  c.on('open', () => {
+    Room.connected = true; Room.oppLive = null; Room.oppResult = null; Room.oppReady = false;
+    roomInfo('Gegner verbunden 🎉', 2500);
+    if (MY_NAME) send({ t: 'hello', name: MY_NAME });
+    if (Room.role === 'host') roomSendVideo();
+    roomUi(); roomLockControls();
+    if (!S.started || S.finished) roomLobby();
+  });
+  c.on('data', onRoomMsg);
+  c.on('close', onOppGone);
+  c.on('error', onOppGone);
+}
+
+function onOppGone() {
+  if (!Room.active || !Room.connected) return;
+  Room.connected = false; Room.conn = null; Room.oppReady = false;
+  clearInterval(Room.liveTimer);
+  roomInfo(`${oppName()} hat den Raum verlassen`, 5000);
+  // In a party the guest waits for the host to come back (e.g. after a reload).
+  if (Room.role === 'guest' && PARTY && Room.code === PARTY.code) { const c = Room.code; roomCleanup(); roomUi(); setTimeout(() => joinRoom(c), 1500); return; }
+  if (Room.role === 'guest') { leaveRoom(); return; }
+  roomUi();
+  if (!S.started || S.finished) { Room.counting = false; reset(); }
+}
+
+function roomCleanup() {
+  clearInterval(Room.liveTimer); clearInterval(Room.cdTimer);
+  try { if (Room.conn) Room.conn.close(); } catch (e) {}
+  try { if (Room.peer) Room.peer.destroy(); } catch (e) {}
+  Object.assign(Room, { active: false, role: null, code: '', peer: null, conn: null, connected: false, inRound: false, counting: false, oppLive: null, oppResult: null, myResult: null, oppReady: false, oppName: '' });
+  $('countdown').classList.remove('show');
+}
+
+function leaveRoom() {
+  roomCleanup();
+  RNG = Math.random;
+  roomUi(); roomLockControls();
+  setSegDisabled(false);
+  inp.placeholder = 'Hier tippen – der Timer startet beim ersten Buchstaben';
+  if (!S.started || S.finished) reset();
+}
+
+function send(m) { try { if (Room.conn && Room.connected) Room.conn.send(m); } catch (e) {} }
+
+// ---------- Video vom Host ----------
+function roomSendVideo() {
+  if (Room.role !== 'host') return;
+  if (V.mode === 'yt') send({ t: 'video', yt: $('ytUrl').value.trim() });
+  else send({ t: 'video', file: true });
+}
+
+// ---------- Nachrichten ----------
+function onRoomMsg(m) {
+  if (!m || typeof m !== 'object') return;
+  switch (m.t) {
+    case 'full':
+      roomInfo('Der Raum ist schon voll (2 Spieler)', 5000); leaveRoom(); break;
+    case 'video':
+      if (Room.role !== 'guest') break;
+      if (m.yt) {
+        if (V.mode !== 'yt' || $('ytUrl').value.trim() !== m.yt) loadYouTube(m.yt);
+      } else if (m.file) {
+        if (V.mode === 'yt') { useFileMode(); vid.src = CANDIDATES[0]; }
+        roomInfo('Der Host nutzt eine eigene Videodatei – du siehst dein lokales Video', 5000);
+      }
+      break;
+    case 'start':
+      if (Room.role === 'guest') beginRound(m);
+      break;
+    case 'live':
+      Room.oppLive = m; roomUi(); break;
+    case 'result':
+      Room.oppResult = m; Room.oppLive = m; roomUi(); renderVs(); break;
+    case 'ready':
+      Room.oppReady = true; roomUi(); break;
+    case 'hello':
+      Room.oppName = String(m.name || '').slice(0, 20); roomUi(); renderVs(); break;
+  }
+}
+
+// ---------- Runde ----------
+function roomLobby() {
+  // zwischen den Runden: Eingabe gesperrt, Host startet
+  if (!Room.connected || Room.counting || Room.inRound) return;
+  if (S.finished) return; // Ergebnis-Ansicht bleibt offen
+  inp.disabled = true;
+  inp.placeholder = Room.role === 'host' ? 'Klick oben links auf „▶ Runde starten“ (oder Enter)' : 'Warte, bis der Host die Runde startet…';
+  roomUi();
+}
+
+function hostStartRound() {
+  if (Room.role !== 'host' || !Room.connected || Room.inRound || Room.counting) return;
+  const m = { t: 'start', seed: Math.floor(Math.random() * 2 ** 31), lang: S.lang, duration: S.duration, goal: S.goal, caps: S.caps };
+  roomSendVideo();
+  send(m);
+  beginRound(m);
+}
+
+function beginRound(m) {
+  // Einstellungen des Hosts übernehmen
+  S.lang = m.lang; S.duration = m.duration; S.goal = m.goal; S.caps = m.caps;
+  syncSeg('langSeg', 'lang', S.lang); syncSeg('timeSeg', 'time', S.duration);
+  syncSeg('goalSeg', 'goal', S.goal); syncSeg('capsSeg', 'caps', S.caps ? 1 : 0);
+  RNG = mulberry32(m.seed);
+  Room.counting = true; Room.inRound = false;
+  Room.oppLive = null; Room.oppResult = null; Room.myResult = null; Room.oppReady = false;
+  reset();
+  inp.disabled = true;
+  inp.placeholder = 'Gleich geht’s los…';
+  setSegDisabled(true);
+  roomUi();
+  let n = 3;
+  const cd = $('countdown');
+  cd.textContent = n; cd.classList.add('show');
+  clearInterval(Room.cdTimer);
+  Room.cdTimer = setInterval(() => {
+    n--;
+    if (n > 0) { cd.textContent = n; return; }
+    clearInterval(Room.cdTimer);
+    cd.textContent = 'Los!';
+    setTimeout(() => cd.classList.remove('show'), 500);
+    Room.counting = false; Room.inRound = true;
+    inp.disabled = false; inp.placeholder = '';
+    inp.focus();
+    start();
+    clearInterval(Room.liveTimer);
+    Room.liveTimer = setInterval(() => {
+      const st = computeStats(elapsed());
+      send({ t: 'live', gross: st.gross, net: st.net, ok: st.ok, bad: st.bad });
+    }, 300);
+    roomUi();
+  }, 1000);
+}
+
+function roomOnFinish(st, acc) {
+  if (!Room.active || !Room.inRound) return;
+  Room.inRound = false;
+  clearInterval(Room.liveTimer);
+  Room.myResult = { gross: st.gross, net: st.net, ok: st.ok, bad: st.bad, acc };
+  send(Object.assign({ t: 'result' }, Room.myResult));
+  roomUi();
+  renderVs();
+  $('again').textContent = Room.role === 'host' ? 'Neue Runde starten (Enter)' : 'Bereit für Revanche (Enter)';
+}
+
+function renderVs() {
+  const box = $('rVs');
+  if (!Room.myResult) { box.style.display = 'none'; return; }
+  const me = Room.myResult, op = Room.oppResult;
+  const col = (title, r, cls) => r ? `
+    <div class="vs-col ${cls}">
+      <div class="vs-name">${title}</div>
+      <div class="vs-net">${r.net}</div><div class="vs-sub">WPM tatsächlich</div>
+      <div class="vs-row"><span>WPM total</span><b>${r.gross}</b></div>
+      <div class="vs-row"><span>Wörter ✓ / ✗</span><b>${r.ok} / ${r.bad}</b></div>
+      <div class="vs-row"><span>Genauigkeit</span><b>${r.acc}%</b></div>
+    </div>` : `<div class="vs-col"><div class="vs-name">${title}</div><div class="vs-wait">tippt noch…</div></div>`;
+  let verdict = '';
+  if (op) {
+    if (me.net > op.net) verdict = '🏆 Du gewinnst!';
+    else if (me.net < op.net) verdict = Room.oppName ? `😤 ${esc(Room.oppName)} gewinnt` : '😤 Dein Gegner gewinnt';
+    else verdict = '🤝 Unentschieden';
+  }
+  const meCls = op ? (me.net > op.net ? 'win' : me.net < op.net ? 'lose' : '') : '';
+  const opCls = op ? (op.net > me.net ? 'win' : op.net < me.net ? 'lose' : '') : '';
+  box.innerHTML = `<div class="vs-verdict">${verdict || 'Warte auf das Ergebnis deines Gegners…'}</div>
+    <div class="vs-grid">${col('Du', me, meCls)}<div class="vs-mid">VS</div>${col(esc(oppName()), op, opCls)}</div>`;
+  box.style.display = '';
+}
+
+// „Nochmal“ im Raum
+// Ergebnis muss mindestens N Sekunden angezeigt werden, bevor man weiter kann
+var resultLockUntil = 0, resultLockTimer = null;
+function lockResults(sec) {
+  const btn = $('again');
+  const base = btn.textContent.replace(/\s*\(Enter\)\s*$/, '');
+  resultLockUntil = performance.now() + sec * 1000;
+  btn.disabled = true;
+  clearInterval(resultLockTimer);
+  const tick = () => {
+    const left = Math.ceil((resultLockUntil - performance.now()) / 1000);
+    if (left > 0) { btn.textContent = `${base} · ${left}`; return; }
+    clearInterval(resultLockTimer);
+    btn.disabled = false;
+    btn.textContent = `${base} (Enter)`;
+  };
+  tick();
+  resultLockTimer = setInterval(tick, 200);
+}
+function resultsLocked() { return S.finished && performance.now() < resultLockUntil; }
+
+function playAgain() {
+  if (resultsLocked()) return;
+  if (Room.active && Room.connected) {
+    if (Room.inRound || Room.counting) return;
+    if (Room.role === 'host') hostStartRound();
+    else { send({ t: 'ready' }); $('again').textContent = 'Warte auf den Host…'; }
+    return;
+  }
+  reset();
+}
+
+// ---------- Bedienelemente ----------
+$('roomCreate').onclick = () => createRoom();
+$('roomJoin').onclick = () => joinRoom($('roomCode').value);
+$('roomCode').addEventListener('keydown', e => {
+  e.stopPropagation();
+  if (e.key === 'Enter') { e.preventDefault(); joinRoom($('roomCode').value); }
+});
+$('roomLeave').onclick = () => leaveRoom();
+$('roomStart').onclick = () => hostStartRound();
+$('roomLink').onclick = () => copyRoomLink();
+window.addEventListener('beforeunload', () => { try { if (Room.peer) Room.peer.destroy(); } catch (e) {} });
+
+// Party from the launcher → connect automatically.
+// Otherwise: invite link ?room=CODE → automatisch beitreten
+(() => {
+  if (PARTY) {
+    setTimeout(() => PARTY.role === 'host' ? createRoom(0, PARTY.code) : joinRoom(PARTY.code), 300);
+    return;
+  }
+  const q = new URLSearchParams(location.search).get('room');
+  if (q) setTimeout(() => joinRoom(q), 300);
+})();
+roomUi();
+
+// Tastatur ein-/ausblenden (spart Platz in der unteren Hälfte)
+function applyKbVisibility() {
+  $('kb').classList.toggle('hidden', !S.showKb);
+  $('legend').classList.toggle('hidden', !S.showKb);
+  $('fingerInfo').classList.toggle('hidden', !S.showKb);
+  $('kbToggle').classList.toggle('on', S.showKb);
+}
+$('kbToggle').onclick = () => { S.showKb = !S.showKb; saveSettings(); applyKbVisibility(); inp.focus(); };
+
+window.addEventListener('resize', markCurrent);
+document.querySelector('.words-box').addEventListener('click', () => inp.focus());
+
+reset();
+</script>
+</body>
+</html>

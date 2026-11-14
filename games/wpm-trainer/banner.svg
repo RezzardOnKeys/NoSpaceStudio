@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#252935"/>
+      <stop offset="1" stop-color="#14161b"/>
+    </linearGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <g font-family="Menlo, Consolas, monospace" font-weight="700" text-anchor="middle" opacity="0.9">
+    <g transform="translate(1040 260)">
+      <rect width="170" height="170" rx="24" fill="#e57373"/>
+      <text x="85" y="115" font-size="90" fill="#15171c">Q</text>
+    </g>
+    <g transform="translate(1230 260)">
+      <rect width="170" height="170" rx="24" fill="#6fcf7a"/>
+      <text x="85" y="115" font-size="90" fill="#15171c">W</text>
+    </g>
+    <g transform="translate(1420 260)">
+      <rect width="170" height="170" rx="24" fill="#f5b942"/>
+      <text x="85" y="115" font-size="90" fill="#15171c">P</text>
+    </g>
+    <g transform="translate(1610 260)">
+      <rect width="170" height="170" rx="24" fill="#5cc4d6"/>
+      <text x="85" y="115" font-size="90" fill="#15171c">M</text>
+    </g>
+    <g transform="translate(1135 450)">
+      <rect width="170" height="170" rx="24" fill="#6f8fe8"/>
+      <text x="85" y="115" font-size="90" fill="#15171c">F</text>
+    </g>
+    <g transform="translate(1325 450)">
+      <rect width="170" height="170" rx="24" fill="#a77be0"/>
+      <text x="85" y="115" font-size="90" fill="#15171c">J</text>
+    </g>
+    <g transform="translate(1515 450)">
+      <rect width="170" height="170" rx="24" fill="#e07bc4"/>
+      <text x="85" y="115" font-size="90" fill="#15171c">K</text>
+    </g>
+    <g transform="translate(1135 640)">
+      <rect width="550" height="120" rx="24" fill="#9aa0ad"/>
+    </g>
+  </g>
+  <rect x="1040" y="830" width="740" height="14" rx="7" fill="#1d2028"/>
+  <rect x="1040" y="830" width="480" height="14" rx="7" fill="#f5b942"/>
+  <rect x="1516" y="820" width="8" height="34" rx="4" fill="#4bffa2"/>
+</svg>

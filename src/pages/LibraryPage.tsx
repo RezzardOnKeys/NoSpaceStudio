@@ -9,6 +9,7 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { ContinueCard } from '@/features/library/ContinueCard';
 import { PlayedGameRow } from '@/features/library/PlayedGameRow';
+import { PartyPanel } from '@/features/party/PartyPanel';
 import { usePlayedGames } from '@/features/library/usePlayedGames';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { formatPlaytime } from '@/lib/format';
@@ -36,6 +37,8 @@ export function LibraryPage() {
             : 'Every game you have played shows up here.'
         }
       />
+
+      <PartyPanel />
 
       {isPending || !played ? (
         <>

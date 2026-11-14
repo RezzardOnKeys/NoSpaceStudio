@@ -37,3 +37,6 @@ Thumbs.db
 # Test and tooling caches
 coverage/
 .eslintcache
+
+# Local test videos for the WPM trainer (too large for the repository)
+games/wpm-trainer/video.*

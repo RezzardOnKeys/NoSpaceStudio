@@ -15,6 +15,21 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 11 – 2026-11-14 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Balls' Tipp-Spiel (WPM-Trainer mit PeerJS, bisher auf Vercel) einbauen, Spielzeit (Phase 4) und Party-System umsetzen, aufräumen; Bildschirmaufnahme weglassen
+**Änderungen:**
+- Spiel `games/wpm-trainer/` eingebaut (99-Finger WPM Trainer): Vercel-Dateien entfernt, PeerJS liegt jetzt im Spielordner (`vendor/`) statt von fremder Seite geladen, Bildschirmaufnahme entfernt, Store-Eintrag mit Beschreibung, Cover und Banner
+- Spiel versteht den Party-Modus: Mit den Daten vom Launcher verbinden sich Host und Gast automatisch, ohne Raum-Code; Namen der Spieler werden angezeigt; Gäste warten, bis der Host bereit ist
+- Phase 4: Spielzeit wird beim Spielen gespeichert (alle 30 Sekunden, beim Tab-Wechsel und beim Verlassen); Library, „Continue playing“, Profil-Statistik und „Most played“ nutzen echte Zahlen; Gäste sehen den Hinweis, dass ihre Zeit nicht gespeichert wird
+- Party-System (neue Phase 8): Party in der Library starten, Freunde einladen, Einladungen oben auf jeder Seite annehmen oder ablehnen, Zähler an „Library“; der Host startet ein Mehrspieler-Spiel und alle Mitglieder werden automatisch hineingezogen; Einzelspieler-Spiele zeigen „Single player only“
+- Neue SQL-Datei `0006_parties.sql` (Partys, Mitglieder, Einladungen, Echtzeit-Updates), ausführlich kommentiert
+- `game.json` kennt jetzt `maxPlayers`; Spielkarten im Store zeigen Mehrspieler-Spiele an, die Spielseite die Spielerzahl
+- Neue Anleitung `docs/PARTY-GAMES.md` (wie die Party funktioniert und was ein Spiel dafür können muss); Roadmap (Phase 4 und 8 erledigt), DECISIONS (25 bis 28), Setup-Anleitung, ADDING-A-GAME, READMEs und CLAUDE.md angepasst
+- Noch offen: `0006_parties.sql` muss in Supabase ausgeführt werden; Spielzeit, Party und Mitziehen sind ohne echte Konten nicht getestet (die Spielverbindung selbst wurde mit zwei Browser-Tabs getestet); die hochgeladene `wpm-games-main.zip` wurde nach dem Einbau gelöscht
+**Geänderte Dateien:** games/wpm-trainer/ (neu: index.html, game.json, description.md, cover.svg, banner.svg, vendor/peerjs.min.js, vendor/peerjs-LICENSE.txt), games/README.md, supabase/migrations/0006_parties.sql (neu), src/features/party/ (neu: api.ts, queries.ts, party-session.ts, PartyWatcher.tsx, PartyNotices.tsx, PartyPanel.tsx, InviteFriendsModal.tsx, GamePlayActions.tsx, useOpenPartyGame.ts, usePartyLaunch.ts), src/features/player/ (usePlaytimeTracker.ts neu, GameFrame.tsx), src/features/library/api.ts, src/features/games/ (api.ts, GameCard.tsx), src/components/layout/ (RootLayout.tsx neu, useNavBadges.ts neu, useIncomingRequestCount.ts gelöscht, AppShell.tsx, Sidebar.tsx, MobileNav.tsx), src/pages/ (PlayerPage.tsx, GamePage.tsx, LibraryPage.tsx), src/routes/router.tsx, src/lib/ (content.ts, query-keys.ts), src/types/ (models.ts, database.ts), docs/PARTY-GAMES.md (neu), docs/ROADMAP.md, docs/DECISIONS.md, docs/SUPABASE-SETUP.md, docs/ADDING-A-GAME.md, README.md, CLAUDE.md, PROTOKOLL.md, .gitignore, .claude/launch.json
+**Commit-Message:** `[v11] feat: add WPM trainer game, playtime tracking and parties`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 10 – 2026-11-14 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Profilbild hinzufügen: vom eigenen Gerät wählen, danach nicht mehr änderbar, mit roter Warnung beim Auswählen
 **Änderungen:**
@@ -26,7 +41,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Noch offen: `0005_one_time_avatar.sql` muss einmal im Supabase SQL Editor ausgeführt werden; der Upload ist noch nicht mit einem echten Konto getestet
 **Geänderte Dateien:** supabase/migrations/0005_one_time_avatar.sql (neu), src/lib/image.ts (neu), src/features/profile/ (AvatarPicker.tsx neu, queries.ts neu, api.ts, ProfileView.tsx), src/types/database.ts, docs/SUPABASE-SETUP.md, docs/DECISIONS.md, docs/ROADMAP.md, CLAUDE.md, PROTOKOLL.md
 **Commit-Message:** `[v10] feat(profile): add one-time profile picture upload`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`98dc7d0`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/98dc7d0)
 
 ## Version 9 – 2026-11-14 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Freunde hinzufügen können: Freundesfunktion an Supabase anschließen (Phase 5 vor Phase 4)

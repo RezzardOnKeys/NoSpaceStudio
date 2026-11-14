@@ -4,11 +4,13 @@ import {
   isRecord,
   readChoice,
   readDate,
+  readInteger,
   readOptionalText,
   readText,
   readTextList,
 } from '@/lib/content';
 import { ContentError } from '@/lib/errors';
+import { getSupabaseOrNull } from '@/lib/supabase';
 import type { Game } from '@/types/models';
 
 /*
@@ -68,23 +70,38 @@ function toGame(path: string, manifest: unknown): Game {
     status: readChoice(file, manifest, 'status', ['draft', 'published']),
     isFeatured: manifest.featured === true,
     publishedAt: readDate(file, manifest, 'publishedAt'),
-    // Comes from the database once playtime tracking exists (phase 4).
+    // Filled in from the database by fetchGames().
     totalPlaytimeSeconds: 0,
+    maxPlayers: readInteger(file, manifest, 'maxPlayers', { min: 1, max: 16, fallback: 1 }),
   };
+}
+
+/**
+ * Total playtime per game, from the public game_stats table. Only used for
+ * the "Most played" sorting, so the store keeps working without it: when
+ * Supabase is not configured or not reachable, every game counts as 0.
+ */
+async function fetchPlaytimeTotals(): Promise<Map<string, number>> {
+  const supabase = getSupabaseOrNull();
+  if (!supabase) return new Map();
+  const { data, error } = await supabase.from('game_stats').select('game_slug, total_seconds');
+  if (error) {
+    console.warn('Playtime totals could not be loaded:', error.message);
+    return new Map();
+  }
+  return new Map(data.map((row) => [row.game_slug, row.total_seconds]));
 }
 
 /**
  * All games that are visible in the store, newest first. Drafts only show
  * up on a developer's machine (npm run dev), never on the live site.
  */
-export function fetchGames(): Promise<Game[]> {
-  try {
-    const games = Object.entries(manifests)
-      .map(([path, manifest]) => toGame(path, manifest))
-      .filter((game) => game.status === 'published' || import.meta.env.DEV)
-      .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
-    return Promise.resolve(games);
-  } catch (error) {
-    return Promise.reject(error instanceof Error ? error : new Error(String(error)));
-  }
+export async function fetchGames(): Promise<Game[]> {
+  const games = Object.entries(manifests)
+    .map(([path, manifest]) => toGame(path, manifest))
+    .filter((game) => game.status === 'published' || import.meta.env.DEV)
+    .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
+
+  const totals = await fetchPlaytimeTotals();
+  return games.map((game) => ({ ...game, totalPlaytimeSeconds: totals.get(game.slug) ?? 0 }));
 }

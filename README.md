@@ -13,8 +13,8 @@ in-app purchases.
 
 </div>
 
-> **Status:** early prototype. Accounts work, games and news are added as files
-> in this repository, friends work; playtime tracking is next.
+> **Status:** early prototype. Accounts, friends, playtime and parties work;
+> the first game is in. Deployment is next.
 
 <!-- TODO: replace with a real screenshot once the store page exists. -->
 <p align="center"><em>Screenshot coming soon</em></p>
@@ -30,7 +30,8 @@ in-app purchases.
 | Accounts with unique usernames, password reset             | Done    |
 | Friends: search, requests, friend profiles                 | Done    |
 | Library and profile pages                                  | Done    |
-| Real playtime tracking                                     | Planned |
+| Real playtime tracking                                     | Done    |
+| Parties: invite friends, play multiplayer games together   | Done    |
 | Installable as a web app (PWA)                             | Planned |
 
 ## Tech stack

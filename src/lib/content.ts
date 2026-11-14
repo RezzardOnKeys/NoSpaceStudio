@@ -50,6 +50,21 @@ export function readChoice<T extends string>(
   return match;
 }
 
+/** A whole number within a range; `fallback` when the field is missing. */
+export function readInteger(
+  file: string,
+  record: ContentRecord,
+  key: string,
+  { min, max, fallback }: { min: number; max: number; fallback: number },
+): number {
+  const value = record[key];
+  if (value === undefined) return fallback;
+  if (typeof value !== 'number' || !Number.isInteger(value) || value < min || value > max) {
+    throw new ContentError(file, `"${key}" must be a whole number from ${min} to ${max}.`);
+  }
+  return value;
+}
+
 const DAY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
 /** Reads a date like "2026-11-20" and returns it as an ISO date string. */

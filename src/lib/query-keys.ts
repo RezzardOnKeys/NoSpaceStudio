@@ -11,4 +11,7 @@ export const queryKeys = {
   /** Friends and open requests of the signed-in user. */
   friendships: ['friendships'],
   userSearch: (query: string) => ['user-search', query],
+  /** The signed-in user's party and the invitations they received. */
+  party: ['party', 'mine'],
+  partyInvites: ['party', 'invites'],
 } as const;
