@@ -111,7 +111,7 @@ shapes and `features/games/api.ts`, `features/news/api.ts` for the file
 formats). The database holds:
 
 - `profiles`: `id` (= `auth.users.id`), `username` (unique, lower case),
-  `avatar_url`, `created_at`
+  `avatar_url` (path in the `avatars` bucket, set once), `created_at`
 - `friendships`: `id`, `requester_id`, `addressee_id`, `status`
   (`pending`/`accepted`), `created_at`, `accepted_at`; each pair only once
 - `playtime`: `user_id`, `game_slug`, `total_seconds`, `last_played_at`;
@@ -148,7 +148,8 @@ Requirements:
 - Playtime tracking in the player (heartbeat, Page Visibility, server-side
   cap). Total playtime per game comes from `game_stats`.
 - Library and "Continue playing" on real data; "Most played" sorting.
-- Profile page with statistics and avatar upload.
+- Profile page with statistics. (The avatar upload is already done, see
+  decision 24.)
 
 ### Phase 5 – Friends
 

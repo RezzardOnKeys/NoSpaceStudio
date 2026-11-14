@@ -16,6 +16,7 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { formatDate, formatPlaytime } from '@/lib/format';
 import { paths } from '@/routes/paths';
 
+import { AvatarPicker } from './AvatarPicker';
 import { StatCard } from './StatCard';
 
 interface ProfileViewProps {
@@ -95,6 +96,7 @@ export function ProfileView({ username, isOwn }: ProfileViewProps) {
           <p className="text-fg-muted">
             Member since <time dateTime={profile.createdAt}>{formatDate(profile.createdAt)}</time>
           </p>
+          {isOwn && !profile.avatarUrl && <AvatarPicker />}
         </div>
       </header>
 

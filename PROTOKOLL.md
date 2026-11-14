@@ -15,6 +15,19 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 10 – 2026-11-14 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Profilbild hinzufügen: vom eigenen Gerät wählen, danach nicht mehr änderbar, mit roter Warnung beim Auswählen
+**Änderungen:**
+- Auf dem eigenen Profil gibt es den Knopf „Add profile picture“, solange man noch kein Bild hat
+- Nach der Dateiauswahl zeigt ein Fenster die runde Vorschau und eine rote Warnung, dass das Bild nicht mehr geändert oder entfernt werden kann; erst „Use this picture“ lädt es hoch
+- Das Bild wird auf dem Gerät mittig quadratisch zugeschnitten und auf 512 × 512 Pixel verkleinert (WebP, notfalls JPEG), bevor es hochgeladen wird
+- Neue SQL-Datei `0005_one_time_avatar.sql`: Die Datenbank erlaubt genau ein Profilbild pro Nutzer, Überschreiben und Löschen sind gesperrt; `avatar_url` speichert jetzt den Pfad im Speicher statt einer Web-Adresse
+- `docs/SUPABASE-SETUP.md` um „Ein Profilbild entfernen“ (von Hand im Dashboard) ergänzt; DECISIONS (24), Roadmap und CLAUDE.md angepasst; Commit-Hash für Version 9 nachgetragen
+- Noch offen: `0005_one_time_avatar.sql` muss einmal im Supabase SQL Editor ausgeführt werden; der Upload ist noch nicht mit einem echten Konto getestet
+**Geänderte Dateien:** supabase/migrations/0005_one_time_avatar.sql (neu), src/lib/image.ts (neu), src/features/profile/ (AvatarPicker.tsx neu, queries.ts neu, api.ts, ProfileView.tsx), src/types/database.ts, docs/SUPABASE-SETUP.md, docs/DECISIONS.md, docs/ROADMAP.md, CLAUDE.md, PROTOKOLL.md
+**Commit-Message:** `[v10] feat(profile): add one-time profile picture upload`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 9 – 2026-11-14 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Freunde hinzufügen können: Freundesfunktion an Supabase anschließen (Phase 5 vor Phase 4)
 **Änderungen:**
@@ -29,7 +42,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Roadmap (Phase 5 erledigt), README und CLAUDE.md angepasst; Commit-Hash für Version 5 bis 8 nachgetragen
 **Geänderte Dateien:** src/features/friends/ (api.ts neu, FriendshipAction.tsx neu, queries.ts), src/features/library/ (api.ts neu, queries.ts), src/features/profile/ProfileView.tsx, src/features/games/FriendsPlaytime.tsx, src/lib/query-keys.ts, src/mocks/ (gelöscht), docs/ROADMAP.md, README.md, CLAUDE.md, PROTOKOLL.md
 **Commit-Message:** `[v9] feat(friends): connect friends and playtime reading to Supabase`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`6421498`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/6421498)
 
 ## Version 8 – 2026-11-14 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Spiele und News auf Dateien im Repo umbauen, Admin-Panel streichen, SQL-Dateien ausführlich kommentieren

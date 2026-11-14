@@ -14,6 +14,7 @@
 type ProfileRow = {
   id: string;
   username: string;
+  /** Path in the avatars bucket, e.g. '<user id>/avatar'. Set once, then fixed. */
   avatar_url: string | null;
   created_at: string;
 };
@@ -46,7 +47,7 @@ export type Database = {
       profiles: {
         Row: ProfileRow;
         Insert: never;
-        Update: { avatar_url?: string | null };
+        Update: never;
         Relationships: [];
       };
       friendships: {
@@ -96,6 +97,7 @@ export type Database = {
       is_friend_of: { Args: { other_user: string }; Returns: boolean };
       send_friend_request: { Args: { target_user: string }; Returns: FriendshipRow };
       accept_friend_request: { Args: { request_id: string }; Returns: FriendshipRow };
+      set_avatar: { Args: Record<never, never>; Returns: string };
       record_playtime: { Args: { p_game_slug: string; p_seconds: number }; Returns: number };
     };
     Enums: Record<never, never>;

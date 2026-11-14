@@ -108,8 +108,8 @@ files owned by root. Do not work around it silently; tell the developer to run
   as a **second** Pages project on a separate origin. The launcher embeds them
   in a sandboxed `<iframe>`. The base URL comes from `VITE_GAMES_BASE_URL`.
   Reason: a game must never be able to read the user's login session.
-- Supabase Storage is for avatars only. Compress and resize them in the
-  browser before upload. Game images live in the game's folder.
+- Supabase Storage is for avatars only. They are resized in the browser
+  (`lib/image.ts`) and can be set only once per user (decision 24). Game images live in the game's folder.
 - **Games and news are files, not database rows** (decision 22). A game's
   store entry is `games/<slug>/game.json` (+ optional `description.md`, cover,
   banner, screenshots in the same folder); a news post is `news/<name>.md`

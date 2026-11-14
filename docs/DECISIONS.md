@@ -206,3 +206,20 @@ future are visible with `npm run dev`, but not in a production build.
 **Why:** It gives us a preview without a separate preview system. Note that a
 draft game's folder is still deployed and reachable by its direct URL, and
 the text of hidden entries is part of the shipped bundle. Hidden is not secret.
+
+## 24. A profile picture can be chosen only once
+
+**Decision:** Users pick a profile picture once and cannot change or remove
+it afterwards. The database enforces it: the file always has the path
+`<user id>/avatar`, storage allows inserting it but not updating or deleting,
+and `set_avatar()` only fills `profiles.avatar_url` while it is empty. The
+column now holds the storage path, not a full URL.
+
+**Why:** The developers want it that way. Enforcing it in the database (not
+only by hiding the button) makes it hold against tricks. Storing only the
+path means the column can never point to an image on another website.
+Removing a picture is possible by hand in the Supabase dashboard
+(docs/SUPABASE-SETUP.md).
+
+**How:** The picture is cut to a square and shrunk to 512 × 512 pixels WebP
+(JPEG where the browser cannot write WebP) on the device before the upload.

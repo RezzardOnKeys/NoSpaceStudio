@@ -30,19 +30,20 @@ Menüpunkt leicht anders heißt als hier, ist trotzdem derselbe gemeint.
 
 ## 2. Die Datenbank aufbauen (SQL ausführen)
 
-Im Ordner `supabase/migrations/` liegen vier nummerierte Dateien. Jede baut
+Im Ordner `supabase/migrations/` liegen nummerierte Dateien. Jede baut
 einen Teil der Datenbank. Sie müssen **in der Reihenfolge ihrer Nummern**
 ausgeführt werden, jede genau einmal. In jeder Datei steht in Kommentaren
 (Zeilen mit `--`), was die einzelnen Teile tun.
 
-| Datei                  | Was sie anlegt                                            |
-| ---------------------- | --------------------------------------------------------- |
-| `0001_profiles.sql`    | Profile (Benutzername, Avatar), automatisch beim Anmelden |
-| `0002_friendships.sql` | Freundschaften und Freundschaftsanfragen                  |
-| `0003_playtime.sql`    | Spielzeit pro Nutzer und die Gesamtspielzeit pro Spiel    |
-| `0004_storage.sql`     | Speicherplatz für Profilbilder                            |
+| Datei                      | Was sie anlegt                                            |
+| -------------------------- | --------------------------------------------------------- |
+| `0001_profiles.sql`        | Profile (Benutzername, Avatar), automatisch beim Anmelden |
+| `0002_friendships.sql`     | Freundschaften und Freundschaftsanfragen                  |
+| `0003_playtime.sql`        | Spielzeit pro Nutzer und die Gesamtspielzeit pro Spiel    |
+| `0004_storage.sql`         | Speicherplatz für Profilbilder                            |
+| `0005_one_time_avatar.sql` | Profilbild kann nur einmal gewählt werden                 |
 
-Für jede der vier Dateien, beginnend mit `0001`:
+Für jede Datei, beginnend mit `0001`:
 
 1. In Supabase links auf **SQL Editor** klicken.
 2. Oben auf **+** und dann **Create a new snippet** (ein leeres Eingabefeld).
@@ -62,7 +63,12 @@ kopieren und Claude zeigen. Eine Datei, die schon erfolgreich gelaufen ist,
 nicht noch einmal ausführen (das gäbe den Fehler „already exists“).
 
 **Kontrolle:** Links auf **Table Editor** klicken. Dort müssen vier Tabellen
-stehen: `friendships`, `game_stats`, `playtime`, `profiles`. Alle sind leer.
+stehen: `friendships`, `game_stats`, `playtime`, `profiles`.
+
+**Später kommen neue Dateien dazu** (z. B. `0005`). Dann führt **einer** von
+euch nur die neue Datei aus, auf dieselbe Weise. Die älteren nicht noch
+einmal. Welche Dateien schon gelaufen sind, steht im Protokoll bzw. merkt ihr
+euch am besten in einer Notiz.
 
 ## 3. Anmeldung einstellen
 
@@ -146,6 +152,20 @@ hochgeladen wird.
    anklicken. Danach ist man angemeldet.
 4. Kontrolle in Supabase: **Table Editor** → Tabelle **profiles**. Dort steht
    jetzt eine Zeile mit dem eigenen Benutzernamen.
+
+## Ein Profilbild entfernen
+
+Profilbilder können in der App nur einmal gewählt und danach nicht mehr
+geändert werden. Falls trotzdem eins weg muss (z. B. weil es anstößig ist),
+geht das nur von Hand:
+
+1. In Supabase links auf **Storage** → Bucket **avatars**.
+2. Den Ordner mit der Nutzer-ID öffnen (die ID steht in der Tabelle
+   `profiles` in der Spalte `id`), die Datei `avatar` markieren und löschen.
+3. **Table Editor** → **profiles** → in der Zeile des Nutzers das Feld
+   `avatar_url` leeren (auf `NULL` setzen) und speichern.
+
+Danach kann der Nutzer wieder ein neues Bild wählen, wieder nur einmal.
 
 ## Wenn etwas nicht klappt
 
