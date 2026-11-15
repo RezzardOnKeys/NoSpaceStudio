@@ -60,18 +60,20 @@ Das ist der Eintrag im Store:
 }
 ```
 
-| Feld               | Pflicht | Bedeutung                                                                                                    |
-| ------------------ | ------- | ------------------------------------------------------------------------------------------------------------ |
-| `title`            | ja      | Angezeigter Name                                                                                             |
-| `shortDescription` | ja      | Ein Satz für die Karte im Store                                                                              |
-| `status`           | ja      | `draft` (nur lokal sichtbar) oder `published` (für alle sichtbar)                                            |
-| `publishedAt`      | ja      | Datum der Veröffentlichung, `JJJJ-MM-TT`. Bestimmt die Sortierung „Newest“                                   |
-| `genres`           | nein    | Liste für den Genre-Filter                                                                                   |
-| `engine`           | nein    | Label, z. B. `HTML5`, `Unity`, `Godot`. Standard: `HTML5`                                                    |
-| `version`          | nein    | Standard: `1.0.0`                                                                                            |
-| `cover`, `banner`  | nein    | Dateinamen der Bilder im Spielordner                                                                         |
-| `screenshots`      | nein    | Liste von Dateinamen                                                                                         |
-| `maxPlayers`       | nein    | Höchstzahl Spieler in einer Party. Standard: `1` (nur Einzelspieler). Siehe [PARTY-GAMES.md](PARTY-GAMES.md) |
+| Feld               | Pflicht | Bedeutung                                                                                                      |
+| ------------------ | ------- | -------------------------------------------------------------------------------------------------------------- |
+| `title`            | ja      | Angezeigter Name                                                                                               |
+| `shortDescription` | ja      | Ein Satz für die Karte im Store                                                                                |
+| `status`           | ja      | `draft` (nur lokal sichtbar) oder `published` (für alle sichtbar)                                              |
+| `publishedAt`      | ja      | Datum der Veröffentlichung, `JJJJ-MM-TT`. Bestimmt die Sortierung „Newest“                                     |
+| `genres`           | nein    | Liste für den Genre-Filter                                                                                     |
+| `engine`           | nein    | Label, z. B. `HTML5`, `Unity`, `Godot`. Standard: `HTML5`                                                      |
+| `version`          | nein    | Standard: `1.0.0`                                                                                              |
+| `cover`, `banner`  | nein    | Dateinamen der Bilder im Spielordner                                                                           |
+| `screenshots`      | nein    | Liste von Dateinamen                                                                                           |
+| `maxPlayers`       | nein    | Höchstzahl Spieler in einer Party. Standard: `1` (nur Einzelspieler). Siehe [PARTY-GAMES.md](PARTY-GAMES.md)   |
+| `minPlayers`       | nein    | Mindestzahl Spieler. Standard: `1` (geht auch allein). Ab `2` lässt sich das Spiel nur mit einer Party starten |
+| `evenPlayers`      | nein    | `true`, wenn nur gerade Spielerzahlen gehen (Spiele in Zweierteams). Standard: `false`                         |
 
 Achtung bei JSON: Texte stehen in doppelten Anführungszeichen, zwischen den
 Einträgen steht ein Komma, **nach dem letzten Eintrag keines**.

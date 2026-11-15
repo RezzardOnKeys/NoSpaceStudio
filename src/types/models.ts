@@ -27,8 +27,12 @@ export interface Game {
   publishedAt: string;
   /** Playtime of all players combined, used for the "Most played" sorting. */
   totalPlaytimeSeconds: number;
+  /** 1 = can be played alone. More = needs a party of at least this size. */
+  minPlayers: number;
   /** 1 = single player only. More = can be played together in a party. */
   maxPlayers: number;
+  /** True when the number of players must be even (games played in pairs). */
+  evenPlayers: boolean;
 }
 
 export interface Profile {

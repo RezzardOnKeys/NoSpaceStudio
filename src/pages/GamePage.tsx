@@ -11,6 +11,7 @@ import { Markdown } from '@/components/ui/Markdown';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EngineBadge } from '@/features/games/EngineBadge';
 import { FriendsPlaytime } from '@/features/games/FriendsPlaytime';
+import { playerSummary } from '@/features/games/players';
 import { useGame } from '@/features/games/queries';
 import { ScreenshotGallery } from '@/features/games/ScreenshotGallery';
 import { useMyPlaytime } from '@/features/library/queries';
@@ -157,9 +158,7 @@ export function GamePage() {
           <Card>
             <dl>
               <Fact label="Engine">{game.engine}</Fact>
-              <Fact label="Players">
-                {game.maxPlayers === 1 ? 'Single player' : `1–${game.maxPlayers}, party`}
-              </Fact>
+              <Fact label="Players">{playerSummary(game)}</Fact>
               <Fact label="Version">{game.version}</Fact>
               <Fact label="Released">
                 <time dateTime={game.publishedAt}>{formatDate(game.publishedAt)}</time>

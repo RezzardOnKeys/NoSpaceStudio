@@ -2,6 +2,7 @@ import { env } from '@/config/env';
 import {
   folderName,
   isRecord,
+  readBoolean,
   readChoice,
   readDate,
   readInteger,
@@ -53,6 +54,24 @@ function toGame(path: string, manifest: unknown): Game {
   const banner = readOptionalText(file, manifest, 'banner') ?? cover;
   const shortDescription = readText(file, manifest, 'shortDescription');
 
+  // How many people can play: from minPlayers to maxPlayers, optionally
+  // only even numbers (for games played in pairs).
+  const maxPlayers = readInteger(file, manifest, 'maxPlayers', { min: 1, max: 16, fallback: 1 });
+  const minPlayers = readInteger(file, manifest, 'minPlayers', { min: 1, max: 16, fallback: 1 });
+  const evenPlayers = readBoolean(file, manifest, 'evenPlayers', false);
+  if (minPlayers > maxPlayers) {
+    throw new ContentError(
+      file,
+      `"minPlayers" (${minPlayers}) must not be bigger than "maxPlayers" (${maxPlayers}).`,
+    );
+  }
+  if (evenPlayers && minPlayers === maxPlayers && maxPlayers % 2 === 1) {
+    throw new ContentError(
+      file,
+      `"evenPlayers" is true, but the only allowed player count (${maxPlayers}) is odd.`,
+    );
+  }
+
   return {
     // The folder name identifies the game everywhere, also in the database.
     id: slug,
@@ -71,7 +90,9 @@ function toGame(path: string, manifest: unknown): Game {
     publishedAt: readDate(file, manifest, 'publishedAt'),
     // Filled in from the database by fetchGames().
     totalPlaytimeSeconds: 0,
-    maxPlayers: readInteger(file, manifest, 'maxPlayers', { min: 1, max: 16, fallback: 1 }),
+    minPlayers,
+    maxPlayers,
+    evenPlayers,
   };
 }
 

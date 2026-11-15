@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Die Together</title>
+    <style>
+      :root {
+        --ink: #1b1033;
+        --paper: #fff7e3;
+        --pop: #ffe03a;
+        --comic-font: 'Marker Felt', 'Chalkboard SE', 'Comic Sans MS', 'Trebuchet MS', sans-serif;
+        --boom-font: Impact, 'Arial Black', 'Haettenschweiler', sans-serif;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        overflow: hidden; /* the game fills the window and never scrolls */
+        background: linear-gradient(#58c4ff 0%, #a8e4ff 55%, #e9fbff 100%); /* a cheerful sky */
+        color: var(--ink);
+        font-family: var(--comic-font);
+        user-select: none;
+        -webkit-user-select: none;
+      }
+      [hidden] {
+        display: none !important;
+      }
+
+      /* ---- Panels: notice, menu, round ---- */
+      .overlay {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        padding: 16px;
+      }
+      .panel {
+        position: relative;
+        width: min(820px, 100%);
+        max-height: 100%;
+        overflow: auto;
+        padding: 22px 26px 24px;
+        text-align: center;
+        background-color: var(--paper);
+        /* halftone dots, like printed comics */
+        background-image: radial-gradient(rgba(27, 16, 51, 0.09) 1.5px, transparent 1.6px);
+        background-size: 12px 12px;
+        border: 5px solid var(--ink);
+        border-radius: 22px;
+        box-shadow: 10px 10px 0 var(--ink);
+      }
+      .panel.small {
+        width: min(520px, 100%);
+      }
+      .logo {
+        margin: 0;
+        font: 400 clamp(40px, 7vw, 68px) / 0.95 var(--boom-font);
+        letter-spacing: 0.03em;
+        color: var(--pop);
+        -webkit-text-stroke: 4px var(--ink);
+        paint-order: stroke fill;
+        text-shadow: 5px 5px 0 var(--ink);
+        rotate: -3deg;
+      }
+      .lead {
+        margin: 12px 0 14px;
+        font-size: 18px;
+        font-weight: 700;
+      }
+      h2 {
+        margin: 16px 0 8px;
+        font-size: 17px;
+      }
+
+      /* ---- Team cards with their two seats ---- */
+      #teams {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+      }
+      .team {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 10px;
+        background: var(--c);
+        border: 4px solid var(--ink);
+        border-radius: 16px;
+        box-shadow: 5px 5px 0 var(--ink);
+      }
+      .team h3 {
+        margin: 0;
+        font: 400 22px/1.1 var(--boom-font);
+        letter-spacing: 0.05em;
+      }
+      .seat {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        align-items: center;
+        gap: 0 8px;
+        min-height: 58px;
+        padding: 6px 10px;
+        text-align: left;
+        font: inherit;
+        color: var(--ink);
+        background: #fff;
+        border: 3px solid var(--ink);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: transform 0.12s;
+      }
+      .seat .icon {
+        grid-row: span 2;
+        font-size: 24px;
+      }
+      .seat .role {
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        opacity: 0.7;
+      }
+      .seat .who {
+        overflow: hidden;
+        font-size: 16px;
+        font-weight: 700;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .seat.free .who {
+        font-weight: 400;
+        opacity: 0.6;
+      }
+      .seat:hover:not(:disabled) {
+        transform: scale(1.04);
+      }
+      .seat.mine {
+        background: var(--pop);
+        box-shadow: 0 0 0 3px var(--paper), 0 0 0 6px var(--ink);
+      }
+      .seat:disabled {
+        cursor: not-allowed;
+        background: #ece6d6;
+      }
+
+      /* ---- Who is here ---- */
+      #players {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      #players li {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 4px 12px 4px 6px;
+        background: #fff;
+        border: 3px solid var(--ink);
+        border-radius: 999px;
+        font-weight: 700;
+      }
+      #players li.joining {
+        border-style: dashed;
+        font-weight: 400;
+        opacity: 0.7;
+      }
+      #players .dot {
+        width: 20px;
+        height: 20px;
+        border: 3px solid var(--ink);
+        border-radius: 50%;
+        background: var(--c, #fff);
+      }
+
+      .btn {
+        margin-top: 18px;
+        padding: 10px 34px;
+        font: 400 26px/1.1 var(--boom-font);
+        letter-spacing: 0.05em;
+        color: var(--ink);
+        background: var(--pop);
+        border: 4px solid var(--ink);
+        border-radius: 14px;
+        box-shadow: 5px 5px 0 var(--ink);
+        cursor: pointer;
+      }
+      .btn:hover:not(:disabled) {
+        translate: -1px -1px;
+        box-shadow: 7px 7px 0 var(--ink);
+      }
+      .btn:active:not(:disabled) {
+        translate: 3px 3px;
+        box-shadow: 2px 2px 0 var(--ink);
+      }
+      .btn:disabled {
+        background: #d9d3c2;
+        cursor: not-allowed;
+      }
+      button:focus-visible {
+        outline: 4px solid #7a2cff;
+        outline-offset: 3px;
+      }
+      #lobbyStatus {
+        min-height: 1.3em;
+        margin: 12px 0 0;
+        font-weight: 700;
+      }
+      .controls {
+        margin: 12px 0 0;
+        font-size: 15px;
+      }
+
+      /* ---- Round line-up (until the arena is built) ---- */
+      #lineup {
+        display: grid;
+        gap: 8px;
+        margin: 14px 0;
+        padding: 0;
+        list-style: none;
+        font-size: 18px;
+        font-weight: 700;
+      }
+      #lineup li {
+        padding: 6px 12px;
+        background: var(--c);
+        border: 3px solid var(--ink);
+        border-radius: 12px;
+      }
+
+      .chip {
+        position: fixed;
+        padding: 5px 14px;
+        background: var(--pop);
+        border: 3px solid var(--ink);
+        border-radius: 999px;
+        box-shadow: 4px 4px 0 var(--ink);
+        font-size: 16px;
+        font-weight: 700;
+      }
+      #toast {
+        top: 16px;
+        right: 16px;
+        max-width: 60vw;
+      }
+
+      @media (max-width: 700px) {
+        #teams {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .seat {
+          transition: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="notice" class="overlay" hidden>
+      <div class="panel small">
+        <h1 class="logo">DIE TOGETHER</h1>
+        <p class="lead">
+          Die Together needs a party of 2, 4, 6 or 8 players. Start it from the launcher with
+          your party.
+        </p>
+      </div>
+    </div>
+
+    <div id="lobby" class="overlay" hidden>
+      <div class="panel">
+        <h1 class="logo">DIE TOGETHER</h1>
+        <p class="lead">Two players, one character. Pick a team and a role.</p>
+        <div id="teams"></div>
+        <h2>Players</h2>
+        <ul id="players"></ul>
+        <button id="startBtn" class="btn" type="button" aria-describedby="lobbyStatus" hidden>
+          Start
+        </button>
+        <p id="lobbyStatus" role="status"></p>
+        <p class="controls">
+          <b>Mouse:</b> look, aim, shoot · <b>Keyboard:</b> WASD walk, Space jump, R reload
+        </p>
+      </div>
+    </div>
+
+    <div id="round" class="overlay" hidden>
+      <div class="panel small">
+        <h1 class="logo">ROUND!</h1>
+        <ul id="lineup"></ul>
+        <p class="controls">The arena is still being built. Back to the menu in a moment…</p>
+      </div>
+    </div>
+
+    <div id="toast" class="chip" role="status" hidden></div>
+
+    <script type="module" src="game.js"></script>
+  </body>
+</html>

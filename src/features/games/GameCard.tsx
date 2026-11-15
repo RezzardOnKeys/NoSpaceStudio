@@ -6,6 +6,7 @@ import { paths } from '@/routes/paths';
 import type { Game } from '@/types/models';
 
 import { EngineBadge } from './EngineBadge';
+import { playerRange } from './players';
 
 interface GameCardProps {
   game: Game;
@@ -29,7 +30,7 @@ export function GameCard({ game }: GameCardProps) {
         {game.maxPlayers > 1 && (
           <span className="absolute top-2.5 right-2.5 inline-flex h-6 items-center gap-1 rounded-md bg-black/65 px-2 text-xs font-medium text-white backdrop-blur-sm">
             <Users className="size-3" aria-hidden="true" />
-            {`1–${game.maxPlayers}`}
+            {playerRange(game)}
             <span className="sr-only"> players</span>
           </span>
         )}

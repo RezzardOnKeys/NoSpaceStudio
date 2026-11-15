@@ -65,6 +65,21 @@ export function readInteger(
   return value;
 }
 
+/** `true` or `false`; `fallback` when the field is missing. */
+export function readBoolean(
+  file: string,
+  record: ContentRecord,
+  key: string,
+  fallback: boolean,
+): boolean {
+  const value = record[key];
+  if (value === undefined) return fallback;
+  if (typeof value !== 'boolean') {
+    throw new ContentError(file, `"${key}" must be true or false (without quotes).`);
+  }
+  return value;
+}
+
 const DAY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
 /** Reads a date like "2026-11-20" and returns it as an ISO date string. */

@@ -56,6 +56,38 @@ schickt das Spiel selbst direkt von Spieler zu Spieler.
 Ohne `maxPlayers` gilt das Spiel als Einzelspieler-Spiel (Wert 1). Ist die
 Party größer als `maxPlayers`, kann der Host es nicht für alle starten.
 
+Zwei weitere Angaben sind freiwillig, für Spiele, die nicht allein oder nur
+in Zweierteams funktionieren:
+
+```json
+"minPlayers": 2,
+"maxPlayers": 8,
+"evenPlayers": true
+```
+
+| Angabe        | Standard | Bedeutung                                                     |
+| ------------- | -------- | ------------------------------------------------------------- |
+| `minPlayers`  | `1`      | So viele Spieler braucht das Spiel mindestens                 |
+| `evenPlayers` | `false`  | `true`: Die Party muss eine gerade Zahl von Mitgliedern haben |
+
+Der Launcher zeigt dann im Store „2–8“ statt „1–8“ und lässt den Play-Knopf
+grau, solange die Party nicht passt. Darunter steht der Grund:
+
+| Situation                              | Hinweis unter dem grauen Knopf                       |
+| -------------------------------------- | ---------------------------------------------------- |
+| Keine Party (oder allein in der Party) | „Needs a party of 2, 4, 6 or 8 players.“             |
+| Host, Party kleiner als `minPlayers`   | „Needs at least 4 players. Your party has 3.“        |
+| Host, ungerade Party bei `evenPlayers` | „Needs an even number of players. Your party has 3.“ |
+| Host, Party größer als `maxPlayers`    | „Up to 8 players. Your party has 9.“                 |
+
+Die Liste „2, 4, 6 or 8“ rechnet der Launcher aus den drei Angaben aus
+(`src/features/games/players.ts`). Ist `minPlayers` größer als `maxPlayers`,
+zeigt der Store eine Fehlermeldung, die die Datei nennt.
+
+Wichtig: Der Launcher verhindert nur den Start über den Knopf. Wer die
+Adresse des Spiels direkt öffnet, landet trotzdem allein darin. Ein solches
+Spiel muss dann selbst einen Hinweis zeigen (siehe Abschnitt 4).
+
 ### 2. Die Party-Daten aus der Adresse lesen
 
 Startet der Launcher ein Spiel für die Party, hängt er hinter `#` an die
@@ -112,7 +144,8 @@ unsichtbare Gegner steht) erst, wenn sie aufgedeckt werden.
 
 Ohne `#party=...` wurde das Spiel allein gestartet (oder direkt über seine
 eigene Adresse geöffnet). Dann wie bisher: eigenes Menü, Einzelspieler oder
-was das Spiel sonst anbietet.
+was das Spiel sonst anbietet. Ein Spiel mit `minPlayers` ab 2 zeigt in dem
+Fall nur einen Hinweis, dass es eine Party braucht.
 
 ## Grenzen
 

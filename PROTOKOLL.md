@@ -15,6 +15,36 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 27 – 2026-11-15 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Die Together, Schritt 2: Menü und Verbindung (Plätze, Start-Regeln, Hinweis beim Alleinstart)
+**Änderungen:**
+- Neuer Spielordner `games/die-together/` (noch ohne Store-Eintrag, nur über die direkte Adresse erreichbar); three.js und PeerJS mit Lizenzdateien aus Blind Drop übernommen
+- Menü mit 4 farbigen Team-Karten und je einem Maus- und einem Tastatur-Platz; Klick auf einen freien Platz setzt einen dorthin, Klick auf den eigenen Platz steht wieder auf
+- Liste der verbundenen Spieler, wer noch lädt steht als „joining…“ da
+- Nur der Host hat „Start“; darunter steht, was fehlt („Waiting for 1 more player…“, „Waiting for ben to pick a seat…“, „Every team needs a mouse and a keyboard player.“)
+- Bei genau 2 Leuten sitzt ein Bot auf einem freien Team; setzt sich jemand dorthin, weicht er aus
+- Allein gestartet zeigt das Spiel nur den Hinweis, dass es eine Party braucht
+- Verbindung wie in Blind Drop (Host als Schiedsrichter); verlässt der Host das Spiel, sehen die anderen „The host left the game.“
+- Der Takt des Schiedsrichters läuft über einen kleinen Web Worker (`ticker.js`), damit er auch in einem versteckten Tab nicht gebremst wird
+- Vorläufig: „Start“ zeigt 4 Sekunden lang die Aufstellung und geht dann zurück ins Menü; die Arena kommt in Schritt 3
+- Getestet in Chrome mit 2, 4 und 8 Tabs: Verbinden, Plätze, alle Start-Hinweise, Start, Rückkehr ins Menü, Tab schließen, Host geht weg, Bot bei 2 Spielern. Nicht getestet: Safari, echte Party über den Launcher
+**Geänderte Dateien:** games/die-together/index.html (neu), games/die-together/game.js (neu), games/die-together/host.js (neu), games/die-together/net.js (neu), games/die-together/config.js (neu), games/die-together/ticker.js (neu), games/die-together/vendor/ (neu, 5 Dateien), PROTOKOLL.md
+**Commit-Message:** `[v27] feat(die-together): add menu with seats and party connection`
+**GitHub-Commit:** _ausstehend_
+
+## Version 26 – 2026-11-15 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Die Together, Schritt 1: Der Launcher lernt, dass ein Spiel mindestens 2 Spieler und eine gerade Spielerzahl brauchen kann
+**Änderungen:**
+- `game.json` kennt zwei neue freiwillige Felder: `minPlayers` (Standard 1) und `evenPlayers` (Standard false). Ist `minPlayers` größer als `maxPlayers`, zeigt der Store eine Fehlermeldung mit Datei und Zahlen
+- Store-Karte zeigt die Spielerzahl aus beiden Werten („2–8“ statt „1–8“); Spielseite zeigt unter „Players“ z. B. „2–8, even number, party only“
+- Play-Knopf auf der Spielseite: Ohne Party (oder allein in der Party) ist er bei solchen Spielen grau mit „Needs a party of 2, 4, 6 or 8 players.“; für den Host grau bei zu kleiner Party („Needs at least …“) und bei ungerader Zahl („Needs an even number of players. Your party has 3.“). Die Liste „2, 4, 6 or 8“ wird ausgerechnet
+- Die Regeln zur Spielerzahl liegen in einer neuen kleinen Datei `players.ts`; neuer Leser `readBoolean` für Ja/Nein-Felder in Inhaltsdateien
+- Doku: beide Felder in ADDING-A-GAME und PARTY-GAMES beschrieben; Commit-Hash für Version 25 nachgetragen
+- Geprüft: lint, typecheck, build; im Browser als Gast mit einem vorübergehenden Test-Eintrag (danach wieder gelöscht): Karte „2–8“, grauer Knopf mit Hinweis, Fehlermeldung bei `minPlayers` 9; Blind Drop und WPM Trainer unverändert („1–2“, normaler Play-Knopf). Nicht getestet (braucht Konten): die Hinweise für den Host in einer echten Party
+**Geänderte Dateien:** src/features/games/players.ts (neu), src/features/games/api.ts, src/features/games/GameCard.tsx, src/features/party/GamePlayActions.tsx, src/pages/GamePage.tsx, src/lib/content.ts, src/types/models.ts, docs/ADDING-A-GAME.md, docs/PARTY-GAMES.md, PROTOKOLL.md
+**Commit-Message:** `[v26] feat(games): add minPlayers and evenPlayers for party-only games`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 25 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Ideen für ein neues 3D-Spiel sammeln; Entscheidung für „Die Together“ (First-Person-Shooter, jede Figur von zwei Leuten gesteuert: Maus und Tastatur); Startprompt und Dateien für einen neuen Chat vorbereiten
 **Änderungen:**
@@ -24,7 +54,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Commit-Hash für Version 24 nachgetragen
 **Geänderte Dateien:** docs/DIE-TOGETHER.md (neu), docs/ROADMAP.md, PROTOKOLL.md
 **Commit-Message:** `[v25] docs: plan the game Die Together`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`ad53a7d`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/ad53a7d)
 
 ## Version 24 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** WPM Trainer: Profilbilder oben links in die Spiel-Leiste statt „Connected with …“; in der Launcher-Leiste wieder „Party“ statt der Bilder
