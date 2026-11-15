@@ -422,7 +422,15 @@ chose:
   magazine. The developers asked for it after the first test.
 - **Hidden host tab:** the referee's clock runs in a small Web Worker
   (`ticker.js`), because browsers slow normal timers of hidden tabs down to
-  about one per second.
+  about one per second. In the menu it also sends a sign of life every 2
+  seconds, so guests do not think the host left.
+- **Hits on moving targets:** every screen shows the others about 60 to 150
+  ms late (network and smoothing). A shot carries the moment the shooter
+  saw (`seen`, on the referee's clock), and the referee checks it against
+  where everybody was at that moment, at most 350 ms back
+  (`REWIND_MAX_MS`). Without this, a perfectly aimed shot at a running
+  character often missed. The price: somebody who just ran behind cover can
+  still be hit for a fraction of a second, which is common in shooters.
 - **Not built yet:** sound, comic stars and screen shake on a hit. The
   developers asked to add sound later, together with Blind Drop.
 

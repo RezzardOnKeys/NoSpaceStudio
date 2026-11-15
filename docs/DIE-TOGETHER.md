@@ -8,9 +8,9 @@ before changing it.
 
 Slug and folder: `games/die-together/`. Title in the store: **Die Together**.
 
-**Status:** built (steps 1 to 5 done, still `"status": "draft"`). Choices
-made while building it are recorded in decision 35 in
-[DECISIONS.md](DECISIONS.md); sound is not built yet.
+**Status:** built and published as version 1.0.0. Choices made while
+building it are recorded in decision 35 in [DECISIONS.md](DECISIONS.md);
+sound is not built yet.
 
 ## The idea in one sentence
 

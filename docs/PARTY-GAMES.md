@@ -153,6 +153,10 @@ Ein drittes Beispiel für **viele Spieler** ist `games/die-together/` (bis zu
   Figuren, die Spieler schicken nur ihre Tasten bzw. ihre Blickrichtung und
   Schüsse. Damit der Host-Tab im Hintergrund nicht gebremst wird, läuft sein
   Takt über einen kleinen Web Worker (`ticker.js`).
+- **Treffer trotz Verzögerung:** Jeder Bildschirm zeigt die anderen etwas
+  verspätet. Ein Schuss nimmt deshalb mit, welchen Moment der Schütze
+  gesehen hat (`seen`), und der Host prüft den Treffer gegen die Positionen
+  von damals (höchstens 350 ms zurück, `poseAt` in `host.js`).
 
 ### 4. Ohne Party weiter funktionieren
 

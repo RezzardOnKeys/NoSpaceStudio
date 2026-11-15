@@ -7,7 +7,7 @@
 
 import {
   MAX_PLAYERS, TEAMS, SEATS, MAP, SPAWNS, ARENA_HALF, PLAYER_R, PLAYER_H, EYE_H, SPEED,
-  JUMP_V, GRAVITY, STEP_UP, MAX_PITCH, STATE_MS, LIVES, MAGAZINE, SHOT_MS, RELOAD_MS,
+  JUMP_V, GRAVITY, STEP_UP, MAX_PITCH, STATE_MS, REWIND_MAX_MS, LIVES, MAGAZINE, SHOT_MS, RELOAD_MS,
   COUNTDOWN_MS, WINNER_MS, BOT_TURN, BOT_REACTION_MS, BOT_HESITATE_MS, BOT_AIM_ERROR,
   surfaceTop, sinkOf, arenaHalf,
 } from './config.js';
@@ -185,6 +185,8 @@ export function createHost({ expected }) {
       yaw: Math.atan2(spot.x, spot.z),
       pitch: 0,
       keys: { f: false, b: false, l: false, r: false, j: false },
+      // Where the character was during the last half second: { t, x, y, z }.
+      trail: [],
       // What the bot has in mind (see "The bot" below); null for players.
       ai: isBot
         ? {
@@ -422,11 +424,28 @@ export function createHost({ expected }) {
     return span.from <= span.to ? span.from : Infinity;
   }
 
-  /** Where a shot of character c ends and whom it hits (or null). */
-  function castShot(c) {
-    const ox = c.x;
-    const oy = c.y + EYE_H;
-    const oz = c.z;
+  /** Where character c was at the time t, from its trail (between two entries). */
+  function poseAt(c, t) {
+    const trail = c.trail;
+    if (trail.length === 0 || t >= trail[trail.length - 1].t) return { x: c.x, y: c.y, z: c.z };
+    if (t <= trail[0].t) return trail[0];
+    let i = trail.length - 1;
+    while (trail[i - 1].t > t) i -= 1;
+    const a = trail[i - 1];
+    const b = trail[i];
+    const k = (t - a.t) / (b.t - a.t || 1);
+    return { x: a.x + (b.x - a.x) * k, y: a.y + (b.y - a.y) * k, z: a.z + (b.z - a.z) * k };
+  }
+
+  /**
+   * Where a shot of character c ends and whom it hits (or null). Everybody
+   * is put back to where they were at the time `at`: what the shooter saw.
+   */
+  function castShot(c, at) {
+    const from = poseAt(c, at);
+    const ox = from.x;
+    const oy = from.y + EYE_H;
+    const oz = from.z;
     const cosPitch = Math.cos(c.pitch);
     const dx = -Math.sin(c.yaw) * cosPitch;
     const dy = Math.sin(c.pitch);
@@ -446,7 +465,7 @@ export function createHost({ expected }) {
     let victim = null;
     for (const other of chars) {
       if (other === c || !other.alive) continue;
-      const t = rayChar(other, ox, oy, oz, dx, dy, dz);
+      const t = rayChar(poseAt(other, at), ox, oy, oz, dx, dy, dz);
       if (t < reach) {
         reach = t;
         victim = other;
@@ -477,7 +496,7 @@ export function createHost({ expected }) {
       // The shot flies where the mouse player looked when clicking.
       c.yaw = shot.yaw;
       c.pitch = shot.pitch;
-      const result = castShot(c);
+      const result = castShot(c, shot.at);
       if (result.victim) hit.push(result.victim);
       broadcast({
         t: 'shot', team: c.team, from: result.from, to: result.to,
@@ -494,6 +513,7 @@ export function createHost({ expected }) {
   function sendState() {
     broadcast({
       t: 'state',
+      time: Math.round(lastTick), // the referee's clock, sent back with shots
       half: round3(half),
       chars: chars
         .filter((c) => c.alive)
@@ -635,7 +655,7 @@ export function createHost({ expected }) {
     // 4. Shoot once it has reacted and points (almost) where it wants.
     const ready = c.ammo > 0 && c.reloadEnd === 0 && now >= c.nextShotAt + ai.hesitate;
     if (target && ready && Math.abs(turn) < 0.04 && now - ai.seenSince >= ai.reaction) {
-      pendingShots.push({ by: c, yaw: c.yaw, pitch: c.pitch });
+      pendingShots.push({ by: c, yaw: c.yaw, pitch: c.pitch, at: now });
       ai.hesitate = between(0, BOT_HESITATE_MS);
       rollAimError(ai);
     }
@@ -705,6 +725,8 @@ export function createHost({ expected }) {
         by: c,
         yaw: Math.atan2(Math.sin(msg.yaw), Math.cos(msg.yaw)),
         pitch: clamp(msg.pitch, -MAX_PITCH, MAX_PITCH),
+        // The moment the shooter saw on their screen (on the referee's clock).
+        at: isNumber(msg.seen) ? clamp(msg.seen, lastTick - REWIND_MAX_MS, lastTick) : lastTick,
       });
     } else if (msg.t === 'reload' && phase === 'fight') {
       // Only the keyboard player reloads; a full magazine needs no reload.
@@ -718,7 +740,15 @@ export function createHost({ expected }) {
   function tick(now) {
     const dt = Math.min(0.1, (now - lastTick) / 1000);
     lastTick = now;
-    if (phase === 'lobby') return;
+    if (phase === 'lobby') {
+      // A sign of life every 2 seconds. Browsers slow down the normal
+      // "ping" timer of a hidden tab; this clock keeps its pace (ticker.js).
+      if (now - lastState >= 2000) {
+        lastState = now;
+        broadcast({ t: 'ping' });
+      }
+      return;
+    }
 
     if (phase === 'countdown' && now >= deadline) {
       phase = 'fight';
@@ -738,11 +768,15 @@ export function createHost({ expected }) {
     }
 
     // Small equal steps keep the collisions exact, whatever the pace.
-    // During the countdown nobody walks, but everybody stands on the floor.
-    const canWalk = phase !== 'countdown';
+    // Walking only during the fight; gravity always.
+    const canWalk = phase === 'fight';
     const steps = Math.max(1, Math.ceil(dt * 60));
     for (let i = 0; i < steps; i++) {
       for (const c of chars) if (c.alive) moveChar(c, dt / steps, canWalk);
+    }
+    for (const c of chars) {
+      c.trail.push({ t: now, x: c.x, y: c.y, z: c.z });
+      while (c.trail[0].t < now - REWIND_MAX_MS - 150) c.trail.shift();
     }
 
     if (phase === 'fight') checkEnd(now);

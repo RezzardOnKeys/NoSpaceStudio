@@ -19,7 +19,9 @@ const KIND_COLORS = {
 
 export function createView(canvas, labelLayer) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  // Sharp enough on Retina screens, but not the full 2x: that would draw four
+  // times the pixels and can make older Macs stutter.
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(SKY);

@@ -52,6 +52,11 @@ export const WALL_END_MS = 90000; // ... and have reached the middle by then
 // ---- Network pace ----------------------------------------------------------
 export const STATE_MS = 50; // the referee sends the state 20 times per second
 export const LOOK_MS = 33; // a mouse player sends the view at most this often
+/**
+ * Every screen shows the others a little late (network and smoothing). So a
+ * shot is judged at the moment the shooter saw, at most this long ago.
+ */
+export const REWIND_MAX_MS = 350;
 
 // ---- The arena -------------------------------------------------------------
 /** Half the side length: the floor reaches from -15 to +15 on both axes. */

@@ -38,18 +38,16 @@ table whenever a phase is finished.
   referee (host) in `host.js`; see decision 32. three.js and PeerJS are
   shipped in the game folder (`vendor/`). Tested in Chrome with two tabs;
   **not yet tested in Safari and not yet with two real accounts in a party.**
-- **The third game is built, still a draft:** `games/die-together/` (Die
-  Together), a comic first person shooter where every character is steered
-  by two people (one mouse, one keyboard), 2, 4, 6 or 8 players from a
-  party; with exactly 2 they fight a bot together. Started alone it only
-  shows a notice. The plan is [DIE-TOGETHER.md](DIE-TOGETHER.md), the
+- **The third game is in:** `games/die-together/` (Die Together, version
+  1.0.0, published), a comic first person shooter where every character is
+  steered by two people (one mouse, one keyboard), 2, 4, 6 or 8 players
+  from a party; with exactly 2 they fight a bot together. Started alone it
+  only shows a notice. The plan is [DIE-TOGETHER.md](DIE-TOGETHER.md), the
   choices made while building it are decision 35. The launcher learned
-  `minPlayers` and `evenPlayers` in `game.json` for it. Tested in Chrome
-  with up to 8 tabs and by simulated rounds; **not yet tested with real
-  accounts in a party, with a real pointer lock or in Safari.** It stays
-  `"status": "draft"` until the developers have played it; then set it to
-  `"published"` (the patch note becomes visible at the same time). No
-  sound yet.
+  `minPlayers` and `evenPlayers` in `game.json` for it. Played by the
+  developers two against the bot, tested in Chrome with up to 8 tabs, and the rules (hits, lives, reload, walls, round end) with a test
+  script. **Not yet tested in Safari and not yet with 4 or more real
+  players.** No sound yet.
 - **Games and news are files in the repository**, not database rows
   (decision 22). A game is a folder `games/<slug>/` with a `game.json`
   (store entry), an optional `description.md` and its images. A news post is

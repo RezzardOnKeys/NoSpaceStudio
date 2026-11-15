@@ -15,6 +15,22 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 35 – 2026-11-15 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Treffer und Lebensabzug genau prüfen, den ganzen Code auf Fehler, Ruckler und mögliche Probleme durchsehen und beheben; danach soll Die Together online gehen
+**Änderungen:**
+- Treffer auf laufende Figuren: Jeder Bildschirm zeigt die anderen etwas verspätet (Netz und Glättung). Ein genau gezielter Schuss auf eine laufende Figur ging deshalb oft daneben. Jetzt schickt der Schuss mit, welchen Moment der Schütze gesehen hat, und der Host prüft gegen die Positionen von damals (höchstens 0,35 Sekunden zurück)
+- Verbindung im Menü: Der Host schickt über seinen ungebremsten Takt alle 2 Sekunden ein Lebenszeichen, damit Gäste nicht denken, der Host sei weg, wenn sein Tab im Hintergrund liegt
+- Auf dem Siegerbild läuft niemand mehr weiter (auch der Bot nicht)
+- 3D-Auflösung auf Retina-Bildschirmen auf das 1,5-fache begrenzt (statt 2-fach), damit ältere Macs nicht ruckeln
+- Veröffentlicht: `game.json` auf `"status": "published"` und Version 1.0.0; Patch Note heißt jetzt „Die Together 1.0“ (Datei umbenannt in `2026-11-15-die-together-1-0.md`) und erwähnt Nachlade-Ring und leeres Magazin
+- Doku: ROADMAP (veröffentlicht, Teststand), DIE-TOGETHER (Status), Entscheidung 35 (Treffer mit Rückblick, Lebenszeichen), PARTY-GAMES (Treffer trotz Verzögerung)
+- Geprüft mit einem Test-Skript (30 Prüfungen, alle bestanden): 5 Treffer = raus, Leben 5→0 ohne Minus, genau ein „out“, Sieger, zurück ins Menü; Unentschieden bei gleichzeitigem letzten Treffer; zwei Schützen im selben Moment = 2 Leben; Schuss über den Kopf daneben, oben am Kopf Treffer; Kiste hält Schuss auf die Füße auf; laufendes Ziel mit Rückblick getroffen (ohne daneben); unsinnige Werte werden ignoriert; Magazin, Nachladen, Leer-Klick nur an das eigene Team; nur der Tastatur-Spieler lädt nach, nur der Maus-Spieler schießt; kein Schießen und Laufen im Countdown; Verlassen = Team raus. Außerdem in Chrome mit 4 Tabs (2 Teams) ohne Fehler; lint, typecheck, build
+- Durchgesehen ohne Befund: Verbindung (net.js), Menü und Plätze, Wände und Versinken, Bot, Speicher (Materialien werden freigegeben), Eingaben (Tastatur, Maus-Sperre, Fokus)
+- Commit-Hash für Version 34 nachgetragen
+**Geänderte Dateien:** games/die-together/host.js, games/die-together/game.js, games/die-together/scene.js, games/die-together/config.js, games/die-together/game.json, news/2026-11-15-die-together-1-0.md (umbenannt aus 2026-11-15-die-together-0-1.md), docs/ROADMAP.md, docs/DIE-TOGETHER.md, docs/DECISIONS.md, docs/PARTY-GAMES.md, PROTOKOLL.md
+**Commit-Message:** `[v35] feat(die-together): fair hits on moving targets, stability fixes, publish 1.0.0`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 34 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Die Together: Bot etwas schwächer; Ring ums Fadenkreuz beim Nachladen; leeres Magazin unten rechts kurz rot und wackelnd, wenn ohne Munition geklickt wird
 **Änderungen:**
@@ -25,7 +41,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Getestet: Bot-Simulation (7 Runden); in Chrome mit zwei Tabs: 5 Schüsse, Klick mit leerem Magazin (rot bei Maus- und Tastatur-Spieler), R gedrückt (Ring bei beiden, nach 1 Sekunde halb voll, nach 2 Sekunden weg und Magazin voll); lint, typecheck, build
 **Geänderte Dateien:** games/die-together/config.js, games/die-together/host.js, games/die-together/game.js, games/die-together/index.html, docs/DECISIONS.md, PROTOKOLL.md
 **Commit-Message:** `[v34] fix(die-together): weaker bot, visible reload ring for both players, flash empty magazine`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`2204aa5`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/2204aa5)
 
 ## Version 33 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** `npm ci` bricht mit ERESOLVE ab (typescript-eslint passt nicht zu ESLint 10)

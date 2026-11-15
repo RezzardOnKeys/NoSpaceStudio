@@ -260,15 +260,22 @@ function enterRound(msg) {
   } else {
     watchOnly();
   }
+  stateTime = 0;
   countdownEnd = performance.now() + msg.countdown;
   goUntil = 0;
   $('banner').hidden = true;
   show('round');
 }
 
+/** The referee's clock in the newest state; sent back with a shot. */
+let stateTime = 0;
+/** How far behind the newest state the smoothed characters are shown (see SMOOTHING). */
+const VIEW_DELAY_MS = 55;
+
 /** New positions from the referee. Characters that are missing are out. */
 function onState(msg) {
   if (phase !== 'round') return;
+  stateTime = msg.time;
   const alive = msg.chars.map((c) => c.team);
   if (alive.length !== shown.size) {
     for (const team of [...shown.keys()]) if (!alive.includes(team)) shown.delete(team);
@@ -379,7 +386,10 @@ canvas.addEventListener('pointerdown', (e) => {
   } else if (e.button === 0) {
     // The referee decides whether the shot counts (cooldown, ammunition)
     // and what it hits, using the direction sent along.
-    toHost({ t: 'shot', yaw: look.yaw, pitch: look.pitch });
+    // `seen` tells it which moment this screen showed, so a moving target is
+    // hit where the shooter saw it.
+    const seen = stateTime > 0 ? stateTime - VIEW_DELAY_MS : null;
+    toHost({ t: 'shot', yaw: look.yaw, pitch: look.pitch, seen });
   }
 });
 
@@ -416,7 +426,9 @@ window.addEventListener('blur', () => {
 });
 
 // ---- Main loop --------------------------------------------------------------
-const SMOOTHING = 18; // higher = closer to the referee's state, but less smooth
+// Higher = closer to the referee's state, but less smooth. The characters
+// are shown about 1000 / SMOOTHING milliseconds late (VIEW_DELAY_MS).
+const SMOOTHING = 18;
 let lastFrame = performance.now();
 
 /** Moves the drawn characters a bit towards where the referee says they are. */
