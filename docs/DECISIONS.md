@@ -412,9 +412,14 @@ chose:
   players) bursts into confetti; its players watch the arena from above.
   Somebody who connects during a round watches until it ends.
 - **The bot:** walks between cover spots (towards the middle while it has
-  not seen anybody), turns at a limited speed, waits 0.45 to 0.95 seconds
-  after spotting the players, aims up to 0.08 radians off and keeps away
-  from the walls. All its numbers are in `config.js` (`BOT_…`).
+  not seen anybody), turns at a limited speed, waits 0.7 to 1.3 seconds
+  after spotting the players, aims up to 0.12 radians off and keeps away
+  from the walls. All its numbers are in `config.js` (`BOT_…`). It was made
+  weaker after the first test by the developers.
+- **Reload and empty magazine:** unlike the plan, both players of a
+  character see the reload ring around the crosshair, and both see their
+  bullets flash red and shake when the mouse player clicks with an empty
+  magazine. The developers asked for it after the first test.
 - **Hidden host tab:** the referee's clock runs in a small Web Worker
   (`ticker.js`), because browsers slow normal timers of hidden tabs down to
   about one per second.

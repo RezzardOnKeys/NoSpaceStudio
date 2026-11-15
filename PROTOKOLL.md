@@ -15,6 +15,18 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 34 – 2026-11-15 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Die Together: Bot etwas schwächer; Ring ums Fadenkreuz beim Nachladen; leeres Magazin unten rechts kurz rot und wackelnd, wenn ohne Munition geklickt wird
+**Änderungen:**
+- Bot schwächer: dreht sich langsamer, reagiert später (0,7–1,3 statt 0,45–0,95 Sekunden), zögert länger zwischen Schüssen und zielt ungenauer (trifft in der Simulation etwa 4 statt 5 von 10 Schüssen)
+- Nachlade-Ring: Fehler behoben, er war seit Version 30 nie zu sehen (ein SVG-Element lässt sich nicht über `.hidden` einblenden). Jetzt sehen ihn beide Spieler der Figur, er ist größer und hat einen dunklen Rand
+- Klick mit leerem Magazin: Die Patronen-Anzeige unten rechts wird kurz rot und wackelt, bei beiden Spielern der Figur (so weiß der Tastatur-Spieler, dass er R drücken muss). Bei „Bewegung reduzieren“ im System wackelt sie nicht, wird aber trotzdem rot
+- Entscheidung 35 ergänzt; Commit-Hash für Version 33 nachgetragen
+- Getestet: Bot-Simulation (7 Runden); in Chrome mit zwei Tabs: 5 Schüsse, Klick mit leerem Magazin (rot bei Maus- und Tastatur-Spieler), R gedrückt (Ring bei beiden, nach 1 Sekunde halb voll, nach 2 Sekunden weg und Magazin voll); lint, typecheck, build
+**Geänderte Dateien:** games/die-together/config.js, games/die-together/host.js, games/die-together/game.js, games/die-together/index.html, docs/DECISIONS.md, PROTOKOLL.md
+**Commit-Message:** `[v34] fix(die-together): weaker bot, visible reload ring for both players, flash empty magazine`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 33 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** `npm ci` bricht mit ERESOLVE ab (typescript-eslint passt nicht zu ESLint 10)
 **Änderungen:**
@@ -26,7 +38,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Commit-Hash für Version 31 und 32 nachgetragen
 **Geänderte Dateien:** package.json, package-lock.json (unverändert gegenüber dem letzten Commit), PROTOKOLL.md
 **Commit-Message:** `[v33] chore: restore typescript-eslint after audit fix, allow fsevents install script`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`df7afe4`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/df7afe4)
 
 ## Version 32 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Die Together, Schritt 5: Dokumentation

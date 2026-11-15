@@ -38,10 +38,10 @@ export const RELOAD_MS = 2000; // reloading takes this long, only when R is pres
 
 // ---- The bot (only when exactly 2 people play) ------------------------------
 // Tuned so a coordinated pair can beat it, but not without trying.
-export const BOT_TURN = 3.2; // how fast it turns (radians per second)
-export const BOT_REACTION_MS = [450, 950]; // wait after spotting someone, before shooting
-export const BOT_HESITATE_MS = 500; // up to this much longer than the 1 second between shots
-export const BOT_AIM_ERROR = 0.08; // aims up to this far off (radians); misses now and then
+export const BOT_TURN = 2.4; // how fast it turns (radians per second)
+export const BOT_REACTION_MS = [700, 1300]; // wait after spotting someone, before shooting
+export const BOT_HESITATE_MS = 900; // up to this much longer than the 1 second between shots
+export const BOT_AIM_ERROR = 0.12; // aims up to this far off (radians); misses now and then
 
 // ---- Length of the parts of a round (milliseconds) --------------------------
 export const COUNTDOWN_MS = 3000; // "3, 2, 1": nobody can move or shoot

@@ -218,9 +218,10 @@ function setMeter(el, symbol, total, left, offClass, label) {
 function showMyStatus(c) {
   setMeter($('lives'), '♥', LIVES, c.lives, 'lost', `${c.lives} of ${LIVES} lives`);
   setMeter($('ammo'), '', MAGAZINE, c.ammo, 'used', `${c.ammo} of ${MAGAZINE} shots`);
-  // Only the mouse player sees how far the reload is.
-  const reloading = mine.seat === 'mouse' && c.reload > 0;
-  $('reloadRing').hidden = !reloading;
+  // Both players see how far the reload is, as a ring around the crosshair.
+  const reloading = c.reload > 0;
+  // An <svg> has no "hidden" property like other elements, so set the attribute.
+  $('reloadRing').toggleAttribute('hidden', !reloading);
   if (reloading) $('reloadFill').style.strokeDashoffset = String(100.5 * (1 - c.reload));
 }
 
@@ -229,7 +230,8 @@ function watchOnly() {
   mine = null;
   $('roleTag').textContent = 'Watching';
   $('roleTag').style.removeProperty('--c');
-  for (const id of ['crosshair', 'lives', 'ammo', 'reloadRing']) $(id).hidden = true;
+  for (const id of ['crosshair', 'lives', 'ammo']) $(id).hidden = true;
+  $('reloadRing').toggleAttribute('hidden', true);
   if (document.pointerLockElement) document.exitPointerLock();
 }
 
@@ -313,6 +315,18 @@ function onOut(msg) {
   toast(`${TEAMS[msg.team].name} team is out!`);
 }
 
+/** Clicked with an empty magazine: the bullets flash red and shake for a moment. */
+let emptyTimer = 0;
+function flashEmpty() {
+  const ammo = $('ammo');
+  // Restart the animation, also when it is still running from the last click.
+  ammo.classList.remove('empty');
+  void ammo.offsetWidth;
+  ammo.classList.add('empty');
+  clearTimeout(emptyTimer);
+  emptyTimer = setTimeout(() => ammo.classList.remove('empty'), 600);
+}
+
 function onWinner(msg) {
   const banner = $('banner');
   if (msg.team === null) {
@@ -343,6 +357,7 @@ function onEvent(msg) {
   else if (msg.t === 'state') onState(msg);
   else if (msg.t === 'go') goUntil = performance.now() + 900;
   else if (msg.t === 'shot') onShot(msg);
+  else if (msg.t === 'empty') flashEmpty();
   else if (msg.t === 'out') onOut(msg);
   else if (msg.t === 'winner') onWinner(msg);
 }

@@ -90,6 +90,11 @@ export function createHost({ expected }) {
     for (const p of players) p.send(msg);
   }
 
+  /** Sends a message only to the two players of a character. */
+  function sendToChar(c, msg) {
+    for (const p of players) if (p.id === c.mouseId || p.id === c.keyboardId) p.send(msg);
+  }
+
   function lobbyMessage(note) {
     return {
       t: 'lobby',
@@ -459,8 +464,14 @@ export function createHost({ expected }) {
     const hit = [];
     for (const shot of pendingShots) {
       const c = shot.by;
-      if (!c.alive || c.reloadEnd > 0 || now < c.nextShotAt) continue;
-      if (c.ammo === 0) continue; // empty: nothing happens until R is pressed
+      if (!c.alive) continue;
+      if (c.ammo === 0) {
+        // Empty: no shot until R is pressed. Both players of the character
+        // see their magazine flash, so the keyboard player knows to reload.
+        sendToChar(c, { t: 'empty' });
+        continue;
+      }
+      if (c.reloadEnd > 0 || now < c.nextShotAt) continue;
       c.ammo -= 1;
       c.nextShotAt = now + SHOT_MS;
       // The shot flies where the mouse player looked when clicking.
