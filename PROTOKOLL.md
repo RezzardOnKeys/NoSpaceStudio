@@ -15,6 +15,17 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 36 – 2026-11-15 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Warnung „Node.js 20 is deprecated“ in GitHub Actions beheben
+**Änderungen:**
+- Automatische Prüfung (`ci.yml`): `actions/checkout` und `actions/setup-node` von Version 4 auf Version 5 angehoben; diese laufen selbst mit Node 24, die Warnung verschwindet damit
+- An der Prüfung selbst ändert sich nichts: weiterhin `npm ci`, lint, Formatprüfung, typecheck, build mit der Node-Version aus `.nvmrc`
+- Nicht lokal testbar: Ob der Lauf grün bleibt, zeigt sich erst nach dem Push unter „Actions“ auf GitHub
+- Commit-Hash für Version 35 nachgetragen
+**Geänderte Dateien:** .github/workflows/ci.yml, PROTOKOLL.md
+**Commit-Message:** `[v36] ci: update checkout and setup-node actions to v5`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 35 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Treffer und Lebensabzug genau prüfen, den ganzen Code auf Fehler, Ruckler und mögliche Probleme durchsehen und beheben; danach soll Die Together online gehen
 **Änderungen:**
@@ -29,7 +40,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Commit-Hash für Version 34 nachgetragen
 **Geänderte Dateien:** games/die-together/host.js, games/die-together/game.js, games/die-together/scene.js, games/die-together/config.js, games/die-together/game.json, news/2026-11-15-die-together-1-0.md (umbenannt aus 2026-11-15-die-together-0-1.md), docs/ROADMAP.md, docs/DIE-TOGETHER.md, docs/DECISIONS.md, docs/PARTY-GAMES.md, PROTOKOLL.md
 **Commit-Message:** `[v35] feat(die-together): fair hits on moving targets, stability fixes, publish 1.0.0`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`945e88d`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/945e88d)
 
 ## Version 34 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Die Together: Bot etwas schwächer; Ring ums Fadenkreuz beim Nachladen; leeres Magazin unten rechts kurz rot und wackelnd, wenn ohne Munition geklickt wird
