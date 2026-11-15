@@ -5,7 +5,7 @@
 // guest reaches it over the network (net.js). The code path is the same.
 
 import {
-  ISLAND_R, SPEED, PLAYER_R, REVEAL_MS, DROP_AT, FALL_MS, COLORS,
+  ISLAND_R, SPEED, PLAYER_R, REVEAL_MS, DROP_AT, FALL_MS, COLORS, BLAST_SIZES,
   spawnPoint, clampToIsland,
 } from './config.js';
 import { createView } from './scene.js';
@@ -36,6 +36,8 @@ let host = null; // the referee, if it runs in this browser
 let toHost = () => {}; // sends a message to the referee
 let myId = null;
 let roster = []; // [{ id, name, color, ready, isBot }]
+let blastSize = ''; // key of BLAST_SIZES chosen for the next match
+let ownerId = null; // the player who chooses the blast size (party host)
 let phase = 'connecting'; // connecting | lobby | look | action | locked | reveal | result
 let phaseEnd = 0;
 let phaseDur = 1;
@@ -94,6 +96,22 @@ function renderLobby() {
     palette.appendChild(b);
   }
 
+  // Blast size: only the host picks, everybody sees the choice.
+  const canPick = Boolean(mine) && myId === ownerId;
+  const sizes = $('blastSizes');
+  sizes.replaceChildren();
+  for (const [key, size] of Object.entries(BLAST_SIZES)) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = key === blastSize ? 'size on' : 'size';
+    b.textContent = size.label;
+    b.disabled = !canPick;
+    b.setAttribute('aria-pressed', String(key === blastSize));
+    b.onclick = () => toHost({ t: 'blast', size: key });
+    sizes.appendChild(b);
+  }
+  $('blastNote').hidden = canPick || !mine;
+
   const list = $('players');
   list.replaceChildren();
   for (const p of roster) {
@@ -123,6 +141,8 @@ function enterLobby(msg) {
   phase = 'lobby';
   timeline = [];
   roster = msg.players;
+  blastSize = msg.blast;
+  ownerId = msg.ownerId;
   radius = ISLAND_R;
   myBomb = null;
   view.setRadius(radius, false);
@@ -164,6 +184,7 @@ function onLook(msg) {
   myBomb = null;
   phaseDur = msg.dur;
   phaseEnd = performance.now() + msg.dur;
+  view.setBlast(msg.blastR);
   $('lobby').hidden = true;
   $('result').hidden = true;
   view.setRadius(radius, false);

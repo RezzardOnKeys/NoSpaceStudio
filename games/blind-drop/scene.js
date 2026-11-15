@@ -3,7 +3,7 @@
 // tells it what to show.
 
 import * as THREE from './vendor/three.module.js';
-import { ISLAND_R, BLAST_R } from './config.js';
+import { ISLAND_R, BLAST_SIZES, DEFAULT_BLAST } from './config.js';
 
 const INK = 0x1b1033; // colour of the thick comic outlines
 
@@ -421,21 +421,33 @@ export function createView(canvas, labelLayer) {
     return new THREE.ShapeGeometry(shape);
   }
 
-  const zoneGeo = new THREE.CircleGeometry(BLAST_R, 56);
-  const zoneRingGeo = new THREE.RingGeometry(BLAST_R - 0.16, BLAST_R, 56);
+  // The blast size is chosen per match. Ground circles are made once per size
+  // and kept, because only a few sizes exist.
+  let blastR = BLAST_SIZES[DEFAULT_BLAST].r;
+  const zoneGeos = new Map();
+  function zoneGeometry(r) {
+    if (!zoneGeos.has(r)) {
+      zoneGeos.set(r, {
+        disc: new THREE.CircleGeometry(r, 56),
+        ring: new THREE.RingGeometry(r - 0.16, r, 56),
+      });
+    }
+    return zoneGeos.get(r);
+  }
 
   /** Flat circle on the ground that shows exactly what a bomb reaches. */
   function makeZone(color, fill) {
     const group = new THREE.Group();
+    const geo = zoneGeometry(blastR);
     const discMat = flat(color, { transparent: true, opacity: fill, depthWrite: false });
     const ringMat = flat(color, { transparent: true, opacity: 1, depthWrite: false });
-    const disc = new THREE.Mesh(zoneGeo, discMat);
-    const rim = new THREE.Mesh(zoneRingGeo, ringMat);
+    const disc = new THREE.Mesh(geo.disc, discMat);
+    const rim = new THREE.Mesh(geo.ring, ringMat);
     disc.rotation.x = rim.rotation.x = -Math.PI / 2;
     rim.position.y = 0.01;
     group.add(disc, rim);
     group.position.y = 0.06;
-    return { group, discMat, ringMat };
+    return { group, disc, rim, discMat, ringMat };
   }
 
   function explode(x, z, color) {
@@ -460,10 +472,10 @@ export function createView(canvas, labelLayer) {
     //    the camera and is drawn on top of everything, like in a comic.
     const burst = new THREE.Group();
     const layers = [
-      [starGeometry(13, BLAST_R * 0.98, BLAST_R * 0.6), INK, 0],
-      [starGeometry(13, BLAST_R * 0.86, BLAST_R * 0.52), color, 1],
-      [starGeometry(11, BLAST_R * 0.56, BLAST_R * 0.32), 0xffe03a, 2],
-      [starGeometry(9, BLAST_R * 0.3, BLAST_R * 0.16), 0xffffff, 3],
+      [starGeometry(13, blastR * 0.98, blastR * 0.6), INK, 0],
+      [starGeometry(13, blastR * 0.86, blastR * 0.52), color, 1],
+      [starGeometry(11, blastR * 0.56, blastR * 0.32), 0xffe03a, 2],
+      [starGeometry(9, blastR * 0.3, blastR * 0.16), 0xffffff, 3],
     ].map(([geo, c, order]) => {
       const mesh = new THREE.Mesh(geo, flat(c, { transparent: true, depthTest: false }));
       mesh.renderOrder = 10 + order;
@@ -494,7 +506,7 @@ export function createView(canvas, labelLayer) {
       },
     );
 
-    puffs(x, 0.9, z, 10, BLAST_R * 1.15, 0.95);
+    puffs(x, 0.9, z, 10, blastR * 1.15, 0.95);
     comicText('BOOM!', x, 3.6, z, color, false);
     shake(0.5, 0.55);
   }
@@ -580,6 +592,14 @@ export function createView(canvas, labelLayer) {
     raycaster.setFromCamera(ndc, camera);
     const hit = raycaster.ray.intersectPlane(ground, new THREE.Vector3());
     return hit ? { x: hit.x, z: hit.z } : null;
+  }
+
+  /** Sets the explosion radius for everything drawn from now on. */
+  function setBlast(r) {
+    blastR = r;
+    const geo = zoneGeometry(r);
+    aim.disc.geometry = geo.disc;
+    aim.rim.geometry = geo.ring;
   }
 
   function setRadius(radius, animate) {
@@ -683,6 +703,6 @@ export function createView(canvas, labelLayer) {
   return {
     resize, update, setPlayers, resetPose, place, setVisible, setMoving,
     knockout, cheer, vanish, appear, teleport, dropBomb, setAim, groundAt,
-    setRadius,
+    setRadius, setBlast,
   };
 }

@@ -32,9 +32,10 @@ table whenever a phase is finished.
   every rematch. Screen recording was removed on request; PeerJS is shipped
   in the game folder (`vendor/`). Tested by the developers with two real
   accounts and YouTube videos.
-- **The second game is in:** `games/blind-drop/` (Blind Drop), a 3D comic
-  bomb duel on a floating island for 2 players, with a practice mode against
-  a bot when started alone. Rules and numbers are in `config.js`, the
+- **The second game is in:** `games/blind-drop/` (Blind Drop, version
+  1.1.0), a 3D comic bomb duel on a floating island for 2 players, with a
+  practice mode against a bot when started alone. The host picks the blast
+  size (Small, Medium, Large) in the lobby (decision 36). Rules and numbers are in `config.js`, the
   referee (host) in `host.js`; see decision 32. three.js and PeerJS are
   shipped in the game folder (`vendor/`). Tested in Chrome with two tabs;
   **not yet tested in Safari and not yet with two real accounts in a party.**

@@ -11,7 +11,8 @@ round, and you cannot see where your opponent goes.
 - **Nobody hit?** The island shrinks and the next round starts. It gets
   crowded fast.
 
-Pick one of eight colours for your character and your explosion.
+Pick one of eight colours for your character and your explosion. The host
+picks the blast size: **Small**, **Medium** or **Large**.
 
 **Play with a friend:** start a party in the launcher and choose this game,
 you are connected right away. **Play alone:** practice against a bot.

@@ -15,6 +15,20 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 37 – 2026-11-15 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Blind Drop: Der Host soll vor der Partie den Bombenradius wählen können (klein, mittel, groß; der bisherige ist groß)
+**Änderungen:**
+- Neue Zeile „Blast size“ im Menü unter der Farbwahl: Small (Radius 2,5), Medium (3,2, Standard) und Large (4, wie bisher)
+- Nur der Host kann wählen; der Gast sieht die Wahl mit dem Hinweis „The host picks the blast size.“; im Übungsmodus wählt man selbst
+- Ändert der Host die Größe, muss der Gast wieder „Ready“ drücken
+- Die Insel schrumpft jetzt bis auf 85 % des gewählten Radius (2,1 / 2,7 / 3,4), damit eine Partie weiterhin sicher endet
+- Zielkreis, Bodenmarkierung, Explosion und Bot passen sich der gewählten Größe an
+- Spielversion 1.1.0 mit Patch Note; Beschreibung, ROADMAP und Entscheidung 36 ergänzt; Commit-Hash für Version 36 nachgetragen
+- Getestet: Übungsmodus mit „Small“ und zwei Tabs in Chrome (Gast kann nicht wählen, Gast-„Ready“ wird zurückgesetzt); Schrumpfen pro Größe mit einer Simulation geprüft
+**Geänderte Dateien:** games/blind-drop/ (config.js, host.js, scene.js, game.js, index.html, game.json, description.md), news/2026-11-15-blind-drop-1-1.md (neu), docs/DECISIONS.md, docs/ROADMAP.md, PROTOKOLL.md
+**Commit-Message:** `[v37] feat(blind-drop): let the host choose the blast size`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 36 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Warnung „Node.js 20 is deprecated“ in GitHub Actions beheben
 **Änderungen:**
@@ -24,7 +38,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Commit-Hash für Version 35 nachgetragen
 **Geänderte Dateien:** .github/workflows/ci.yml, PROTOKOLL.md
 **Commit-Message:** `[v36] ci: update checkout and setup-node actions to v5`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`b45a3ef`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/b45a3ef)
 
 ## Version 35 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Treffer und Lebensabzug genau prüfen, den ganzen Code auf Fehler, Ruckler und mögliche Probleme durchsehen und beheben; danach soll Die Together online gehen

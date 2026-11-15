@@ -242,6 +242,39 @@
         font: 700 20px/1 sans-serif;
         color: var(--ink);
       }
+      #blastSizes {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+      }
+      .size {
+        min-width: 92px;
+        padding: 6px 14px;
+        font: 700 16px/1.2 var(--comic-font);
+        color: var(--ink);
+        background: #fff;
+        border: 3px solid var(--ink);
+        border-radius: 999px;
+        box-shadow: 3px 3px 0 var(--ink);
+        cursor: pointer;
+      }
+      .size:hover:not(:disabled) {
+        translate: -1px -1px;
+        box-shadow: 4px 4px 0 var(--ink);
+      }
+      .size.on {
+        background: var(--pop);
+      }
+      .size:disabled {
+        cursor: not-allowed;
+      }
+      .size:disabled:not(.on) {
+        opacity: 0.45;
+      }
+      .note {
+        margin: 6px 0 0;
+        font-size: 14px;
+      }
       #players {
         display: flex;
         flex-wrap: wrap;
@@ -358,6 +391,9 @@
         <p id="mode" class="mode"></p>
         <h2 id="paletteLabel">Pick your colour</h2>
         <div id="palette" role="group" aria-labelledby="paletteLabel"></div>
+        <h2 id="blastLabel">Blast size</h2>
+        <div id="blastSizes" role="group" aria-labelledby="blastLabel"></div>
+        <p id="blastNote" class="note" hidden>The host picks the blast size.</p>
         <h2>Players</h2>
         <ul id="players"></ul>
         <button id="readyBtn" class="btn" type="button" disabled>Ready</button>

@@ -8,13 +8,19 @@ export const MAX_PLAYERS = 2;
 
 /** Radius of the island at the start of a match (world units). */
 export const ISLAND_R = 10;
-/** Explosion radius: one fifth of the starting island diameter. */
-export const BLAST_R = (ISLAND_R * 2) / 5;
+/** Explosion sizes the host can pick in the lobby (radius in world units).
+ *  "large" is one fifth of the starting island diameter. */
+export const BLAST_SIZES = {
+  small: { label: 'Small', r: 2.5 },
+  medium: { label: 'Medium', r: 3.2 },
+  large: { label: 'Large', r: 4 },
+};
+export const DEFAULT_BLAST = 'medium';
 /** The island loses this much radius after every round without a hit ... */
 export const SHRINK_STEP = 1.1;
-/** ... down to this size. It is smaller than a blast, so a bomb in the middle
- *  covers the whole island and a match cannot go on forever. */
-export const MIN_ISLAND_R = 3.4;
+/** ... down to this size. It is a bit smaller than a blast, so a bomb in the
+ *  middle covers the whole island and a match cannot go on forever. */
+export const minIslandR = (blastR) => blastR * 0.85;
 
 /** Walking speed in units per second. */
 export const SPEED = 4.2;

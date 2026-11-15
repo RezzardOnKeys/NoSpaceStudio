@@ -8,7 +8,7 @@
 // anyway) and in "reveal" (the round is over).
 
 import {
-  MAX_PLAYERS, ISLAND_R, BLAST_R, SHRINK_STEP, MIN_ISLAND_R, SPEED, PLAYER_R,
+  MAX_PLAYERS, ISLAND_R, BLAST_SIZES, DEFAULT_BLAST, SHRINK_STEP, minIslandR, SPEED, PLAYER_R,
   LOOK_MS, ACTION_MS, COLLECT_MS, REVEAL_MS, SHRINK_MS, COLORS,
   spawnPoint, clampToIsland,
 } from './config.js';
@@ -23,6 +23,11 @@ export function createHost() {
   let lastTick = 0;
   let afterReveal = null;
   let nextId = 1;
+  /** Blast size for the next match; only the owner (party host) chooses it. */
+  let blast = DEFAULT_BLAST;
+  let blastR = BLAST_SIZES[DEFAULT_BLAST].r;
+  /** The first human who joined: the party host, or you in practice mode. */
+  let ownerId = null;
 
   const isNumber = (v) => typeof v === 'number' && Number.isFinite(v);
   const colorTaken = (hex, except) => players.some((p) => p !== except && p.color === hex);
@@ -36,6 +41,8 @@ export function createHost() {
     broadcast({
       t: 'lobby',
       note: note || '',
+      blast,
+      ownerId,
       players: players.map((p) => ({
         id: p.id, name: p.name, color: p.color, ready: p.ready, isBot: p.isBot,
       })),
@@ -62,6 +69,7 @@ export function createHost() {
       ai: null,
     };
     players.push(p);
+    if (!isBot && ownerId === null) ownerId = p.id;
     if (send) send({ t: 'welcome', id: p.id });
     toLobby(phase === 'lobby' ? '' : `${p.name} joined. Back to the lobby.`);
     return p.id;
@@ -119,6 +127,12 @@ export function createHost() {
       p.color = msg.color;
       if (owner) owner.color = freeColor(owner);
       sendLobby();
+    } else if (msg.t === 'blast' && phase === 'lobby') {
+      if (p.id !== ownerId || !BLAST_SIZES[msg.size] || msg.size === blast) return;
+      blast = msg.size;
+      // Everybody else confirms again, so nobody starts with a size they did not see.
+      for (const q of players) if (!q.isBot && q.id !== ownerId) q.ready = false;
+      sendLobby();
     } else if (msg.t === 'ready' && phase === 'lobby') {
       p.ready = Boolean(msg.ready);
       sendLobby();
@@ -138,6 +152,7 @@ export function createHost() {
   function startMatch() {
     round = 0;
     radius = ISLAND_R;
+    blastR = BLAST_SIZES[blast].r;
     players.forEach((p, i) => {
       const spot = spawnPoint(i, players.length);
       p.x = spot.x;
@@ -158,7 +173,7 @@ export function createHost() {
     phase = 'look';
     deadline = lastTick + LOOK_MS;
     broadcast({
-      t: 'look', round, radius, dur: LOOK_MS,
+      t: 'look', round, radius, blastR, dur: LOOK_MS,
       players: players.map((p) => ({ id: p.id, x: p.x, z: p.z })),
     });
   }
@@ -180,7 +195,7 @@ export function createHost() {
     const hits = [];
     for (const p of players) {
       const by = bombs
-        .filter((b) => Math.hypot(p.x - b.x, p.z - b.z) <= BLAST_R)
+        .filter((b) => Math.hypot(p.x - b.x, p.z - b.z) <= blastR)
         .map((b) => b.id);
       if (by.length > 0) hits.push({ id: p.id, by });
     }
@@ -194,7 +209,7 @@ export function createHost() {
       // Nobody hit: the island shrinks. Players outside are not out; they
       // are moved to the nearest point that is still on the island.
       outcome = 'shrink';
-      newRadius = Math.max(MIN_ISLAND_R, radius - SHRINK_STEP);
+      newRadius = Math.max(minIslandR(blastR), radius - SHRINK_STEP);
       for (const p of players) {
         const pos = clampToIsland(p.x, p.z, newRadius, PLAYER_R);
         if (pos.x !== p.x || pos.z !== p.z) moved.push({ id: p.id, x: pos.x, z: pos.z });
@@ -261,7 +276,7 @@ export function createHost() {
       for (let i = 0; i < 8; i++) {
         ai.target = randomSpot(radius - PLAYER_R);
         const safe = !bot.bomb ||
-          Math.hypot(ai.target.x - bot.bomb.x, ai.target.z - bot.bomb.z) > BLAST_R + 0.6;
+          Math.hypot(ai.target.x - bot.bomb.x, ai.target.z - bot.bomb.z) > blastR + 0.6;
         if (safe || Math.random() < 0.15) break;
       }
       return;
