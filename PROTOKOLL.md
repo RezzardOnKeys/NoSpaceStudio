@@ -15,6 +15,23 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 30 – 2026-11-15 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Die Together, Schritt 3b: Schießen, Leben, Anzeigen, zusammenrückende Wände und Rundenablauf
+**Änderungen:**
+- Pistole: Linksklick des Maus-Spielers schießt; 5 Schuss pro Magazin, 1 Sekunde zwischen zwei Schüssen, Nachladen nur mit R durch den Tastatur-Spieler (2 Sekunden, währenddessen kein Schuss, bei vollem Magazin passiert nichts). Leeres Magazin: nichts passiert
+- Treffer entscheidet der Host: gerade Linie aus den Augen, unbegrenzte Reichweite, Wände und Hindernisse (auch Rampen) halten den Schuss auf. Sichtbar als kurzes Mündungsfeuer und dünne Linie in Teamfarbe; die getroffene Figur blinkt, bei eigenem Treffer blitzt ein roter Rahmen auf
+- Leben: 5 pro Figur, ein Treffer kostet eins. Bei 0 ist die Figur raus („Red team is out!“), ihre zwei Spieler schauen von oben zu. Schüsse im selben Augenblick werden gemeinsam gewertet, deshalb ist ein Unentschieden möglich
+- Anzeigen: unten links 5 Herzen, unten rechts 5 Patronen (verbrauchte grau), Herzen über den Köpfen der Gegner (nur wenn der Gegner zu sehen ist), Ring um das Fadenkreuz beim Nachladen (nur für den Maus-Spieler)
+- Wände: 20 Sekunden Ruhe, dann rücken alle vier Außenwände zusammen, bis nach 90 Sekunden ein Feld von 6 × 6 übrig ist. Die Wand schiebt Figuren nach innen (kostet kein Leben); Hindernisse versinken im Boden, bevor die Wand sie erreicht
+- Rundenablauf: „3, 2, 1, Go!“ (dabei kann niemand laufen oder schießen), Kampf, Siegerbild für 4 Sekunden („Red team wins!“ mit beiden Namen, oder „Draw!“), zurück ins Menü. Verlässt ein Spieler die Runde, ist seine Figur raus
+- Der vorläufige Knopf „Back to menu“ ist wieder weg; die eigene Pistole im Bild ist kleiner
+- Der Bot steht weiterhin nur da (er kann getroffen werden); sein Verhalten, Konfetti, Sterne und Töne kommen in Schritt 4
+- Getestet: alle Regeln des Schiedsrichters mit einem Skript (Countdown sperrt, Abklingzeit, leeres Magazin, Nachladen, Schuss endet an Mauer, 5 Treffer, raus, Sieger, zurück ins Menü, Wände nach 19/55/95 Sekunden und das Schieben der Figuren). In Chrome mit zwei Tabs: Countdown, Schuss und Patronen-Anzeige, Nachlade-Ring nur beim Maus-Spieler, Ausscheiden durch Verlassen, Siegerbild, Rückkehr ins Menü. Nicht im Browser getestet: ein Treffer auf eine gegnerische Figur (Blinken, roter Rahmen, Herzen über dem Kopf aus der Ich-Sicht), echte Maus-Sperre, Safari, echte Party
+- Commit-Hash für Version 29 nachgetragen
+**Geänderte Dateien:** games/die-together/host.js, games/die-together/game.js, games/die-together/scene.js, games/die-together/config.js, games/die-together/index.html, PROTOKOLL.md
+**Commit-Message:** `[v30] feat(die-together): add shooting, lives, HUD, closing walls and round flow`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 29 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Die Together ist im Launcher nirgends zu sehen
 **Änderungen:**
@@ -23,7 +40,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Commit-Hash für Version 28 nachgetragen
 **Geänderte Dateien:** games/die-together/game.json (neu), PROTOKOLL.md
 **Commit-Message:** `[v29] feat(die-together): add draft store entry`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`264649b`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/264649b)
 
 ## Version 28 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Die Together, Schritt 3a: Arena, Bewegung nach Rolle, Kamera und Abgleich übers Netz

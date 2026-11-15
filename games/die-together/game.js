@@ -1,10 +1,12 @@
-// Die Together – what one player sees and does: menu, input by role, camera.
+// Die Together – what one player sees and does: menu, input by role, camera, HUD.
 // Every browser runs this file. It reacts to messages from the referee
 // (host.js) and sends back only its own inputs. For the party host the
 // referee runs in the same browser; a party guest reaches it over the
 // network (net.js). The code path is the same.
 
-import { TEAMS, SEATS, EYE_H, MAX_PITCH, LOOK_MS } from './config.js';
+import {
+  TEAMS, SEATS, EYE_H, MAX_PITCH, LOOK_MS, LIVES, MAGAZINE, ARENA_HALF,
+} from './config.js';
 import { createView } from './scene.js';
 import { createHost } from './host.js';
 import { openRoom, joinRoom } from './net.js';
@@ -38,13 +40,16 @@ const PARTY = (() => {
 window.addEventListener('hashchange', () => location.reload());
 
 const canvas = $('view');
-const view = createView(canvas);
+const view = createView(canvas, $('labels'));
 
 // ---- State of this player's screen --------------------------------------
 let host = null; // the referee, if it runs in this browser
 let toHost = () => {}; // sends a message to the referee
 let myId = null;
 let phase = 'lobby'; // lobby | round
+/** Until when the "3, 2, 1" runs and until when "Go!" stays on screen. */
+let countdownEnd = 0;
+let goUntil = 0;
 /** The last menu state from the referee: players, seats, what is missing. */
 let lobby = { players: [], expected: PARTY?.players ?? 0, botTeam: null, problem: '' };
 let netStatus = '';
@@ -186,6 +191,7 @@ function enterLobby(msg) {
   if (document.pointerLockElement) document.exitPointerLock();
   view.setCharacters([]);
   shown.clear();
+  view.setArena(ARENA_HALF);
   view.lookFromAbove();
   show('lobby');
   renderLobby();
@@ -193,31 +199,68 @@ function enterLobby(msg) {
 }
 
 // ---- Round ------------------------------------------------------------------
+/** Fills a meter (hearts or bullets) with `total` symbols, `left` of them still there. */
+function setMeter(el, symbol, total, left, offClass, label) {
+  if (el.childElementCount !== total) {
+    el.replaceChildren(
+      ...Array.from({ length: total }, () => {
+        const item = document.createElement('span');
+        item.textContent = symbol;
+        return item;
+      }),
+    );
+  }
+  [...el.children].forEach((item, i) => item.classList.toggle(offClass, i >= left));
+  el.setAttribute('aria-label', label);
+}
+
+/** Lives, ammunition and the reload ring of my own character. */
+function showMyStatus(c) {
+  setMeter($('lives'), '♥', LIVES, c.lives, 'lost', `${c.lives} of ${LIVES} lives`);
+  setMeter($('ammo'), '', MAGAZINE, c.ammo, 'used', `${c.ammo} of ${MAGAZINE} shots`);
+  // Only the mouse player sees how far the reload is.
+  const reloading = mine.seat === 'mouse' && c.reload > 0;
+  $('reloadRing').hidden = !reloading;
+  if (reloading) $('reloadFill').style.strokeDashoffset = String(100.5 * (1 - c.reload));
+}
+
+/** From now on this player only watches (out, or arrived too late). */
+function watchOnly() {
+  mine = null;
+  $('roleTag').textContent = 'Watching';
+  $('roleTag').style.removeProperty('--c');
+  for (const id of ['crosshair', 'lives', 'ammo', 'reloadRing']) $(id).hidden = true;
+  if (document.pointerLockElement) document.exitPointerLock();
+}
+
 function enterRound(msg) {
   phase = 'round';
   view.setCharacters(msg.chars.map((c) => c.team));
+  view.setArena(msg.half);
   shown.clear();
   mine = null;
   for (const c of msg.chars) {
     const pose = { x: c.x, y: c.y, z: c.z, yaw: c.yaw, pitch: c.pitch };
     shown.set(c.team, { now: { ...pose }, goal: pose });
+    view.setLives(c.team, c.lives);
     if (c.mouse === myId) mine = { team: c.team, seat: 'mouse' };
     else if (c.keyboard === myId) mine = { team: c.team, seat: 'keyboard' };
     if (mine && mine.team === c.team) Object.assign(look, { yaw: c.yaw, pitch: c.pitch });
   }
   for (const key of Object.keys(keys)) keys[key] = false;
 
-  const tag = $('roleTag');
   if (mine) {
     const seat = SEATS.find((s) => s.id === mine.seat);
-    tag.textContent = `You are: ${seat.label}`;
-    tag.style.setProperty('--c', TEAMS[mine.team].hex);
+    $('roleTag').textContent = `You are: ${seat.label}`;
+    $('roleTag').style.setProperty('--c', TEAMS[mine.team].hex);
+    for (const id of ['crosshair', 'lives', 'ammo']) $(id).hidden = false;
+    showMyStatus({ ...msg.chars.find((c) => c.team === mine.team), reload: 0 });
   } else {
-    tag.textContent = 'Watching';
-    tag.style.removeProperty('--c');
+    watchOnly();
   }
-  $('crosshair').hidden = !mine;
-  $('endBtn').hidden = PARTY.role !== 'host';
+  countdownEnd = performance.now() + msg.countdown;
+  goUntil = 0;
+  $('banner').hidden = true;
   show('round');
 }
 
@@ -228,18 +271,54 @@ function onState(msg) {
   if (alive.length !== shown.size) {
     for (const team of [...shown.keys()]) if (!alive.includes(team)) shown.delete(team);
     view.setCharacters(alive);
-    if (mine && !shown.has(mine.team)) {
-      mine = null;
-      $('roleTag').textContent = 'Watching';
-      $('roleTag').style.removeProperty('--c');
-      $('crosshair').hidden = true;
-      if (document.pointerLockElement) document.exitPointerLock();
-    }
+    if (mine && !shown.has(mine.team)) watchOnly();
   }
+  view.setArena(msg.half);
   for (const c of msg.chars) {
     const entry = shown.get(c.team);
     if (entry) entry.goal = c;
+    view.setLives(c.team, c.lives);
+    if (mine && mine.team === c.team) showMyStatus(c);
   }
+}
+
+/** Somebody fired: show the line from their pistol to where the shot ended. */
+function onShot(msg) {
+  const [fx, fy, fz] = msg.from;
+  const [tx, ty, tz] = msg.to;
+  const length = Math.hypot(tx - fx, ty - fy, tz - fz) || 1;
+  const dir = [(tx - fx) / length, (ty - fy) / length, (tz - fz) / length];
+  // The line starts at the pistol, a bit right of and below the eyes.
+  const flat = Math.hypot(dir[0], dir[2]) || 1;
+  const right = [-dir[2] / flat, dir[0] / flat];
+  const start = [
+    fx + right[0] * 0.3 + dir[0] * 0.6,
+    fy - 0.25 + dir[1] * 0.6,
+    fz + right[1] * 0.3 + dir[2] * 0.6,
+  ];
+  view.showShot(start, msg.to, TEAMS[msg.team].hex);
+  if (msg.hit === null) return;
+  view.blink(msg.hit);
+  if (mine && mine.team === msg.hit) {
+    // Restart the red frame, also when it is still fading from the last hit.
+    $('hurt').classList.remove('on');
+    void $('hurt').offsetWidth;
+    $('hurt').classList.add('on');
+  }
+}
+
+function onWinner(msg) {
+  const banner = $('banner');
+  if (msg.team === null) {
+    $('bannerTitle').textContent = 'Draw!';
+    $('bannerSub').textContent = 'Nobody is left standing.';
+    banner.style.removeProperty('--c');
+  } else {
+    $('bannerTitle').textContent = `${TEAMS[msg.team].name} team wins!`;
+    $('bannerSub').textContent = msg.names.join(' & ');
+    banner.style.setProperty('--c', TEAMS[msg.team].hex);
+  }
+  banner.hidden = false;
 }
 
 /** What the player has to do before the game gets their input. */
@@ -256,22 +335,30 @@ function onEvent(msg) {
   else if (msg.t === 'lobby') enterLobby(msg);
   else if (msg.t === 'round') enterRound(msg);
   else if (msg.t === 'state') onState(msg);
+  else if (msg.t === 'go') goUntil = performance.now() + 900;
+  else if (msg.t === 'shot') onShot(msg);
+  else if (msg.t === 'out') toast(`${TEAMS[msg.team].name} team is out!`);
+  else if (msg.t === 'winner') onWinner(msg);
 }
 
 // ---- Input ----------------------------------------------------------------
 $('startBtn').onclick = () => toHost({ t: 'start' });
-$('endBtn').onclick = () => toHost({ t: 'end' });
 window.addEventListener('resize', () => view.resize());
 window.addEventListener('contextmenu', (e) => e.preventDefault());
 
 // A click into the game gives it the keyboard and, for the mouse player,
 // locks the pointer so the mouse turns the view.
-canvas.addEventListener('pointerdown', () => {
+canvas.addEventListener('pointerdown', (e) => {
   window.focus();
-  if (phase === 'round' && mine?.seat === 'mouse' && document.pointerLockElement !== canvas) {
+  if (phase !== 'round' || mine?.seat !== 'mouse') return;
+  if (document.pointerLockElement !== canvas) {
     // Some browsers answer with a promise that fails when the lock is
     // refused; the "Click to aim" hint simply stays then.
     canvas.requestPointerLock()?.catch?.(() => {});
+  } else if (e.button === 0) {
+    // The referee decides whether the shot counts (cooldown, ammunition)
+    // and what it hits, using the direction sent along.
+    toHost({ t: 'shot', yaw: look.yaw, pitch: look.pitch });
   }
 });
 
@@ -296,6 +383,10 @@ function setKey(code, down) {
 }
 window.addEventListener('keydown', (e) => {
   if (setKey(e.code, true)) e.preventDefault(); // Space must not scroll or press buttons
+  // R reloads. Holding it down does not ask again and again.
+  if (e.code === 'KeyR' && !e.repeat && phase === 'round' && mine?.seat === 'keyboard') {
+    toHost({ t: 'reload' });
+  }
 });
 window.addEventListener('keyup', (e) => setKey(e.code, false));
 // Without focus no "key up" arrives, so let go of everything.
@@ -350,9 +441,15 @@ function frame(time) {
     const hint = inputHint();
     $('hint').textContent = hint;
     $('hint').hidden = !hint;
+
+    // "3, 2, 1" before the fight, then "Go!" for a moment.
+    const left = countdownEnd - time;
+    const count = left > 0 ? String(Math.ceil(left / 1000)) : time < goUntil ? 'Go!' : '';
+    if ($('count').textContent !== count) $('count').textContent = count;
+    $('count').hidden = !count;
   }
 
-  view.render();
+  view.render(dt);
   requestAnimationFrame(frame);
 }
 

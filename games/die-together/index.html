@@ -76,15 +76,130 @@
         background: var(--pop);
         font-size: 20px;
       }
-      #endBtn {
+      /* Fills up around the crosshair while the keyboard player reloads. */
+      #reloadRing {
         position: absolute;
-        top: 12px;
+        top: 50%;
+        left: 50%;
+        width: 54px;
+        height: 54px;
+        translate: -50% -50%;
+        rotate: -90deg;
+      }
+      #reloadRing circle {
+        fill: none;
+        stroke-width: 6;
+      }
+      #reloadRing .track {
+        stroke: rgba(27, 16, 51, 0.35);
+      }
+      #reloadRing .fill {
+        stroke: var(--pop);
+        stroke-linecap: round;
+        stroke-dasharray: 100.5;
+      }
+      .meter {
+        position: absolute;
+        bottom: 16px;
+        display: flex;
+        gap: 6px;
+        padding: 8px 12px;
+        background: var(--paper);
+        border: 3px solid var(--ink);
+        border-radius: 14px;
+        box-shadow: 4px 4px 0 var(--ink);
+      }
+      #lives {
+        left: 16px;
+        font-size: 26px;
+        line-height: 1;
+        color: #ff3b5c;
+      }
+      #lives .lost {
+        color: #cfc8b6;
+      }
+      #ammo {
+        right: 16px;
+        align-items: flex-end;
+      }
+      #ammo span {
+        width: 10px;
+        height: 26px;
+        background: #ffb52e;
+        border: 3px solid var(--ink);
+        border-radius: 6px 6px 2px 2px;
+      }
+      #ammo .used {
+        background: #cfc8b6;
+        opacity: 0.6;
+      }
+      #count {
+        position: absolute;
+        top: 22%;
         left: 50%;
         translate: -50% 0;
-        margin: 0;
-        padding: 6px 16px;
+        font: 400 clamp(80px, 14vw, 170px) / 1 var(--boom-font);
+        color: var(--pop);
+        -webkit-text-stroke: 6px var(--ink);
+        paint-order: stroke fill;
+        text-shadow: 6px 6px 0 var(--ink);
+      }
+      #banner {
+        position: absolute;
+        top: 16%;
+        left: 50%;
+        translate: -50% 0;
+        width: max-content;
+        max-width: 92vw;
+        padding: 14px 30px 16px;
+        text-align: center;
+        background: var(--c, var(--paper));
+        border: 5px solid var(--ink);
+        border-radius: 20px;
+        box-shadow: 8px 8px 0 var(--ink);
+      }
+      #bannerTitle {
+        font: 400 clamp(34px, 6vw, 64px) / 1.05 var(--boom-font);
+        letter-spacing: 0.04em;
+      }
+      #bannerSub {
+        margin-top: 4px;
+        font-size: clamp(16px, 2vw, 22px);
+        font-weight: 700;
+      }
+      /* A short red frame around the screen when your character is hit. */
+      #hurt {
+        position: absolute;
+        inset: 0;
+        box-shadow: inset 0 0 0 14px #ff3b5c, inset 0 0 90px 30px rgba(255, 59, 92, 0.55);
+        opacity: 0;
+      }
+      #hurt.on {
+        animation: hurt 0.45s ease-out;
+      }
+      @keyframes hurt {
+        from { opacity: 1; }
+        to { opacity: 0; }
+      }
+
+      /* ---- Hearts floating above the other characters ---- */
+      #labels {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+      }
+      .hearts {
+        position: absolute;
+        left: 0;
+        top: 0;
         font-size: 18px;
-        pointer-events: auto;
+        line-height: 1;
+        letter-spacing: 1px;
+        color: #ff3b5c;
+        white-space: nowrap;
+        -webkit-text-stroke: 3px var(--ink);
+        paint-order: stroke fill;
       }
 
       /* ---- Panels: notice, menu, round ---- */
@@ -315,17 +430,32 @@
         .seat {
           transition: none;
         }
+        #hurt.on {
+          animation: none;
+        }
       }
     </style>
   </head>
   <body>
     <canvas id="view"></canvas>
+    <div id="labels" aria-hidden="true"></div>
 
     <div id="hud" hidden>
+      <div id="hurt" aria-hidden="true"></div>
+      <svg id="reloadRing" viewBox="0 0 44 44" aria-hidden="true" hidden>
+        <circle class="track" cx="22" cy="22" r="16" />
+        <circle id="reloadFill" class="fill" cx="22" cy="22" r="16" />
+      </svg>
       <div id="crosshair" aria-hidden="true"></div>
       <div id="roleTag" class="tagchip"></div>
       <div id="hint" class="tagchip" role="status" hidden></div>
-      <button id="endBtn" class="btn" type="button" hidden>Back to menu</button>
+      <div id="count" aria-live="assertive" hidden></div>
+      <div id="banner" role="status" hidden>
+        <div id="bannerTitle"></div>
+        <div id="bannerSub"></div>
+      </div>
+      <div id="lives" class="meter" role="img" hidden></div>
+      <div id="ammo" class="meter" role="img" hidden></div>
     </div>
 
     <div id="notice" class="overlay" hidden>

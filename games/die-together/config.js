@@ -30,6 +30,18 @@ export const STEP_UP = 0.35;
 /** The view cannot tilt further up or down than this (radians, about 86°). */
 export const MAX_PITCH = 1.5;
 
+// ---- The pistol and lives ---------------------------------------------------
+export const LIVES = 5; // one hit costs one life
+export const MAGAZINE = 5; // shots per magazine; magazines are unlimited
+export const SHOT_MS = 1000; // time between two shots
+export const RELOAD_MS = 2000; // reloading takes this long, only when R is pressed
+
+// ---- Length of the parts of a round (milliseconds) --------------------------
+export const COUNTDOWN_MS = 3000; // "3, 2, 1": nobody can move or shoot
+export const WINNER_MS = 4000; // the winner screen, then back to the menu
+export const WALL_WAIT_MS = 20000; // the walls stand still this long ...
+export const WALL_END_MS = 90000; // ... and have reached the middle by then
+
 // ---- Network pace ----------------------------------------------------------
 export const STATE_MS = 50; // the referee sends the state 20 times per second
 export const LOOK_MS = 33; // a mouse player sends the view at most this often
@@ -37,7 +49,15 @@ export const LOOK_MS = 33; // a mouse player sends the view at most this often
 // ---- The arena -------------------------------------------------------------
 /** Half the side length: the floor reaches from -15 to +15 on both axes. */
 export const ARENA_HALF = 15;
+/** Half the side length of the small square that is left at the end (6 × 6). */
+export const FINAL_HALF = 3;
 export const WALL_H = 6;
+
+/** Where the outer walls are (half the side length), `ms` into the fight. */
+export function arenaHalf(ms) {
+  const t = (ms - WALL_WAIT_MS) / (WALL_END_MS - WALL_WAIT_MS);
+  return ARENA_HALF + (FINAL_HALF - ARENA_HALF) * Math.min(1, Math.max(0, t));
+}
 
 /** Where characters start: the corners, opposite ones first. */
 export const SPAWNS = [
@@ -98,4 +118,20 @@ export function surfaceTop(o, x, z) {
   else if (o.dir === '+z') t = (z - (o.z - o.d / 2)) / o.d;
   else t = (o.z + o.d / 2 - z) / o.d;
   return o.h * Math.min(1, Math.max(0, t));
+}
+
+// An obstacle sinks into the floor before a closing wall reaches it: it
+// starts when the wall is SINK_FROM units away and is gone at SINK_GONE, far
+// enough that nobody is squeezed between wall and obstacle.
+const SINK_FROM = 2.5;
+const SINK_GONE = 1;
+
+/** How far an obstacle has sunk into the floor when the walls are at `half`. */
+export function sinkOf(o, half) {
+  const outerEdge = Math.max(Math.abs(o.x) + o.w / 2, Math.abs(o.z) + o.d / 2);
+  const gap = half - outerEdge;
+  const byGap = 1 - (gap - SINK_GONE) / (SINK_FROM - SINK_GONE);
+  // Nothing sinks while the walls have not moved yet.
+  const byMove = ARENA_HALF - half;
+  return Math.min(1, Math.max(0, Math.min(byGap, byMove))) * (o.h + 0.1);
 }

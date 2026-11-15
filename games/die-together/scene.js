@@ -1,9 +1,9 @@
-// Die Together – everything you can see: arena, obstacles, characters.
+// Die Together – everything you can see: arena, obstacles, characters, shots.
 // This file only draws. It knows nothing about rules or the network; game.js
 // tells it what to show.
 
 import * as THREE from './vendor/three.module.js';
-import { ARENA_HALF, WALL_H, MAP, TEAMS } from './config.js';
+import { ARENA_HALF, WALL_H, MAP, TEAMS, LIVES, PLAYER_H, sinkOf } from './config.js';
 
 const INK = 0x1b1033; // colour of the thick comic outlines
 const SKY = 0x7fd0ff;
@@ -17,7 +17,7 @@ const KIND_COLORS = {
   ramp: 0xd9a6ff,
 };
 
-export function createView(canvas) {
+export function createView(canvas, labelLayer) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 
@@ -116,14 +116,24 @@ export function createView(canvas) {
   };
   scene.add(walls.north, walls.south, walls.west, walls.east);
 
-  /** Places the outer walls so that the free area reaches from -half to +half. */
+  /** The obstacles of MAP with their meshes, in the same order. */
+  const obstacles = [];
+
+  /**
+   * Places the outer walls so that the free area reaches from -half to
+   * +half, and lets the obstacles that the walls come close to sink.
+   */
   function setArena(half) {
     walls.north.position.set(0, WALL_H / 2, -half - 0.5);
     walls.south.position.set(0, WALL_H / 2, half + 0.5);
     walls.west.position.set(-half - 0.5, WALL_H / 2, 0);
     walls.east.position.set(half + 0.5, WALL_H / 2, 0);
+    for (const { o, mesh } of obstacles) {
+      const sink = sinkOf(o, half);
+      mesh.position.y = o.h / 2 - sink;
+      mesh.visible = sink < o.h;
+    }
   }
-  setArena(ARENA_HALF);
 
   // ---- Obstacles ---------------------------------------------------------
   /** A box whose top slopes down to the floor on one side. */
@@ -150,7 +160,9 @@ export function createView(canvas) {
     const mesh = outlined(new THREE.Mesh(geo, materials.get(o.kind)));
     mesh.position.set(o.x, o.h / 2, o.z);
     scene.add(mesh);
+    obstacles.push({ o, mesh });
   }
+  setArena(ARENA_HALF);
 
   // ---- Characters ------------------------------------------------------
   // Round, cute figures with big eyes, holding a pistol. A character's
@@ -202,7 +214,13 @@ export function createView(canvas) {
     arm.add(makeGun(mat));
     group.add(arm);
     scene.add(group);
-    return { group, arm, mat };
+
+    // The lives as small hearts floating above the head.
+    const tag = document.createElement('div');
+    tag.className = 'hearts';
+    labelLayer.appendChild(tag);
+
+    return { group, arm, mat, tag, color: new THREE.Color(TEAMS[team].hex), blink: 0, lives: -1 };
   }
 
   /** Creates and removes characters so they match the list of team indexes. */
@@ -211,6 +229,7 @@ export function createView(canvas) {
       if (teams.includes(team)) continue;
       scene.remove(c.group);
       c.mat.dispose();
+      c.tag.remove();
       chars.delete(team);
     }
     for (const team of teams) {
@@ -228,12 +247,74 @@ export function createView(canvas) {
     c.arm.rotation.x = pitch;
   }
 
+  /** How many hearts float above a character. */
+  function setLives(team, lives) {
+    const c = chars.get(team);
+    if (!c || c.lives === lives) return;
+    c.lives = lives;
+    c.tag.textContent = '♥'.repeat(lives) + '♡'.repeat(Math.max(0, LIVES - lives));
+  }
+
+  /** The character flashes white for a moment: it was hit. */
+  function blink(team) {
+    const c = chars.get(team);
+    if (c) c.blink = 0.3;
+  }
+
+  // ---- Shots -------------------------------------------------------------
+  // Each effect is { age, dur, step(k), end() }; k runs from 0 to 1.
+  const effects = [];
+  const tracerGeo = new THREE.CylinderGeometry(0.025, 0.025, 1, 6);
+  const flashGeo = new THREE.SphereGeometry(0.16, 8, 6);
+  const UP = new THREE.Vector3(0, 1, 0);
+
+  /** A short muzzle flash and a thin line, so everybody sees where a shot came from. */
+  function showShot(from, to, color) {
+    const start = new THREE.Vector3(...from);
+    const end = new THREE.Vector3(...to);
+    const length = start.distanceTo(end);
+    if (length < 0.01) return;
+
+    const lineMat = flat(color, { transparent: true });
+    const line = new THREE.Mesh(tracerGeo, lineMat);
+    line.position.copy(start).lerp(end, 0.5);
+    line.scale.y = length;
+    line.quaternion.setFromUnitVectors(UP, end.clone().sub(start).normalize());
+    scene.add(line);
+    effects.push({
+      age: 0,
+      dur: 0.22,
+      step: (k) => (lineMat.opacity = 1 - k),
+      end: () => {
+        scene.remove(line);
+        lineMat.dispose();
+      },
+    });
+
+    const flashMat = flat(0xfff3a0, { transparent: true });
+    const flash = new THREE.Mesh(flashGeo, flashMat);
+    flash.position.copy(start);
+    scene.add(flash);
+    effects.push({
+      age: 0,
+      dur: 0.09,
+      step: (k) => {
+        flash.scale.setScalar(1 + k * 1.5);
+        flashMat.opacity = 1 - k;
+      },
+      end: () => {
+        scene.remove(flash);
+        flashMat.dispose();
+      },
+    });
+  }
+
   // ---- Camera ------------------------------------------------------------
   // The pistol you see in your own hand, fixed to the camera.
   const handMat = toon(0xffffff);
   const viewGun = makeGun(handMat);
-  viewGun.position.set(0.2, -0.16, -0.42);
-  viewGun.scale.setScalar(0.6);
+  viewGun.position.set(0.21, -0.17, -0.5);
+  viewGun.scale.setScalar(0.42);
   viewGun.visible = false;
   camera.add(viewGun);
 
@@ -260,11 +341,74 @@ export function createView(canvas) {
     camera.updateProjectionMatrix();
   }
 
-  function render() {
+  // ---- Hearts above the heads ---------------------------------------------
+  const raycaster = new THREE.Raycaster();
+  const blockers = obstacles.map((entry) => entry.mesh);
+  const head = new THREE.Vector3();
+  const toHead = new THREE.Vector3();
+
+  /** Is the way from the camera to this point free of obstacles? */
+  function canSee(point) {
+    toHead.copy(point).sub(camera.position);
+    const distance = toHead.length();
+    raycaster.set(camera.position, toHead.normalize());
+    raycaster.far = distance;
+    return raycaster.intersectObjects(blockers, false).every((hit) => !hit.object.visible);
+  }
+
+  /** Puts the hearts above every visible character that is not hidden behind something. */
+  function placeHearts() {
+    const width = canvas.clientWidth;
+    const height = canvas.clientHeight;
+    for (const c of chars.values()) {
+      let shown = c.group.visible;
+      if (shown) {
+        head.copy(c.group.position);
+        head.y += PLAYER_H * 0.75;
+        shown = canSee(head);
+      }
+      if (shown) {
+        head.y = c.group.position.y + PLAYER_H + 0.45;
+        head.project(camera);
+        shown = head.z < 1 && Math.abs(head.x) < 1.1 && Math.abs(head.y) < 1.1;
+      }
+      c.tag.style.display = shown ? '' : 'none';
+      if (shown) {
+        const x = (head.x * 0.5 + 0.5) * width;
+        const y = (-head.y * 0.5 + 0.5) * height;
+        c.tag.style.transform = `translate(${x}px, ${y}px) translate(-50%, -100%)`;
+      }
+    }
+  }
+
+  /** Advances the effects by dt seconds and draws one frame. */
+  function render(dt) {
+    for (let i = effects.length - 1; i >= 0; i--) {
+      const e = effects[i];
+      e.age += dt;
+      if (e.age >= e.dur) {
+        effects.splice(i, 1);
+        e.end();
+      } else {
+        e.step(e.age / e.dur);
+      }
+    }
+    for (const c of chars.values()) {
+      if (c.blink <= 0) continue;
+      c.blink -= dt;
+      // Flicker between white and the team colour while the blink lasts.
+      const white = c.blink > 0 && Math.floor(c.blink * 20) % 2 === 0;
+      c.mat.color.set(white ? 0xffffff : c.color);
+    }
+    camera.updateMatrixWorld();
+    placeHearts();
     renderer.render(scene, camera);
   }
 
   resize();
   lookFromAbove();
-  return { resize, render, setArena, setCharacters, placeCharacter, lookFrom, lookFromAbove };
+  return {
+    resize, render, setArena, setCharacters, placeCharacter, setLives, blink, showShot,
+    lookFrom, lookFromAbove,
+  };
 }
