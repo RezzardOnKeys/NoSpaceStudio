@@ -57,6 +57,20 @@ table whenever a phase is finished.
   developers two against the bot, tested in Chrome with up to 8 tabs, and the rules (hits, lives, reload, walls, round end) with a test
   script. **Not yet tested in Safari and not yet with 4 or more real
   players.** No sound yet.
+- **The fourth game is in as a draft:** `games/inkwars/` (Inkwars, version
+  1.0.0, `"status": "draft"`, so only visible locally), a 3D water fight in
+  third person: two sides paint the arena, the side with more painted
+  ground after three minutes wins; in "fish form" a player is fast and
+  invisible in the own colour. 1 vs 1 from a party, or alone against bots
+  (1 v 1 or 2 v 2). It was written by the second developer as a Vite and
+  TypeScript project and brought in as plain JavaScript files without a
+  build step, laid out like Blind Drop; the party mode was added on the
+  way in (decision 39). Tested in Chrome: solo against a bot, and a party
+  match with two tabs (menu, colours, same painted arena and score on both
+  screens, reload of the guest during a match, result, rematch). **Not yet
+  tested: Safari, a real party with two accounts, the mouse inside the
+  launcher, hits between two people, a hidden host tab.** No sound yet. To
+  publish it, set `"status": "published"` in `game.json`.
 - **Games and news are files in the repository**, not database rows
   (decision 22). A game is a folder `games/<slug>/` with a `game.json`
   (store entry), an optional `description.md` and its images. A news post is
@@ -270,6 +284,11 @@ Collected in conversations with the developers; nothing decided yet.
   effects (Web Audio, as planned), comic stars on a hit, screen shake on a
   hit (respecting reduced motion), a smarter bot, a score over several
   rounds, spectating through the eyes of a character that is still alive.
+- **Inkwars follow-ups** (the game itself is built, see above): 2 v 2 in a
+  party (the rules already know two seats per team; menu, messages and
+  `maxPlayers` are written for 1 vs 1), sound effects, touch controls, a
+  mouse speed slider like in Die Together, not sending a submerged
+  player's position to the other screen, a second arena.
 - **Other 3D ideas from the brainstorm** (not decided): "Other Eyes" (you
   see through your opponent's eyes), a time loop duel (your previous rounds
   play along as clones), "Echo" (dark arena, sound makes it visible),
@@ -287,7 +306,7 @@ Collected in conversations with the developers; nothing decided yet.
   real SMTP provider is needed before going public (phase 7).
 - `brand.contactEmail` is still the placeholder `contact@example.com`.
 - Fullscreen in the player and Safari in general have not been tested yet.
-  This includes Blind Drop and Die Together (3D with WebGL), which were only
-  tested in Chrome.
+  This includes Blind Drop, Die Together and Inkwars (3D with WebGL), which
+  were only tested in Chrome.
 - Route-level lazy loading is still to do (the bundle is one large chunk).
 - `eslint-plugin-jsx-a11y` can be added once it supports ESLint 10.

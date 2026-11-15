@@ -510,3 +510,60 @@ and lost the keyboard focus (they are now built once).
 files are easier for the developers to read and for a new Claude session to
 change without breaking something else. Die Together still has the older
 layout of a few big files; the same split would fit there.
+
+## 39. Inkwars: brought in as plain JavaScript, party mode with a guest copy
+
+**Decision:** Inkwars was written by the second developer as its own Vite
+and TypeScript project (three.js 0.170) and handed over as a ZIP file. It
+went into `games/inkwars/` like this:
+
+- **No build step.** The types were stripped from the TypeScript files, the
+  result is plain JavaScript with relative imports, one small file per job
+  as in decision 38 (the list is at the top of `game.js`). Comments and all
+  texts on screen were translated to English. `node_modules`, `package.json`
+  and the Vite setup of the ZIP were not taken over.
+- **three.js 0.187 from `vendor/`**, the same files as in the other 3D
+  games, instead of 0.170. The only thing that had to go is the shadow type
+  `PCFSoftShadowMap`, which no longer exists in that version.
+- **The test back door is gone.** The ZIP put the whole match on
+  `window.__inkwars` (including a way to change the clock). A published game
+  does not need that.
+- **Party mode, 1 vs 1** (the ZIP only had bots). The party host's browser
+  is the referee (`host.js`), as in decisions 32 and 35: it runs the rules
+  for both characters. The guest sends keys and aim about 30 times per
+  second and gets the state of both characters back just as often
+  (`wire.js` packs both). Three things are special:
+  - **The painted arena is not sent as a picture.** The host writes down
+    every splat (place, size, team and the random number that shapes its
+    edge) and sends the list along; the guest repeats the splats exactly
+    (`paint.js`, `log` and `apply`). Both screens show the same arena and
+    the same score, for a few kilobytes per second. A guest who joins late
+    or reloads gets the whole colour mask once, packed as runs of equal
+    values (`exportState`).
+  - **Water drops fly on both screens.** The host only reports each new
+    drop; the guest lets it fly with the same physics, but without painting
+    or hitting anything (`sim.authority`).
+  - **The guest's own character is shown where the host says it is**, moved
+    on a little with its last speed (`guest.js`). The view direction follows
+    the own mouse at once; the position lags by the network delay.
+- **Colours:** each player picks one of eight; a colour taken by the other
+  is greyed out, and the host goes first if both want the same one. Against
+  bots the other side gets the colour furthest away.
+- **When somebody leaves:** if the guest leaves during a match, its
+  character stands still and the host sees a notice; coming back puts the
+  guest into the running match again. If the host leaves, the guest waits
+  in the menu. After a match only the host can go back to the menu.
+- **Solo keeps both modes of the ZIP** (1 v 1 and 2 v 2 with bots); a party
+  match is always 1 vs 1 (`"maxPlayers": 2`).
+
+**Why:** Games here are static folders without a build step (games/README),
+and a second three.js version would be one more thing to keep in mind.
+Repeating the splats instead of sending the mask keeps both screens equal
+without sending 130,000 values again and again. The same referee model as
+the other games means two screens cannot disagree about a hit or the score.
+The price: the guest feels the network delay in its own movement, the host
+does not; and the guest's browser knows where a submerged opponent is, so a
+guest could find it with browser tools. Both are acceptable among friends.
+The idea of painting ground and diving into one's own colour is known from
+other games; name, characters, arena and code are our own, and the store
+texts do not refer to any other game.

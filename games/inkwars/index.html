@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Inkwars</title>
+    <style>
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0;
+        height: 100%;
+        overflow: hidden; /* the game fills the window and never scrolls */
+        background: #eceef1;
+      }
+      body {
+        font-family: ui-rounded, 'SF Pro Rounded', 'Nunito', system-ui, sans-serif;
+        color: #fff;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+      canvas { display: block; width: 100%; height: 100%; }
+      .layer { position: fixed; inset: 0; }
+      .hidden, [hidden] { display: none !important; }
+      .shadow { text-shadow: 0 2px 0 rgba(0,0,0,.35), 0 0 12px rgba(0,0,0,.25); }
+
+      /* ---- Display during a match ---- */
+      #hud { pointer-events: none; }
+      #top { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); width: min(560px, 80vw); text-align: center; }
+      #timer { font-size: 34px; font-weight: 800; letter-spacing: 1px; }
+      #bar { position: relative; height: 22px; border-radius: 11px; background: rgba(255,255,255,.55); overflow: hidden; border: 3px solid #fff; margin-top: 4px; }
+      #bar div { position: absolute; top: 0; bottom: 0; transition: width .25s; }
+      #p1 { left: 0; }
+      #p2 { right: 0; }
+      #pct { display: flex; justify-content: space-between; font-weight: 800; font-size: 18px; margin-top: 3px; }
+      #cross { position: absolute; left: 50%; top: 50%; width: 26px; height: 26px; margin: -13px; border: 3px solid #fff; border-radius: 50%; box-shadow: 0 0 0 2px rgba(0,0,0,.25); }
+      #cross::after { content: ''; position: absolute; left: 50%; top: 50%; width: 4px; height: 4px; margin: -2px; background: #fff; border-radius: 50%; }
+      #tank { position: absolute; right: 26px; bottom: 26px; width: 46px; height: 190px; border-radius: 23px; border: 4px solid #fff; background: rgba(0,0,0,.25); overflow: hidden; }
+      #tankFill { position: absolute; left: 0; right: 0; bottom: 0; height: 100%; }
+      #tank.refill { box-shadow: 0 0 22px 6px #fff; }
+      #tankLabel { position: absolute; right: 18px; bottom: 224px; width: 62px; text-align: center; font-weight: 800; font-size: 13px; }
+      #hp { position: absolute; left: 26px; bottom: 30px; width: 220px; height: 18px; border-radius: 9px; border: 3px solid #fff; background: rgba(0,0,0,.25); overflow: hidden; }
+      #hpFill { height: 100%; width: 100%; background: #6ee36e; }
+      #hpLabel { position: absolute; left: 30px; bottom: 54px; font-weight: 800; font-size: 13px; }
+      #status { position: absolute; left: 0; right: 0; top: 30%; text-align: center; font-size: 64px; font-weight: 900; }
+      #hint { position: absolute; left: 0; right: 0; bottom: 90px; text-align: center; font-size: 17px; font-weight: 700; }
+      #hurt { position: absolute; inset: 0; box-shadow: inset 0 0 160px 40px rgba(255,40,40,.8); opacity: 0; }
+
+      /* ---- Menu and result ---- */
+      .panel { display: flex; align-items: center; justify-content: center; background: rgba(40,44,54,.3); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+      .card { background: #fff; color: #23314d; border-radius: 28px; padding: 30px 38px; width: min(560px, 92vw); max-height: 96vh; overflow: auto; box-shadow: 0 18px 0 rgba(0,0,0,.15); text-align: center; }
+      h1 { margin: 0; font-size: 60px; font-weight: 900; letter-spacing: 2px; background: linear-gradient(90deg,#f08a80,#f0894a,#6fbf73); -webkit-background-clip: text; background-clip: text; color: transparent; }
+      .sub { margin: 4px 0 20px; font-weight: 700; opacity: .7; }
+      h2 { margin: 18px 0 8px; font-size: 15px; text-transform: uppercase; letter-spacing: 1px; opacity: .6; }
+      .row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+      button { font: inherit; font-weight: 800; border: 0; cursor: pointer; border-radius: 16px; }
+      button:focus-visible { outline: 4px solid #23314d; outline-offset: 3px; }
+      button:disabled { cursor: not-allowed; }
+      .mode { padding: 12px 26px; font-size: 20px; background: #eef2fa; color: #23314d; }
+      .mode.on { background: #23314d; color: #fff; }
+      .sw { width: 46px; height: 46px; border-radius: 50%; border: 4px solid #fff; box-shadow: 0 0 0 2px #d5dbe8; }
+      .sw.on { box-shadow: 0 0 0 4px #23314d; transform: scale(1.12); }
+      .sw:disabled { opacity: .25; }
+      #versus { margin-top: 12px; font-weight: 800; display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap; }
+      .dot { display: inline-block; width: 22px; height: 22px; border-radius: 50%; }
+      .go { margin-top: 22px; padding: 16px 44px; font-size: 24px; color: #fff; background: #ff2d95; box-shadow: 0 6px 0 rgba(0,0,0,.2); text-shadow: 0 1px 0 rgba(0,0,0,.35); }
+      .go:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,.2); }
+      .go:disabled { filter: grayscale(1); opacity: .45; }
+      .note { min-height: 20px; margin-top: 12px; font-size: 15px; font-weight: 700; opacity: .75; }
+      .keys { margin-top: 14px; font-size: 14px; line-height: 1.7; opacity: .75; font-weight: 600; }
+      kbd { background: #eef2fa; border-radius: 6px; padding: 2px 7px; font: inherit; font-weight: 800; }
+      #end { background: none; backdrop-filter: none; -webkit-backdrop-filter: none; align-items: flex-end; padding-bottom: 5vh; }
+      #endTitle { font-size: 40px; font-weight: 900; margin: 0 0 10px; min-height: 48px; }
+      #endRow { display: flex; justify-content: space-around; font-size: 46px; font-weight: 900; }
+
+      @media (prefers-reduced-motion: reduce) {
+        #bar div { transition: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="game"></canvas>
+
+    <div id="hud" class="layer hidden">
+      <div id="hurt"></div>
+      <div id="top">
+        <div id="timer" class="shadow">3:00</div>
+        <div id="bar"><div id="p1"></div><div id="p2"></div></div>
+        <div id="pct" class="shadow"><span id="pct1">0 %</span><span id="pct2">0 %</span></div>
+      </div>
+      <div id="cross"></div>
+      <div id="hpLabel" class="shadow">HEALTH</div>
+      <div id="hp"><div id="hpFill"></div></div>
+      <div id="tankLabel" class="shadow">TANK</div>
+      <div id="tank"><div id="tankFill"></div></div>
+      <div id="status" class="shadow"></div>
+      <div id="hint" class="shadow"></div>
+    </div>
+
+    <div id="menu" class="layer panel">
+      <div class="card">
+        <h1>INKWARS</h1>
+        <div class="sub" id="sub"></div>
+        <div id="modeBlock">
+          <h2>Mode</h2>
+          <div class="row">
+            <button type="button" class="mode on" data-mode="1">1 v 1</button>
+            <button type="button" class="mode" data-mode="2">2 v 2</button>
+          </div>
+        </div>
+        <h2>Your water colour</h2>
+        <div class="row" id="palette"></div>
+        <div id="versus"></div>
+        <button type="button" class="go" id="start">Start</button>
+        <div class="note" id="lobbyStatus" role="status"></div>
+        <div class="keys">
+          <kbd>W A S D</kbd> move · <kbd>Mouse</kbd> aim · <kbd>Left click</kbd> spray<br />
+          <kbd>Space</kbd> jump · hold <kbd>Shift</kbd>: fish form (fast and invisible in your own
+          water, refills your tank)
+        </div>
+      </div>
+    </div>
+
+    <div id="end" class="layer panel hidden">
+      <div class="card">
+        <div id="endTitle" role="status"></div>
+        <div id="endRow"><span id="end1">0 %</span><span id="end2">0 %</span></div>
+        <button type="button" class="go" id="again">Play again</button>
+        <div class="note" id="endNote"></div>
+      </div>
+    </div>
+
+    <script type="module" src="game.js"></script>
+  </body>
+</html>

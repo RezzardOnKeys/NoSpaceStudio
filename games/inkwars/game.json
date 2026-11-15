@@ -1,0 +1,12 @@
+{
+  "title": "Inkwars",
+  "shortDescription": "Paint the arena, dive into your own colour and win the most ground.",
+  "genres": ["Action", "Shooter", "Party"],
+  "engine": "HTML5",
+  "version": "1.0.0",
+  "status": "draft",
+  "publishedAt": "2026-11-15",
+  "maxPlayers": 2,
+  "cover": "cover.svg",
+  "banner": "banner.svg"
+}

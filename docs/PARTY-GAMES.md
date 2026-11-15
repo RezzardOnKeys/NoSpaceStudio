@@ -158,6 +158,14 @@ Ein drittes Beispiel für **viele Spieler** ist `games/die-together/` (bis zu
   gesehen hat (`seen`), und der Host prüft den Treffer gegen die Positionen
   von damals (höchstens 350 ms zurück, `poseAt` in `host.js`).
 
+Ein viertes Beispiel für **viele gemeinsame Daten** ist `games/inkwars/`
+(1 gegen 1). Dort bemalen beide Spieler dieselbe Arena. Statt die ganze
+Farbfläche immer wieder zu schicken, schreibt der Host jeden Klecks mit und
+der Gast wiederholt ihn genau gleich (`log` und `apply` in `paint.js`). Wer
+später dazukommt oder neu lädt, bekommt die Farbfläche einmal komplett
+(`exportState`). Die Liste aller Nachrichten steht oben in `host.js`,
+Entscheidung 39 erklärt den Aufbau.
+
 ### 4. Ohne Party weiter funktionieren
 
 Ohne `#party=...` wurde das Spiel allein gestartet (oder direkt über seine

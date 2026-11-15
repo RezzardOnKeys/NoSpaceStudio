@@ -15,6 +15,25 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 43 – 2026-11-15 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Neues Spiel aus inkwars.zip prüfen und als viertes Spiel einbauen: direkt mit Party-Modus 1 gegen 1 und allein gegen Bots spielbar
+**Änderungen:**
+- ZIP geprüft, ohne etwas daraus auszuführen: Vite/TypeScript-Projekt des zweiten Entwicklers mit three.js, keine Netzwerkzugriffe, keine Werbung, kein Tracking; `node_modules` und Build-Dateien der ZIP wurden nicht übernommen
+- Neues Spiel `games/inkwars/` (Inkwars 1.0.0, zuerst als Entwurf): 3D-Wasserschlacht, zwei Seiten färben die Arena, nach 3 Minuten gewinnt die größere Fläche; Fischform (Shift) macht im eigenen Wasser schnell und unsichtbar
+- TypeScript in normales JavaScript ohne Build-Schritt umgewandelt, eine kleine Datei pro Aufgabe wie bei Blind Drop; alle Kommentare und Spieltexte ins Englische übersetzt
+- three.js 0.187 und PeerJS liegen in `vendor/` (dieselben Dateien wie in den anderen Spielen, statt der mitgelieferten Version 0.170); die Test-Hintertür `window.__inkwars` ist entfernt
+- Party-Modus 1 gegen 1 neu gebaut: Der Host ist der Schiedsrichter (`host.js`), der Gast schickt Tasten und Zielrichtung und zeigt den gemeldeten Stand (`guest.js`, `wire.js`); jeder Farbklecks wird beim Gast genau wiederholt, dadurch sehen beide dieselbe Arena und denselben Punktestand
+- Menü für die Party: Farbwahl für beide (vergebene Farbe ist ausgegraut), „Ready“ beim Gast, „Start match“ beim Host; nach dem Spiel bringt der Host beide zurück ins Menü
+- Lädt der Gast während des Spiels neu, steigt er mit der kompletten Farbfläche wieder ein; verlässt der Host das Spiel, wartet der Gast im Menü
+- Allein gestartet: gegen Bots, 1 v 1 oder 2 v 2 (wie in der ZIP)
+- Store-Eintrag (`game.json` mit `"status": "draft"`, `maxPlayers` 2), Beschreibung, Cover und Banner als SVG, Patch Note
+- Doku: ROADMAP (Stand, Ideen, offene Punkte), neue Entscheidung 39, games/README, PARTY-GAMES (viertes Beispiel)
+- Getestet in Chrome: allein gegen einen Bot, Party mit zwei Tabs (Menü, Farben, gleiche Fläche und gleicher Punktestand auf beiden Bildschirmen, Neuladen des Gasts im Spiel, Ergebnis, Rematch), Anzeige im Launcher und Start im Player. Nicht getestet: Safari, echte Party mit zwei Konten, Maussteuerung im Launcher, Treffer zwischen zwei Menschen, Host-Tab im Hintergrund
+- `inkwars.zip` gehört nicht ins Repo und kann gelöscht werden
+**Geänderte Dateien:** games/inkwars/ (neu: index.html, game.js, config.js, arena.js, paint.js, sim.js, nav.js, bots.js, host.js, guest.js, wire.js, net.js, ticker.js, scene.js, arenaView.js, actorView.js, effects.js, camera.js, controls.js, lobby.js, hud.js, game.json, description.md, cover.svg, banner.svg, vendor/), news/2026-11-15-inkwars-1-0.md (neu), docs/ROADMAP.md, docs/DECISIONS.md, docs/PARTY-GAMES.md, games/README.md, PROTOKOLL.md
+**Commit-Message:** `[v43] feat(games): add Inkwars, a 3D water fight for two players or against bots`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 42 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Blind Drop genau prüfen, Fehler beheben, Code so sauber wie möglich aufteilen, alles für den nächsten Chat dokumentieren
 **Änderungen:**
@@ -29,7 +48,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Getestet nach dem Umbau: Übungsmodus Classic, zwei Tabs in Chrome in Snipe und Classic (Treffer, Ergebnis, Rematch, Neuladen von Host und Gast), Schiedsrichter-Simulation für alle Größen und Snipe. Nicht getestet: Safari
 **Geänderte Dateien:** games/blind-drop/ (neu: bot.js, look.js, world.js, characters.js, effects.js, lobby.js, hud.js; geändert: scene.js, game.js, host.js, net.js, config.js, index.html, game.json), news/2026-11-15-blind-drop-1-2-1.md (neu), docs/DECISIONS.md, docs/ROADMAP.md, games/README.md, PROTOKOLL.md
 **Commit-Message:** `[v42] refactor(blind-drop): split code into small files, fix rejoin and background bugs`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`ac16939`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/ac16939)
 
 ## Version 41 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Blind Drop: neuer Modus „Snipe“ (Insel fest Radius 8, schrumpft nie, Explosionsradius 1, ohne Rundengrenze, Bombe und BOOM wie bei Classic) mit eigenem düsteren Look
