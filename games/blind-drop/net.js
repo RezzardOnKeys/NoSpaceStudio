@@ -8,6 +8,16 @@ const PEER_PREFIX = 'nss-blind-drop-';
 // counts as "gone".
 const PING_MS = 2000;
 const SILENCE_MS = 9000;
+// A guest who reloads can be back before the host noticed that the old
+// connection is gone. The host then says "full" for a moment, so the guest
+// asks again a few times (longer than SILENCE_MS in total) before giving up.
+const FULL_TRIES = 8;
+
+/** The guest's current connection; used to say goodbye when the tab closes. */
+let liveConn = null;
+window.addEventListener('pagehide', () => {
+  if (liveConn && liveConn.open) liveConn.send({ t: 'bye' });
+});
 
 let peerLib = null;
 /** PeerJS is shipped with the game (vendor/), nothing is loaded from other sites. */
@@ -96,7 +106,7 @@ export async function openRoom(code, { onJoin, onStatus }, tries = 0) {
  * message from the host. If the host is not there (yet) or goes away, it
  * keeps trying, because guests often load faster than the host.
  */
-export async function joinRoom(code, handlers, tries = 0) {
+export async function joinRoom(code, handlers, tries = 0, fullTries = 0) {
   const { onOpen, onMessage, onStatus } = handlers;
   try {
     await loadPeerLib();
@@ -107,18 +117,19 @@ export async function joinRoom(code, handlers, tries = 0) {
   const peer = new window.Peer({ debug: 0 });
   let retried = false;
   let pinger = 0;
-  const retry = (text, nextTries) => {
+  const retry = (text, nextTries, nextFullTries = 0) => {
     if (retried) return;
     retried = true;
     clearInterval(pinger);
     peer.destroy();
     onStatus(text);
-    setTimeout(() => joinRoom(code, handlers, nextTries), 1500);
+    setTimeout(() => joinRoom(code, handlers, nextTries, nextFullTries), 1500);
   };
   peer.on('open', () => {
     const conn = peer.connect(PEER_PREFIX + code, { reliable: true });
     let lastHeard = Date.now();
     conn.on('open', () => {
+      liveConn = conn;
       lastHeard = Date.now();
       onStatus('');
       onOpen((msg) => {
@@ -129,15 +140,15 @@ export async function joinRoom(code, handlers, tries = 0) {
         else if (conn.open) conn.send({ t: 'ping' });
       }, PING_MS);
     });
-    // Say goodbye when the tab closes, so the host does not have to wait.
-    window.addEventListener('pagehide', () => {
-      if (conn.open) conn.send({ t: 'bye' });
-    });
     conn.on('data', (msg) => {
       lastHeard = Date.now();
       if (!msg || msg.t === 'ping') return;
+      if (msg.t === 'full' && fullTries < FULL_TRIES) {
+        retry('Waiting for a free seat…', 0, fullTries + 1);
+        return;
+      }
       if (msg.t === 'full') {
-        // The match already has all its players: do not keep knocking.
+        // The match really has all its players: do not keep knocking.
         retried = true;
         clearInterval(pinger);
         peer.destroy();

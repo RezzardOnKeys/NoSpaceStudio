@@ -33,15 +33,20 @@ table whenever a phase is finished.
   in the game folder (`vendor/`). Tested by the developers with two real
   accounts and YouTube videos.
 - **The second game is in:** `games/blind-drop/` (Blind Drop, version
-  1.2.0), a 3D comic bomb duel on a floating island for 2 players, with a
+  1.2.1), a 3D comic bomb duel on a floating island for 2 players, with a
   practice mode against a bot when started alone. The host picks the blast
   size (Small, Medium, Large; radius 1, 2 or 3) and the mode in the lobby:
   Classic (the island shrinks) or Snipe (blast radius 1, fixed island radius
-  8, never shrinks, own dark look); decisions 36 and 37. Rules and numbers
-  are in `config.js`, the
-  referee (host) in `host.js`; see decision 32. three.js and PeerJS are
-  shipped in the game folder (`vendor/`). Tested in Chrome with two tabs;
-  **not yet tested in Safari and not yet with two real accounts in a party.**
+  8, never shrinks, own dark look); decisions 36 and 37. The code is split
+  into small files with one job each (decision 38): rules and numbers in
+  `config.js`, the referee in `host.js` (with the list of all messages at
+  its top) and `bot.js`, the connection in `net.js`, the 3D view in
+  `scene.js` + `look.js`, `world.js`, `characters.js`, `effects.js`, the
+  menu in `lobby.js`, the HUD in `hud.js`, and `game.js` ties it together.
+  three.js and PeerJS are shipped in the game folder (`vendor/`). Tested in
+  Chrome with two tabs (both modes, rematch, reload of host and guest) and
+  with a simulation of the referee. **Not yet tested in Safari; whether it
+  was played through a real party with two accounts is not recorded.**
 - **The third game is in:** `games/die-together/` (Die Together, version
   1.0.0, published), a comic first person shooter where every character is
   steered by two people (one mouse, one keyboard), 2, 4, 6 or 8 players
@@ -257,8 +262,10 @@ Collected in conversations with the developers; nothing decided yet.
 
 - **Blind Drop follow-ups** (the game itself is built, see above): more than
   two players (free-for-all; raise `MAX_PLAYERS` in `config.js` and
-  `maxPlayers` in `game.json`, then test), sound effects, touch controls for
-  phones, a smarter bot, a score over several matches.
+  `maxPlayers` in `game.json`, then test; the lobby text "1 vs 1" and the
+  spawn circle are the only places written for two), sound effects, touch
+  controls for phones, a smarter bot, a score over several matches, maybe a
+  round limit or a slowly growing blast for Snipe if matches feel too long.
 - **Die Together follow-ups** (the game itself is built, see above): sound
   effects (Web Audio, as planned), comic stars on a hit, screen shake on a
   hit (respecting reduced motion), a smarter bot, a score over several

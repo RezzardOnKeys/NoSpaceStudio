@@ -473,9 +473,40 @@ instead of the planets, a dark stone platform with rings and a cross painted
 on it like the view through a scope, a crosshair for aiming and a dark HUD
 with a red accent. The light is almost the same as in Classic on purpose, so
 the characters keep their strong colours; the darkness comes from ground and
-sky. All differences are in one table (`THEMES` in `scene.js`) and applied
+sky. All differences are in one table (`THEMES` in `world.js`) and applied
 by `setTheme()`; the rules differences are in `config.js` and `host.js`.
 
 **Why:** The developers wanted a mode about precise guessing ("sniping")
 instead of a shrinking arena, and accepted that it can take long. A
 different look makes it obvious at a glance which mode is running.
+
+## 38. Blind Drop: one small file per job
+
+**Decision:** After the modes and blast sizes were added, the two big files
+of Blind Drop were split. Each file now has one job and says so in its first
+lines:
+
+- `config.js`: every number and rule that can be tuned
+- `host.js`: the referee (only in the host's browser); the list of all
+  messages is at its top. `bot.js`: the practice bot
+- `net.js`: party connection with PeerJS
+- `scene.js`: sets up the 3D view and joins `look.js` (comic style),
+  `world.js` (lights, sky, island, the two looks), `characters.js` (players
+  and name tags) and `effects.js` (puffs, comic words, bombs, explosions,
+  aim circle)
+- `lobby.js` (menu) and `hud.js` (banner, countdown, result screen): the
+  HTML on top of the view
+- `game.js`: one player's screen; reacts to the referee, reads the input,
+  runs the frame loop and starts everything
+
+The same review fixed four problems: a guest who reloaded could be locked
+out as "full" (the guest now asks again for a few seconds); effects piled up
+while the tab was in the background (new effects are skipped while no frames
+are drawn); the picture went blurry after moving to another monitor (pixel
+density is set again on resize); menu buttons were rebuilt on every message
+and lost the keyboard focus (they are now built once).
+
+**Why:** `scene.js` had grown to about 820 lines and `game.js` to 470. Small
+files are easier for the developers to read and for a new Claude session to
+change without breaking something else. Die Together still has the older
+layout of a few big files; the same split would fit there.

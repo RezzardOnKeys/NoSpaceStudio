@@ -6,6 +6,19 @@
 // Secrecy rule: during the action phase nothing about positions or bombs is
 // sent to anyone. Positions go out only in "look" (everyone is visible
 // anyway) and in "reveal" (the round is over).
+//
+// Messages the referee sends (to every screen):
+//   welcome { id }                       your player id
+//   lobby   { players, mode, blast, ownerId, note }
+//   look    { round, radius, blastR, mode, dur, players: [{ id, x, z }] }
+//   action  { dur }
+//   lock    {}                           time is up, send your "final"
+//   reveal  { players, bombs, hits, outcome, winners, newRadius, moved }
+//           outcome: 'win' | 'draw' | 'shrink' (Classic) | 'miss' (Snipe)
+// Messages a screen sends to the referee:
+//   hello { name } · color { color } · mode { mode } · blast { size }
+//   ready { ready } · pos { x, z } · bomb { x, z } · final { x, z, bomb }
+//   rematch {}
 
 import {
   MAX_PLAYERS, ISLAND_R, BLAST_SIZES, DEFAULT_BLAST, SHRINK_STEP, minIslandR, SPEED, PLAYER_R,
@@ -13,6 +26,7 @@ import {
   LOOK_MS, ACTION_MS, COLLECT_MS, REVEAL_MS, SHRINK_MS, COLORS,
   spawnPoint, clampToIsland,
 } from './config.js';
+import { planBot, moveBot } from './bot.js';
 
 export function createHost() {
   /** All players of the match, humans and bots, as one list. */
@@ -168,7 +182,7 @@ export function createHost() {
     radius = startRadius(mode);
     blastR = mode === 'snipe' ? SNIPE_BLAST_R : BLAST_SIZES[blast].r;
     players.forEach((p, i) => {
-      const spot = spawnPoint(i, players.length);
+      const spot = spawnPoint(i, players.length, radius);
       p.x = spot.x;
       p.z = spot.z;
     });
@@ -196,7 +210,7 @@ export function createHost() {
   function startAction() {
     phase = 'action';
     deadline = lastTick + ACTION_MS;
-    for (const p of players) if (p.isBot) planBot(p);
+    for (const p of players) if (p.isBot) planBot(p, world());
     broadcast({ t: 'action', dur: ACTION_MS });
   }
 
@@ -259,54 +273,8 @@ export function createHost() {
     broadcast({ t: 'reveal', players: positions, bombs, hits, outcome, winners, newRadius, moved });
   }
 
-  // ---- Bot (practice mode) ---------------------------------------------
-  // Deliberately simple: it wanders around and drops its bomb at a random
-  // moment, often near where it last saw a human.
-  function randomSpot(maxRadius) {
-    const a = Math.random() * Math.PI * 2;
-    const d = Math.sqrt(Math.random()) * maxRadius;
-    return { x: Math.cos(a) * d, z: Math.sin(a) * d };
-  }
-
-  function planBot(bot) {
-    const humans = players.filter((p) => !p.isBot);
-    let bombSpot = randomSpot(radius);
-    // In Snipe the blast is tiny, so the bot aims closer and more often.
-    const sniping = mode === 'snipe';
-    if (humans.length > 0 && Math.random() < (sniping ? 0.9 : 0.65)) {
-      const victim = humans[Math.floor(Math.random() * humans.length)];
-      const off = randomSpot(sniping ? 2.5 : 5);
-      bombSpot = clampToIsland(victim.startX + off.x, victim.startZ + off.z, radius);
-    }
-    bot.ai = {
-      target: randomSpot(radius - PLAYER_R),
-      bombAt: lastTick + 500 + Math.random() * 3500,
-      bombSpot,
-    };
-  }
-
-  function moveBot(bot, dt, now) {
-    const ai = bot.ai;
-    if (!ai) return;
-    if (!bot.bomb && now >= ai.bombAt) bot.bomb = ai.bombSpot;
-    const dx = ai.target.x - bot.x;
-    const dz = ai.target.z - bot.z;
-    const d = Math.hypot(dx, dz);
-    if (d < 0.2) {
-      // Pick the next spot; usually one outside of its own blast.
-      for (let i = 0; i < 8; i++) {
-        ai.target = randomSpot(radius - PLAYER_R);
-        const safe = !bot.bomb ||
-          Math.hypot(ai.target.x - bot.bomb.x, ai.target.z - bot.bomb.z) > blastR + 0.6;
-        if (safe || Math.random() < 0.15) break;
-      }
-      return;
-    }
-    const step = Math.min(d, SPEED * 0.9 * dt);
-    const pos = clampToIsland(bot.x + (dx / d) * step, bot.z + (dz / d) * step, radius, PLAYER_R);
-    bot.x = pos.x;
-    bot.z = pos.z;
-  }
+  /** What the bot (bot.js) may know about the match. */
+  const world = () => ({ players, radius, blastR, mode, now: lastTick });
 
   /** Called many times per second with the current time in milliseconds. */
   function tick(now) {
@@ -318,7 +286,7 @@ export function createHost() {
     } else if (phase === 'look') {
       if (now >= deadline) startAction();
     } else if (phase === 'action') {
-      for (const p of players) if (p.isBot) moveBot(p, dt, now);
+      for (const p of players) if (p.isBot) moveBot(p, dt, world());
       if (now >= deadline) {
         // Time is up. Humans answer with their last position ("final").
         phase = 'collect';

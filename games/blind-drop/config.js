@@ -6,7 +6,8 @@
  *  allow free-for-all matches later. Also raise "maxPlayers" in game.json. */
 export const MAX_PLAYERS = 2;
 
-/** Radius of the island at the start of a match (world units). */
+/** Radius of the island at the start of a Classic match (world units). The
+ *  island model is built at this size; every other size is a scaled copy. */
 export const ISLAND_R = 10;
 /** Explosion sizes the host can pick in the lobby (radius in world units). */
 export const BLAST_SIZES = {
@@ -64,10 +65,11 @@ export const COLORS = [
   { name: 'White', hex: '#f6f3ff' },
 ];
 
-/** Where players stand when a match starts: evenly spread on a circle. */
-export function spawnPoint(index, count) {
+/** Where players stand when a match starts: evenly spread on a circle half
+ *  way between the middle and the edge of the island. */
+export function spawnPoint(index, count, radius) {
   const angle = Math.PI + (index * Math.PI * 2) / Math.max(count, 1);
-  return { x: Math.cos(angle) * ISLAND_R * 0.5, z: Math.sin(angle) * ISLAND_R * 0.5 };
+  return { x: Math.cos(angle) * radius * 0.5, z: Math.sin(angle) * radius * 0.5 };
 }
 
 /** Moves a point back onto the island if it is outside (nearest point). */

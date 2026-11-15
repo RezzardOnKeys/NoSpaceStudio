@@ -1,19 +1,30 @@
-// Blind Drop – what one player sees and does: lobby, input, HUD, animations.
-// Every browser runs this file. It reacts to messages from the referee
-// (host.js) and sends back only its own inputs and position. In practice
-// mode and for the party host the referee runs in the same browser; a party
-// guest reaches it over the network (net.js). The code path is the same.
+// Blind Drop – one player's screen: it reacts to the referee's messages,
+// reads the player's input and runs the frame loop. Every browser runs this
+// file. In practice mode and for the party host the referee (host.js) runs in
+// the same browser; a party guest reaches it over the network (net.js). The
+// code path is the same.
+//
+// The files and what they do:
+//   config.js   numbers and rules that can be tuned
+//   host.js     the referee (only in the host's browser), bot.js its bot
+//   net.js      party connection with PeerJS
+//   scene.js    the 3D view (look.js, world.js, characters.js, effects.js)
+//   lobby.js    the menu before a match
+//   hud.js      banner, countdown, notices, result screen
+//   game.js     this file
 
 import {
-  SPEED, PLAYER_R, REVEAL_MS, DROP_AT, FALL_MS, COLORS, BLAST_SIZES, MODES, DEFAULT_MODE,
-  startRadius,
-  spawnPoint, clampToIsland,
+  SPEED, PLAYER_R, REVEAL_MS, DROP_AT, FALL_MS, MODES, DEFAULT_MODE, DEFAULT_BLAST,
+  startRadius, spawnPoint, clampToIsland,
 } from './config.js';
 import { createView } from './scene.js';
 import { createHost } from './host.js';
+import { createLobby } from './lobby.js';
+import {
+  setBanner, toast, setCountdown, hideCountdown, showScreen, showResult, onRematch,
+  setSnipeLook,
+} from './hud.js';
 import { openRoom, joinRoom } from './net.js';
-
-const $ = (id) => document.getElementById(id);
 
 // ---------------------------------------------------------------------
 //  NoSpaceStudio launcher integration
@@ -30,17 +41,18 @@ const PARTY = (() => {
   return { code, role, name: (h.get('name') || '').slice(0, 20) };
 })();
 
-const view = createView($('view'), $('labels'));
+const canvas = document.getElementById('view');
+const view = createView(canvas, document.getElementById('labels'));
 
 // ---- State of this player's screen --------------------------------------
 let host = null; // the referee, if it runs in this browser
 let toHost = () => {}; // sends a message to the referee
 let myId = null;
 let roster = []; // [{ id, name, color, ready, isBot }]
-let blastSize = ''; // key of BLAST_SIZES chosen for the next match
+let ownerId = null; // the player who picks mode and blast size (party host)
 let matchMode = DEFAULT_MODE; // key of MODES chosen for the next match
-let ownerId = null; // the player who chooses the blast size (party host)
-let phase = 'connecting'; // connecting | lobby | look | action | locked | reveal | result
+let blastSize = DEFAULT_BLAST; // key of BLAST_SIZES chosen for the next match
+let phase = 'lobby'; // lobby | look | action | locked | reveal | result
 let phaseEnd = 0;
 let phaseDur = 1;
 let radius = startRadius(DEFAULT_MODE);
@@ -58,144 +70,74 @@ const colorOf = (id) => playerOf(id)?.color ?? '#ffffff';
 const nameOf = (id) => (id === myId ? 'You' : (playerOf(id)?.name ?? 'Player'));
 const after = (ms, run) => timeline.push({ at: performance.now() + ms, run });
 
-// ---- HUD helpers ----------------------------------------------------------
-function setBanner(title, sub, mode) {
-  $('banner').hidden = !title;
-  $('banner').className = mode || '';
-  $('bannerTitle').textContent = title || '';
-  $('bannerSub').textContent = sub || '';
-  $('timeBar').hidden = mode !== 'look' && mode !== 'go';
-}
-
-let toastTimer = 0;
-function toast(text) {
-  $('toast').textContent = text;
-  $('toast').hidden = !text;
-  clearTimeout(toastTimer);
-  if (text) toastTimer = setTimeout(() => ($('toast').hidden = true), 4500);
-}
-
 // ---- Lobby ----------------------------------------------------------------
+const lobby = createLobby({
+  solo: !PARTY,
+  onColor: (color) => toHost({ t: 'color', color }),
+  onMode: (mode) => toHost({ t: 'mode', mode }),
+  onBlast: (size) => toHost({ t: 'blast', size }),
+  onReady() {
+    const mine = playerOf(myId);
+    // Practice mode has a "Start" button; in a party "Ready" can be taken back.
+    if (mine) toHost({ t: 'ready', ready: PARTY ? !mine.ready : true });
+  },
+});
+onRematch(() => toHost({ t: 'rematch' }));
+
 function renderLobby() {
-  const mine = playerOf(myId);
-  const solo = !PARTY;
-  $('mode').textContent = solo ? 'Practice match against a bot' : 'Party match · 1 vs 1';
-
-  const palette = $('palette');
-  palette.replaceChildren();
-  for (const c of COLORS) {
-    const owner = roster.find((p) => p.color === c.hex);
-    const taken = owner && owner.id !== myId && !owner.isBot;
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.className = owner && owner.id === myId ? 'swatch mine' : 'swatch';
-    b.style.setProperty('--c', c.hex);
-    b.disabled = !mine || Boolean(taken);
-    b.setAttribute('aria-label', taken ? `${c.name} (taken by ${owner.name})` : c.name);
-    b.setAttribute('aria-pressed', String(Boolean(owner && owner.id === myId)));
-    b.title = taken ? `Taken by ${owner.name}` : c.name;
-    b.onclick = () => toHost({ t: 'color', color: c.hex });
-    palette.appendChild(b);
-  }
-
-  // Mode and blast size: only the host picks, everybody sees the choice.
-  const canPick = Boolean(mine) && myId === ownerId;
-  const modes = $('modePick');
-  modes.replaceChildren();
-  for (const [key, mode] of Object.entries(MODES)) {
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.className = key === matchMode ? 'size on' : 'size';
-    b.textContent = mode.label;
-    b.disabled = !canPick;
-    b.setAttribute('aria-pressed', String(key === matchMode));
-    b.onclick = () => toHost({ t: 'mode', mode: key });
-    modes.appendChild(b);
-  }
-  $('modeHint').textContent = MODES[matchMode].hint;
-  // Snipe has one fixed, tiny blast: nothing to choose there.
-  $('blastRow').hidden = matchMode === 'snipe';
-
-  const sizes = $('blastSizes');
-  sizes.replaceChildren();
-  for (const [key, size] of Object.entries(BLAST_SIZES)) {
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.className = key === blastSize ? 'size on' : 'size';
-    b.textContent = size.label;
-    b.disabled = !canPick;
-    b.setAttribute('aria-pressed', String(key === blastSize));
-    b.onclick = () => toHost({ t: 'blast', size: key });
-    sizes.appendChild(b);
-  }
-  $('hostNote').hidden = canPick || !mine;
-
-  const list = $('players');
-  list.replaceChildren();
-  for (const p of roster) {
-    const li = document.createElement('li');
-    const dot = document.createElement('span');
-    dot.className = 'dot';
-    dot.style.setProperty('--c', p.color);
-    const state = p.isBot || solo ? '' : p.ready ? ' ✓ ready' : ' …';
-    li.append(dot, `${p.name}${p.id === myId && !solo ? ' (you)' : ''}${state}`);
-    list.appendChild(li);
-  }
-
-  const btn = $('readyBtn');
-  const alone = roster.length < 2;
-  btn.disabled = !mine || alone;
-  btn.classList.toggle('on', Boolean(mine?.ready) && !solo);
-  btn.textContent = solo ? 'Start' : mine?.ready ? 'Ready ✓' : 'Ready?';
-
-  let status = netStatus;
-  if (!status && !mine) status = 'Connecting to the host…';
-  else if (!status && alone) status = 'Waiting for your opponent…';
-  else if (!status && !solo && mine.ready) status = 'Waiting for the others…';
-  $('lobbyStatus').textContent = status;
-}
-
-function enterLobby(msg) {
-  phase = 'lobby';
-  timeline = [];
-  roster = msg.players;
-  blastSize = msg.blast;
-  ownerId = msg.ownerId;
-  setMode(msg.mode);
-  radius = startRadius(matchMode);
-  myBomb = null;
-  view.setRadius(radius, false);
-  view.setAim('off');
-  syncCharacters();
-  roster.forEach((p, i) => {
-    const spot = spawnPoint(i, roster.length);
-    view.resetPose(p.id);
-    view.place(p.id, spot.x, spot.z);
-    view.setVisible(p.id, true);
+  lobby.render({
+    roster, myId, ownerId, mode: matchMode, blast: blastSize, status: netStatus,
   });
-  setBanner('');
-  for (const id of ['round', 'count', 'help', 'result']) $(id).hidden = true;
-  $('lobby').hidden = false;
-  renderLobby();
-  if (msg.note) toast(msg.note);
 }
 
 /** Classic or Snipe: switches the look of the scene and of the HUD. */
 function setMode(mode) {
   matchMode = MODES[mode] ? mode : DEFAULT_MODE;
   view.setTheme(matchMode);
-  document.body.classList.toggle('snipe', matchMode === 'snipe');
+  setSnipeLook(matchMode === 'snipe');
 }
 
-function syncCharacters() {
+/** Shows the menu with everybody standing on the island behind it. */
+function showLobby() {
+  phase = 'lobby';
+  timeline = [];
+  myBomb = null;
+  radius = startRadius(matchMode);
+  view.setRadius(radius, false);
+  view.setAim('off');
   view.setPlayers(roster.map((p) => ({ id: p.id, color: p.color, label: nameOf(p.id) })));
+  roster.forEach((p, i) => {
+    const spot = spawnPoint(i, roster.length, radius);
+    view.resetPose(p.id);
+    view.place(p.id, spot.x, spot.z);
+    view.setVisible(p.id, true);
+  });
+  showScreen('lobby');
+  renderLobby();
+}
+
+/** The referee sent the lobby: who is there and what the host has chosen. */
+function onLobby(msg) {
+  roster = msg.players;
+  ownerId = msg.ownerId;
+  blastSize = msg.blast;
+  setMode(msg.mode);
+  showLobby();
+  if (msg.note) toast(msg.note);
+}
+
+/** Guest only: the connection to the host is gone, wait in an empty menu. */
+function showWaiting() {
+  myId = null;
+  roster = [];
+  showLobby();
 }
 
 // ---- Messages from the referee ----------------------------------------------
 function onEvent(msg) {
   if (!msg || typeof msg.t !== 'string') return;
   if (msg.t === 'welcome') myId = msg.id;
-  else if (msg.t === 'lobby') enterLobby(msg);
+  else if (msg.t === 'lobby') onLobby(msg);
   else if (msg.t === 'look') onLook(msg);
   else if (msg.t === 'action') onAction(msg);
   else if (msg.t === 'lock') lockInput();
@@ -212,8 +154,6 @@ function onLook(msg) {
   phaseEnd = performance.now() + msg.dur;
   setMode(msg.mode);
   view.setBlast(msg.blastR);
-  $('lobby').hidden = true;
-  $('result').hidden = true;
   view.setRadius(radius, false);
   view.setAim('off');
   for (const p of msg.players) {
@@ -222,9 +162,7 @@ function onLook(msg) {
     view.appear(p.id, p.x, p.z);
     if (p.id === myId) Object.assign(me, { x: p.x, z: p.z });
   }
-  $('round').textContent = `Round ${msg.round}`;
-  $('round').hidden = false;
-  $('help').hidden = false;
+  showScreen('match', msg.round);
   setBanner('LOOK!', 'Remember where everyone stands', 'look');
 }
 
@@ -254,14 +192,14 @@ function lockInput() {
   view.setMoving(myId, 0, 0);
   toHost({ t: 'final', x: me.x, z: me.z, bomb: myBomb });
   setBanner("TIME'S UP!", 'Hold still…');
-  $('count').hidden = true;
+  hideCountdown();
 }
 
 // d) + e) Reveal: everybody is shown, the bombs fall, then the verdict.
 function onReveal(msg) {
   lockInput();
   phase = 'reveal';
-  $('count').hidden = true;
+  hideCountdown();
   setBanner('REVEAL!', 'There you are');
   for (const p of msg.players) {
     view.setMoving(p.id, 0, 0);
@@ -296,43 +234,33 @@ function onReveal(msg) {
       }
     });
   } else {
-    after(REVEAL_MS, () => showResult(msg));
+    after(REVEAL_MS, () => {
+      phase = 'result';
+      showResult(verdict(msg));
+    });
   }
 }
 
-function showResult(msg) {
-  phase = 'result';
-  const iWon = msg.winners.includes(myId);
-  const myHit = msg.hits.find((h) => h.id === myId);
-  const title = $('resultTitle');
-  let text;
+/** Turns the referee's result into the words for this player. */
+function verdict(msg) {
   if (msg.outcome === 'draw') {
-    title.textContent = 'DRAW!';
-    title.className = 'logo draw';
-    text = 'Nobody is left standing.';
-  } else if (iWon) {
-    title.textContent = 'YOU WIN!';
-    title.className = 'logo';
-    text = msg.hits
+    return { title: 'DRAW!', tone: 'draw', text: 'Nobody is left standing.' };
+  }
+  if (msg.winners.includes(myId)) {
+    const text = msg.hits
       .map((h) =>
         h.by.includes(myId)
           ? `Your bomb hit ${nameOf(h.id)}.`
           : `${nameOf(h.id)} stood in their own blast.`,
       )
       .join(' ');
-  } else {
-    title.textContent = 'YOU LOSE!';
-    title.className = 'logo lose';
-    text = myHit.by.includes(myId)
-      ? 'You stood in your own blast.'
-      : `${nameOf(myHit.by[0])}'s bomb got you.`;
+    return { title: 'YOU WIN!', tone: 'win', text };
   }
-  $('resultText').textContent = text;
-  setBanner('');
-  $('help').hidden = true;
-  $('round').hidden = true;
-  $('result').hidden = false;
-  $('rematchBtn').focus();
+  const myHit = msg.hits.find((h) => h.id === myId);
+  const text = myHit.by.includes(myId)
+    ? 'You stood in your own blast.'
+    : `${nameOf(myHit.by[0])}'s bomb got you.`;
+  return { title: 'YOU LOSE!', tone: 'lose', text };
 }
 
 // ---- Input ----------------------------------------------------------------
@@ -350,17 +278,15 @@ window.addEventListener('keyup', (e) => keys.delete(KEY_DIRS[e.code]));
 window.addEventListener('blur', () => keys.clear());
 window.addEventListener('resize', () => view.resize());
 window.addEventListener('contextmenu', (e) => e.preventDefault());
-window.addEventListener('pointermove', (e) => Object.assign(mouse, { x: e.clientX, y: e.clientY, known: true }));
-$('view').addEventListener('pointerdown', (e) => {
+window.addEventListener('pointermove', (e) => {
+  Object.assign(mouse, { x: e.clientX, y: e.clientY, known: true });
+});
+canvas.addEventListener('pointerdown', (e) => {
   window.focus();
   if (e.button === 0) placeBomb(e.clientX, e.clientY);
 });
-$('readyBtn').onclick = () => {
-  const mine = playerOf(myId);
-  if (mine) toHost({ t: 'ready', ready: PARTY ? !mine.ready : true });
-};
-$('rematchBtn').onclick = () => toHost({ t: 'rematch' });
 
+/** Moves the own character with the pressed keys and updates the aim circle. */
 function walk(dt, now) {
   let dx = (keys.has('right') ? 1 : 0) - (keys.has('left') ? 1 : 0);
   let dz = (keys.has('down') ? 1 : 0) - (keys.has('up') ? 1 : 0);
@@ -386,6 +312,7 @@ function walk(dt, now) {
 }
 
 // ---- Main loop --------------------------------------------------------------
+/** Game logic for the time since the last call; returns that time in seconds. */
 function tick() {
   const now = performance.now();
   const dt = Math.min(0.25, (now - lastTick) / 1000);
@@ -401,12 +328,7 @@ function tick() {
     walk(dt, now);
     if (now >= phaseEnd) lockInput();
   }
-  if (phase === 'look' || phase === 'action') {
-    const left = Math.max(0, phaseEnd - now);
-    $('count').textContent = String(Math.ceil(left / 1000));
-    $('count').hidden = left <= 0;
-    $('timeFill').style.transform = `scaleX(${left / phaseDur})`;
-  }
+  if (phase === 'look' || phase === 'action') setCountdown(phaseEnd - now, phaseDur);
   return dt;
 }
 
@@ -420,13 +342,15 @@ function frame() {
 setInterval(tick, 200);
 
 // ---- Start ----------------------------------------------------------------
+/** A notice from the network code; empty text means "all fine". */
 function setNetStatus(text) {
   netStatus = text;
-  if (phase === 'lobby' || phase === 'connecting') renderLobby();
+  if (phase === 'lobby') renderLobby();
   else if (text) toast(text);
 }
 
 if (!PARTY || PARTY.role === 'host') {
+  // The referee runs here: practice mode, or this player hosts the party.
   host = createHost();
   const id = host.addPlayer({ name: PARTY ? PARTY.name || 'Host' : 'You', send: onEvent });
   toHost = (msg) => host.handle(id, msg);
@@ -450,14 +374,13 @@ if (!PARTY || PARTY.role === 'host') {
     });
   }
 } else {
-  renderLobby();
+  // Party guest: everything comes from the host over the network.
+  showWaiting();
   joinRoom(PARTY.code, {
     onStatus(text) {
-      // Connection lost in the middle of a match: back to the waiting screen.
-      if (text) {
-        myId = null;
-        enterLobby({ players: [], note: '' });
-      }
+      // A notice means the connection is not there (any more): back to the
+      // waiting screen, also in the middle of a match.
+      if (text) showWaiting();
       setNetStatus(text);
     },
     onOpen(send) {

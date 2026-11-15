@@ -15,6 +15,22 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 42 – 2026-11-15 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Blind Drop genau prüfen, Fehler beheben, Code so sauber wie möglich aufteilen, alles für den nächsten Chat dokumentieren
+**Änderungen:**
+- Fehler behoben: Ein Gast, der seinen Tab neu lädt, konnte dauerhaft „This match is already full.“ sehen, weil der Host die alte Verbindung noch nicht als beendet erkannt hatte; der Gast fragt jetzt einige Sekunden lang erneut an
+- Fehler behoben: Lief das Spiel in einem Tab im Hintergrund, stauten sich Bomben und Explosionen und liefen beim Zurückkommen alle auf einmal ab; neue Effekte werden jetzt übersprungen, solange nichts gezeichnet wird
+- Fehler behoben: Nach dem Verschieben des Fensters auf einen anderen Monitor konnte das Bild unscharf werden; die Pixeldichte wird jetzt bei jeder Größenänderung neu gesetzt
+- Fehler behoben: Die Knöpfe im Menü wurden bei jeder Nachricht neu erzeugt und verloren den Tastaturfokus; sie werden jetzt einmal gebaut und nur aktualisiert
+- Fehler behoben: Bei jeder neuen Verbindung des Gastes wurde ein weiterer „Tab schließt“-Horcher angelegt; jetzt gibt es genau einen
+- Der Bot zielt bei kleinen Explosionen näher am Spieler (er war noch auf den alten Radius 4 abgestimmt); die Startpositionen richten sich nach der Inselgröße des Modus
+- Code aufgeteilt, jede Datei hat eine Aufgabe: `scene.js` (vorher ca. 820 Zeilen) in `scene.js`, `look.js`, `world.js`, `characters.js`, `effects.js`; `game.js` (vorher ca. 470 Zeilen) in `game.js`, `lobby.js`, `hud.js`; Bot in `bot.js`; die Liste aller Nachrichten steht oben in `host.js`
+- Spielversion 1.2.1 mit Patch Note; ROADMAP (Stand und Dateiübersicht), Entscheidung 37 korrigiert, neue Entscheidung 38; Commit-Hash für Version 40 und 41 nachgetragen
+- Getestet nach dem Umbau: Übungsmodus Classic, zwei Tabs in Chrome in Snipe und Classic (Treffer, Ergebnis, Rematch, Neuladen von Host und Gast), Schiedsrichter-Simulation für alle Größen und Snipe. Nicht getestet: Safari
+**Geänderte Dateien:** games/blind-drop/ (neu: bot.js, look.js, world.js, characters.js, effects.js, lobby.js, hud.js; geändert: scene.js, game.js, host.js, net.js, config.js, index.html, game.json), news/2026-11-15-blind-drop-1-2-1.md (neu), docs/DECISIONS.md, docs/ROADMAP.md, games/README.md, PROTOKOLL.md
+**Commit-Message:** `[v42] refactor(blind-drop): split code into small files, fix rejoin and background bugs`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 41 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Blind Drop: neuer Modus „Snipe“ (Insel fest Radius 8, schrumpft nie, Explosionsradius 1, ohne Rundengrenze, Bombe und BOOM wie bei Classic) mit eigenem düsteren Look
 **Änderungen:**
@@ -28,7 +44,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Getestet: Übungsmodus in Snipe und Classic, zwei Tabs in Chrome (Gast kann den Modus nicht ändern, Look wechselt bei beiden, Runde 2 ohne Schrumpfen), Schiedsrichter-Simulation für alle Größen und Snipe. Nicht getestet: Safari und zwei echte Konten
 **Geänderte Dateien:** games/blind-drop/ (config.js, host.js, scene.js, game.js, index.html, game.json, description.md), news/2026-11-15-blind-drop-1-2.md (neu), docs/DECISIONS.md, docs/ROADMAP.md, PROTOKOLL.md
 **Commit-Message:** `[v41] feat(blind-drop): add Snipe mode with its own dark look`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`c05e4c8`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/c05e4c8)
 
 ## Version 40 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Blind Drop: Bombengrößen auf Large 3, Medium 2, Small 1 ändern (nur das und die dazugehörige Inselverkleinerung); Rückmeldung zu einem neuen Modus „Snipe“
@@ -40,7 +56,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Der Modus „Snipe“ ist noch nicht gebaut, dazu gab es nur Rückmeldung und Fragen
 **Geänderte Dateien:** games/blind-drop/config.js, games/blind-drop/game.json, news/2026-11-15-blind-drop-1-1-2.md (neu), docs/DECISIONS.md, docs/ROADMAP.md, PROTOKOLL.md
 **Commit-Message:** `[v40] fix(blind-drop): set blast sizes to 1, 2 and 3`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`c05e4c8`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/c05e4c8)
 
 ## Version 39 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Auf den neuesten Stand bringen; danach die Blind-Drop-Version in der ROADMAP anpassen
