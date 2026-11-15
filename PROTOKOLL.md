@@ -15,6 +15,19 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 33 – 2026-11-15 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** `npm ci` bricht mit ERESOLVE ab (typescript-eslint passt nicht zu ESLint 10)
+**Änderungen:**
+- Ursache: `npm audit fix --force` hatte `typescript-eslint` von `^8.72.2` auf `^8.36.0` zurückgestuft; diese Version unterstützt nur ESLint 8/9 und TypeScript unter 5.9
+- `typescript-eslint` in `package.json` wieder auf `^8.72.2`, `package-lock.json` auf den Stand des letzten Commits zurückgeholt, Pakete mit `npm ci` neu installiert
+- Behalten: der Block `"allowScripts"` (erlaubt dem Mac-Paket `fsevents` sein Installationsskript, von `npm install-scripts approve` angelegt)
+- Die 7 Warnungen von `npm audit` betreffen `minimatch` innerhalb des Linters (läuft nur auf dem eigenen Rechner, nicht auf der Webseite); nichts zu tun. `npm audit fix --force` nicht verwenden
+- Geprüft: `npm ci`, lint, typecheck, build
+- Commit-Hash für Version 31 und 32 nachgetragen
+**Geänderte Dateien:** package.json, package-lock.json (unverändert gegenüber dem letzten Commit), PROTOKOLL.md
+**Commit-Message:** `[v33] chore: restore typescript-eslint after audit fix, allow fsevents install script`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 32 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Die Together, Schritt 5: Dokumentation
 **Änderungen:**
@@ -23,7 +36,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - PARTY-GAMES: Die Together als drittes Beispiel für viele Spieler; games/README: Zeile in der Tabelle; DIE-TOGETHER.md: Status oben
 **Geänderte Dateien:** docs/ROADMAP.md, docs/DECISIONS.md, docs/PARTY-GAMES.md, docs/DIE-TOGETHER.md, games/README.md, PROTOKOLL.md
 **Commit-Message:** `[v32] docs: document Die Together`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`a17ce2e`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/a17ce2e)
 
 ## Version 31 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Die Together, Schritt 4: Bot, damit man zu zweit gegen ihn spielen kann, und Cover; keine Töne (kommen später)
@@ -38,7 +51,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Commit-Hash für Version 30 nachgetragen
 **Geänderte Dateien:** games/die-together/host.js, games/die-together/config.js, games/die-together/scene.js, games/die-together/game.js, games/die-together/game.json, games/die-together/cover.svg (neu), games/die-together/banner.svg (neu), games/die-together/description.md (neu), news/2026-11-15-die-together-0-1.md (neu), src/features/games/api.ts, src/features/news/api.ts, docs/DECISIONS.md, docs/ADDING-A-GAME.md, PROTOKOLL.md
 **Commit-Message:** `[v31] feat(die-together): add bot, confetti, cover, banner and patch note`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`a17ce2e`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/a17ce2e)
 
 ## Version 30 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Die Together, Schritt 3b: Schießen, Leben, Anzeigen, zusammenrückende Wände und Rundenablauf
