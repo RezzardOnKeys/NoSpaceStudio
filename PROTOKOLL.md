@@ -15,6 +15,22 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 28 – 2026-11-15 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Die Together, Schritt 3a: Arena, Bewegung nach Rolle, Kamera und Abgleich übers Netz
+**Änderungen:**
+- Arena in 3D (30 × 30): karierter Boden, vier Außenwände, 33 Hindernisse (Kisten in zwei Höhen, Mauerstücke, Säulen, zwei niedrige Plattformen mit Rampe); jede Ecke hat dieselbe Deckung. Die Map steht einmal als Daten in `config.js`
+- Der Schiedsrichter (Host) bewegt jede Figur aus den Eingaben ihrer zwei Spieler: Laufen relativ zur Blickrichtung, Springen, Schwerkraft, Kollision mit Wänden und Hindernissen, Rampen hochlaufen, auf niedrige Kisten springen. Er schickt den Stand 20-mal pro Sekunde
+- Maus-Spieler: dreht die Sicht sofort lokal (Zeiger wird nach einem Klick gesperrt, Hinweis „Click to aim“). Tastatur-Spieler: WASD und Leertaste (Hinweis „Click to take the keyboard“, solange das Spiel keine Tasten bekommt). Beide sehen durch die Augen ihrer Figur
+- Comic-Figuren mit großen Augen und Pistole in Teamfarbe; die eigene Pistole ist im Bild zu sehen. Anzeige „You are: Mouse/Keyboard“ in Teamfarbe, Fadenkreuz
+- Regler „Mouse speed“ im Menü, wird im Browser gemerkt
+- Verlässt ein Spieler die Runde, ist seine Figur raus und der Partner schaut von oben zu; wer mitten in der Runde dazukommt, schaut ebenfalls zu
+- Vorläufig: Die Runde hat noch kein Ende. Der Host hat oben einen Knopf „Back to menu“; der Bot steht nur da. Schießen, Leben, Wände und Rundenablauf kommen in Schritt 3b
+- Getestet: Bewegung und Kollision des Schiedsrichters mit einem Skript (Wand, Rampe, Plattform, Kiste, Sprung); in Chrome mit zwei Tabs Start, gleiche Sicht bei beiden, Drehen und Laufen kommen beim anderen an, Verlassen, zurück ins Menü. Nicht getestet: die echte Maus-Sperre (im Test-Browser nicht möglich, Mausbewegung wurde nachgestellt), Safari, echte Party
+- Commit-Hash für Version 26 und 27 nachgetragen
+**Geänderte Dateien:** games/die-together/scene.js (neu), games/die-together/config.js, games/die-together/host.js, games/die-together/game.js, games/die-together/index.html, PROTOKOLL.md
+**Commit-Message:** `[v28] feat(die-together): add arena, movement by role and first person view`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 27 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Die Together, Schritt 2: Menü und Verbindung (Plätze, Start-Regeln, Hinweis beim Alleinstart)
 **Änderungen:**
@@ -30,7 +46,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Getestet in Chrome mit 2, 4 und 8 Tabs: Verbinden, Plätze, alle Start-Hinweise, Start, Rückkehr ins Menü, Tab schließen, Host geht weg, Bot bei 2 Spielern. Nicht getestet: Safari, echte Party über den Launcher
 **Geänderte Dateien:** games/die-together/index.html (neu), games/die-together/game.js (neu), games/die-together/host.js (neu), games/die-together/net.js (neu), games/die-together/config.js (neu), games/die-together/ticker.js (neu), games/die-together/vendor/ (neu, 5 Dateien), PROTOKOLL.md
 **Commit-Message:** `[v27] feat(die-together): add menu with seats and party connection`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`fe2401d`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/fe2401d)
 
 ## Version 26 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Die Together, Schritt 1: Der Launcher lernt, dass ein Spiel mindestens 2 Spieler und eine gerade Spielerzahl brauchen kann
@@ -43,7 +59,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Geprüft: lint, typecheck, build; im Browser als Gast mit einem vorübergehenden Test-Eintrag (danach wieder gelöscht): Karte „2–8“, grauer Knopf mit Hinweis, Fehlermeldung bei `minPlayers` 9; Blind Drop und WPM Trainer unverändert („1–2“, normaler Play-Knopf). Nicht getestet (braucht Konten): die Hinweise für den Host in einer echten Party
 **Geänderte Dateien:** src/features/games/players.ts (neu), src/features/games/api.ts, src/features/games/GameCard.tsx, src/features/party/GamePlayActions.tsx, src/pages/GamePage.tsx, src/lib/content.ts, src/types/models.ts, docs/ADDING-A-GAME.md, docs/PARTY-GAMES.md, PROTOKOLL.md
 **Commit-Message:** `[v26] feat(games): add minPlayers and evenPlayers for party-only games`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`fe2401d`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/fe2401d)
 
 ## Version 25 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Ideen für ein neues 3D-Spiel sammeln; Entscheidung für „Die Together“ (First-Person-Shooter, jede Figur von zwei Leuten gesteuert: Maus und Tastatur); Startprompt und Dateien für einen neuen Chat vorbereiten
