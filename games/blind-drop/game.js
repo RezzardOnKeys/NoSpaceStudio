@@ -5,7 +5,8 @@
 // guest reaches it over the network (net.js). The code path is the same.
 
 import {
-  ISLAND_R, SPEED, PLAYER_R, REVEAL_MS, DROP_AT, FALL_MS, COLORS, BLAST_SIZES,
+  SPEED, PLAYER_R, REVEAL_MS, DROP_AT, FALL_MS, COLORS, BLAST_SIZES, MODES, DEFAULT_MODE,
+  startRadius,
   spawnPoint, clampToIsland,
 } from './config.js';
 import { createView } from './scene.js';
@@ -37,11 +38,12 @@ let toHost = () => {}; // sends a message to the referee
 let myId = null;
 let roster = []; // [{ id, name, color, ready, isBot }]
 let blastSize = ''; // key of BLAST_SIZES chosen for the next match
+let matchMode = DEFAULT_MODE; // key of MODES chosen for the next match
 let ownerId = null; // the player who chooses the blast size (party host)
 let phase = 'connecting'; // connecting | lobby | look | action | locked | reveal | result
 let phaseEnd = 0;
 let phaseDur = 1;
-let radius = ISLAND_R;
+let radius = startRadius(DEFAULT_MODE);
 const me = { x: 0, z: 0 };
 let myBomb = null;
 let lastPosSent = 0;
@@ -96,8 +98,24 @@ function renderLobby() {
     palette.appendChild(b);
   }
 
-  // Blast size: only the host picks, everybody sees the choice.
+  // Mode and blast size: only the host picks, everybody sees the choice.
   const canPick = Boolean(mine) && myId === ownerId;
+  const modes = $('modePick');
+  modes.replaceChildren();
+  for (const [key, mode] of Object.entries(MODES)) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = key === matchMode ? 'size on' : 'size';
+    b.textContent = mode.label;
+    b.disabled = !canPick;
+    b.setAttribute('aria-pressed', String(key === matchMode));
+    b.onclick = () => toHost({ t: 'mode', mode: key });
+    modes.appendChild(b);
+  }
+  $('modeHint').textContent = MODES[matchMode].hint;
+  // Snipe has one fixed, tiny blast: nothing to choose there.
+  $('blastRow').hidden = matchMode === 'snipe';
+
   const sizes = $('blastSizes');
   sizes.replaceChildren();
   for (const [key, size] of Object.entries(BLAST_SIZES)) {
@@ -110,7 +128,7 @@ function renderLobby() {
     b.onclick = () => toHost({ t: 'blast', size: key });
     sizes.appendChild(b);
   }
-  $('blastNote').hidden = canPick || !mine;
+  $('hostNote').hidden = canPick || !mine;
 
   const list = $('players');
   list.replaceChildren();
@@ -143,7 +161,8 @@ function enterLobby(msg) {
   roster = msg.players;
   blastSize = msg.blast;
   ownerId = msg.ownerId;
-  radius = ISLAND_R;
+  setMode(msg.mode);
+  radius = startRadius(matchMode);
   myBomb = null;
   view.setRadius(radius, false);
   view.setAim('off');
@@ -159,6 +178,13 @@ function enterLobby(msg) {
   $('lobby').hidden = false;
   renderLobby();
   if (msg.note) toast(msg.note);
+}
+
+/** Classic or Snipe: switches the look of the scene and of the HUD. */
+function setMode(mode) {
+  matchMode = MODES[mode] ? mode : DEFAULT_MODE;
+  view.setTheme(matchMode);
+  document.body.classList.toggle('snipe', matchMode === 'snipe');
 }
 
 function syncCharacters() {
@@ -184,6 +210,7 @@ function onLook(msg) {
   myBomb = null;
   phaseDur = msg.dur;
   phaseEnd = performance.now() + msg.dur;
+  setMode(msg.mode);
   view.setBlast(msg.blastR);
   $('lobby').hidden = true;
   $('result').hidden = true;
@@ -253,7 +280,10 @@ function onReveal(msg) {
     }
     for (const id of msg.winners) view.cheer(id);
   });
-  if (msg.outcome === 'shrink') {
+  if (msg.outcome === 'miss') {
+    // Snipe: nobody was hit and nothing changes, the next round follows.
+    after(REVEAL_MS - 400, () => setBanner('MISSED!', 'Next round'));
+  } else if (msg.outcome === 'shrink') {
     after(REVEAL_MS - 400, () => {
       radius = msg.newRadius;
       view.setRadius(radius, true);

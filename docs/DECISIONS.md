@@ -444,16 +444,38 @@ changing numbers in one file.
 ## 36. Blind Drop: the host picks the blast size
 
 **Decision:** Before a match the party host (in practice mode: the player)
-picks the blast size in the lobby: Small (radius 1.8), Medium (2.7, the
-default) or Large (4, the fixed size of version 1.0). The guest sees the
+picks the blast size in the lobby: Small (radius 1), Medium (2, the
+default) or Large (3; version 1.0 had one fixed size of 4). The guest sees the
 choice but cannot change it. When the host changes it, the guest has to
 confirm "Ready" again. The size stays the same for the whole match and is
 kept for a rematch. The island still shrinks by 1.1 per round without a hit,
-but now down to 85 % of the chosen blast radius (1.5 / 2.3 / 3.4), so a bomb
+but now down to 85 % of the chosen blast radius (0.85 / 1.7 / 2.55), so a bomb
 in the middle always covers the whole island at the end.
 
 **Why:** The developers found the old blast too big. Tying the smallest
 island to the blast keeps the promise that every match ends: with Small it
 takes about two rounds more until that point, with Large nothing changes.
-Version 1.1.1 made Small and Medium smaller (from 2.5 and 3.2) after the
-developers played with them.
+The sizes were made smaller twice after the developers played with them:
+from 2.5 / 3.2 / 4 (1.1.0) to 1.8 / 2.7 / 4 (1.1.1) to 1 / 2 / 3 (1.1.2).
+
+## 37. Blind Drop: second mode "Snipe"
+
+**Decision:** The host picks a mode in the lobby next to the blast size:
+Classic (the game so far) or Snipe. In Snipe the blast radius is fixed at 1,
+the island has a fixed radius of 8 and never shrinks, so a match has no
+guaranteed end; the round counter is the only clock. A round without a hit
+ends with "MISSED!" and the next round starts. Bomb and "BOOM!" are the same
+as in Classic. The practice bot aims closer in Snipe, otherwise it would
+almost never hit.
+
+Snipe has its own look in the same comic style: night sky with a pale moon
+instead of the planets, a dark stone platform with rings and a cross painted
+on it like the view through a scope, a crosshair for aiming and a dark HUD
+with a red accent. The light is almost the same as in Classic on purpose, so
+the characters keep their strong colours; the darkness comes from ground and
+sky. All differences are in one table (`THEMES` in `scene.js`) and applied
+by `setTheme()`; the rules differences are in `config.js` and `host.js`.
+
+**Why:** The developers wanted a mode about precise guessing ("sniping")
+instead of a shrinking arena, and accepted that it can take long. A
+different look makes it obvious at a glance which mode is running.

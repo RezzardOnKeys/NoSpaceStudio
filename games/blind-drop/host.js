@@ -9,6 +9,7 @@
 
 import {
   MAX_PLAYERS, ISLAND_R, BLAST_SIZES, DEFAULT_BLAST, SHRINK_STEP, minIslandR, SPEED, PLAYER_R,
+  MODES, DEFAULT_MODE, SNIPE_BLAST_R, startRadius, MISS_MS,
   LOOK_MS, ACTION_MS, COLLECT_MS, REVEAL_MS, SHRINK_MS, COLORS,
   spawnPoint, clampToIsland,
 } from './config.js';
@@ -26,8 +27,16 @@ export function createHost() {
   /** Blast size for the next match; only the owner (party host) chooses it. */
   let blast = DEFAULT_BLAST;
   let blastR = BLAST_SIZES[DEFAULT_BLAST].r;
+  /** Game mode for the next match (see MODES); also chosen by the owner. */
+  let mode = DEFAULT_MODE;
   /** The first human who joined: the party host, or you in practice mode. */
   let ownerId = null;
+
+  /** After the owner changed a setting everybody else confirms again, so
+   *  nobody starts a match with settings they did not see. */
+  function unreadyOthers() {
+    for (const q of players) if (!q.isBot && q.id !== ownerId) q.ready = false;
+  }
 
   const isNumber = (v) => typeof v === 'number' && Number.isFinite(v);
   const colorTaken = (hex, except) => players.some((p) => p !== except && p.color === hex);
@@ -42,6 +51,7 @@ export function createHost() {
       t: 'lobby',
       note: note || '',
       blast,
+      mode,
       ownerId,
       players: players.map((p) => ({
         id: p.id, name: p.name, color: p.color, ready: p.ready, isBot: p.isBot,
@@ -130,8 +140,12 @@ export function createHost() {
     } else if (msg.t === 'blast' && phase === 'lobby') {
       if (p.id !== ownerId || !BLAST_SIZES[msg.size] || msg.size === blast) return;
       blast = msg.size;
-      // Everybody else confirms again, so nobody starts with a size they did not see.
-      for (const q of players) if (!q.isBot && q.id !== ownerId) q.ready = false;
+      unreadyOthers();
+      sendLobby();
+    } else if (msg.t === 'mode' && phase === 'lobby') {
+      if (p.id !== ownerId || !MODES[msg.mode] || msg.mode === mode) return;
+      mode = msg.mode;
+      unreadyOthers();
       sendLobby();
     } else if (msg.t === 'ready' && phase === 'lobby') {
       p.ready = Boolean(msg.ready);
@@ -151,8 +165,8 @@ export function createHost() {
 
   function startMatch() {
     round = 0;
-    radius = ISLAND_R;
-    blastR = BLAST_SIZES[blast].r;
+    radius = startRadius(mode);
+    blastR = mode === 'snipe' ? SNIPE_BLAST_R : BLAST_SIZES[blast].r;
     players.forEach((p, i) => {
       const spot = spawnPoint(i, players.length);
       p.x = spot.x;
@@ -173,7 +187,7 @@ export function createHost() {
     phase = 'look';
     deadline = lastTick + LOOK_MS;
     broadcast({
-      t: 'look', round, radius, blastR, dur: LOOK_MS,
+      t: 'look', round, radius, blastR, mode, dur: LOOK_MS,
       players: players.map((p) => ({ id: p.id, x: p.x, z: p.z })),
     });
   }
@@ -205,7 +219,11 @@ export function createHost() {
     let winners = [];
     let newRadius = radius;
     const moved = [];
-    if (hits.length === 0) {
+    if (hits.length === 0 && mode === 'snipe') {
+      // Snipe: nobody hit, nothing changes. Simply play the next round.
+      outcome = 'miss';
+      afterReveal = startRound;
+    } else if (hits.length === 0) {
       // Nobody hit: the island shrinks. Players outside are not out; they
       // are moved to the nearest point that is still on the island.
       outcome = 'shrink';
@@ -236,7 +254,8 @@ export function createHost() {
     }
 
     phase = 'reveal';
-    deadline = lastTick + REVEAL_MS + (outcome === 'shrink' ? SHRINK_MS : 0);
+    const pause = outcome === 'shrink' ? SHRINK_MS : outcome === 'miss' ? MISS_MS : 0;
+    deadline = lastTick + REVEAL_MS + pause;
     broadcast({ t: 'reveal', players: positions, bombs, hits, outcome, winners, newRadius, moved });
   }
 
@@ -252,9 +271,11 @@ export function createHost() {
   function planBot(bot) {
     const humans = players.filter((p) => !p.isBot);
     let bombSpot = randomSpot(radius);
-    if (humans.length > 0 && Math.random() < 0.65) {
+    // In Snipe the blast is tiny, so the bot aims closer and more often.
+    const sniping = mode === 'snipe';
+    if (humans.length > 0 && Math.random() < (sniping ? 0.9 : 0.65)) {
       const victim = humans[Math.floor(Math.random() * humans.length)];
-      const off = randomSpot(5);
+      const off = randomSpot(sniping ? 2.5 : 5);
       bombSpot = clampToIsland(victim.startX + off.x, victim.startZ + off.z, radius);
     }
     bot.ai = {

@@ -33,9 +33,12 @@ table whenever a phase is finished.
   in the game folder (`vendor/`). Tested by the developers with two real
   accounts and YouTube videos.
 - **The second game is in:** `games/blind-drop/` (Blind Drop, version
-  1.1.1), a 3D comic bomb duel on a floating island for 2 players, with a
+  1.2.0), a 3D comic bomb duel on a floating island for 2 players, with a
   practice mode against a bot when started alone. The host picks the blast
-  size (Small, Medium, Large) in the lobby (decision 36; Small and Medium were made smaller in 1.1.1). Rules and numbers are in `config.js`, the
+  size (Small, Medium, Large; radius 1, 2 or 3) and the mode in the lobby:
+  Classic (the island shrinks) or Snipe (blast radius 1, fixed island radius
+  8, never shrinks, own dark look); decisions 36 and 37. Rules and numbers
+  are in `config.js`, the
   referee (host) in `host.js`; see decision 32. three.js and PeerJS are
   shipped in the game folder (`vendor/`). Tested in Chrome with two tabs;
   **not yet tested in Safari and not yet with two real accounts in a party.**

@@ -59,7 +59,7 @@
         position: absolute;
         translate: -50% -50%;
         rotate: var(--tilt, -6deg);
-        font: 400 clamp(56px, 11vw, 150px) / 1 var(--boom-font);
+        font: 400 calc(clamp(56px, 11vw, 150px) * var(--k, 1)) / 1 var(--boom-font);
         letter-spacing: 0.03em;
         color: var(--c, var(--pop));
         -webkit-text-stroke: 5px var(--ink);
@@ -164,6 +164,32 @@
         display: none !important;
       }
 
+      /* ---- Snipe mode: night sky, dark HUD with a red accent ---- */
+      body.snipe {
+        background: radial-gradient(ellipse at 50% 35%, #17323d 0%, #0b1b24 45%, #04090d 100%);
+      }
+      body.snipe #banner,
+      body.snipe #round,
+      body.snipe #help {
+        background: #17212b;
+        color: #e9f0f7;
+        border-color: #05090d;
+        box-shadow: 6px 6px 0 #05090d;
+      }
+      body.snipe #timeBar {
+        background: #05090d;
+        border-color: #05090d;
+      }
+      body.snipe #timeFill,
+      body.snipe #banner.go #timeFill {
+        background: #ff3b3b;
+      }
+      body.snipe #count {
+        color: #ff3b3b;
+        -webkit-text-stroke-color: #05090d;
+        text-shadow: 5px 5px 0 #05090d;
+      }
+
       /* ---- Lobby and result panels ---- */
       .overlay {
         position: fixed;
@@ -242,7 +268,7 @@
         font: 700 20px/1 sans-serif;
         color: var(--ink);
       }
-      #blastSizes {
+      .picks {
         display: flex;
         justify-content: center;
         gap: 8px;
@@ -391,9 +417,14 @@
         <p id="mode" class="mode"></p>
         <h2 id="paletteLabel">Pick your colour</h2>
         <div id="palette" role="group" aria-labelledby="paletteLabel"></div>
-        <h2 id="blastLabel">Blast size</h2>
-        <div id="blastSizes" role="group" aria-labelledby="blastLabel"></div>
-        <p id="blastNote" class="note" hidden>The host picks the blast size.</p>
+        <h2 id="modeLabel">Mode</h2>
+        <div id="modePick" class="picks" role="group" aria-labelledby="modeLabel"></div>
+        <p id="modeHint" class="note"></p>
+        <div id="blastRow">
+          <h2 id="blastLabel">Blast size</h2>
+          <div id="blastSizes" class="picks" role="group" aria-labelledby="blastLabel"></div>
+        </div>
+        <p id="hostNote" class="note" hidden>The host picks mode and blast size.</p>
         <h2>Players</h2>
         <ul id="players"></ul>
         <button id="readyBtn" class="btn" type="button" disabled>Ready</button>

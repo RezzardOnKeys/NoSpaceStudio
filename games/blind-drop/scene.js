@@ -24,10 +24,28 @@ export function createView(canvas, labelLayer) {
   let shakeLeft = 0;
   let shakePower = 0;
 
-  scene.add(new THREE.HemisphereLight(0xffffff, 0x8a7bd8, 1.5));
+  const sky = new THREE.HemisphereLight(0xffffff, 0x8a7bd8, 1.5);
   const sun = new THREE.DirectionalLight(0xffffff, 2.4);
   sun.position.set(-7, 12, 6);
-  scene.add(sun);
+  scene.add(sky, sun);
+
+  // Two looks: "classic" (bright, grass) and "snipe" (night, stone range).
+  // Everything that differs between them is listed here and applied by
+  // setTheme() further down.
+  const THEMES = {
+    classic: {
+      skyTop: 0xffffff, skyBottom: 0x8a7bd8, skyPower: 1.5, sun: 0xffffff, sunPower: 2.4,
+      top: 0x66dd52, dirt: 0xa9623a, rock: 0x8576a3,
+      stars: [0xffffff, 0xfff3a6, 0x9fe8ff], starShare: 1,
+    },
+    snipe: {
+      // Almost the same light as classic, so the characters keep their
+      // strong colours; the darkness comes from the ground and the sky.
+      skyTop: 0xe9f0ff, skyBottom: 0x3a4660, skyPower: 1.4, sun: 0xf2f6ff, sunPower: 2.3,
+      top: 0x2c3644, dirt: 0x1d2430, rock: 0x131821,
+      stars: [0xc9dcff, 0x86a9cf, 0x6585ab], starShare: 0.45,
+    },
+  };
 
   // ---- Toon look -------------------------------------------------------
   // A tiny 3-pixel texture turns smooth shading into three hard steps.
@@ -85,6 +103,7 @@ export function createView(canvas, labelLayer) {
     g.fill();
     const sparkle = new THREE.CanvasTexture(c);
     const rnd = seeded(7);
+    space.userData.layers = [];
     for (const [count, size, color] of [
       [700, 5, 0xffffff],
       [160, 11, 0xfff3a6],
@@ -98,19 +117,20 @@ export function createView(canvas, labelLayer) {
       }
       const geo = new THREE.BufferGeometry();
       geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-      space.add(
-        new THREE.Points(
-          geo,
-          new THREE.PointsMaterial({
-            map: sparkle,
-            size,
-            color,
-            sizeAttenuation: false,
-            transparent: true,
-            depthWrite: false,
-          }),
-        ),
+      const layer = new THREE.Points(
+        geo,
+        new THREE.PointsMaterial({
+          map: sparkle,
+          size,
+          color,
+          sizeAttenuation: false,
+          transparent: true,
+          depthWrite: false,
+        }),
       );
+      layer.userData.count = count;
+      space.userData.layers.push(layer);
+      space.add(layer);
     }
   }
   // Two comic planets in the background.
@@ -123,6 +143,19 @@ export function createView(canvas, labelLayer) {
   const planetB = outlined(new THREE.Mesh(new THREE.SphereGeometry(6, 24, 16), toon(0x57c8ff)), 0.5);
   planetB.position.copy(backdrop(54, 22, 240));
   scene.add(planetA, planetB);
+  // Snipe shows one big pale moon instead.
+  const moon = outlined(new THREE.Mesh(new THREE.SphereGeometry(15, 32, 20), toon(0xdfe7f3)), 0.6);
+  moon.position.copy(backdrop(50, 20, 240));
+  for (const [x, y, r] of [[-5, 4, 3.2], [4, -3, 2.2], [6, 6, 1.5], [-3, -7, 1.8]]) {
+    const crater = new THREE.Mesh(new THREE.CircleGeometry(r, 20), flat(0xb9c4d6));
+    // Craters sit on the side of the moon that faces the camera.
+    const dir = new THREE.Vector3(x, 0, 0).addScaledVector(CAM_UP, y);
+    crater.position.copy(dir).addScaledVector(CAM_DIR, Math.sqrt(15 * 15 - x * x - y * y) + 0.05);
+    crater.lookAt(crater.position.clone().add(CAM_DIR));
+    moon.add(crater);
+  }
+  moon.visible = false;
+  scene.add(moon);
 
   // ---- Island ----------------------------------------------------------
   // Built at the starting size; shrinking only scales this group.
@@ -130,29 +163,67 @@ export function createView(canvas, labelLayer) {
   scene.add(island);
   let islandScale = 1;
   let islandTarget = 1;
+  const topMat = toon(0x66dd52);
+  /** Classic only: darker spots in the grass. */
+  const patches = new THREE.Group();
+  const dirtMat = toon(0xa9623a);
+  const rockMat = toon(0x8576a3);
+  /** Snipe only: lines painted on the stone like the view through a scope. */
+  const reticle = new THREE.Group();
   {
     const grass = outlined(
-      new THREE.Mesh(new THREE.CylinderGeometry(ISLAND_R, ISLAND_R, 0.36, 72), toon(0x66dd52)),
+      new THREE.Mesh(new THREE.CylinderGeometry(ISLAND_R, ISLAND_R, 0.36, 72), topMat),
       0.13,
     );
     grass.position.y = -0.18;
     island.add(grass);
 
+    const lineMat = flat(0x9db3c9, { transparent: true, opacity: 0.5, depthWrite: false });
+    const redMat = flat(0xff3b3b, { transparent: true, opacity: 0.85, depthWrite: false });
+    const flatMesh = (geo, mat) => {
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.rotation.x = -Math.PI / 2;
+      return mesh;
+    };
+    for (const share of [0.25, 0.5, 0.75, 0.97]) {
+      const r = ISLAND_R * share;
+      reticle.add(flatMesh(new THREE.RingGeometry(r - 0.04, r + 0.04, 96), lineMat));
+    }
+    for (const turn of [0, Math.PI / 2]) {
+      const line = flatMesh(new THREE.PlaneGeometry(ISLAND_R * 1.94, 0.08), lineMat);
+      line.rotation.z = turn;
+      reticle.add(line);
+    }
+    // Small tick marks along the cross, one per unit.
+    for (let i = 1; i < ISLAND_R; i++) {
+      for (const [x, z, turn] of [[i, 0, Math.PI / 2], [-i, 0, Math.PI / 2], [0, i, 0], [0, -i, 0]]) {
+        const tick = flatMesh(new THREE.PlaneGeometry(i % 5 === 0 ? 0.9 : 0.45, 0.06), lineMat);
+        tick.rotation.z = turn;
+        tick.position.set(x, 0, z);
+        reticle.add(tick);
+      }
+    }
+    reticle.add(flatMesh(new THREE.CircleGeometry(0.22, 20), redMat));
+    reticle.position.y = 0.025;
+    reticle.visible = false;
+    island.add(reticle);
+
     const rnd = seeded(42);
     const patchMat = flat(0x52c943);
+    island.add(patches);
     for (let i = 0; i < 9; i++) {
       const patch = new THREE.Mesh(new THREE.CircleGeometry(0.6 + rnd() * 1.1, 24), patchMat);
       const a = rnd() * Math.PI * 2;
       const d = Math.sqrt(rnd()) * ISLAND_R * 0.8;
       patch.rotation.x = -Math.PI / 2;
       patch.position.set(Math.cos(a) * d, 0.02, Math.sin(a) * d);
-      island.add(patch);
+      patches.add(patch);
     }
 
     const dirt = outlined(
       new THREE.Mesh(
         new THREE.CylinderGeometry(ISLAND_R * 0.995, ISLAND_R * 0.9, 1.3, 30),
-        toon(0xa9623a),
+        dirtMat,
       ),
       0.1,
     );
@@ -175,7 +246,7 @@ export function createView(canvas, labelLayer) {
     // Separate corners per triangle give the hard, faceted rock look.
     const facets = rockGeo.toNonIndexed();
     facets.computeVertexNormals();
-    const rock = outlined(new THREE.Mesh(facets, toon(0x8576a3)), 0.14);
+    const rock = outlined(new THREE.Mesh(facets, rockMat), 0.14);
     rock.position.y = -8.1;
     island.add(rock);
   }
@@ -184,10 +255,9 @@ export function createView(canvas, labelLayer) {
   const drifters = [];
   {
     const rnd = seeded(99);
-    const mat = toon(0x8576a3);
     for (let i = 0; i < 6; i++) {
       const rockMesh = outlined(
-        new THREE.Mesh(new THREE.DodecahedronGeometry(0.5 + rnd() * 0.7, 0), mat),
+        new THREE.Mesh(new THREE.DodecahedronGeometry(0.5 + rnd() * 0.7, 0), rockMat),
         0.08,
       );
       const a = rnd() * Math.PI * 2;
@@ -370,6 +440,8 @@ export function createView(canvas, labelLayer) {
     el.style.left = `${at.x}px`;
     el.style.top = `${at.y}px`;
     el.style.setProperty('--c', color);
+    // Small blasts get a smaller word, so it does not hide where they hit.
+    el.style.setProperty('--k', String(Math.min(1, 0.4 + blastR * 0.2)));
     el.style.setProperty('--tilt', `${Math.round(Math.random() * 24 - 12)}deg`);
     el.addEventListener('animationend', () => el.remove());
     labelLayer.appendChild(el);
@@ -566,6 +638,20 @@ export function createView(canvas, labelLayer) {
   aimDot.rotation.x = -Math.PI / 2;
   aimDot.position.y = 0.01;
   aim.group.add(aimDot);
+  // Snipe: a cross through the circle, like a scope. Built for radius 1 and
+  // scaled with the blast size.
+  const aimCross = new THREE.Group();
+  for (const turn of [0, Math.PI / 2]) {
+    for (const side of [-1, 1]) {
+      const bar = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.07), aim.ringMat);
+      bar.rotation.x = -Math.PI / 2;
+      bar.rotation.z = turn;
+      bar.position.set(turn ? 0 : side * 1.05, 0.01, turn ? side * 1.05 : 0);
+      aimCross.add(bar);
+    }
+  }
+  aimCross.visible = false;
+  aim.group.add(aimCross);
   aim.group.visible = false;
   scene.add(aim.group);
   let aimPlaced = false;
@@ -600,6 +686,30 @@ export function createView(canvas, labelLayer) {
     const geo = zoneGeometry(r);
     aim.disc.geometry = geo.disc;
     aim.rim.geometry = geo.ring;
+    aimCross.scale.setScalar(r);
+  }
+
+  /** Switches the whole look: 'classic' or 'snipe'. */
+  function setTheme(name) {
+    const snipe = name === 'snipe';
+    const t = snipe ? THEMES.snipe : THEMES.classic;
+    sky.color.set(t.skyTop);
+    sky.groundColor.set(t.skyBottom);
+    sky.intensity = t.skyPower;
+    sun.color.set(t.sun);
+    sun.intensity = t.sunPower;
+    topMat.color.set(t.top);
+    dirtMat.color.set(t.dirt);
+    rockMat.color.set(t.rock);
+    space.userData.layers.forEach((layer, i) => {
+      layer.material.color.set(t.stars[i]);
+      layer.geometry.setDrawRange(0, Math.round(layer.userData.count * t.starShare));
+    });
+    planetA.visible = planetB.visible = !snipe;
+    moon.visible = snipe;
+    reticle.visible = snipe;
+    patches.visible = !snipe;
+    aimCross.visible = snipe;
   }
 
   function setRadius(radius, animate) {
@@ -703,6 +813,6 @@ export function createView(canvas, labelLayer) {
   return {
     resize, update, setPlayers, resetPose, place, setVisible, setMoving,
     knockout, cheer, vanish, appear, teleport, dropBomb, setAim, groundAt,
-    setRadius, setBlast,
+    setRadius, setBlast, setTheme,
   };
 }

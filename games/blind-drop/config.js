@@ -8,14 +8,27 @@ export const MAX_PLAYERS = 2;
 
 /** Radius of the island at the start of a match (world units). */
 export const ISLAND_R = 10;
-/** Explosion sizes the host can pick in the lobby (radius in world units).
- *  "large" is one fifth of the starting island diameter. */
+/** Explosion sizes the host can pick in the lobby (radius in world units). */
 export const BLAST_SIZES = {
-  small: { label: 'Small', r: 1.8 },
-  medium: { label: 'Medium', r: 2.7 },
-  large: { label: 'Large', r: 4 },
+  small: { label: 'Small', r: 1 },
+  medium: { label: 'Medium', r: 2 },
+  large: { label: 'Large', r: 3 },
 };
 export const DEFAULT_BLAST = 'medium';
+
+/** Game modes the host can pick in the lobby.
+ *  classic: the island shrinks after every round without a hit.
+ *  snipe:   tiny blast, the island never shrinks; a match can take very long. */
+export const MODES = {
+  classic: { label: 'Classic', hint: 'The island shrinks until someone is hit.' },
+  snipe: { label: 'Snipe', hint: 'Tiny blast. The island never shrinks. Aim well!' },
+};
+export const DEFAULT_MODE = 'classic';
+/** Snipe: fixed island radius and fixed blast radius. */
+export const SNIPE_ISLAND_R = 8;
+export const SNIPE_BLAST_R = 1;
+/** Island radius at the start of a match in the given mode. */
+export const startRadius = (mode) => (mode === 'snipe' ? SNIPE_ISLAND_R : ISLAND_R);
 /** The island loses this much radius after every round without a hit ... */
 export const SHRINK_STEP = 1.1;
 /** ... down to this size. It is a bit smaller than a blast, so a bomb in the
@@ -33,6 +46,7 @@ export const ACTION_MS = 5000; // opponents invisible, walk and drop the bomb
 export const COLLECT_MS = 700; // host waits this long for the last positions
 export const REVEAL_MS = 3200; // reveal, bombs fall, explosions
 export const SHRINK_MS = 1700; // island shrinks, players are teleported
+export const MISS_MS = 900; // Snipe: short pause after a round without a hit
 
 // Moments inside the reveal (milliseconds after it starts).
 export const DROP_AT = 700; // bombs appear in the sky

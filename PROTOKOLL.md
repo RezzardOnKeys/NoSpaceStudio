@@ -15,6 +15,33 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 41 – 2026-11-15 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Blind Drop: neuer Modus „Snipe“ (Insel fest Radius 8, schrumpft nie, Explosionsradius 1, ohne Rundengrenze, Bombe und BOOM wie bei Classic) mit eigenem düsteren Look
+**Änderungen:**
+- Neue Zeile „Mode“ im Menü: Classic (wie bisher) oder Snipe; nur der Host wählt, im Übungsmodus man selbst; ändert der Host den Modus, muss der Gast wieder „Ready“ drücken
+- Snipe-Regeln: Explosionsradius fest 1, Insel fest Radius 8, kein Schrumpfen und keine Rundengrenze; nach einer Runde ohne Treffer steht „MISSED!“ und die nächste Runde beginnt; die Auswahl „Blast size“ ist in Snipe ausgeblendet
+- Snipe-Look: Nachthimmel mit blassem Mond statt der Planeten, dunkle Steinplatte mit aufgemalten Ringen und Fadenkreuz wie im Zielfernrohr, Fadenkreuz beim Zielen, dunkle Anzeige mit roter Akzentfarbe; die Figuren behalten ihre kräftigen Farben
+- Der Look wechselt schon im Menü, sobald der Host den Modus wählt
+- Der Bot zielt in Snipe näher am Spieler
+- Das „BOOM!“ ist bei kleinen Explosionen kleiner (gilt auch für Classic), damit man den Einschlag sieht
+- Spielversion 1.2.0 mit Patch Note; Beschreibung, ROADMAP und Entscheidung 37 ergänzt
+- Getestet: Übungsmodus in Snipe und Classic, zwei Tabs in Chrome (Gast kann den Modus nicht ändern, Look wechselt bei beiden, Runde 2 ohne Schrumpfen), Schiedsrichter-Simulation für alle Größen und Snipe. Nicht getestet: Safari und zwei echte Konten
+**Geänderte Dateien:** games/blind-drop/ (config.js, host.js, scene.js, game.js, index.html, game.json, description.md), news/2026-11-15-blind-drop-1-2.md (neu), docs/DECISIONS.md, docs/ROADMAP.md, PROTOKOLL.md
+**Commit-Message:** `[v41] feat(blind-drop): add Snipe mode with its own dark look`
+**GitHub-Commit:** _ausstehend_
+
+## Version 40 – 2026-11-15 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Blind Drop: Bombengrößen auf Large 3, Medium 2, Small 1 ändern (nur das und die dazugehörige Inselverkleinerung); Rückmeldung zu einem neuen Modus „Snipe“
+**Änderungen:**
+- Bombenradius: Small 1 (vorher 1,8), Medium 2 (vorher 2,7), Large 3 (vorher 4); Medium bleibt Standard
+- Die kleinste Insel richtet sich wie bisher nach der Größe (85 %): jetzt 0,85 / 1,7 / 2,55
+- Spielversion 1.1.2 mit Patch Note; Entscheidung 36 und ROADMAP angepasst; Commit-Hash für Version 39 nachgetragen
+- Mit der Simulation geprüft, dass jede Größe sauber schrumpft und eine Partie endet
+- Der Modus „Snipe“ ist noch nicht gebaut, dazu gab es nur Rückmeldung und Fragen
+**Geänderte Dateien:** games/blind-drop/config.js, games/blind-drop/game.json, news/2026-11-15-blind-drop-1-1-2.md (neu), docs/DECISIONS.md, docs/ROADMAP.md, PROTOKOLL.md
+**Commit-Message:** `[v40] fix(blind-drop): set blast sizes to 1, 2 and 3`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 39 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Auf den neuesten Stand bringen; danach die Blind-Drop-Version in der ROADMAP anpassen
 **Änderungen:**
@@ -22,7 +49,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Commit-Hash für Version 38 nachgetragen
 **Geänderte Dateien:** docs/ROADMAP.md, PROTOKOLL.md
 **Commit-Message:** `[v39] docs(roadmap): update Blind Drop to version 1.1.1`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`5e72aa0`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/5e72aa0)
 
 ## Version 38 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Blind Drop: Bombengrößen anpassen, Large bleibt, Medium wird 2,7 und Small 1,8

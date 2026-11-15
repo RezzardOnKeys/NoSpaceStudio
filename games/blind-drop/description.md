@@ -12,7 +12,12 @@ round, and you cannot see where your opponent goes.
   crowded fast.
 
 Pick one of eight colours for your character and your explosion. The host
-picks the blast size: **Small**, **Medium** or **Large**.
+picks the mode and the blast size:
+
+- **Classic:** the island shrinks after every round without a hit. Blast
+  size **Small**, **Medium** or **Large**.
+- **Snipe:** a tiny blast on a dark island that never shrinks. The match
+  goes on until somebody lands a real hit.
 
 **Play with a friend:** start a party in the launcher and choose this game,
 you are connected right away. **Play alone:** practice against a bot.
