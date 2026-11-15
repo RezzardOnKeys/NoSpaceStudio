@@ -365,15 +365,14 @@ have play buttons; they open the game page, which is the only place that
 starts a game. In a party (more than one member) the host only gets "Play
 with party". The button is greyed out, with the reason below it, for
 members ("Only the party host can start games."), for single player games
-and for games with a smaller `maxPlayers` than the party. While a party game
-runs, the launcher shows the party's pictures in the player bar instead of
-the "Party" badge. Games no longer need to show the party's pictures
-themselves; the WPM trainer dropped its own and moved its video controls
-into a thin bar at the top of the game.
+and for games with a smaller `maxPlayers` than the party. The WPM trainer
+moved its video controls and its party pictures into one thin bar at the top
+of the game (pictures left, controls right); the player bar of the launcher
+keeps its "Party" badge. For a short time the launcher showed the pictures
+in its own bar, but right above the game's bar they were shown twice.
 
 **Why:** A play button on a card started the game alone, and the party did
 not come along, which surprised the developers. A party is for playing
-together. The launcher already knows the members, so it can show them for
-every game. The video controls stay inside the game (not in the launcher's
-bar) because the game runs on another origin by design (decision 13); the
+together. The pictures and video controls stay inside the game (not in the
+launcher's bar) because the game runs on another origin by design (decision 13); the
 launcher should not need to know how a single game works (decision 25).

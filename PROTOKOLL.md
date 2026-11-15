@@ -15,6 +15,19 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 24 – 2026-11-15 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** WPM Trainer: Profilbilder oben links in die Spiel-Leiste statt „Connected with …“; in der Launcher-Leiste wieder „Party“ statt der Bilder
+**Änderungen:**
+- WPM Trainer 1.5.0: Die Party steht als überlappende Profilbilder oben links in der Spiel-Leiste (links Bilder, rechts Video-Knöpfe); der Status-Text ist weg
+- Gestrichelter Kreis mit „?“, solange der Mitspieler fehlt; grüner Ring für den Host, wenn der Gast bereit ist; Name beim Darüberfahren
+- Die Spieler tauschen wieder ihre Profilbild-Links aus (nur geprüfte `https://`-Links)
+- Player im Launcher: wieder das „Party“-Abzeichen statt der Bilder (sonst doppelt); die dafür gebaute Komponente `PartyAvatars` ist wieder entfernt
+- Patch Note „WPM Trainer 1.5“, Punkt zu den Bildern aus „Launcher 1.8“ entfernt; Doku: ROADMAP, PARTY-GAMES, Entscheidung 34 angepasst; Commit-Hash für Version 22 und 23 nachgetragen
+- Geprüft: lint, typecheck, build; zwei Tabs (Host und Gast) mit Bild und Anfangsbuchstabe, grüner Ring bei „bereit“
+**Geänderte Dateien:** games/wpm-trainer/index.html, games/wpm-trainer/game.json, news/2026-11-15-wpm-trainer-1-5.md (neu), news/2026-11-15-launcher-1-8.md, src/pages/PlayerPage.tsx, src/features/party/PartyAvatars.tsx (gelöscht), docs/ROADMAP.md, docs/PARTY-GAMES.md, docs/DECISIONS.md, PROTOKOLL.md
+**Commit-Message:** `[v24] feat(wpm-trainer): party pictures in the top bar, party badge back in the player bar`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 23 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Play-Knöpfe in Store und Library entfernen (Spiele nur über die Spielseite starten), in einer Party kein „Play alone“ mehr und grauer Knopf mit Grund für Mitglieder, zu große Partys und Einzelspieler-Spiele; WPM Trainer: Party-Bilder in die Leiste oben, Video-Knöpfe in eine Leiste oben
 **Änderungen:**
@@ -27,7 +40,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Geprüft: lint, typecheck, build; Store und Spielseite als Gast; WPM Trainer allein und mit zwei Tabs (Host und Gast) inkl. „… is ready“ und Handy-Breite. Nicht getestet (braucht Konten): die grauen Knöpfe in einer echten Party und die Profilbilder in der Player-Leiste
 **Geänderte Dateien:** src/features/games/GameCard.tsx, src/features/library/ContinueCard.tsx, src/features/library/PlayedGameRow.tsx, src/features/party/GamePlayActions.tsx, src/features/party/PartyAvatars.tsx (neu), src/pages/PlayerPage.tsx, games/wpm-trainer/index.html, games/wpm-trainer/game.json, news/2026-11-15-wpm-trainer-1-4.md (neu), news/2026-11-15-launcher-1-8.md (neu), docs/PARTY-GAMES.md, docs/ROADMAP.md, docs/DECISIONS.md, PROTOKOLL.md
 **Commit-Message:** `[v23] feat(party): start games only from the game page, party avatars in the player bar, WPM video bar at the top`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`2807719`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/2807719)
 
 ## Version 22 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Lohnt sich ein neuer Chat? Falls ja: Doku auf den neuesten Stand bringen, damit ein neuer Chat alles versteht, und einen Startprompt schreiben
@@ -38,7 +51,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Commit-Hash für Version 21 nachgetragen
 **Geänderte Dateien:** docs/ROADMAP.md, docs/DECISIONS.md, CLAUDE.md, games/README.md, PROTOKOLL.md
 **Commit-Message:** `[v22] docs: update project state for a new session`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`2807719`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/2807719)
 
 ## Version 21 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** WPM Trainer: Anzeige oben links ganz entfernen, Party-Mitglieder als überlappende Avatare unten links, Video-Knöpfe von oben rechts nach unten rechts im Karten-Stil, bei Revanche erst Einstellungen ändern können

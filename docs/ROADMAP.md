@@ -21,13 +21,13 @@ table whenever a phase is finished.
 ### Where things stand
 
 - **The first game is in:** `games/wpm-trainer/` (99-Finger WPM Trainer by
-  Balls, version 1.4.0), a typing race for 2 players. Playing together works
+  Balls, version 1.5.0), a typing race for 2 players. Playing together works
   **only through a party** in the launcher; the old room codes and invite
   links are gone (decision 33). Started alone it is single player. A thin
   bar at the top of the game holds the video controls (right) and, in a
-  party, the status in words (left: "Waiting…", "Connected with …",
-  "… is ready"); the party's pictures are in the launcher's bar above it
-  (decision 34). The host starts
+  party, the members as overlapping pictures (left; a dashed circle while
+  the other player is missing, a green ring when the guest is ready; see
+  decision 34). The host starts
   each round with "Start round" and can change time, goal and video before
   every rematch. Screen recording was removed on request; PeerJS is shipped
   in the game folder (`vendor/`). Tested by the developers with two real

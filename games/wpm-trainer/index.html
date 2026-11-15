@@ -67,12 +67,24 @@
     flex: 0 0 auto; display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 6px 12px;
     background: var(--panel); border-bottom: 1px solid rgba(255, 255, 255, .08);
   }
-  .pstatus { display: flex; align-items: center; gap: 8px; min-width: 0; font-size: 13px; font-weight: 600; color: var(--text); }
-  .pstatus[hidden] { display: none; }
-  .pstatus span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .pdot { width: 9px; height: 9px; border-radius: 50%; flex: none; background: var(--accent); }
-  .pstatus.ok .pdot { background: var(--good); }
-  .pstatus.ok { color: var(--good); }
+  /* Party members: overlapping profile pictures, like "Party" in the launcher. */
+  .pstack { display: flex; align-items: center; flex: none; }
+  .pstack[hidden] { display: none; }
+  .pava {
+    width: 32px; height: 32px; border-radius: 50%; flex: none; position: relative;
+    display: inline-flex; align-items: center; justify-content: center; overflow: hidden;
+    font-size: 14px; font-weight: 700; text-transform: uppercase; user-select: none;
+    box-shadow: 0 0 0 2px var(--panel); background: var(--panel2); color: var(--muted);
+  }
+  .pava + .pava { margin-left: -8px; }
+  .pava img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .pava.c0 { background: #2a2552; color: #a594ff; }
+  .pava.c1 { background: #17322c; color: #3ecf8e; }
+  .pava.c2 { background: #1a3040; color: #4cc2ff; }
+  .pava.c3 { background: #37301f; color: #f5b544; }
+  .pava.c4 { background: #3a1f28; color: #f0566a; }
+  .pava.empty { border: 2px dashed #3a4152; background: var(--bg); font-size: 13px; }
+  .pava.ready { box-shadow: 0 0 0 2px var(--panel), 0 0 0 4px var(--good); }
   .vctl { display: flex; align-items: center; gap: 6px; margin-left: auto; min-width: 0; }
   .vnote { font-size: 12px; color: var(--muted); white-space: nowrap; }
   .vnote[hidden] { display: none; }
@@ -211,7 +223,7 @@
 </head>
 <body>
 <div class="topbar">
-  <div class="pstatus" id="pStatus" role="status" hidden><i class="pdot" aria-hidden="true"></i><span id="pStatusText"></span></div>
+  <div class="pstack" id="partyStack" hidden></div>
   <div class="vctl" role="group" aria-label="Video">
     <span class="vnote" id="vNote" hidden>The host picks the video</span>
     <input id="ytUrl" class="yt-in" placeholder="Paste a YouTube link…" aria-label="YouTube link" spellcheck="false" autocomplete="off">
@@ -1043,13 +1055,13 @@ const PEER_PREFIX = 'wpm10f-room-';
 var Room = {
   active: false, role: null, code: '', peer: null, conn: null, connected: false,
   inRound: false, counting: false, oppResult: null, myResult: null,
-  oppReady: false, cdTimer: null, oppName: ''
+  oppReady: false, cdTimer: null, oppName: '', oppAvatar: ''
 };
 
 // ---------------------------------------------------------------------
 //  NoSpaceStudio launcher integration
 //  PARTY: the launcher started this game for a party and passes the room
-//  in the address: #party=<code>&role=host|guest&name=<username>
+//  in the address: #party=<code>&role=host|guest&name=<username>&avatar=<picture link>
 //  The game then connects by itself. There is no other way to play together:
 //  the old "create room / enter code" controls are gone.
 //  Details: docs/PARTY-GAMES.md in the NoSpaceStudio repository.
@@ -1059,9 +1071,14 @@ const PARTY = (() => {
   const code = (h.get('party') || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
   const role = h.get('role');
   if (!code || (role !== 'host' && role !== 'guest')) return null;
-  return { code, role, name: (h.get('name') || '').slice(0, 20) };
+  return { code, role, name: (h.get('name') || '').slice(0, 20), avatar: safeImageUrl(h.get('avatar')) };
 })();
 const MY_NAME = PARTY ? PARTY.name : '';
+// A profile picture is only accepted as a normal https link (or http on localhost).
+function safeImageUrl(u) {
+  u = String(u || '');
+  return /^https:\/\/[^\s"'<>]+$/.test(u) || /^http:\/\/(localhost|127\.0\.0\.1)[:/][^\s"'<>]*$/.test(u) ? u.slice(0, 500) : '';
+}
 const oppName = () => Room.oppName || 'Opponent';
 
 // --- gemeinsamer Zufallsgenerator (gleiche Wörter für beide) ---
@@ -1090,23 +1107,33 @@ function loadPeerLib() {
   return peerLib;
 }
 
-// ---------- Party status (top left) ----------
-// The launcher shows the party's pictures in its own bar. The game says in
-// words what is going on: waiting, connected, or that the other one is ready.
-// Between rounds the start button or a waiting note lies over the words.
+// ---------- Party pictures (top left) ----------
+// Party members as overlapping pictures in the bar at the top. A dashed
+// circle means the other player is not there yet; a green ring tells the
+// host that the guest is ready. Between rounds the start button or a
+// waiting note lies over the words.
+function avatarHtml(name, url, extra) {
+  const title = esc(name);
+  if (url) return `<span class="pava ${extra}" title="${title}"><img src="${esc(url)}" alt="${title}"></span>`;
+  const sum = Array.from(name).reduce((n, ch) => n + ch.charCodeAt(0), 0);
+  return `<span class="pava c${sum % 5} ${extra}" title="${title}" role="img" aria-label="${title}">${esc(name.charAt(0))}</span>`;
+}
+
 function roomUi() {
-  $('pStatus').hidden = !PARTY;
+  const stack = $('partyStack');
+  stack.hidden = !PARTY;
   if (!PARTY) return;
   const playing = Room.inRound || Room.counting;
   const iAmHost = Room.role === 'host';
-  const ready = Room.connected && !playing && iAmHost && Room.oppReady;
-  let text;
-  if (!Room.connected) text = iAmHost ? 'Waiting for the other player…' : 'Waiting for the host…';
-  else if (ready) text = `${oppName()} is ready`;
-  else if (playing) text = `Racing ${oppName()}`;
-  else text = `Connected with ${oppName()}`;
-  $('pStatusText').textContent = text;
-  $('pStatus').classList.toggle('ok', Room.connected);
+  let html = avatarHtml(MY_NAME || 'You', PARTY.avatar, '');
+  if (Room.connected) {
+    const ready = !playing && iAmHost && Room.oppReady;
+    html += avatarHtml(oppName() + (ready ? ' (ready)' : ''), Room.oppAvatar, ready ? 'ready' : '');
+  } else {
+    const wait = iAmHost ? 'Waiting for the other player' : 'Waiting for the host';
+    html += `<span class="pava empty" title="${wait}" role="img" aria-label="${wait}">?</span>`;
+  }
+  stack.innerHTML = html;
 
   // The host chooses the video; tell the guest why the buttons are grey.
   $('vNote').hidden = Room.role !== 'guest';
@@ -1181,7 +1208,7 @@ function setupConn(c) {
   c.on('open', () => {
     Room.connected = true; Room.oppResult = null; Room.oppReady = false;
     roomInfo(`${oppName()} connected 🎉`, 2500);
-    send({ t: 'hello', name: MY_NAME });
+    send({ t: 'hello', name: MY_NAME, avatar: PARTY ? PARTY.avatar : '' });
     if (Room.role === 'host') roomSendVideo();
     roomUi(); roomLockControls();
     if (!S.started || S.finished) roomLobby();
@@ -1205,7 +1232,7 @@ function roomCleanup() {
   clearInterval(Room.cdTimer);
   try { if (Room.conn) Room.conn.close(); } catch (e) {}
   try { if (Room.peer) Room.peer.destroy(); } catch (e) {}
-  Object.assign(Room, { active: false, role: null, code: '', peer: null, conn: null, connected: false, inRound: false, counting: false, oppResult: null, myResult: null, oppReady: false, oppName: '' });
+  Object.assign(Room, { active: false, role: null, code: '', peer: null, conn: null, connected: false, inRound: false, counting: false, oppResult: null, myResult: null, oppReady: false, oppName: '', oppAvatar: '' });
   $('countdown').classList.remove('show');
 }
 
@@ -1250,7 +1277,7 @@ function onRoomMsg(m) {
     case 'ready':
       Room.oppReady = true; roomUi(); break;
     case 'hello':
-      Room.oppName = String(m.name || '').slice(0, 20); roomUi(); renderVs(); break;
+      Room.oppName = String(m.name || '').slice(0, 20); Room.oppAvatar = safeImageUrl(m.avatar); roomUi(); renderVs(); break;
   }
 }
 

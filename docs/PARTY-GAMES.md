@@ -20,8 +20,6 @@ Party-Mitglieder automatisch zusammen darin landen.
    Mitglieder sehen einen grauen Knopf mit „Only the party host can start
    games.“
 5. Bei allen anderen Mitgliedern öffnet sich dasselbe Spiel **automatisch**.
-   In der Leiste über dem Spiel zeigt der Launcher die Profilbilder der
-   Party.
    Wer gerade nicht im Launcher war, sieht beim nächsten Mal „Your party is
    playing … · Join game“.
 6. Geht der Host zurück in den Launcher, ist das Party-Spiel beendet. Die
@@ -84,11 +82,10 @@ const isHost = h.get('role') === 'host';
 ```
 
 Jedes Spiel bekommt nur den **eigenen** Namen und das **eigene** Profilbild.
-Die Profilbilder der Party muss ein Spiel nicht selbst zeigen: Das macht der
-Launcher in seiner Leiste über dem Spiel. Wer die Namen der Mitspieler
-braucht, schickt den eigenen Namen nach dem Verbinden an die anderen (im WPM
-Trainer die Nachricht `hello`). Will ein Spiel doch Bilder von Mitspielern
-zeigen, den Link vorher prüfen (nur `https://…`).
+Wer die Mitspieler anzeigen will, schickt beides nach dem Verbinden an die
+anderen (im WPM Trainer die Nachricht `hello`). Einen Bild-Link von einem
+Mitspieler vor dem Anzeigen prüfen (nur `https://…`), siehe `safeImageUrl` in
+`games/wpm-trainer/index.html`.
 
 ### 3. Damit verbinden, ohne eigenes Einlade-Menü
 
