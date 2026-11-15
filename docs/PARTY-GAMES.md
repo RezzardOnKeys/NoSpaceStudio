@@ -14,15 +14,23 @@ Party-Mitglieder automatisch zusammen darin landen.
 3. Auf der Party-Seite ist jeder als **Host** (Krone) oder **Member**
    gekennzeichnet. Der Host kann Mitglieder **entfernen** und einen anderen
    zum **Host machen**.
-4. Der **Host** startet ein Mehrspieler-Spiel auf dessen Spielseite mit
-   „Play with party“. Daneben gibt es „Play alone“ für eine Runde allein.
+4. Spiele werden nur auf ihrer **Spielseite** gestartet (Store und Library
+   führen dorthin). In einer Party hat der **Host** dort nur „Play with
+   party“, allein spielen geht in einer Party nicht.
+   Mitglieder sehen einen grauen Knopf mit „Only the party host can start
+   games.“
 5. Bei allen anderen Mitgliedern öffnet sich dasselbe Spiel **automatisch**.
+   In der Leiste über dem Spiel zeigt der Launcher die Profilbilder der
+   Party.
    Wer gerade nicht im Launcher war, sieht beim nächsten Mal „Your party is
    playing … · Join game“.
 6. Geht der Host zurück in den Launcher, ist das Party-Spiel beendet. Die
    Party selbst bleibt bestehen.
-7. Einzelspieler-Spiele kann man auch in einer Party starten. Auf der
-   Spielseite steht dann „Single player only. Your party will not join you.“
+7. Einzelspieler-Spiele und Spiele, für die die Party zu groß ist, kann der
+   Host nicht starten: Der Knopf ist grau und darunter steht der Grund
+   („Single player only. Leave the party to play it.“ bzw. „Up to 2 players.
+   Your party has 3.“). Wer allein ist (auch allein in einer Party), sieht
+   den normalen „Play“-Knopf.
 
 Eine Party hat höchstens 8 Mitglieder. Verlässt der Host die Party, wird das
 Mitglied, das am längsten dabei ist, neuer Host.
@@ -76,10 +84,11 @@ const isHost = h.get('role') === 'host';
 ```
 
 Jedes Spiel bekommt nur den **eigenen** Namen und das **eigene** Profilbild.
-Wer die Mitspieler anzeigen will, schickt beides nach dem Verbinden an die
-anderen (im WPM Trainer die Nachricht `hello`). Einen Bild-Link von einem
-Mitspieler vor dem Anzeigen prüfen (nur `https://…`), siehe `safeImageUrl` in
-`games/wpm-trainer/index.html`.
+Die Profilbilder der Party muss ein Spiel nicht selbst zeigen: Das macht der
+Launcher in seiner Leiste über dem Spiel. Wer die Namen der Mitspieler
+braucht, schickt den eigenen Namen nach dem Verbinden an die anderen (im WPM
+Trainer die Nachricht `hello`). Will ein Spiel doch Bilder von Mitspielern
+zeigen, den Link vorher prüfen (nur `https://…`).
 
 ### 3. Damit verbinden, ohne eigenes Einlade-Menü
 

@@ -1,7 +1,5 @@
-import { Play } from 'lucide-react';
 import { Link } from 'react-router';
 
-import { buttonStyles } from '@/components/ui/button-styles';
 import { EngineBadge } from '@/features/games/EngineBadge';
 import { formatPlaytime, formatRelative } from '@/lib/format';
 import { paths } from '@/routes/paths';
@@ -14,7 +12,11 @@ interface PlayedGameRowProps {
   maxSeconds?: number;
 }
 
-/** One game in a playtime list: cover, title, playtime and last played. */
+/**
+ * One game in a playtime list: cover, title, playtime and last played. The
+ * whole row links to the game page; games are started there, so a party
+ * always comes along.
+ */
 export function PlayedGameRow({ played, maxSeconds }: PlayedGameRowProps) {
   const { game } = played;
   const share = maxSeconds ? Math.max(4, (played.totalSeconds / maxSeconds) * 100) : null;
@@ -51,14 +53,6 @@ export function PlayedGameRow({ played, maxSeconds }: PlayedGameRowProps) {
           </div>
         )}
       </div>
-      <Link
-        to={paths.play(game.slug)}
-        aria-label={`Play ${game.title}`}
-        className={buttonStyles({ variant: 'secondary', className: 'relative z-10' })}
-      >
-        <Play className="size-4 fill-current" aria-hidden="true" />
-        <span className="hidden sm:inline">Play</span>
-      </Link>
     </li>
   );
 }

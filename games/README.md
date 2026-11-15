@@ -11,7 +11,7 @@ these files when it is built. Step by step:
 | Folder | What it is |
 | --- | --- |
 | `_template/` | Starting point for a new game. Copy it and rename the copy |
-| `wpm-trainer/` | 99-Finger WPM Trainer (typing race, 2 players, PeerJS in `vendor/`) |
+| `wpm-trainer/` | 99-Finger WPM Trainer (typing race, 2 players through a party only, PeerJS in `vendor/`) |
 | `blind-drop/` | Blind Drop (3D bomb duel, 2 players or practice against a bot; three.js and PeerJS in `vendor/`) |
 
 ## Rules for a game

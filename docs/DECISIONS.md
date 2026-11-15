@@ -339,3 +339,41 @@ data is not on their computer. The price: the host could cheat (their
 browser knows everything), which is acceptable among friends. Unmodified
 library files can be compared with the official release at any time;
 Cloudflare compresses them on the way to the player.
+
+## 33. WPM trainer: multiplayer only through the party; games get the avatar
+
+**Decision:** The WPM trainer no longer has its own "Create room / enter
+code / copy link" controls, and `?room=CODE` links no longer work. Two
+players race only when the launcher starts the game for a party. The
+launcher now also passes a public link to the player's own profile picture
+(`avatar` after `#`); the players send name and picture to each other when
+they connect, so the game can show the party as overlapping pictures like
+the launcher does. During a round the opponent's speed is not shown. After
+a round both return to a lobby, where the host may change the settings
+before starting the next round.
+
+**Why:** The developers want one way to play together, the party. Two
+parallel ways (party and room codes) confused players. Showing the live
+speed of the opponent was distracting. The picture link is public anyway
+(Supabase storage), so passing it to the game reveals nothing new; the game
+accepts only plain `https://` links before showing one.
+
+## 34. Games start only on their page; in a party nobody plays alone
+
+**Decision:** The store cards and the library (cards and list) no longer
+have play buttons; they open the game page, which is the only place that
+starts a game. In a party (more than one member) the host only gets "Play
+with party". The button is greyed out, with the reason below it, for
+members ("Only the party host can start games."), for single player games
+and for games with a smaller `maxPlayers` than the party. While a party game
+runs, the launcher shows the party's pictures in the player bar instead of
+the "Party" badge. Games no longer need to show the party's pictures
+themselves; the WPM trainer dropped its own and moved its video controls
+into a thin bar at the top of the game.
+
+**Why:** A play button on a card started the game alone, and the party did
+not come along, which surprised the developers. A party is for playing
+together. The launcher already knows the members, so it can show them for
+every game. The video controls stay inside the game (not in the launcher's
+bar) because the game runs on another origin by design (decision 13); the
+launcher should not need to know how a single game works (decision 25).

@@ -21,8 +21,17 @@ table whenever a phase is finished.
 ### Where things stand
 
 - **The first game is in:** `games/wpm-trainer/` (99-Finger WPM Trainer by
-  Balls), a typing race for 2 players. Screen recording was removed on
-  request; PeerJS is shipped in the game folder (`vendor/`).
+  Balls, version 1.4.0), a typing race for 2 players. Playing together works
+  **only through a party** in the launcher; the old room codes and invite
+  links are gone (decision 33). Started alone it is single player. A thin
+  bar at the top of the game holds the video controls (right) and, in a
+  party, the status in words (left: "Waiting…", "Connected with …",
+  "… is ready"); the party's pictures are in the launcher's bar above it
+  (decision 34). The host starts
+  each round with "Start round" and can change time, goal and video before
+  every rematch. Screen recording was removed on request; PeerJS is shipped
+  in the game folder (`vendor/`). Tested by the developers with two real
+  accounts and YouTube videos.
 - **The second game is in:** `games/blind-drop/` (Blind Drop), a 3D comic
   bomb duel on a floating island for 2 players, with a practice mode against
   a bot when started alone. Rules and numbers are in `config.js`, the
@@ -47,7 +56,10 @@ table whenever a phase is finished.
   members' pictures stacked next to it on every page). Invite friends, kick
   members, pass the host role on; the host starts a multiplayer game and all
   members are pulled into it.
-  Single player games say that the party does not come along. How a game
+  Games are started only on their game page (store and library link there).
+  In a party nobody plays alone: the host only gets "Play with party";
+  members, single player games and games that are too small for the party
+  get a grey button with the reason (decision 34). How a game
   supports parties: [PARTY-GAMES.md](PARTY-GAMES.md).
 - The database schema is in `supabase/migrations/` (0001 to 0008). Each file
   is run once in the Supabase SQL editor. **0001 to 0008 have all been run**
@@ -246,7 +258,5 @@ Collected in conversations with the developers; nothing decided yet.
 - `brand.contactEmail` is still the placeholder `contact@example.com`.
 - Fullscreen in the player and Safari in general have not been tested yet.
   This includes Blind Drop (3D with WebGL), which was only tested in Chrome.
-- The WPM trainer loads YouTube videos inside the sandboxed player. Check
-  once with a real link that videos play.
 - Route-level lazy loading is still to do (the bundle is one large chunk).
 - `eslint-plugin-jsx-a11y` can be added once it supports ESLint 10.

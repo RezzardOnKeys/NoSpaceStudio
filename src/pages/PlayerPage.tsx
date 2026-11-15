@@ -1,8 +1,7 @@
-import { ArrowLeft, Clock, Ghost, LoaderCircle, Maximize, Minimize, Users } from 'lucide-react';
+import { ArrowLeft, Clock, Ghost, LoaderCircle, Maximize, Minimize } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router';
 
-import { Badge } from '@/components/ui/Badge';
 import { buttonStyles } from '@/components/ui/button-styles';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
@@ -10,6 +9,7 @@ import { IconButton } from '@/components/ui/IconButton';
 import { useAuth } from '@/features/auth/auth-context';
 import { EngineBadge } from '@/features/games/EngineBadge';
 import { useGame } from '@/features/games/queries';
+import { PartyAvatars } from '@/features/party/PartyAvatars';
 import { usePartyLaunch, useStopPartyGameOnLeave } from '@/features/party/usePartyLaunch';
 import { GameFrame } from '@/features/player/GameFrame';
 import { useFullscreen } from '@/features/player/useFullscreen';
@@ -57,12 +57,8 @@ function Player(props: PlayerProps) {
         <div className="flex min-w-0 flex-1 items-center gap-2.5">
           <h1 className="truncate text-sm font-semibold">{game.title}</h1>
           <EngineBadge engine={game.engine} className="hidden sm:inline-flex" />
-          {partyHash && (
-            <Badge variant="accent">
-              <Users aria-hidden="true" />
-              Party
-            </Badge>
-          )}
+          {/* Who plays along, like next to "Party" in the sidebar. */}
+          {partyHash && <PartyAvatars className="shrink-0" />}
         </div>
         {!userId && (
           <Link

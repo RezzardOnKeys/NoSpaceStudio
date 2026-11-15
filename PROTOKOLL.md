@@ -15,6 +15,31 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 23 – 2026-11-15 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Play-Knöpfe in Store und Library entfernen (Spiele nur über die Spielseite starten), in einer Party kein „Play alone“ mehr und grauer Knopf mit Grund für Mitglieder, zu große Partys und Einzelspieler-Spiele; WPM Trainer: Party-Bilder in die Leiste oben, Video-Knöpfe in eine Leiste oben
+**Änderungen:**
+- Store: Der „Play“-Knopf beim Darüberfahren über ein Cover ist weg, das Cover führt zur Spielseite
+- Library: „Continue playing“-Karten führen zur Spielseite (ohne runden Play-Knopf), bei „All played games“ ist der Play-Knopf weg (gilt auch für die Spielzeit-Liste im Profil)
+- Spielseite: Ohne Party „Play“ wie bisher. In einer Party hat der Host nur noch „Play with party“; grauer Knopf mit Grund für Mitglieder („Only the party host can start games.“), für Einzelspieler-Spiele („Single player only. Leave the party to play it.“) und wenn die Party zu groß ist („Up to 2 players. Your party has 3.“)
+- Player: Statt des „Party“-Abzeichens zeigt die Leiste oben die Profilbilder der Party (neue Komponente `PartyAvatars`), für alle Party-Spiele
+- WPM Trainer 1.4.0: neue schmale Leiste ganz oben im Spiel mit allen Video-Knöpfen rechts (Link, „Load video“, „Own file“, Ton, Tempo) und links dem Party-Status in Worten („Waiting for the other player…“, „Connected with …“, „… is ready“, „Racing …“); die Bilder unten links und die Video-Karte unten rechts sind weg, der Trainer steht wieder mittig; Profilbilder werden zwischen den Spielern nicht mehr ausgetauscht
+- Patch Notes „WPM Trainer 1.4“ und „Launcher 1.8“; Doku: PARTY-GAMES, ROADMAP, neue Entscheidung 34
+- Geprüft: lint, typecheck, build; Store und Spielseite als Gast; WPM Trainer allein und mit zwei Tabs (Host und Gast) inkl. „… is ready“ und Handy-Breite. Nicht getestet (braucht Konten): die grauen Knöpfe in einer echten Party und die Profilbilder in der Player-Leiste
+**Geänderte Dateien:** src/features/games/GameCard.tsx, src/features/library/ContinueCard.tsx, src/features/library/PlayedGameRow.tsx, src/features/party/GamePlayActions.tsx, src/features/party/PartyAvatars.tsx (neu), src/pages/PlayerPage.tsx, games/wpm-trainer/index.html, games/wpm-trainer/game.json, news/2026-11-15-wpm-trainer-1-4.md (neu), news/2026-11-15-launcher-1-8.md (neu), docs/PARTY-GAMES.md, docs/ROADMAP.md, docs/DECISIONS.md, PROTOKOLL.md
+**Commit-Message:** `[v23] feat(party): start games only from the game page, party avatars in the player bar, WPM video bar at the top`
+**GitHub-Commit:** _ausstehend_
+
+## Version 22 – 2026-11-15 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Lohnt sich ein neuer Chat? Falls ja: Doku auf den neuesten Stand bringen, damit ein neuer Chat alles versteht, und einen Startprompt schreiben
+**Änderungen:**
+- Roadmap: Stand des WPM Trainers (Version 1.3.0, nur noch über die Party, Avatare, Video-Karte, Revanche über die Lobby) eingetragen; erledigten offenen Punkt „YouTube im Player prüfen“ entfernt
+- Neue Entscheidung 33 (WPM Trainer nur über die Party, Launcher gibt das Profilbild an Spiele weiter)
+- CLAUDE.md und games/README.md an die neue Party-Adresse und den WPM Trainer angepasst
+- Commit-Hash für Version 21 nachgetragen
+**Geänderte Dateien:** docs/ROADMAP.md, docs/DECISIONS.md, CLAUDE.md, games/README.md, PROTOKOLL.md
+**Commit-Message:** `[v22] docs: update project state for a new session`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 21 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** WPM Trainer: Anzeige oben links ganz entfernen, Party-Mitglieder als überlappende Avatare unten links, Video-Knöpfe von oben rechts nach unten rechts im Karten-Stil, bei Revanche erst Einstellungen ändern können
 **Änderungen:**
@@ -28,7 +53,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Getestet mit zwei Tabs in Chrome (breites und schmales Fenster). Nicht getestet: echte Profilbilder über den Launcher mit zwei Konten
 **Geänderte Dateien:** games/wpm-trainer/index.html, games/wpm-trainer/game.json, news/2026-11-15-wpm-trainer-1-3.md (neu), src/features/party/party-session.ts, src/features/party/usePartyLaunch.ts, docs/PARTY-GAMES.md, docs/ROADMAP.md, PROTOKOLL.md
 **Commit-Message:** `[v21] feat(wpm-trainer): party avatars, video controls at the bottom, rematch via lobby`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`095fc24`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/095fc24)
 
 ## Version 20 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** WPM Trainer: Raum-Code oben links entfernen (man spielt nur noch über die Party), Anzeige oben links mit den Spielernamen besser lesbar und schöner machen

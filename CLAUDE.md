@@ -120,7 +120,7 @@ files owned by root. Do not work around it silently; tell the developer to run
   Games are referenced by their slug.
 - **Parties** (decision 25): `features/party/`. `PartyWatcher` (mounted once in
   `components/layout/RootLayout.tsx`) listens to Supabase Realtime and pulls
-  members into the host's game. The player passes `#party=…&role=…&name=…`
+  members into the host's game. The player passes `#party=…&role=…&name=…&avatar=…`
   to the game; how a game uses it is in `docs/PARTY-GAMES.md`. Games set
   `maxPlayers` in `game.json`.
 - **Online status** (decision 30): `features/presence/`. `PresenceReporter`

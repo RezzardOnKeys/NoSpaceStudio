@@ -1,11 +1,11 @@
-import { Play, User, Users } from 'lucide-react';
+import { Play, Users } from 'lucide-react';
 import { Link } from 'react-router';
 
 import { Button } from '@/components/ui/Button';
 import { buttonStyles } from '@/components/ui/button-styles';
 import { useAuth } from '@/features/auth/auth-context';
 import { paths } from '@/routes/paths';
-import type { Game } from '@/types/models';
+import type { Game, Party } from '@/types/models';
 
 import { useParty } from './queries';
 import { useOpenPartyGame } from './useOpenPartyGame';
@@ -14,63 +14,81 @@ const bigButton = 'h-14 px-10 text-lg';
 
 interface GamePlayActionsProps {
   game: Game;
-  /** Shown under the buttons when there is no party hint. */
+  /** Shown under the button when nothing blocks playing. */
   note: string;
 }
 
 /**
- * The play buttons on a game page. Outside a party: "Play". In a party:
- * the host can start multiplayer games for everybody, and single player
- * games say that the party does not come along.
+ * Why a party cannot start this game, or null if the host can start it for
+ * everybody. In a party nobody plays alone: games are played together.
+ */
+function partyBlocker(game: Game, party: Party, isHost: boolean): string | null {
+  if (!isHost) return 'Only the party host can start games.';
+  if (game.maxPlayers === 1) return 'Single player only. Leave the party to play it.';
+  if (party.members.length > game.maxPlayers) {
+    return `Up to ${game.maxPlayers} players. Your party has ${party.members.length}.`;
+  }
+  return null;
+}
+
+/**
+ * The play button on a game page. Outside a party: "Play". In a party only
+ * the host can start a game, and only one that fits the whole party; in
+ * every other case the button is greyed out with the reason below it.
  */
 export function GamePlayActions({ game, note }: GamePlayActionsProps) {
   const { userId } = useAuth();
   const { data: party } = useParty();
   const { open, pendingSlug } = useOpenPartyGame();
 
+  // A party with only yourself left counts as no party.
   const inParty = party && party.members.length > 1;
-  const isHost = party?.hostId === userId;
-  const fitsParty = inParty && party.members.length <= game.maxPlayers;
+  const blocker = inParty ? partyBlocker(game, party, party.hostId === userId) : null;
 
-  let hint = note;
-  if (inParty && game.maxPlayers === 1) {
-    hint = 'Single player only. Your party will not join you.';
-  } else if (inParty && !fitsParty) {
-    hint = `Up to ${game.maxPlayers} players. Your party has ${party.members.length}.`;
-  } else if (inParty && !isHost) {
-    hint = 'Only the party host can start it for everybody.';
+  let button;
+  if (!inParty) {
+    button = (
+      <Link
+        to={paths.play(game.slug)}
+        className={buttonStyles({ size: 'lg', className: bigButton })}
+      >
+        <Play className="size-5 fill-current" aria-hidden="true" />
+        Play
+      </Link>
+    );
+  } else if (blocker) {
+    button = (
+      <Button
+        size="lg"
+        variant="secondary"
+        className={bigButton}
+        icon={<Play className="size-5 fill-current" aria-hidden="true" />}
+        disabled
+        aria-describedby="play-hint"
+      >
+        Play
+      </Button>
+    );
+  } else {
+    button = (
+      <Button
+        size="lg"
+        className={bigButton}
+        icon={<Users className="size-5" aria-hidden="true" />}
+        loading={pendingSlug === game.slug}
+        onClick={() => open(game.slug)}
+      >
+        Play with party
+      </Button>
+    );
   }
-
-  const partyButton = inParty && isHost && fitsParty;
 
   return (
     <div className="flex flex-col items-stretch gap-2 sm:items-end">
-      {partyButton ? (
-        <>
-          <Button
-            size="lg"
-            className={bigButton}
-            icon={<Users className="size-5" aria-hidden="true" />}
-            loading={pendingSlug === game.slug}
-            onClick={() => open(game.slug)}
-          >
-            Play with party
-          </Button>
-          <Link to={paths.play(game.slug)} className={buttonStyles({ variant: 'secondary' })}>
-            <User className="size-4" aria-hidden="true" />
-            Play alone
-          </Link>
-        </>
-      ) : (
-        <Link
-          to={paths.play(game.slug)}
-          className={buttonStyles({ size: 'lg', className: bigButton })}
-        >
-          <Play className="size-5 fill-current" aria-hidden="true" />
-          Play
-        </Link>
-      )}
-      <p className="text-center text-sm text-fg-muted sm:text-right">{hint}</p>
+      {button}
+      <p id="play-hint" className="text-center text-sm text-fg-muted sm:text-right">
+        {blocker ?? note}
+      </p>
     </div>
   );
 }
