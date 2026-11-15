@@ -444,14 +444,16 @@ changing numbers in one file.
 ## 36. Blind Drop: the host picks the blast size
 
 **Decision:** Before a match the party host (in practice mode: the player)
-picks the blast size in the lobby: Small (radius 2.5), Medium (3.2, the
+picks the blast size in the lobby: Small (radius 1.8), Medium (2.7, the
 default) or Large (4, the fixed size of version 1.0). The guest sees the
 choice but cannot change it. When the host changes it, the guest has to
 confirm "Ready" again. The size stays the same for the whole match and is
 kept for a rematch. The island still shrinks by 1.1 per round without a hit,
-but now down to 85 % of the chosen blast radius (2.1 / 2.7 / 3.4), so a bomb
+but now down to 85 % of the chosen blast radius (1.5 / 2.3 / 3.4), so a bomb
 in the middle always covers the whole island at the end.
 
 **Why:** The developers found the old blast too big. Tying the smallest
 island to the blast keeps the promise that every match ends: with Small it
-takes about one round more until that point, with Large nothing changes.
+takes about two rounds more until that point, with Large nothing changes.
+Version 1.1.1 made Small and Medium smaller (from 2.5 and 3.2) after the
+developers played with them.

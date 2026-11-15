@@ -15,6 +15,17 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 38 – 2026-11-15 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Blind Drop: Bombengrößen anpassen, Large bleibt, Medium wird 2,7 und Small 1,8
+**Änderungen:**
+- Radius „Small“ von 2,5 auf 1,8 und „Medium“ von 3,2 auf 2,7 verkleinert; „Large“ bleibt 4, Medium bleibt Standard
+- Die kleinste Insel richtet sich wie bisher nach der Größe (85 %): jetzt 1,5 / 2,3 / 3,4
+- Spielversion 1.1.1 mit Patch Note; Entscheidung 36 angepasst
+- Mit der Simulation geprüft, dass jede Größe sauber schrumpft und eine Partie endet
+**Geänderte Dateien:** games/blind-drop/config.js, games/blind-drop/game.json, news/2026-11-15-blind-drop-1-1-1.md (neu), docs/DECISIONS.md, PROTOKOLL.md
+**Commit-Message:** `[v38] fix(blind-drop): make small and medium blasts smaller`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 37 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Blind Drop: Der Host soll vor der Partie den Bombenradius wählen können (klein, mittel, groß; der bisherige ist groß)
 **Änderungen:**

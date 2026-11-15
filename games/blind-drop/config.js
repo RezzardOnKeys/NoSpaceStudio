@@ -11,8 +11,8 @@ export const ISLAND_R = 10;
 /** Explosion sizes the host can pick in the lobby (radius in world units).
  *  "large" is one fifth of the starting island diameter. */
 export const BLAST_SIZES = {
-  small: { label: 'Small', r: 2.5 },
-  medium: { label: 'Medium', r: 3.2 },
+  small: { label: 'Small', r: 1.8 },
+  medium: { label: 'Medium', r: 2.7 },
   large: { label: 'Large', r: 4 },
 };
 export const DEFAULT_BLAST = 'medium';
