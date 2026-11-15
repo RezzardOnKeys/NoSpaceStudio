@@ -15,6 +15,16 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 29 – 2026-11-15 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Die Together ist im Launcher nirgends zu sehen
+**Änderungen:**
+- Store-Eintrag `game.json` für Die Together vorgezogen (war für Schritt 4 geplant): Titel, Kurzbeschreibung, 2–8 Spieler in gerader Zahl, Version 0.1.0, Status `draft`. Das Spiel erscheint damit lokal (`npm run dev`) im Store, auf der echten Seite noch nicht
+- Cover, Banner und lange Beschreibung fehlen noch (kommen in Schritt 4); bis dahin zeigt der Store das graue Platzhalterbild
+- Commit-Hash für Version 28 nachgetragen
+**Geänderte Dateien:** games/die-together/game.json (neu), PROTOKOLL.md
+**Commit-Message:** `[v29] feat(die-together): add draft store entry`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 28 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Die Together, Schritt 3a: Arena, Bewegung nach Rolle, Kamera und Abgleich übers Netz
 **Änderungen:**
@@ -29,7 +39,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Commit-Hash für Version 26 und 27 nachgetragen
 **Geänderte Dateien:** games/die-together/scene.js (neu), games/die-together/config.js, games/die-together/host.js, games/die-together/game.js, games/die-together/index.html, PROTOKOLL.md
 **Commit-Message:** `[v28] feat(die-together): add arena, movement by role and first person view`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`afbfb09`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/afbfb09)
 
 ## Version 27 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Die Together, Schritt 2: Menü und Verbindung (Plätze, Start-Regeln, Hinweis beim Alleinstart)

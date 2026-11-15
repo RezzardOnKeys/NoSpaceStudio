@@ -1,0 +1,12 @@
+{
+  "title": "Die Together",
+  "shortDescription": "A shooter where two players steer one character: one has the mouse, the other the keyboard.",
+  "genres": ["Action", "Party"],
+  "engine": "HTML5",
+  "version": "0.1.0",
+  "status": "draft",
+  "publishedAt": "2026-11-15",
+  "minPlayers": 2,
+  "maxPlayers": 8,
+  "evenPlayers": true
+}
