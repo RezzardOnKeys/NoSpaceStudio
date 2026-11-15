@@ -15,6 +15,15 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 39 – 2026-11-15 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Auf den neuesten Stand bringen; danach die Blind-Drop-Version in der ROADMAP anpassen
+**Änderungen:**
+- ROADMAP: Blind Drop steht jetzt auf Version 1.1.1, mit dem Hinweis, dass Small und Medium in 1.1.1 kleiner wurden
+- Commit-Hash für Version 38 nachgetragen
+**Geänderte Dateien:** docs/ROADMAP.md, PROTOKOLL.md
+**Commit-Message:** `[v39] docs(roadmap): update Blind Drop to version 1.1.1`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 38 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Blind Drop: Bombengrößen anpassen, Large bleibt, Medium wird 2,7 und Small 1,8
 **Änderungen:**
@@ -24,7 +33,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Mit der Simulation geprüft, dass jede Größe sauber schrumpft und eine Partie endet
 **Geänderte Dateien:** games/blind-drop/config.js, games/blind-drop/game.json, news/2026-11-15-blind-drop-1-1-1.md (neu), docs/DECISIONS.md, PROTOKOLL.md
 **Commit-Message:** `[v38] fix(blind-drop): make small and medium blasts smaller`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`4359793`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/4359793)
 
 ## Version 37 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Blind Drop: Der Host soll vor der Partie den Bombenradius wählen können (klein, mittel, groß; der bisherige ist groß)
