@@ -38,6 +38,12 @@ table whenever a phase is finished.
   referee (host) in `host.js`; see decision 32. three.js and PeerJS are
   shipped in the game folder (`vendor/`). Tested in Chrome with two tabs;
   **not yet tested in Safari and not yet with two real accounts in a party.**
+- **The third game is planned, not built yet:** "Die Together"
+  (`games/die-together/`), a first person shooter where every character is
+  steered by two people (one mouse, one keyboard), 2–8 players in even
+  numbers. The complete plan, including the launcher changes it needs
+  (`minPlayers`, `evenPlayers`), is in [DIE-TOGETHER.md](DIE-TOGETHER.md).
+  Build it from that file.
 - **Games and news are files in the repository**, not database rows
   (decision 22). A game is a folder `games/<slug>/` with a `game.json`
   (store entry), an optional `description.md` and its images. A news post is
@@ -245,6 +251,12 @@ Collected in conversations with the developers; nothing decided yet.
   two players (free-for-all; raise `MAX_PLAYERS` in `config.js` and
   `maxPlayers` in `game.json`, then test), sound effects, touch controls for
   phones, a smarter bot, a score over several matches.
+- **Die Together** is decided and fully planned: [DIE-TOGETHER.md](DIE-TOGETHER.md).
+- **Other 3D ideas from the brainstorm** (not decided): "Other Eyes" (you
+  see through your opponent's eyes), a time loop duel (your previous rounds
+  play along as clones), "Echo" (dark arena, sound makes it visible),
+  crumbling floor, a body swap duel, a parkour coin race seen from the
+  opponent's position.
 - **Other game ideas:** drawing and guessing ("Doodle Dash", 3–8 players),
   quiz, memory duel, reaction mini games.
 - **Launcher ideas:** leaderboards per game (games report a score), party

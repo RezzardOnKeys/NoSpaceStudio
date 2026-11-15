@@ -15,6 +15,17 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 25 – 2026-11-15 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Ideen für ein neues 3D-Spiel sammeln; Entscheidung für „Die Together“ (First-Person-Shooter, jede Figur von zwei Leuten gesteuert: Maus und Tastatur); Startprompt und Dateien für einen neuen Chat vorbereiten
+**Änderungen:**
+- Neuer vollständiger Spielplan `docs/DIE-TOGETHER.md`: Teams und Rollen, Menü, Steuerung, Pistole (5 Schuss, 1 s zwischen Schüssen, 2 s Nachladen nur mit R), 5 Leben, Anzeigen, Map mit Hindernissen und zusammenrückenden Wänden, Rundenablauf, Bot nur zu zweit, Verbindung mit dem Host als Schiedsrichter, Dateien, Reihenfolge der Arbeit und Testanleitung
+- Darin auch die nötigen Launcher-Änderungen: neue Felder `minPlayers` und `evenPlayers` in `game.json`, Anzeige „2–8“, Play-Knopf nur bei gerader Party-Größe mit passenden Hinweisen
+- Roadmap: geplantes drittes Spiel unter „Where things stand“, weitere Ideen aus dem Brainstorming unter „Ideas for later“
+- Commit-Hash für Version 24 nachgetragen
+**Geänderte Dateien:** docs/DIE-TOGETHER.md (neu), docs/ROADMAP.md, PROTOKOLL.md
+**Commit-Message:** `[v25] docs: plan the game Die Together`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 24 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** WPM Trainer: Profilbilder oben links in die Spiel-Leiste statt „Connected with …“; in der Launcher-Leiste wieder „Party“ statt der Bilder
 **Änderungen:**
@@ -26,7 +37,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Geprüft: lint, typecheck, build; zwei Tabs (Host und Gast) mit Bild und Anfangsbuchstabe, grüner Ring bei „bereit“
 **Geänderte Dateien:** games/wpm-trainer/index.html, games/wpm-trainer/game.json, news/2026-11-15-wpm-trainer-1-5.md (neu), news/2026-11-15-launcher-1-8.md, src/pages/PlayerPage.tsx, src/features/party/PartyAvatars.tsx (gelöscht), docs/ROADMAP.md, docs/PARTY-GAMES.md, docs/DECISIONS.md, PROTOKOLL.md
 **Commit-Message:** `[v24] feat(wpm-trainer): party pictures in the top bar, party badge back in the player bar`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`d666ee2`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/d666ee2)
 
 ## Version 23 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Play-Knöpfe in Store und Library entfernen (Spiele nur über die Spielseite starten), in einer Party kein „Play alone“ mehr und grauer Knopf mit Grund für Mitglieder, zu große Partys und Einzelspieler-Spiele; WPM Trainer: Party-Bilder in die Leiste oben, Video-Knöpfe in eine Leiste oben
