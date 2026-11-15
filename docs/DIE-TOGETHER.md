@@ -8,6 +8,10 @@ before changing it.
 
 Slug and folder: `games/die-together/`. Title in the store: **Die Together**.
 
+**Status:** built (steps 1 to 5 done, still `"status": "draft"`). Choices
+made while building it are recorded in decision 35 in
+[DECISIONS.md](DECISIONS.md); sound is not built yet.
+
 ## The idea in one sentence
 
 A first person shooter where every character is controlled by **two people

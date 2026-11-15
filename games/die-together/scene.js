@@ -341,6 +341,54 @@ export function createView(canvas, labelLayer) {
     camera.updateProjectionMatrix();
   }
 
+  // ---- Confetti --------------------------------------------------------
+  const confettiGeo = new THREE.PlaneGeometry(0.14, 0.09);
+  const confettiColors = [0xffffff, 0xffe03a, 0xff62c6, 0x1fe0c4];
+
+  /** A character with no lives left bursts into confetti in its colour. */
+  function confetti(x, y, z, color) {
+    const mats = [color, ...confettiColors].map((c) =>
+      flat(c, { side: THREE.DoubleSide, transparent: true }),
+    );
+    const bits = [];
+    for (let i = 0; i < 90; i++) {
+      // Half of the pieces in the team colour, the rest mixed.
+      const mesh = new THREE.Mesh(confettiGeo, mats[i % 2 === 0 ? 0 : 1 + (i % 4)]);
+      mesh.position.set(x, y + 0.9, z);
+      const a = Math.random() * Math.PI * 2;
+      const out = 1.5 + Math.random() * 3.5;
+      bits.push({
+        mesh,
+        vel: new THREE.Vector3(Math.cos(a) * out, 4 + Math.random() * 5, Math.sin(a) * out),
+        spin: new THREE.Vector3(Math.random() * 12, Math.random() * 12, Math.random() * 12),
+      });
+      scene.add(mesh);
+    }
+    let last = 0;
+    effects.push({
+      age: 0,
+      dur: 2.2,
+      step: (k) => {
+        const dt = (k - last) * 2.2;
+        last = k;
+        for (const b of bits) {
+          b.vel.y -= 9 * dt;
+          b.vel.multiplyScalar(1 - 1.6 * dt); // air slows the paper down
+          b.mesh.position.addScaledVector(b.vel, dt);
+          if (b.mesh.position.y < 0.02) b.mesh.position.y = 0.02;
+          b.mesh.rotation.x += b.spin.x * dt;
+          b.mesh.rotation.y += b.spin.y * dt;
+          b.mesh.rotation.z += b.spin.z * dt;
+        }
+        for (const m of mats) m.opacity = k < 0.7 ? 1 : 1 - (k - 0.7) / 0.3;
+      },
+      end: () => {
+        for (const b of bits) scene.remove(b.mesh);
+        for (const m of mats) m.dispose();
+      },
+    });
+  }
+
   // ---- Hearts above the heads ---------------------------------------------
   const raycaster = new THREE.Raycaster();
   const blockers = obstacles.map((entry) => entry.mesh);
@@ -409,6 +457,6 @@ export function createView(canvas, labelLayer) {
   lookFromAbove();
   return {
     resize, render, setArena, setCharacters, placeCharacter, setLives, blink, showShot,
-    lookFrom, lookFromAbove,
+    confetti, lookFrom, lookFromAbove,
   };
 }

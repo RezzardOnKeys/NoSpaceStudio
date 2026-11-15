@@ -2,13 +2,14 @@
 // It owns the seats in the menu, decides when a round may start and runs
 // the round: it moves every character from the inputs of its two players,
 // decides which shots hit, counts lives, closes the walls and names the
-// winner. Everybody else, including the host's own screen, only receives
-// the messages sent from here.
+// winner. With exactly 2 people it also plays the bot. Everybody else,
+// including the host's own screen, only receives the messages sent from here.
 
 import {
   MAX_PLAYERS, TEAMS, SEATS, MAP, SPAWNS, ARENA_HALF, PLAYER_R, PLAYER_H, EYE_H, SPEED,
   JUMP_V, GRAVITY, STEP_UP, MAX_PITCH, STATE_MS, LIVES, MAGAZINE, SHOT_MS, RELOAD_MS,
-  COUNTDOWN_MS, WINNER_MS, surfaceTop, sinkOf, arenaHalf,
+  COUNTDOWN_MS, WINNER_MS, BOT_TURN, BOT_REACTION_MS, BOT_HESITATE_MS, BOT_AIM_ERROR,
+  surfaceTop, sinkOf, arenaHalf,
 } from './config.js';
 
 const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
@@ -16,6 +17,22 @@ const isNumber = (v) => typeof v === 'number' && Number.isFinite(v);
 const round3 = (v) => Math.round(v * 1000) / 1000;
 /** A shot that hits nothing (the sky) ends after this distance. */
 const SKY_RANGE = 120;
+/** A random number between min and max. */
+const between = (min, max) => min + Math.random() * (max - min);
+
+/**
+ * Places where the bot can go: a grid over the arena without the spots
+ * taken by obstacles. `cover` lists the high obstacles right next to a spot.
+ */
+const SPOTS = [];
+for (let x = -13.5; x <= 13.5; x += 1.5) {
+  for (let z = -13.5; z <= 13.5; z += 1.5) {
+    const near = (o, gap) => Math.abs(x - o.x) < o.w / 2 + gap && Math.abs(z - o.z) < o.d / 2 + gap;
+    if (MAP.some((o) => near(o, PLAYER_R + 0.15))) continue;
+    const cover = MAP.flatMap((o, i) => (o.h >= 1.6 && near(o, 1.4) ? [i] : []));
+    SPOTS.push({ x, z, cover });
+  }
+}
 
 /**
  * expected: how many people the launcher's party has (the "players" value
@@ -163,6 +180,24 @@ export function createHost({ expected }) {
       yaw: Math.atan2(spot.x, spot.z),
       pitch: 0,
       keys: { f: false, b: false, l: false, r: false, j: false },
+      // What the bot has in mind (see "The bot" below); null for players.
+      ai: isBot
+        ? {
+            goal: null, // the spot it walks to
+            pauseUntil: 0, // stands still until then after arriving
+            checkAt: 0, // when it next checks whether it is stuck
+            checkX: 0,
+            checkZ: 0,
+            target: null, // the character it can see and aims at
+            seenSince: 0,
+            reaction: 0,
+            hesitate: 0,
+            errYaw: 0,
+            errPitch: 0,
+            lastSeen: null, // where it last saw somebody
+            lastSeenAt: -Infinity,
+          }
+        : null,
     };
   }
 
@@ -423,8 +458,8 @@ export function createHost({ expected }) {
   function resolveShots(now) {
     const hit = [];
     for (const shot of pendingShots) {
-      const c = chars.find((q) => q.alive && q.mouseId === shot.id);
-      if (!c || c.reloadEnd > 0 || now < c.nextShotAt) continue;
+      const c = shot.by;
+      if (!c.alive || c.reloadEnd > 0 || now < c.nextShotAt) continue;
       if (c.ammo === 0) continue; // empty: nothing happens until R is pressed
       c.ammo -= 1;
       c.nextShotAt = now + SHOT_MS;
@@ -463,6 +498,168 @@ export function createHost({ expected }) {
     });
   }
 
+  // ---- The bot ------------------------------------------------------------------
+  // Simple on purpose: it walks between cover spots, turns towards the
+  // players' character when it can see it, waits a short random reaction
+  // time, aims a little off (so it misses sometimes), reloads when it is
+  // empty and keeps away from the closing walls. It follows the same rules
+  // as everybody: 5 lives, 5 shots, 1 second between shots, 2 seconds reload.
+
+  /** Is the straight line from a to b free of obstacles? */
+  function clearLine(ax, ay, az, bx, by, bz) {
+    const dx = bx - ax;
+    const dy = by - ay;
+    const dz = bz - az;
+    const length = Math.hypot(dx, dy, dz);
+    if (length < 1e-6) return true;
+    for (let i = 0; i < MAP.length; i++) {
+      if (rayObstacle(i, ax, ay, az, dx / length, dy / length, dz / length) < length) return false;
+    }
+    return true;
+  }
+
+  /** Can the bot walk to the spot in a straight line? Checks its left, middle and right. */
+  function walkable(c, spot) {
+    const dx = spot.x - c.x;
+    const dz = spot.z - c.z;
+    const length = Math.hypot(dx, dz) || 1;
+    const sideX = (-dz / length) * PLAYER_R;
+    const sideZ = (dx / length) * PLAYER_R;
+    return [-1, 0, 1].every((k) =>
+      clearLine(c.x + sideX * k, c.y + 0.5, c.z + sideZ * k, spot.x + sideX * k, 0.5, spot.z + sideZ * k),
+    );
+  }
+
+  /** Chooses the next spot: reachable, safe from the walls, best with cover. */
+  function pickGoal(c, now) {
+    const ai = c.ai;
+    // Where the walls will be in 5 seconds, with some room to spare.
+    const safe = arenaHalf(now - fightStart + 5000) - 1.2;
+    const inside = SPOTS.filter((s) => Math.abs(s.x) <= safe && Math.abs(s.z) <= safe);
+    let best = null;
+    let bestScore = -Infinity;
+    for (const s of inside) {
+      const d = Math.hypot(s.x - c.x, s.z - c.z);
+      if (d < 2 || d > 10 || !walkable(c, s)) continue;
+      let score = Math.random();
+      if (s.cover.some((i) => sinks[i] < 0.5)) score += 0.8;
+      // Stay at a fighting distance from where it last saw the players;
+      // without a clue, drift towards the middle to find them.
+      if (ai.lastSeen && now - ai.lastSeenAt < 15000) {
+        const e = Math.hypot(s.x - ai.lastSeen.x, s.z - ai.lastSeen.z);
+        if (e > 5 && e < 13) score += 0.5;
+      } else {
+        score += 0.6 * (1 - Math.hypot(s.x, s.z) / 19);
+      }
+      if (score > bestScore) {
+        bestScore = score;
+        best = s;
+      }
+    }
+    // Nothing fits (the arena is very small now): any safe spot will do.
+    ai.goal = best ?? inside[Math.floor(Math.random() * inside.length)] ?? { x: 0, z: 0 };
+    ai.checkAt = now + 800;
+    ai.checkX = c.x;
+    ai.checkZ = c.z;
+  }
+
+  /** A new small aiming mistake, so the bot misses now and then. */
+  function rollAimError(ai) {
+    ai.errYaw = between(-BOT_AIM_ERROR, BOT_AIM_ERROR);
+    ai.errPitch = between(-BOT_AIM_ERROR, BOT_AIM_ERROR) / 2;
+  }
+
+  /** The bot decides where to look, whether to shoot and where to walk. */
+  function thinkBot(c, now, dt) {
+    const ai = c.ai;
+
+    // 1. Whom can it see? The nearest character that is not hidden.
+    const eyeY = c.y + EYE_H;
+    let target = null;
+    let nearest = Infinity;
+    for (const other of chars) {
+      if (other === c || !other.alive) continue;
+      const d = Math.hypot(other.x - c.x, other.z - c.z);
+      if (d < nearest && clearLine(c.x, eyeY, c.z, other.x, other.y + 1, other.z)) {
+        nearest = d;
+        target = other;
+      }
+    }
+    if (target && ai.target !== target) {
+      ai.seenSince = now;
+      ai.reaction = between(BOT_REACTION_MS[0], BOT_REACTION_MS[1]);
+      rollAimError(ai);
+    }
+    ai.target = target;
+    if (target) {
+      ai.lastSeen = { x: target.x, z: target.z };
+      ai.lastSeenAt = now;
+    }
+
+    // 2. Where to look: at the target (a little off), else where it last
+    //    saw somebody, else where it walks. It turns at a limited speed.
+    let wantYaw = c.yaw;
+    let wantPitch = 0;
+    if (target) {
+      const dx = target.x - c.x;
+      const dz = target.z - c.z;
+      wantYaw = Math.atan2(-dx, -dz) + ai.errYaw;
+      wantPitch = Math.atan2(target.y + 1 - eyeY, Math.hypot(dx, dz)) + ai.errPitch;
+    } else if (ai.lastSeen && now - ai.lastSeenAt < 4000) {
+      wantYaw = Math.atan2(-(ai.lastSeen.x - c.x), -(ai.lastSeen.z - c.z));
+    } else if (ai.goal) {
+      wantYaw = Math.atan2(-(ai.goal.x - c.x), -(ai.goal.z - c.z));
+    }
+    const turn = Math.atan2(Math.sin(wantYaw - c.yaw), Math.cos(wantYaw - c.yaw));
+    const maxTurn = BOT_TURN * dt;
+    c.yaw += clamp(turn, -maxTurn, maxTurn);
+    c.yaw = Math.atan2(Math.sin(c.yaw), Math.cos(c.yaw));
+    c.pitch += clamp(wantPitch - c.pitch, -maxTurn, maxTurn);
+
+    // 3. Reload when empty, or when it is quiet and the magazine is not full.
+    if (c.reloadEnd === 0) {
+      const quiet = !target && now - ai.lastSeenAt > 1500;
+      if (c.ammo === 0 || (quiet && c.ammo < MAGAZINE)) c.reloadEnd = now + RELOAD_MS;
+    }
+    // 4. Shoot once it has reacted and points (almost) where it wants.
+    const ready = c.ammo > 0 && c.reloadEnd === 0 && now >= c.nextShotAt + ai.hesitate;
+    if (target && ready && Math.abs(turn) < 0.04 && now - ai.seenSince >= ai.reaction) {
+      pendingShots.push({ by: c, yaw: c.yaw, pitch: c.pitch });
+      ai.hesitate = between(0, BOT_HESITATE_MS);
+      rollAimError(ai);
+    }
+
+    // 5. Walk: to the goal, pause there, pick a new one. A goal the walls
+    //    will soon reach, or getting stuck, also means a new goal.
+    for (const key of Object.keys(c.keys)) c.keys[key] = false;
+    if (now < ai.pauseUntil) return;
+    const safe = arenaHalf(now - fightStart + 3000) - 0.8;
+    if (!ai.goal || Math.abs(ai.goal.x) > safe || Math.abs(ai.goal.z) > safe) pickGoal(c, now);
+    if (now >= ai.checkAt) {
+      if (Math.hypot(c.x - ai.checkX, c.z - ai.checkZ) < 0.3) pickGoal(c, now);
+      ai.checkAt = now + 800;
+      ai.checkX = c.x;
+      ai.checkZ = c.z;
+    }
+    const gx = ai.goal.x - c.x;
+    const gz = ai.goal.z - c.z;
+    const distance = Math.hypot(gx, gz);
+    if (distance < 0.4) {
+      ai.goal = null;
+      ai.pauseUntil = now + between(400, 2000);
+      return;
+    }
+    // The keys work relative to where the bot looks, like for a player.
+    const sin = Math.sin(c.yaw);
+    const cos = Math.cos(c.yaw);
+    const forward = (gx * -sin + gz * -cos) / distance;
+    const side = (gx * cos + gz * -sin) / distance;
+    c.keys.f = forward > 0.38;
+    c.keys.b = forward < -0.38;
+    c.keys.r = side > 0.38;
+    c.keys.l = side < -0.38;
+  }
+
   /** A message from a player (over the network or from the host's own screen). */
   function handle(id, msg) {
     const p = players.find((q) => q.id === id);
@@ -490,9 +687,11 @@ export function createHost({ expected }) {
       c.yaw = Math.atan2(Math.sin(msg.yaw), Math.cos(msg.yaw));
       c.pitch = clamp(msg.pitch, -MAX_PITCH, MAX_PITCH);
     } else if (msg.t === 'shot' && phase === 'fight') {
-      if (!isNumber(msg.yaw) || !isNumber(msg.pitch)) return;
+      // Only the mouse player of a character can shoot.
+      const c = chars.find((q) => q.alive && q.mouseId === id);
+      if (!c || !isNumber(msg.yaw) || !isNumber(msg.pitch)) return;
       pendingShots.push({
-        id,
+        by: c,
         yaw: Math.atan2(Math.sin(msg.yaw), Math.cos(msg.yaw)),
         pitch: clamp(msg.pitch, -MAX_PITCH, MAX_PITCH),
       });
@@ -523,6 +722,7 @@ export function createHost({ expected }) {
           c.ammo = MAGAZINE;
         }
       }
+      for (const c of chars) if (c.alive && c.isBot) thinkBot(c, now, dt);
       resolveShots(now);
     }
 

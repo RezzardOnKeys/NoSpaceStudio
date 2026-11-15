@@ -1,4 +1,5 @@
 import { brand } from '@/config/brand';
+import { draftGameSlugs } from '@/features/games/api';
 import { fileName, readChoice, readDate, readOptionalText, readText } from '@/lib/content';
 import { ContentError } from '@/lib/errors';
 import type { NewsPost } from '@/types/models';
@@ -61,15 +62,19 @@ function toNewsPost(path: string, content: string): NewsPost {
 }
 
 /**
- * All posts, newest first. A post with a date in the future stays hidden on
- * the live site until then; on a developer's machine it already shows.
+ * All posts, newest first. On the live site a post stays hidden while its
+ * date is in the future or while the game it is about is still a draft; on
+ * a developer's machine it already shows.
  */
 export function fetchNews(): Promise<NewsPost[]> {
   try {
     const now = new Date().toISOString();
+    const drafts = draftGameSlugs();
+    const visible = (post: NewsPost) =>
+      post.publishedAt <= now && !(post.gameId !== null && drafts.has(post.gameId));
     const posts = Object.entries(files)
       .map(([path, content]) => toNewsPost(path, content))
-      .filter((post) => post.publishedAt <= now || import.meta.env.DEV)
+      .filter((post) => visible(post) || import.meta.env.DEV)
       .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
     return Promise.resolve(posts);
   } catch (error) {

@@ -307,6 +307,12 @@ function onShot(msg) {
   }
 }
 
+/** A character lost its last life (or a player left): confetti, and a note. */
+function onOut(msg) {
+  view.confetti(msg.x, msg.y, msg.z, TEAMS[msg.team].hex);
+  toast(`${TEAMS[msg.team].name} team is out!`);
+}
+
 function onWinner(msg) {
   const banner = $('banner');
   if (msg.team === null) {
@@ -337,7 +343,7 @@ function onEvent(msg) {
   else if (msg.t === 'state') onState(msg);
   else if (msg.t === 'go') goUntil = performance.now() + 900;
   else if (msg.t === 'shot') onShot(msg);
-  else if (msg.t === 'out') toast(`${TEAMS[msg.team].name} team is out!`);
+  else if (msg.t === 'out') onOut(msg);
   else if (msg.t === 'winner') onWinner(msg);
 }
 

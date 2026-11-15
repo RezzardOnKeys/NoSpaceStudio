@@ -36,6 +36,13 @@ export const MAGAZINE = 5; // shots per magazine; magazines are unlimited
 export const SHOT_MS = 1000; // time between two shots
 export const RELOAD_MS = 2000; // reloading takes this long, only when R is pressed
 
+// ---- The bot (only when exactly 2 people play) ------------------------------
+// Tuned so a coordinated pair can beat it, but not without trying.
+export const BOT_TURN = 3.2; // how fast it turns (radians per second)
+export const BOT_REACTION_MS = [450, 950]; // wait after spotting someone, before shooting
+export const BOT_HESITATE_MS = 500; // up to this much longer than the 1 second between shots
+export const BOT_AIM_ERROR = 0.08; // aims up to this far off (radians); misses now and then
+
 // ---- Length of the parts of a round (milliseconds) --------------------------
 export const COUNTDOWN_MS = 3000; // "3, 2, 1": nobody can move or shoot
 export const WINNER_MS = 4000; // the winner screen, then back to the menu

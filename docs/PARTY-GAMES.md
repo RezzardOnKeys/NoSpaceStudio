@@ -140,6 +140,20 @@ wird). Dort ist der Host außerdem der Schiedsrichter (`host.js`): Gäste
 schicken nur ihre Eingaben, und der Host schickt geheime Dinge (wo der
 unsichtbare Gegner steht) erst, wenn sie aufgedeckt werden.
 
+Ein drittes Beispiel für **viele Spieler** ist `games/die-together/` (bis zu
+8, also 7 Gäste). Es nutzt dieselbe `net.js` und zeigt zusätzlich:
+
+- **`players` aus der Adresse nutzen:** Das Menü weiß, wie viele noch fehlen
+  („Waiting for 1 more player…“, „joining…“), und der Start-Knopf des Hosts
+  bleibt aus, bis alle da sind (`startProblem` in `host.js`).
+- **Nur Partys mit gerader Größe:** `"minPlayers": 2` und
+  `"evenPlayers": true` in `game.json`; allein gestartet zeigt das Spiel nur
+  einen Hinweis.
+- **Schnelle Daten:** Der Host schickt 20-mal pro Sekunde den Stand aller
+  Figuren, die Spieler schicken nur ihre Tasten bzw. ihre Blickrichtung und
+  Schüsse. Damit der Host-Tab im Hintergrund nicht gebremst wird, läuft sein
+  Takt über einen kleinen Web Worker (`ticker.js`).
+
 ### 4. Ohne Party weiter funktionieren
 
 Ohne `#party=...` wurde das Spiel allein gestartet (oder direkt über seine

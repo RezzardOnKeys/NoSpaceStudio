@@ -8,5 +8,7 @@
   "publishedAt": "2026-11-15",
   "minPlayers": 2,
   "maxPlayers": 8,
-  "evenPlayers": true
+  "evenPlayers": true,
+  "cover": "cover.svg",
+  "banner": "banner.svg"
 }

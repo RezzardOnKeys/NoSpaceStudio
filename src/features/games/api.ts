@@ -97,6 +97,18 @@ function toGame(path: string, manifest: unknown): Game {
 }
 
 /**
+ * Folder names of the games that are still drafts. News posts about them
+ * stay hidden on the live site too, so a game is not announced early.
+ */
+export function draftGameSlugs(): Set<string> {
+  return new Set(
+    Object.entries(manifests)
+      .filter(([, manifest]) => isRecord(manifest) && manifest.status === 'draft')
+      .map(([path]) => folderName(path)),
+  );
+}
+
+/**
  * Total playtime per game, from the public game_stats table. Only used for
  * the "Most played" sorting, so the store keeps working without it: when
  * Supabase is not configured or not reachable, every game counts as 0.

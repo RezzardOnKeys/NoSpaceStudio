@@ -206,6 +206,9 @@ future are visible with `npm run dev`, but not in a production build.
 **Why:** It gives us a preview without a separate preview system. Note that a
 draft game's folder is still deployed and reachable by its direct URL, and
 the text of hidden entries is part of the shipped bundle. Hidden is not secret.
+A news post about a draft game is hidden on the live site as well, until the
+game is published (added with Die Together, so a patch note can be written
+while the game is still being tested).
 
 ## 24. A profile picture can be chosen only once
 
@@ -376,3 +379,50 @@ not come along, which surprised the developers. A party is for playing
 together. The pictures and video controls stay inside the game (not in the
 launcher's bar) because the game runs on another origin by design (decision 13); the
 launcher should not need to know how a single game works (decision 25).
+
+## 35. Die Together: built like Blind Drop, with these choices
+
+**Decision:** Die Together (`games/die-together/`) follows the plan in
+[DIE-TOGETHER.md](DIE-TOGETHER.md) and decision 32: the party host's browser
+is the referee (`host.js`), sends the state of all characters 20 times per
+second and judges every shot. The launcher learned two optional fields in
+`game.json` for it: `minPlayers` and `evenPlayers` (see
+[PARTY-GAMES.md](PARTY-GAMES.md)). Where the plan left things open, we
+chose:
+
+- **Menu:** all four team cards are always shown; clicking your own seat
+  stands up again. The game only knows the player's own name and the party
+  size, so for people who are still loading it says "Waiting for 1 more
+  player…" instead of their name. With exactly 2 people the bot sits on the
+  last free team and moves aside when somebody takes that seat.
+- **Mouse speed:** a slider in the menu, remembered in the browser. The plan
+  did not ask for it, but mice and trackpads differ a lot.
+- **Body and movement:** a character is an upright cylinder (radius 0.45,
+  height 1.6). Edges up to 0.35 are walked up (ramps), a jump reaches about
+  1.4, so low crates (height 1) can be jumped on and high ones (2) cannot.
+- **Map:** one quarter of the arena is laid out by hand and repeated in all
+  four quarters, so every start corner has the same cover. An obstacle
+  starts to sink when a closing wall is 2.5 units away and is gone at 1
+  unit, so nobody is squeezed between wall and obstacle.
+- **Shots:** all shots that arrive between two ticks of the referee are
+  judged together and lives are taken afterwards, so two characters can
+  lose their last life at the same moment (a draw). A hit makes the
+  character blink; the hit player also sees a short red frame.
+- **Out and watching:** a character that is out (or lost one of its two
+  players) bursts into confetti; its players watch the arena from above.
+  Somebody who connects during a round watches until it ends.
+- **The bot:** walks between cover spots (towards the middle while it has
+  not seen anybody), turns at a limited speed, waits 0.45 to 0.95 seconds
+  after spotting the players, aims up to 0.08 radians off and keeps away
+  from the walls. All its numbers are in `config.js` (`BOT_…`).
+- **Hidden host tab:** the referee's clock runs in a small Web Worker
+  (`ticker.js`), because browsers slow normal timers of hidden tabs down to
+  about one per second.
+- **Not built yet:** sound, comic stars and screen shake on a hit. The
+  developers asked to add sound later, together with Blind Drop.
+
+**Why:** The same model as Blind Drop keeps the two games easy to compare
+and means the screens can never disagree about a hit. The choices above
+keep a round fair (same cover for everybody, no squeezing, no lucky first
+shot decided by network order) and let the developers tune the game by
+changing numbers in one file.

@@ -15,6 +15,31 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 32 – 2026-11-15 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Die Together, Schritt 5: Dokumentation
+**Änderungen:**
+- ROADMAP: Die Together unter „Where things stand“ als gebaut (noch Entwurf) mit Teststand; Ideen für später (Töne, Sterne, Wackeln, schlauerer Bot, Punktestand, Zuschauen aus den Augen einer Figur); offener Punkt Safari gilt auch für Die Together
+- Neue Entscheidung 35: alle Entscheidungen, die der Plan offen ließ (Menü, Maus-Regler, Körper und Sprunghöhe, gespiegelte Map, Versinken der Hindernisse, gemeinsame Wertung der Schüsse, Zuschauen von oben, Bot-Werte, Takt im Web Worker, was noch fehlt)
+- PARTY-GAMES: Die Together als drittes Beispiel für viele Spieler; games/README: Zeile in der Tabelle; DIE-TOGETHER.md: Status oben
+**Geänderte Dateien:** docs/ROADMAP.md, docs/DECISIONS.md, docs/PARTY-GAMES.md, docs/DIE-TOGETHER.md, games/README.md, PROTOKOLL.md
+**Commit-Message:** `[v32] docs: document Die Together`
+**GitHub-Commit:** _ausstehend_
+
+## Version 31 – 2026-11-15 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Die Together, Schritt 4: Bot, damit man zu zweit gegen ihn spielen kann, und Cover; keine Töne (kommen später)
+**Änderungen:**
+- Bot (nur bei genau 2 Spielern): läuft zwischen Deckungsplätzen hin und her, sucht ohne Hinweis zuerst die Mitte, dreht sich mit begrenzter Geschwindigkeit zur Spieler-Figur, sobald er sie sieht, wartet eine kurze zufällige Reaktionszeit, zielt etwas daneben (trifft etwa jeden zweiten Schuss), lädt nach, wenn das Magazin leer ist oder gerade Ruhe herrscht, und hält Abstand zu den zusammenrückenden Wänden. Er hat dieselben Regeln wie alle (5 Leben, 5 Schuss, 1 Sekunde, 2 Sekunden Nachladen). Seine Werte stehen in `config.js` (`BOT_…`)
+- Konfetti in Teamfarbe, wenn eine Figur raus ist
+- Cover und Banner (eigene Comic-Zeichnung: rote Figur mit Maus- und Tastatur-Symbol, „LEFT!“ / „YOUR LEFT?!“, blaue Figur mit Herzen), lange Beschreibung `description.md`, beide Bilder in `game.json` eingetragen; das Spiel bleibt `draft`
+- Patch Note „Die Together 0.1“ in `news/`
+- Launcher: News-Beiträge zu einem Spiel im Entwurf bleiben auf der echten Seite versteckt, bis das Spiel veröffentlicht ist (sonst wäre die Patch Note schon öffentlich); Entscheidung 23 und ADDING-A-GAME ergänzt
+- Keine Töne, wie gewünscht
+- Getestet: 7 simulierte Runden gegen den Bot (stillstehende Spieler: der Bot findet sie und gewinnt nach 40–60 Sekunden; genau zielende Spieler gewinnen gegen ihn), dabei nie außerhalb der Wände. In Chrome mit zwei Tabs: Bot läuft, trifft, Herzen über seinem Kopf, Konfetti, Siegerbild. Store-Karte, Spielseite und Patch Note lokal angesehen. lint, typecheck, build. Nicht getestet: das Ausblenden der Patch Note auf der echten Seite (gilt nur im fertigen Build), echte Maus-Sperre, Safari, echte Party
+- Commit-Hash für Version 30 nachgetragen
+**Geänderte Dateien:** games/die-together/host.js, games/die-together/config.js, games/die-together/scene.js, games/die-together/game.js, games/die-together/game.json, games/die-together/cover.svg (neu), games/die-together/banner.svg (neu), games/die-together/description.md (neu), news/2026-11-15-die-together-0-1.md (neu), src/features/games/api.ts, src/features/news/api.ts, docs/DECISIONS.md, docs/ADDING-A-GAME.md, PROTOKOLL.md
+**Commit-Message:** `[v31] feat(die-together): add bot, confetti, cover, banner and patch note`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 30 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Die Together, Schritt 3b: Schießen, Leben, Anzeigen, zusammenrückende Wände und Rundenablauf
 **Änderungen:**
@@ -30,7 +55,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Commit-Hash für Version 29 nachgetragen
 **Geänderte Dateien:** games/die-together/host.js, games/die-together/game.js, games/die-together/scene.js, games/die-together/config.js, games/die-together/index.html, PROTOKOLL.md
 **Commit-Message:** `[v30] feat(die-together): add shooting, lives, HUD, closing walls and round flow`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`d3ffb03`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/d3ffb03)
 
 ## Version 29 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Die Together ist im Launcher nirgends zu sehen

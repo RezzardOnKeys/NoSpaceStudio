@@ -151,6 +151,10 @@ automatisch, sobald das Datum erreicht ist. Lokal (`npm run dev`) ist er
 sofort sichtbar. Geheim ist er bis dahin nicht: Der Text steckt schon im
 ausgelieferten Code der Seite.
 
+Genauso bleibt ein Beitrag zu einem Spiel mit `"status": "draft"` auf der
+echten Seite versteckt, bis das Spiel auf `"published"` steht. So kann die
+Patch Note schon geschrieben werden, während das Spiel noch getestet wird.
+
 ## Etwas löschen
 
 Den Spielordner bzw. die News-Datei löschen, committen, pushen. Die

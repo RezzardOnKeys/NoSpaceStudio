@@ -38,12 +38,18 @@ table whenever a phase is finished.
   referee (host) in `host.js`; see decision 32. three.js and PeerJS are
   shipped in the game folder (`vendor/`). Tested in Chrome with two tabs;
   **not yet tested in Safari and not yet with two real accounts in a party.**
-- **The third game is planned, not built yet:** "Die Together"
-  (`games/die-together/`), a first person shooter where every character is
-  steered by two people (one mouse, one keyboard), 2–8 players in even
-  numbers. The complete plan, including the launcher changes it needs
-  (`minPlayers`, `evenPlayers`), is in [DIE-TOGETHER.md](DIE-TOGETHER.md).
-  Build it from that file.
+- **The third game is built, still a draft:** `games/die-together/` (Die
+  Together), a comic first person shooter where every character is steered
+  by two people (one mouse, one keyboard), 2, 4, 6 or 8 players from a
+  party; with exactly 2 they fight a bot together. Started alone it only
+  shows a notice. The plan is [DIE-TOGETHER.md](DIE-TOGETHER.md), the
+  choices made while building it are decision 35. The launcher learned
+  `minPlayers` and `evenPlayers` in `game.json` for it. Tested in Chrome
+  with up to 8 tabs and by simulated rounds; **not yet tested with real
+  accounts in a party, with a real pointer lock or in Safari.** It stays
+  `"status": "draft"` until the developers have played it; then set it to
+  `"published"` (the patch note becomes visible at the same time). No
+  sound yet.
 - **Games and news are files in the repository**, not database rows
   (decision 22). A game is a folder `games/<slug>/` with a `game.json`
   (store entry), an optional `description.md` and its images. A news post is
@@ -251,7 +257,10 @@ Collected in conversations with the developers; nothing decided yet.
   two players (free-for-all; raise `MAX_PLAYERS` in `config.js` and
   `maxPlayers` in `game.json`, then test), sound effects, touch controls for
   phones, a smarter bot, a score over several matches.
-- **Die Together** is decided and fully planned: [DIE-TOGETHER.md](DIE-TOGETHER.md).
+- **Die Together follow-ups** (the game itself is built, see above): sound
+  effects (Web Audio, as planned), comic stars on a hit, screen shake on a
+  hit (respecting reduced motion), a smarter bot, a score over several
+  rounds, spectating through the eyes of a character that is still alive.
 - **Other 3D ideas from the brainstorm** (not decided): "Other Eyes" (you
   see through your opponent's eyes), a time loop duel (your previous rounds
   play along as clones), "Echo" (dark arena, sound makes it visible),
@@ -269,6 +278,7 @@ Collected in conversations with the developers; nothing decided yet.
   real SMTP provider is needed before going public (phase 7).
 - `brand.contactEmail` is still the placeholder `contact@example.com`.
 - Fullscreen in the player and Safari in general have not been tested yet.
-  This includes Blind Drop (3D with WebGL), which was only tested in Chrome.
+  This includes Blind Drop and Die Together (3D with WebGL), which were only
+  tested in Chrome.
 - Route-level lazy loading is still to do (the bundle is one large chunk).
 - `eslint-plugin-jsx-a11y` can be added once it supports ESLint 10.
