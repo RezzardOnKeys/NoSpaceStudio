@@ -27,7 +27,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Getestet: Übungsmodus mit „Small“ und zwei Tabs in Chrome (Gast kann nicht wählen, Gast-„Ready“ wird zurückgesetzt); Schrumpfen pro Größe mit einer Simulation geprüft
 **Geänderte Dateien:** games/blind-drop/ (config.js, host.js, scene.js, game.js, index.html, game.json, description.md), news/2026-11-15-blind-drop-1-1.md (neu), docs/DECISIONS.md, docs/ROADMAP.md, PROTOKOLL.md
 **Commit-Message:** `[v37] feat(blind-drop): let the host choose the blast size`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`c88dc3b`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/c88dc3b)
 
 ## Version 36 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Warnung „Node.js 20 is deprecated“ in GitHub Actions beheben
