@@ -280,8 +280,25 @@ Requirements:
 
 - PWA (manifest, icons), meta tags/Open Graph, 404 page, imprint and privacy
   placeholders.
-- Performance (lazy loading of routes and images), accessibility, responsive
-  check.
+- Performance (lazy loading of images), accessibility, responsive check.
+  Pages are already loaded on demand (decision 48).
+- **Show the UI kit (`/dev/ui`) only in development:** register the route
+  only when `import.meta.env.DEV` is true, so the public site does not
+  have it. Locally (`npm run dev`) it stays as it is.
+- **Cloudflare `_headers` files** for both projects, once the real
+  addresses of launcher and games are known:
+  - Caching: files in `assets/` (their names contain a hash) may be kept
+    for a year; `index.html` is always fetched fresh. Game files have no
+    hash in their names, so they only get a short check with the server
+    (otherwise players would keep an old game after an update, and host
+    and guest could run different versions).
+  - Security: only the launcher may embed the games (`frame-ancestors`),
+    nobody may embed the launcher, and a Content-Security-Policy that
+    lists Supabase (also its realtime connection), the games origin and
+    profile pictures. The games need YouTube (WPM trainer) and the PeerJS
+    server. Start with `Content-Security-Policy-Report-Only`, play
+    everything once on the live site, and only switch it on when the
+    browser console shows no warnings.
 - A GitHub Actions workflow that pings Supabase regularly so the free project
   is not paused for inactivity (URL and key as GitHub secrets).
 - **Deployment guide** for Cloudflare Pages: two projects (launcher and games)
@@ -352,5 +369,4 @@ Collected in conversations with the developers; nothing decided yet.
 - Fullscreen in the player and Safari in general have not been tested yet.
   This includes Blind Drop, Die Together, Inkwars and Dust Dash (3D with
   WebGL), which were only tested in Chrome.
-- Route-level lazy loading is still to do (the bundle is one large chunk).
 - `eslint-plugin-jsx-a11y` can be added once it supports ESLint 10.

@@ -40,3 +40,6 @@ coverage/
 
 # Local test videos for the WPM trainer (too large for the repository)
 games/wpm-trainer/video.*
+
+# Archives (a game is added as an unpacked folder, never as a .zip)
+*.zip

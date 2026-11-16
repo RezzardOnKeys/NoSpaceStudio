@@ -15,6 +15,21 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 59 – 2026-11-16 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Optimierungsliste für das ganze System; davon Punkt 1 (Zip-Dateien aus dem Repo) und Punkt 2 (Launcher in Teile aufteilen) umsetzen, Punkt 3 (UI-Kit nur lokal) und 4 (Cloudflare `_headers`) in die Roadmap für Phase 7
+**Änderungen:**
+- Alle Seiten außer dem Store werden erst beim ersten Öffnen geladen (`lazyPage` in `src/routes/lazy-page.ts`); solange zeigt der Rahmen ein Skeleton (`PageFallback`), Sidebar und Topbar bleiben stehen
+- Der erste Besuch lädt jetzt etwa 820 kB statt 1030 kB (gezippt 251 statt 311 kB); der Markdown-Renderer (118 kB) lädt nur noch auf Spiel-, News- und Rechtsseiten
+- Nach einem Update fehlen alte Dateien: der Launcher lädt dann einmal neu (`src/lib/stale-chunks.ts`), bei erneutem Fehler innerhalb von 10 Sekunden nicht noch einmal (keine Endlosschleife)
+- `*.zip` in `.gitignore`; `inkwars.zip` selbst löschen die Entwickler (siehe Übergabe)
+- Neue Startkonfiguration `launcher-build` in `.claude/launch.json` (fertigen Build auf Port 4173 ansehen)
+- Roadmap Phase 7: UI-Kit nur in der Entwicklung, `_headers` für Caching und Sicherheit (mit Nur-Melden-Modus zuerst); offener Punkt „Lazy Loading“ erledigt; Entscheidung 48; Regel für neue Seiten in CLAUDE.md
+- Commit-Hash für Version 58 nachgetragen
+- Getestet: lint, typecheck, build; im Browser der fertige Build als Gast (Store, Spiel-Seite, News, Impressum, Datenschutz, Anmelden, 404, Library → Anmelden, Player mit Dust Dash, jeweils direkt aufgerufen und per Klick), dazu ein fehlendes Seiten-File nachgestellt (einmal neu geladen, danach Fehlermeldung statt Schleife); Entwicklungsserver mit Spiel-Seite, News und UI-Kit. Nicht getestet: Seiten mit Konto (Library, Freunde, Party, Profil), Safari
+**Geänderte Dateien:** src/routes/router.tsx, src/routes/lazy-page.ts (neu), src/lib/stale-chunks.ts (neu), src/components/layout/PageFallback.tsx (neu), src/components/layout/AppShell.tsx, src/components/layout/RootLayout.tsx, src/features/auth/AuthLayout.tsx, src/main.tsx, .gitignore, .claude/launch.json, docs/ROADMAP.md, docs/DECISIONS.md, CLAUDE.md, PROTOKOLL.md
+**Commit-Message:** `[v59] perf(launcher): load pages on demand, keep zip archives out of the repository`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 58 – 2026-11-16 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Neuer Chat: alle Dateien auf den neuesten Stand bringen und einen Startprompt schreiben
 **Änderungen:**
@@ -25,7 +40,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Startprompt für den neuen Chat geschrieben (steht im Chat, nicht als Datei)
 **Geänderte Dateien:** README.md, docs/ROADMAP.md, docs/PARTY-GAMES.md, PROTOKOLL.md
 **Commit-Message:** `[v58] docs: update project state for a new session`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`77f4255`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/77f4255)
 
 ## Version 57 – 2026-11-16 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Online-Status prüfen (Kollege war online, obwohl das Fenster nur irgendwo offen war); online nur bei echter Nutzung von Launcher oder Spiel; Party automatisch verlassen, wenn man offline geht; neuer Host bekommt eine kleine Nachricht mit Krone auf jedem Bildschirm; Party-Einladungen auf jedem Bildschirm; danach mehrfach auf Fehler prüfen und berichten

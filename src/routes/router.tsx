@@ -5,23 +5,31 @@ import { RootLayout } from '@/components/layout/RootLayout';
 import { AuthLayout } from '@/features/auth/AuthLayout';
 import { GuestOnly } from '@/features/auth/GuestOnly';
 import { RequireAuth } from '@/features/auth/RequireAuth';
-import { ForgotPasswordPage } from '@/pages/ForgotPasswordPage';
-import { FriendsPage } from '@/pages/FriendsPage';
-import { GamePage } from '@/pages/GamePage';
-import { LegalPage } from '@/pages/LegalPage';
-import { LibraryPage } from '@/pages/LibraryPage';
-import { NewsPage } from '@/pages/NewsPage';
-import { NotFoundPage } from '@/pages/NotFoundPage';
-import { PartyPage } from '@/pages/PartyPage';
-import { PlayerPage } from '@/pages/PlayerPage';
-import { ProfilePage } from '@/pages/ProfilePage';
-import { ResetPasswordPage } from '@/pages/ResetPasswordPage';
-import { SignInPage } from '@/pages/SignInPage';
-import { SignUpPage } from '@/pages/SignUpPage';
 import { StorePage } from '@/pages/StorePage';
-import { UiKitPage } from '@/pages/UiKitPage';
 
+import { lazyPage } from './lazy-page';
 import { paths } from './paths';
+
+// The store is the start page and stays in the main file, so the first visit
+// shows it without waiting. Every other page is downloaded the first time it
+// is opened (see lazy-page.ts).
+const ForgotPasswordPage = lazyPage(
+  () => import('@/pages/ForgotPasswordPage'),
+  'ForgotPasswordPage',
+);
+const FriendsPage = lazyPage(() => import('@/pages/FriendsPage'), 'FriendsPage');
+const GamePage = lazyPage(() => import('@/pages/GamePage'), 'GamePage');
+const LegalPage = lazyPage(() => import('@/pages/LegalPage'), 'LegalPage');
+const LibraryPage = lazyPage(() => import('@/pages/LibraryPage'), 'LibraryPage');
+const NewsPage = lazyPage(() => import('@/pages/NewsPage'), 'NewsPage');
+const NotFoundPage = lazyPage(() => import('@/pages/NotFoundPage'), 'NotFoundPage');
+const PartyPage = lazyPage(() => import('@/pages/PartyPage'), 'PartyPage');
+const PlayerPage = lazyPage(() => import('@/pages/PlayerPage'), 'PlayerPage');
+const ProfilePage = lazyPage(() => import('@/pages/ProfilePage'), 'ProfilePage');
+const ResetPasswordPage = lazyPage(() => import('@/pages/ResetPasswordPage'), 'ResetPasswordPage');
+const SignInPage = lazyPage(() => import('@/pages/SignInPage'), 'SignInPage');
+const SignUpPage = lazyPage(() => import('@/pages/SignUpPage'), 'SignUpPage');
+const UiKitPage = lazyPage(() => import('@/pages/UiKitPage'), 'UiKitPage');
 
 export const router = createBrowserRouter([
   {

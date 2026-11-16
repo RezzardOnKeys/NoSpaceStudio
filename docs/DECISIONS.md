@@ -1051,3 +1051,37 @@ grace times keep both from flickering during normal use. The price: a
 party host who leaves the game's tab in the background for more than
 three and a half minutes loses the host role and the game is stopped for
 the party.
+
+## 48. Pages load on demand; archives stay out of the repository
+
+**Decision:** Every page except the store is downloaded the first time it
+is opened instead of with the first visit (`routes/lazy-page.ts`, used in
+`routes/router.tsx`).
+
+- The store stays in the main file because it is the start page; a guest
+  who opens the site sees it without a second wait.
+- While a page's file downloads, a `<Suspense>` around the page shows
+  `PageFallback` (a skeleton) inside the frame: in `AppShell`, in
+  `AuthLayout` and, for the player, in `RootLayout`. The sidebar and top
+  bar stay visible. Usually this is only a split second, and only the
+  first time.
+- **After a new release** the file names change. A launcher that was open
+  before the release asks for an old file the first time it opens a page
+  it has not visited yet. `lib/stale-chunks.ts` catches this
+  (`vite:preloadError`) and reloads the page once, which loads the new
+  version. If the same happens again within ten seconds, it does not
+  reload again but shows the error, so a really broken file cannot cause
+  endless reloads.
+- Shared code (React, React Router, the Supabase client, icons) is still
+  loaded on the first visit; every page needs it. The first visit went
+  from 1030 kB to about 820 kB (311 to 251 kB compressed). The biggest
+  saving is the Markdown renderer (118 kB), which now loads only on pages
+  that show Markdown (game page, news, legal pages).
+- `*.zip` is in `.gitignore`. Games are added as unpacked folders; an
+  archive in the repository only makes every clone bigger.
+  (`inkwars.zip`, 25 MB, was committed with version 43; removing it from
+  the current files does not remove it from the git history.)
+
+**Why:** The bundle was one large file, which slows down the first visit,
+especially on phones, and grows with every page we add. Splitting it now is
+cheaper than later.

@@ -9,7 +9,10 @@ import { RouterProvider } from 'react-router/dom';
 import { ToastProvider } from '@/components/ui/ToastProvider';
 import { AuthProvider } from '@/features/auth/AuthProvider';
 import { queryClient } from '@/lib/query-client';
+import { reloadOnStaleChunks } from '@/lib/stale-chunks';
 import { router } from '@/routes/router';
+
+reloadOnStaleChunks();
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {

@@ -1,6 +1,8 @@
+import { Suspense } from 'react';
 import { Link, Outlet } from 'react-router';
 
 import { Logo } from '@/components/brand/Logo';
+import { PageFallback } from '@/components/layout/PageFallback';
 import { Notice } from '@/components/ui/Notice';
 import { brand } from '@/config/brand';
 import { env } from '@/config/env';
@@ -23,7 +25,9 @@ export function AuthLayout() {
             docs/SUPABASE-SETUP.md.
           </Notice>
         )}
-        <Outlet />
+        <Suspense fallback={<PageFallback />}>
+          <Outlet />
+        </Suspense>
       </main>
 
       <nav aria-label="Legal" className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-fg-subtle">

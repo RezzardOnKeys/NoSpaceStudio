@@ -195,6 +195,8 @@ helpful error while `.env` is not filled in.
   components.
 - Never hard-code the product name; use `brand` from `@/config/brand`.
 - Never hand-type route URLs; use `paths` from `@/routes/paths`.
+- New pages are registered in `routes/router.tsx` with `lazyPage(...)`, so they
+  load on demand (decision 48); only the start page (store) is imported directly.
 - Filters that should survive navigation live in the URL (see `useStoreFilters`).
 - Buttons that are links: `<Link className={buttonStyles({ … })}>`.
 - Every data view has loading (Skeleton), error (with a hint how to fix it)

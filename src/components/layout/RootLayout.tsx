@@ -1,8 +1,11 @@
+import { Suspense } from 'react';
 import { Outlet } from 'react-router';
 
 import { PartyAlerts } from '@/features/party/PartyAlerts';
 import { PartyWatcher } from '@/features/party/PartyWatcher';
 import { PresenceReporter } from '@/features/presence/PresenceReporter';
+
+import { PageFallback } from './PageFallback';
 
 /**
  * Wraps every page, with or without the app shell. Things that must keep
@@ -12,7 +15,10 @@ import { PresenceReporter } from '@/features/presence/PresenceReporter';
 export function RootLayout() {
   return (
     <>
-      <Outlet />
+      {/* Pages without a frame of their own (the player) load here. */}
+      <Suspense fallback={<PageFallback />}>
+        <Outlet />
+      </Suspense>
       <PartyWatcher />
       <PartyAlerts />
       <PresenceReporter />
