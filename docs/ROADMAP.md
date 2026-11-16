@@ -171,6 +171,9 @@ table whenever a phase is finished.
   recorded in [DECISIONS.md](DECISIONS.md).
 - Code quality: small reusable components, no `any`, loading, error and empty
   states everywhere, no dead files.
+- **Every change players notice gets a news post** in the same step
+  (launcher update or game patch note, with version and the current time;
+  rules in [CLAUDE.md](../CLAUDE.md), section "News posts").
 
 ## Target features
 

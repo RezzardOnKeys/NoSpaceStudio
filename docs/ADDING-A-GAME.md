@@ -137,14 +137,17 @@ Two new tracks and a **ghost mode**.
 Oben zwischen den beiden `---`-Zeilen stehen die Angaben, darunter der Text
 in Markdown.
 
-| Angabe    | Pflicht               | Bedeutung                                                              |
-| --------- | --------------------- | ---------------------------------------------------------------------- |
-| `title`   | ja                    | Überschrift                                                            |
-| `type`    | ja                    | `announcement`, `launcher_update` oder `game_update`                   |
-| `date`    | ja                    | `JJJJ-MM-TT`. Liegt es in der Zukunft, erscheint der Beitrag erst dann |
-| `game`    | nur bei `game_update` | Ordnername des Spiels                                                  |
-| `version` | nein                  | Wird als kleines Label angezeigt                                       |
-| `author`  | nein                  | Standard: der Name der Plattform                                       |
+| Angabe    | Pflicht               | Bedeutung                                                             |
+| --------- | --------------------- | --------------------------------------------------------------------- |
+| `title`   | ja                    | Überschrift                                                           |
+| `type`    | ja                    | `announcement`, `launcher_update` oder `game_update`                  |
+| `date`    | ja                    | `JJJJ-MM-TT` oder mit Uhrzeit `2026-11-16T19:54:00+01:00` (empfohlen) |
+| `game`    | nur bei `game_update` | Ordnername des Spiels                                                 |
+| `version` | nein                  | Wird als kleines Label angezeigt                                      |
+| `author`  | nein                  | Standard: der Name der Plattform                                      |
+
+Mit Uhrzeit stehen mehrere Beiträge desselben Tages in der richtigen
+Reihenfolge. Nehmt die Uhrzeit, zu der das Update fertig ist.
 
 Ein Beitrag mit Datum in der Zukunft erscheint auf der echten Seite
 automatisch, sobald das Datum erreicht ist. Lokal (`npm run dev`) ist er

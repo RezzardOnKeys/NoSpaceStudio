@@ -1,7 +1,7 @@
 ---
 title: Die Together 1.0 – two players, one character
 type: game_update
-date: 2026-11-15T15:00:00+01:00
+date: 2026-11-15T15:58:00+01:00
 game: die-together
 version: 1.0.0
 author: Morris

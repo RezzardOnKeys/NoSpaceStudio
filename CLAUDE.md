@@ -42,6 +42,35 @@ existing files; extend them.
 3. A ready-to-copy commit message in Conventional Commits format, starting
    with the protocol version, e.g. `[v12] feat(library): add genre filter and search`
 4. Instructions for testing the result locally
+5. Which news post was written (see "News posts"), or why none was needed
+
+## News posts (automatic, after EVERY change players notice)
+
+Every change that players can see or feel gets a news post in `news/` in the
+**same** prompt, without being reminded. Players read them under "News"
+(launcher posts) and on the game's page (patch notes). Pure docs, tooling,
+CI or refactors without a visible effect get none.
+
+- **Launcher change** (anything in `src/`, `supabase/`, `legal/` that users
+  notice): `type: launcher_update` with the next launcher version. The
+  current version is the highest `version` of all `launcher_update` posts.
+  New feature: raise the middle number (1.11.0 → 1.12.0); fix or speed-up
+  only: raise the last number (1.11.0 → 1.11.1).
+- **Game change:** `type: game_update`, `game: <slug>`, and the new game
+  version, which is also written into `version` in that game's
+  `game.json`. Same numbering rule.
+- **File name:** `news/<YYYY-MM-DD>-<launcher|slug>-<version with dashes>.md`,
+  e.g. `news/2026-11-16-launcher-1-11.md`, `news/2026-11-16-inkwars-1-3-1.md`.
+- **Date:** the current local time with offset, e.g.
+  `date: 2026-11-16T19:54:00+01:00` (read it with `date`). Never a time in
+  the future: such a post stays hidden on the live site until then, and the
+  timeline would be in the wrong order.
+- **Text:** English, a few short bullet points with a bold lead-in, written
+  for players (what changed for them), no file names or code terms. Use
+  `news/_template.md` and the newest posts as the model.
+- One prompt that changes both the launcher and a game gets two posts.
+- List the post under "Geänderte Dateien" in `PROTOKOLL.md` and in the
+  hand-over.
 
 ## PROTOKOLL.md (automatic, after EVERY result)
 

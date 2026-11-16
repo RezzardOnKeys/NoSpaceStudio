@@ -15,6 +15,18 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 61 – 2026-11-16 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Seit gestern fehlen alle Launcher-News: nachträglich mit Datum und Inhalt einfügen, Spiel-News auf Vollständigkeit und Reihenfolge prüfen, und in den Dateien für Claude festhalten, dass News nie wieder vergessen werden
+**Änderungen:**
+- Vier fehlende Launcher-News nachgetragen, jeweils mit der Uhrzeit des Commits: 1.9.0 „Player counts for party games“ (Version 26), 1.10.0 „Online means really online“ (Version 57), 1.10.1 „A faster start“ (Version 59), 1.11.0 „Party chat“ (Version 60)
+- Spiel-News geprüft: zu jeder Spielversion gibt es eine Patch Note. Bei 8 Beiträgen stimmte die Uhrzeit nicht (Inkwars 1.0 bis 1.3.1, Dust Dash 1.1, Die Together 1.0); zwei lagen sogar in der Zukunft (23:45 und 23:55) und wären online bis dahin versteckt gewesen. Alle auf die Uhrzeit ihres Commits gesetzt, damit die Zeitleiste stimmt
+- CLAUDE.md: neuer Abschnitt „News posts“ (nach jeder sichtbaren Änderung automatisch ein Beitrag, Versionsregeln, Dateiname, Uhrzeit nie in der Zukunft, Stil) und Punkt 5 in der Übergabe; ROADMAP „How we work“ und ADDING-A-GAME (Datum mit Uhrzeit) ergänzt
+- Commit-Hash für Version 60 nachgetragen
+- Getestet: lint, build, Prettier; News-Seite im fertigen Build: alle Beiträge in der richtigen Reihenfolge, Inkwars-Beiträge wie vorgesehen versteckt (Spiel ist noch Entwurf). Nicht geprüft: wie die Patch Notes auf jeder einzelnen Spiel-Seite aussehen
+**Geänderte Dateien:** news/2026-11-15-launcher-1-9.md (neu), news/2026-11-16-launcher-1-10.md (neu), news/2026-11-16-launcher-1-10-1.md (neu), news/2026-11-16-launcher-1-11.md (neu), news/2026-11-15-inkwars-1-0.md, news/2026-11-15-die-together-1-0.md, news/2026-11-16-inkwars-1-1.md, news/2026-11-16-inkwars-1-2.md, news/2026-11-16-inkwars-1-2-1.md, news/2026-11-16-inkwars-1-3.md, news/2026-11-16-inkwars-1-3-1.md, news/2026-11-16-dust-dash-1-1.md, CLAUDE.md, docs/ROADMAP.md, docs/ADDING-A-GAME.md, PROTOKOLL.md
+**Commit-Message:** `[v61] docs(news): add missing launcher posts 1.9 to 1.11, fix post times, make news posts a rule`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 60 – 2026-11-16 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Party-Chat einbauen, der nur im Bereich „Party“ links zu sehen ist, wenn man in einer Party ist
 **Änderungen:**
@@ -25,7 +37,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Getestet: lint, typecheck, build, Prettier; Aussehen vorübergehend auf der UI-Kit-Seite mit Beispielnachrichten (Desktop und Handy-Breite, lange Nachricht, „Former member“, leerer Chat) und Fehlerfall beim Senden als Gast (Meldung erscheint, Text bleibt stehen); die Testanzeige ist wieder entfernt. Nicht getestet: alles mit Konto (echtes Senden und Empfangen, Realtime, Beitritt und Verlassen), die Migration selbst (sie ist noch nicht in Supabase ausgeführt), Safari
 **Geänderte Dateien:** supabase/migrations/0010_party_chat.sql (neu), src/features/party/PartyChat.tsx (neu), src/features/party/api.ts, src/features/party/queries.ts, src/pages/PartyPage.tsx, src/types/database.ts, src/types/models.ts, src/lib/query-keys.ts, src/lib/format.ts, legal/privacy.md, docs/DECISIONS.md, docs/ROADMAP.md, docs/SUPABASE-SETUP.md, CLAUDE.md, PROTOKOLL.md
 **Commit-Message:** `[v60] feat(party): add a chat for party members on the Party page`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`c572e6c`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/c572e6c)
 
 ## Version 59 – 2026-11-16 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Optimierungsliste für das ganze System; davon Punkt 1 (Zip-Dateien aus dem Repo) und Punkt 2 (Launcher in Teile aufteilen) umsetzen, Punkt 3 (UI-Kit nur lokal) und 4 (Cloudflare `_headers`) in die Roadmap für Phase 7
