@@ -131,6 +131,7 @@ let lastInput = 0;
 
 const inMatch = () => state === 'countdown' || state === 'playing';
 const controls = createControls(canvas, inMatch);
+controls.bindSpeedSlider(document.getElementById('sens'), document.getElementById('sensValue'));
 
 // ---- Menu -------------------------------------------------------------------
 function hue(index) {

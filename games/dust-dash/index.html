@@ -112,6 +112,12 @@
       .go:active { transform: translate(4px, 4px); box-shadow: 1px 1px 0 var(--ink); }
       .go:disabled { filter: grayscale(1); opacity: .5; }
       .note { min-height: 20px; margin-top: 12px; font-size: 14px; font-style: italic; font-weight: 700; text-align: center; }
+      .speed { display: flex; align-items: center; gap: 10px; }
+      .speed input { --fill: 26%; -webkit-appearance: none; appearance: none; flex: 1; min-width: 0; height: 16px; margin: 0; cursor: pointer; border: 2px solid var(--ink); border-radius: 3px; box-shadow: 2px 2px 0 rgba(40,22,8,.45); background: repeating-linear-gradient(90deg, var(--ink) 0 2px, transparent 2px 10%) 0 100% / 100% 7px no-repeat, linear-gradient(90deg, #f0c64a var(--fill), var(--paper) var(--fill)); }
+      .speed input:focus-visible { outline: 4px solid var(--stamp); outline-offset: 4px; }
+      .speed input::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 14px; height: 24px; background: linear-gradient(90deg, #a96d36, #87532a); border: 3px solid var(--ink); border-radius: 3px; box-shadow: 2px 2px 0 var(--ink); }
+      .speed input::-moz-range-thumb { width: 10px; height: 20px; background: linear-gradient(90deg, #a96d36, #87532a); border: 3px solid var(--ink); border-radius: 3px; box-shadow: 2px 2px 0 var(--ink); }
+      .speed output { min-width: 50px; padding: 0 5px; text-align: center; font-size: 13px; line-height: 1.5; font-weight: 700; background: var(--paper); border: 2px solid var(--ink); border-radius: 4px; box-shadow: 0 2px 0 var(--ink); transform: rotate(2deg); }
       .keys { margin: 14px 0 0; padding: 0; list-style: none; font-size: 13px; line-height: 2.1; font-weight: 700; }
       kbd { padding: 1px 6px; font: inherit; background: var(--paper); border: 2px solid var(--ink); border-radius: 4px; box-shadow: 0 2px 0 var(--ink); }
 
@@ -181,6 +187,11 @@
             <li><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> walk · <kbd>Mouse</kbd> look around</li>
             <li>hold <kbd>Left click</kbd> to vacuum (you walk slower then)</li>
             <li>no mouse: <kbd>Arrow keys</kbd> look, <kbd>E</kbd> vacuums</li>
+            <li class="speed">
+              <label for="sens">Mouse speed</label>
+              <input id="sens" type="range" />
+              <output id="sensValue" for="sens">1.0×</output>
+            </li>
           </ul>
         </div>
       </div>

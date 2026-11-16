@@ -15,6 +15,20 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 63 – 2026-11-16 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Regler für die Mausgeschwindigkeit in Inkwars und Dust Dash, wie in Die Together, passend zum Design des jeweiligen Spiels
+**Änderungen:**
+- Beide Spiele haben im Menü einen Regler „Mouse speed“ von 0,3× bis 3× (Schritte von 0,1, normal 1×), derselbe Bereich wie in Die Together. Der Wert wird im Browser gespeichert und gilt auch für die nächste Runde. Die Pfeiltasten zum Umsehen ohne Maus bleiben unverändert
+- Inkwars 1.4.0: eine dicke runde Leiste mit dunklem Knopf im weißen Rand wie bei den Farbtupfern; sie füllt sich in der gewählten Wasserfarbe (wie der Start-Knopf), daneben der Wert in einer hellen Pille
+- Dust Dash 1.2.0: ein Maßband mit Strichen auf dem Paketanhänger, das sich gelb füllt, ein Schieber aus Holz und ein schräg aufgeklebtes Zettelchen mit dem Wert; als letzte Zeile unter „How to“, damit der Anhänger nicht viel höher wird
+- Die Regler-Logik steckt jeweils in `controls.js` (`speed` und `bindSpeedSlider`)
+- Commit-Hashes für Version 61 und 62 nachgetragen
+- Zwei Patch Notes, Versionen in game.json und ROADMAP angepasst; der Regler ist aus den „Ideas for later“ gestrichen
+- Getestet in Chrome über den Spiele-Server: Aussehen am Desktop und in Handy-Breite, Ziehen am Regler, Wert bleibt nach Neuladen, Farbe folgt der Wasserfarbe (Inkwars), mit Testskript nachgemessen, dass sich die Sicht genau um den gewählten Faktor schneller oder langsamer dreht; je ein Solo-Spiel gestartet, keine Fehler in der Konsole; lint, typecheck, build, Prettier. Nicht getestet: das echte Umsehen mit der Maus (Pointer Lock kann ich nicht bedienen), Safari, Firefox (der Regler hat dort eigene Stilregeln, die ich nicht gesehen habe), Spiele im Launcher
+**Geänderte Dateien:** games/inkwars/controls.js, games/inkwars/game.js, games/inkwars/lobby.js, games/inkwars/index.html, games/inkwars/game.json, games/dust-dash/controls.js, games/dust-dash/game.js, games/dust-dash/index.html, games/dust-dash/game.json, news/2026-11-16-inkwars-1-4.md (neu), news/2026-11-16-dust-dash-1-2.md (neu), docs/ROADMAP.md, PROTOKOLL.md
+**Commit-Message:** `[v63] feat(games): add a mouse speed slider to Inkwars and Dust Dash`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 62 – 2026-11-16 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Inkwars freischalten (stand noch auf „draft“ und war deshalb auf der echten Seite unsichtbar)
 **Änderungen:**
@@ -25,7 +39,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Getestet: lint, typecheck, build; im fertigen Build (Port 4173) Store, Spiel-Seite und News als Gast. Nicht getestet: Safari, eine echte Party mit zwei Konten über das Internet, die Maus im Launcher (diese Punkte waren schon vorher offen)
 **Geänderte Dateien:** games/inkwars/game.json, news/2026-11-16-inkwars-release.md (neu), docs/ROADMAP.md, PROTOKOLL.md
 **Commit-Message:** `[v62] feat(inkwars): publish Inkwars for everyone`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`9307860`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/9307860)
 
 ## Version 61 – 2026-11-16 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Seit gestern fehlen alle Launcher-News: nachträglich mit Datum und Inhalt einfügen, Spiel-News auf Vollständigkeit und Reihenfolge prüfen, und in den Dateien für Claude festhalten, dass News nie wieder vergessen werden
@@ -37,7 +51,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Getestet: lint, build, Prettier; News-Seite im fertigen Build: alle Beiträge in der richtigen Reihenfolge, Inkwars-Beiträge wie vorgesehen versteckt (Spiel ist noch Entwurf). Nicht geprüft: wie die Patch Notes auf jeder einzelnen Spiel-Seite aussehen
 **Geänderte Dateien:** news/2026-11-15-launcher-1-9.md (neu), news/2026-11-16-launcher-1-10.md (neu), news/2026-11-16-launcher-1-10-1.md (neu), news/2026-11-16-launcher-1-11.md (neu), news/2026-11-15-inkwars-1-0.md, news/2026-11-15-die-together-1-0.md, news/2026-11-16-inkwars-1-1.md, news/2026-11-16-inkwars-1-2.md, news/2026-11-16-inkwars-1-2-1.md, news/2026-11-16-inkwars-1-3.md, news/2026-11-16-inkwars-1-3-1.md, news/2026-11-16-dust-dash-1-1.md, CLAUDE.md, docs/ROADMAP.md, docs/ADDING-A-GAME.md, PROTOKOLL.md
 **Commit-Message:** `[v61] docs(news): add missing launcher posts 1.9 to 1.11, fix post times, make news posts a rule`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`f6cc3b5`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/f6cc3b5)
 
 ## Version 60 – 2026-11-16 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Party-Chat einbauen, der nur im Bereich „Party“ links zu sehen ist, wenn man in einer Party ist

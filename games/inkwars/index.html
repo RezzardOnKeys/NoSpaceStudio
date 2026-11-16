@@ -72,6 +72,12 @@
       .note { min-height: 20px; margin-top: 12px; font-size: 15px; font-weight: 700; opacity: .75; }
       .keys { margin-top: 14px; font-size: 14px; line-height: 1.7; opacity: .75; font-weight: 600; }
       kbd { background: #eef2fa; border-radius: 6px; padding: 2px 7px; font: inherit; font-weight: 800; }
+      .speed { display: flex; align-items: center; justify-content: center; gap: 14px; }
+      .speed input { --fill: 26%; -webkit-appearance: none; appearance: none; width: min(280px, 60vw); height: 18px; margin: 0; border-radius: 9px; cursor: pointer; background: linear-gradient(var(--paint, #ff2d95), var(--paint, #ff2d95)) 0 0 / var(--fill) 100% no-repeat, #eef2fa; }
+      .speed input:focus-visible { outline: 4px solid #23314d; outline-offset: 4px; }
+      .speed input::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 32px; height: 32px; border-radius: 50%; background: #23314d; border: 5px solid #fff; box-shadow: 0 0 0 2px #d5dbe8, 0 3px 0 rgba(0,0,0,.2); }
+      .speed input::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: #23314d; border: 5px solid #fff; box-shadow: 0 0 0 2px #d5dbe8, 0 3px 0 rgba(0,0,0,.2); }
+      .speed output { min-width: 62px; padding: 6px 10px; border-radius: 12px; background: #eef2fa; font-weight: 800; font-size: 17px; }
       #end { background: none; backdrop-filter: none; -webkit-backdrop-filter: none; align-items: flex-end; padding-bottom: 5vh; }
       #endTitle { font-size: 40px; font-weight: 900; margin: 0 0 10px; min-height: 48px; }
       #endRow { display: flex; justify-content: space-around; font-size: 46px; font-weight: 900; }
@@ -116,6 +122,11 @@
         <h2>Your water colour</h2>
         <div class="row" id="palette"></div>
         <div id="versus"></div>
+        <h2><label for="sens">Mouse speed</label></h2>
+        <div class="speed">
+          <input id="sens" type="range" />
+          <output id="sensValue" for="sens">1.0×</output>
+        </div>
         <button type="button" class="go" id="start">Start</button>
         <div class="note" id="lobbyStatus" role="status"></div>
         <div class="keys">

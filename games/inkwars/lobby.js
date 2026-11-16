@@ -67,6 +67,8 @@ export function createLobby({ role, onColor, onTeamSize, onMain }) {
 
     const main = $('start');
     main.style.background = css(PALETTE[s.myColor].hex);
+    // The mouse speed slider fills with the own water colour too.
+    $('sens').style.setProperty('--paint', css(PALETTE[s.myColor].hex));
     let text = s.status;
     if (role === 'solo') {
       main.textContent = 'Start';

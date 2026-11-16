@@ -57,7 +57,7 @@ table whenever a phase is finished.
   developers two against the bot, tested in Chrome with up to 8 tabs, and the rules (hits, lives, reload, walls, round end) with a test
   script. **Not yet tested in Safari and not yet with 4 or more real
   players.** No sound yet.
-- **The fourth game is in:** `games/inkwars/` (Inkwars, version 1.3.1,
+- **The fourth game is in:** `games/inkwars/` (Inkwars, version 1.4.0,
   published on 2026-11-16), a 3D water fight in
   third person: two sides paint the arena, the side with more painted
   ground after three minutes wins; in "fish form" a player is fast and
@@ -72,14 +72,15 @@ table whenever a phase is finished.
   trail, a visible knockout; 1.2.1 (decision 42): the trail is made of
   falling drips that paint where they land; 1.3 (decision 43): no trail any
   more, colour only where the water lands, a clean jet; 1.3.1 (decision
-  45): no more sky-high shots when looking above the horizon. Tested in Chrome: solo against a bot, and a party
+  45): no more sky-high shots when looking above the horizon; 1.4: a mouse
+  speed slider in the menu, as in Die Together (remembered in the browser). Tested in Chrome: solo against a bot, and a party
   match with two tabs (menu, colours, same painted arena and score on both
   screens, reload of the guest during a match, result, rematch; in 1.1 also
   the guest's movement, swimming behind a shot and a hit by the guest), and
   with test scripts (hits, aim, a party with artificial network delay).
   **Not yet tested: Safari, a real party with two accounts over the
   internet, the mouse inside the launcher.** No sound yet.
-- **The fifth game is in:** `games/dust-dash/` (Dust Dash, version 1.1.0,
+- **The fifth game is in:** `games/dust-dash/` (Dust Dash, version 1.2.0,
   published), a cosy first person race in an old wooden hall of 56 x 36 m:
   two players vacuum up 11500 pieces of dust, dirt and sawdust for points
   for four minutes (the dirt is laid out new from a seed in every match),
@@ -89,7 +90,8 @@ table whenever a phase is finished.
   (the host is the referee, the guest moves itself ahead, decision 44) or
   alone against one bot that plays by the same rules. Its interface has
   its own look (a parcel tag as menu, a wooden sign as clock, a receipt as
-  result). Version 1.1 (decision 46): a ten-second camera flight through
+  result). Version 1.2: a mouse speed slider under "How to" in the menu.
+  Version 1.1 (decision 46): a ten-second camera flight through
   the hall when the time is up, showing how much was cleaned, before the
   result. The plan it was built from is [DUST-DASH.md](DUST-DASH.md).
   Tested in Chrome: alone against the bot, a party with two tabs (also a
@@ -351,12 +353,11 @@ Collected in conversations with the developers; nothing decided yet.
   rounds, spectating through the eyes of a character that is still alive.
 - **Inkwars follow-ups** (the game itself is built, see above): 2 v 2 in a
   party (the rules already know two seats per team; menu, messages and
-  `maxPlayers` are written for 1 vs 1), sound effects, touch controls, a
-  mouse speed slider like in Die Together, not sending a submerged
+  `maxPlayers` are written for 1 vs 1), sound effects, touch controls, not sending a submerged
   player's position to the other screen, a second arena.
 - **Dust Dash follow-ups** (the game itself is built, see above): more
   players and more bots (players are a list, the limit is `MAX_PLAYERS`),
-  more halls, sound, drawn icons for the power-ups, a mouse speed slider,
+  more halls, sound, drawn icons for the power-ups,
   sending the dust film to a guest who reloads.
 - **Other 3D ideas from the brainstorm** (not decided): "Other Eyes" (you
   see through your opponent's eyes), a time loop duel (your previous rounds
