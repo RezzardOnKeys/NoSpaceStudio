@@ -36,6 +36,11 @@ export const CONFIG = {
     speed: 30, // how fast a drop flies (m/s)
     gravity: 32, // how fast it falls; with speed 30 the water reaches about 28 m
     spread: 0.012, // random deviation of a shot, in radians either way
+    // A shot may leave the gun at most this much higher than the crosshair
+    // looks (radians). The gun aims at the crosshair's spot, but a spot that
+    // is very far away or in the air would need a high lob; then the shot
+    // goes to the furthest spot on the crosshair's line it can reach this flat.
+    aimLift: 0.42,
     damage: 22,
     floorRadius: 1.15, // splat at the impact
     wallRadius: 0.9,

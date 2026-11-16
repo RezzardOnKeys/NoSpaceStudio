@@ -22,7 +22,7 @@
 //   game.js       this file
 
 import * as THREE from './vendor/three.module.js';
-import { PALETTE, SNAP_MS, INPUT_MS, STEP } from './config.js';
+import { CONFIG, PALETTE, SNAP_MS, INPUT_MS, STEP } from './config.js';
 import { Arena } from './arena.js';
 import { Paint } from './paint.js';
 import { Sim } from './sim.js';
@@ -295,9 +295,32 @@ function readInput(dt) {
   // The gun's place depends on the direction, so it is worked out a few
   // times; each time it gets closer (matters right in front of a wall).
   rig.aimPoint(yaw, pitch, target);
-  inp.aimYaw = yaw;
+  aimAt(target);
+
+  // A spot that is very far away or up in the air (looking above the
+  // horizon) could only be reached with a high lob. Then the shot goes to
+  // the furthest spot on the crosshair's line that a flat shot reaches, so
+  // the water always leaves the gun at most aimLift above the crosshair.
+  const highest = pitch + CONFIG.weapon.aimLift;
+  if (inp.aimPitch > highest) {
+    let near = rig.aimStart();
+    let far = camera.position.distanceTo(target);
+    for (let i = 0; i < 18; i++) {
+      const mid = (near + far) / 2;
+      aimAt(rig.alongAim(yaw, pitch, mid, target));
+      if (inp.aimPitch > highest) far = mid;
+      else near = mid;
+    }
+    aimAt(rig.alongAim(yaw, pitch, near, target));
+  }
+}
+
+/** Turns the gun so that a shot lands at the point `to` (writes aimYaw and aimPitch). */
+function aimAt(to) {
+  const inp = me.input;
+  inp.aimYaw = controls.yaw;
   for (let i = 0; i < 5; i++) {
-    const angles = Sim.aimAngles(sim.muzzle(me, muzzle), target);
+    const angles = Sim.aimAngles(sim.muzzle(me, muzzle), to);
     inp.aimYaw = angles.yaw;
     inp.aimPitch = angles.pitch;
   }

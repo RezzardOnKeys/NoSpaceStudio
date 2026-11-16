@@ -63,6 +63,15 @@ export function createCameraRig(camera, arena) {
       return out;
     },
 
+    /** Where the search of aimPoint() starts: just in front of the gun (metres from the camera). */
+    aimStart: () => dist + 0.6,
+
+    /** The point t metres from the camera in the direction of the crosshair. */
+    alongAim(yaw, pitch, t, out) {
+      setForward(yaw, pitch);
+      return out.copy(camera.position).addScaledVector(fwd, t);
+    },
+
     /** Slowly circling the arena (menu). */
     orbit(clock) {
       camera.position.set(Math.cos(clock * 0.12) * 46, 24, Math.sin(clock * 0.12) * 36);

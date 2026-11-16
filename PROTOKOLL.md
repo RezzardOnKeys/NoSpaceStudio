@@ -15,6 +15,19 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 55 – 2026-11-16 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Inkwars: Schaut man etwas über die Bildschirmmitte, fliegen die Schüsse viel zu hoch; sie sollen sich verhalten wie unterhalb der Mitte. Dazu Frage, wo die Namen der Spieler gespeichert sind (in Supabase unter Authentication steht kein Display name)
+**Änderungen:**
+- Ursache: Über dem Horizont fand das Fadenkreuz keinen Boden, die Pistole zielte auf einen Punkt 40 m entfernt in der Luft und schoss dafür im Steilbogen (45 Grad und mehr)
+- Jetzt verlässt ein Schuss die Pistole höchstens 0,42 rad (etwa 24 Grad) über der Blickrichtung (`weapon.aimLift` in `config.js`); bräuchte der Punkt unter dem Fadenkreuz mehr, zielt die Pistole auf den weitesten Punkt auf der Linie des Fadenkreuzes, den sie so flach erreicht
+- Unterhalb des Horizonts bleibt alles gleich; der Winkel wächst jetzt gleichmäßig mit dem Blick, am Horizont 0,42 statt 0,79 rad, das Wasser fliegt dort höchstens 2,3 m statt 7 m über die Pistole. Preis: Auf flachem Boden trifft man genau bis etwa 20 m (vorher 28 m); etwas höher schauen reicht weiter
+- Getestet: Skript (Schusswinkel und Landepunkt für jeden Blickwinkel, vorher und nachher, zwei Richtungen) und in Chrome allein gegen Bots (Schuss knapp über dem Horizont fliegt knapp über das Fadenkreuz). Nicht getestet: Party, Safari, Maus
+- Spielversion 1.3.1 mit Patch Note, Entscheidung 45, ROADMAP; Commit-Hash für Versionen 51 bis 54 nachgetragen
+- Frage beantwortet (ohne Änderung): Die Namen stehen in der Tabelle `profiles` (Spalte `username`), nicht in Authentication
+**Geänderte Dateien:** games/inkwars/ (game.js, camera.js, config.js, game.json), news/2026-11-16-inkwars-1-3-1.md (neu), docs/DECISIONS.md, docs/ROADMAP.md, PROTOKOLL.md
+**Commit-Message:** `[v55] fix(inkwars): keep shots close to the crosshair when looking above the horizon`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 54 – 2026-11-16 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Dust Dash: letzte Feinschliffe machen und das Spiel als erste Version online stellen; außerdem soll der Staubsauger am Boden bleiben und nicht in Hindernisse ragen
 **Änderungen:**
@@ -27,7 +40,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Doku: Entscheidung 44 ergänzt, ROADMAP (Spiel fertig, Folgeideen), docs/DUST-DASH.md (Status), games/README.md
 **Geänderte Dateien:** games/dust-dash/ (neu: bot.js, cover.svg, banner.svg; geändert: game.js, host.js, nav.js, hall.js, hallView.js, effects.js, viewModel.js, playerView.js, config.js, game.json, description.md), news/2026-11-16-dust-dash-1-0.md (neu), docs/DECISIONS.md, docs/ROADMAP.md, docs/DUST-DASH.md, games/README.md, PROTOKOLL.md
 **Commit-Message:** `[v54] feat(games): publish Dust Dash 1.0.0 with the bot, polish and a nozzle that stays on the floor`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`fe27910`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/fe27910)
 
 ## Version 53 – 2026-11-16 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Dust Dash Schritt 5: voller Party-Modus (Host als Schiedsrichter, Gast bewegt sich selbst voraus, Dreck und Kisten übers Netz, Neuladen mitten in der Runde)
@@ -43,7 +56,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Entscheidung 44 ergänzt, ROADMAP, docs/DUST-DASH.md und docs/PARTY-GAMES.md (fünftes Beispiel) aktualisiert
 **Geänderte Dateien:** games/dust-dash/ (neu: feed.js, wire.js, playerView.js; geändert: game.js, host.js, guest.js, sim.js, dirt.js, dirtView.js, config.js), docs/DECISIONS.md, docs/ROADMAP.md, docs/DUST-DASH.md, docs/PARTY-GAMES.md, PROTOKOLL.md
 **Commit-Message:** `[v53] feat(dust-dash): full party mode with a guest that moves itself and shared dirt`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`fe27910`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/fe27910)
 
 ## Version 52 – 2026-11-16 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Dust Dash: Halle vergrößern (statt kürzerer Runde), danach weiter mit Schritt 4 (Lieferkisten und Power-ups)
@@ -59,7 +72,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Entscheidung 44 ergänzt, ROADMAP und docs/DUST-DASH.md aktualisiert
 **Geänderte Dateien:** games/dust-dash/ (neu: nav.js, effects.js, marker.js; geändert: hall.js, hallView.js, scene.js, sim.js, host.js, guest.js, game.js, hud.js, config.js, index.html), docs/DECISIONS.md, docs/ROADMAP.md, docs/DUST-DASH.md, PROTOKOLL.md
 **Commit-Message:** `[v52] feat(dust-dash): bigger hall, deliveries at fair spots and four power-ups`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`fe27910`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/fe27910)
 
 ## Version 51 – 2026-11-16 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Dust Dash: beim Saugen etwas langsamer laufen, weitermachen mit Schritt 3 (Dreck, Saugen, Punkte); Frage, ob die Halle für 4 Minuten nicht zu klein ist
@@ -75,7 +88,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Entscheidung 44 um Schritt 3 ergänzt, ROADMAP und docs/DUST-DASH.md aktualisiert; Commit-Hash für Version 49 und 50 nachgetragen
 **Geänderte Dateien:** games/dust-dash/ (neu: dirt.js, dirtView.js, viewModel.js; geändert: game.js, sim.js, host.js, guest.js, hall.js, hallView.js, hud.js, config.js, index.html), docs/DECISIONS.md, docs/ROADMAP.md, docs/DUST-DASH.md, PROTOKOLL.md
 **Commit-Message:** `[v51] feat(dust-dash): add dirt from a seed, vacuuming, the dust film and points`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`fe27910`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/fe27910)
 
 ## Version 50 – 2026-11-16 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Dust Dash Schritt 2 (Halle und Bewegung) und das ganze Interface neu gestalten, weil es zu sehr nach Blind Drop aussah

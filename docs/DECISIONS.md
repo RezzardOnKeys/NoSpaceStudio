@@ -936,3 +936,32 @@ Steps 6 to 8 (the bot, polish, publishing as 1.0.0), added to decision 44:
   delivery box in a beam of light and the stamped title.
 - **Published as 1.0.0** with `"status": "published"`; the patch note is
   `news/2026-11-16-dust-dash-1-0.md`.
+
+## 45. Inkwars 1.3.1: shots leave the gun at most a little above the crosshair
+
+**Decision:** The gun aims at the spot under the crosshair and works out
+the arc that lands there (decision 40). Looking at or above the horizon
+the crosshair found no floor within 45 m, so the gun aimed at a point 40 m
+away in the air. The water only reaches about 28 m, so it was lobbed at
+45 degrees and more and flew sky high (measured: looking just below the
+horizon the gun pointed 0.35 rad up, just above it 0.79 rad). The
+developer wanted shots above the middle to behave like the ones below.
+
+Now a shot may leave the gun at most `aimLift` (0.42 rad, `config.js`)
+above the direction the crosshair looks. If the spot under the crosshair
+would need more, the gun aims at the furthest point on the crosshair's
+line that it reaches that flat (found by halving the distance 18 times in
+`game.js`). Spots that can be reached flatter, which is every spot on the
+floor or a wall up to about 20 m, are hit exactly as before.
+
+Measured from the start point: below the horizon nothing changed; at the
+horizon the gun now points 0.42 rad up instead of 0.79, and the angle
+grows evenly with the view (0.05 rad more view, 0.05 rad more shot). Water
+fired at the horizon now flies at most 2.3 m above the gun instead of 7 m.
+The price: the furthest spot on flat ground that can be painted while
+aiming at it is about 20 m (before 28 m); looking a little higher still
+reaches 28 m.
+
+**Why:** A shot that suddenly jumps into a steep lob when the crosshair
+moves a few pixels feels broken. Keeping the shot close to the view
+direction is what players expect.
