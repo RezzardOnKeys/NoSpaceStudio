@@ -79,6 +79,13 @@ table whenever a phase is finished.
   **Not yet tested: Safari, a real party with two accounts over the
   internet, the mouse inside the launcher.** No sound yet. To publish it,
   set `"status": "published"` in `game.json`.
+- **The fifth game is planned, not built yet:** "Dust Dash"
+  (`games/dust-dash/`), a cosy first person race in an old wooden hall:
+  two players vacuum up dust, dirt and sawdust for points for four
+  minutes, and whoever reaches the random delivery box first gets a
+  power-up for ten seconds. 1 vs 1 from a party or alone against one bot.
+  The complete plan is in [DUST-DASH.md](DUST-DASH.md). Build it from that
+  file.
 - **Games and news are files in the repository**, not database rows
   (decision 22). A game is a folder `games/<slug>/` with a `game.json`
   (store entry), an optional `description.md` and its images. A news post is
@@ -297,6 +304,9 @@ Collected in conversations with the developers; nothing decided yet.
   `maxPlayers` are written for 1 vs 1), sound effects, touch controls, a
   mouse speed slider like in Die Together, not sending a submerged
   player's position to the other screen, a second arena.
+- **Dust Dash** is decided and fully planned: [DUST-DASH.md](DUST-DASH.md).
+  Later ideas for it: more players and more bots, more halls, sound (like
+  the other games, it starts without any sound).
 - **Other 3D ideas from the brainstorm** (not decided): "Other Eyes" (you
   see through your opponent's eyes), a time loop duel (your previous rounds
   play along as clones), "Echo" (dark arena, sound makes it visible),

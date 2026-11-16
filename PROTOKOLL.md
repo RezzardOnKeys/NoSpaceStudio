@@ -15,6 +15,20 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 48 – 2026-11-16 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Neues Spiel planen (nur Idee und Startprompt für einen neuen Chat): gemütliches Aufräum-Spiel als Partyspiel
+**Änderungen:**
+- Idee gemeinsam entwickelt: „Dust Dash“, Ego-Perspektive in einer gemütlichen alten Holzhalle im Comic-Stil; zwei Spieler saugen um die Wette Staub, Dreck und Sägespäne (jedes Teil 1 Punkt, kein Beutel zum Leeren), 4 Minuten pro Runde
+- Lieferkiste etwa alle 35 Sekunden an einer fairen Zufallsstelle, Symbol auch durch Wände sichtbar; wer zuerst da ist, bekommt 10 Sekunden lang ein zufälliges Upgrade (breitere Düse, Turbo-Schuhe, stärkerer Sog, goldene Düse = doppelte Punkte), nicht stapelbar
+- Wer gerade nicht saugt, läuft schneller (Abwägung: Punkte oder Lieferung)
+- Party genau 2 Spieler, allein gegen 1 Bot; man kann sich nicht stören, nur gegenseitig den Dreck wegsaugen; keine Draufsicht am Ende
+- Kompletter Bauplan in `docs/DUST-DASH.md` (Regeln, Menü, Steuerung, Halle, Bot, Aussehen, Netzwerk wie Inkwars, Dateien, Reihenfolge, Testen); ROADMAP ergänzt; Commit-Hash für Version 47 nachgetragen
+- Ohne Sound geplant (wie die anderen Spiele; Sounds kommen später für alle Spiele zusammen)
+- Noch kein Code
+**Geänderte Dateien:** docs/DUST-DASH.md (neu), docs/ROADMAP.md, PROTOKOLL.md
+**Commit-Message:** `[v48] docs: plan the game Dust Dash`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 47 – 2026-11-16 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Inkwars: Schuss wie eine echte Wasserpistole (Vorbild: bekannte Tinten-Shooter), Farbe nur, wo das Wasser landet, vor sich spritzen und direkt hineinschwimmen; Tempo der Schüsse bleibt
 **Änderungen:**
@@ -27,7 +41,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Spielversion 1.3.0 mit Patch Note, Beschreibung angepasst, Entscheidung 43, ROADMAP; Commit-Hash für Version 46 nachgetragen
 **Geänderte Dateien:** games/inkwars/ (config.js, sim.js, paint.js, effects.js, game.js, guest.js, host.js, wire.js, game.json, description.md), news/2026-11-16-inkwars-1-3.md (neu), docs/DECISIONS.md, docs/ROADMAP.md, PROTOKOLL.md
 **Commit-Message:** `[v47] feat(inkwars): clean water jet that paints only where it lands`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`52ae7ff`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/52ae7ff)
 
 ## Version 46 – 2026-11-16 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Inkwars: Die Farbspur wächst am Boden, obwohl dort keine Tropfen landen, und bei hohen Schüssen hat sie eine Lücke; Farbe soll nur dort entstehen, wo Wasser ankommt, Hinterherschwimmen soll bleiben
