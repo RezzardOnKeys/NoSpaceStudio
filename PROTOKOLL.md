@@ -15,6 +15,18 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 58 – 2026-11-16 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Neuer Chat: alle Dateien auf den neuesten Stand bringen und einen Startprompt schreiben
+**Änderungen:**
+- README: Status (fünf Spiele, Online-Status) und Feature-Tabelle aktualisiert
+- ROADMAP: Migrationen 0001 bis 0009 (0009 wurde vor dem Ausführen gepusht, mit Hinweis, wie man prüft, ob sie gelaufen ist), Phase 8 um schwebende Party-Hinweise und automatisches Verlassen ergänzt
+- docs/PARTY-GAMES.md: Dust Dash ist kein Entwurf mehr
+- Commit-Hash für Version 57 nachgetragen
+- Startprompt für den neuen Chat geschrieben (steht im Chat, nicht als Datei)
+**Geänderte Dateien:** README.md, docs/ROADMAP.md, docs/PARTY-GAMES.md, PROTOKOLL.md
+**Commit-Message:** `[v58] docs: update project state for a new session`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 57 – 2026-11-16 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Online-Status prüfen (Kollege war online, obwohl das Fenster nur irgendwo offen war); online nur bei echter Nutzung von Launcher oder Spiel; Party automatisch verlassen, wenn man offline geht; neuer Host bekommt eine kleine Nachricht mit Krone auf jedem Bildschirm; Party-Einladungen auf jedem Bildschirm; danach mehrfach auf Fehler prüfen und berichten
 **Änderungen:**
@@ -27,7 +39,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Doku: Entscheidung 47, ROADMAP, CLAUDE.md, SUPABASE-SETUP.md (Tabelle), Datenschutzerklärung (Online-Status und Party)
 **Geänderte Dateien:** supabase/migrations/0009_active_status_and_party_cleanup.sql (neu), src/features/presence/ (activity.ts neu, PresenceReporter.tsx, api.ts), src/features/party/ (PartyAlerts.tsx neu, invite-alerts.ts neu, PartyNotices.tsx), src/components/layout/RootLayout.tsx, src/types/database.ts, legal/privacy.md, docs/DECISIONS.md, docs/ROADMAP.md, docs/SUPABASE-SETUP.md, CLAUDE.md, PROTOKOLL.md
 **Commit-Message:** `[v57] feat(presence): online only while active, leave parties when offline, party alerts on every screen`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`dae19af`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/dae19af)
 
 ## Version 56 – 2026-11-16 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Dust Dash: nach Rundenende eine etwa 10 Sekunden lange, cinematische Kamerafahrt durch die Halle (nicht von oben wie Inkwars), damit man sieht, wie viel gesaugt wurde, danach erst der Sieger

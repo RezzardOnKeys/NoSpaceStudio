@@ -123,10 +123,12 @@ table whenever a phase is finished.
   members, single player games and games that are too small for the party
   get a grey button with the reason (decision 34). How a game
   supports parties: [PARTY-GAMES.md](PARTY-GAMES.md).
-- The database schema is in `supabase/migrations/` (0001 to 0008). Each file
+- The database schema is in `supabase/migrations/` (0001 to 0009). Each file
   is run once in the Supabase SQL editor. **0001 to 0008 have all been run**
-  in the shared project; a new file gets the next number and is run once by
-  one developer. Games are referenced by their slug (folder name).
+  in the shared project. **0009** (decision 47) was pushed before it was
+  run; the developer was about to run it. If `report_away` is missing in
+  Supabase (Database → Functions), it has not been run yet. A new file
+  gets the next number and is run once by one developer. Games are referenced by their slug (folder name).
 - **Claude cannot test anything that needs an account** (no passwords).
   Playtime saving, the profile picture upload and all party flows are only
   checked by typecheck and as a guest; the developers test them with their
@@ -143,7 +145,7 @@ table whenever a phase is finished.
 - **Parties tidy up themselves** (decision 47): whoever is offline for more
   than three minutes leaves their party (as host the role passes on). New
   invitations and a crown for a new host float over every screen,
-  including a running game. **Migration `0009` must be run in Supabase.**
+  including a running game (migration `0009`, see below).
 - **Imprint and privacy policy are written** (English, `legal/*.md`). Name,
   address and contact email are still
   `[TODO]` placeholders; the pages show a warning until they are filled in.
@@ -296,9 +298,12 @@ Requirements:
 - Own page `/party` ("Party" in the sidebar, with stacked member pictures):
   members marked as host or member, invitations, kick and "make host" for
   the host (`0007_party_host_tools.sql`). Games are started from the game
-  page ("Play with party"). Notices on
-  every page for invitations and a running party game. Badge for
-  invitations on "Party".
+  page ("Play with party"). Invitations and a crown for a new host float
+  over every screen, also in a running game (`PartyAlerts`); a box above
+  the regular pages offers invitations put aside and a way back into a
+  running party game. Badge for invitations on "Party".
+- Offline members (more than three minutes) leave their party
+  automatically (`0009_active_status_and_party_cleanup.sql`, decision 47).
 - Game page: "Play with party" for the host, a hint for single player games.
 - The player passes room code, role, name and the link to the profile
   picture to the game (`#party=...`).

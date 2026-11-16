@@ -170,7 +170,7 @@ wenn beide auseinanderlaufen (`guest.js`). Die Liste aller Nachrichten
 steht oben in `host.js`, Entscheidungen 39 und 40 erklären den Aufbau.
 
 Ein fünftes Beispiel für **Dinge, die aus einer Zufallszahl entstehen**, ist
-`games/dust-dash/` (1 gegen 1, noch ein Entwurf). Dort liegen 11.500
+`games/dust-dash/` (1 gegen 1). Dort liegen 11.500
 Dreckteile in der Halle. Der Host schickt sie nicht, sondern nur eine
 Zufallszahl (den „Seed“) in der `start`-Nachricht; beide Browser bauen
 daraus genau dieselben Teile mit denselben Nummern (`dirt.js`, dort wird

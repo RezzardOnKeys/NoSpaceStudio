@@ -13,8 +13,10 @@ in-app purchases.
 
 </div>
 
-> **Status:** early prototype. Accounts, friends, playtime and parties work;
-> the first game is in. Deployment is next.
+> **Status:** prototype. Accounts, friends, online status, playtime and
+> parties work; five games are in (99-Finger WPM Trainer, Blind Drop, Die
+> Together, Inkwars, Dust Dash). The plan and the current state are in
+> [docs/ROADMAP.md](docs/ROADMAP.md).
 
 <!-- TODO: replace with a real screenshot once the store page exists. -->
 <p align="center"><em>Screenshot coming soon</em></p>
@@ -29,6 +31,7 @@ in-app purchases.
 | News feed                                                  | Done    |
 | Accounts with unique usernames, password reset             | Done    |
 | Friends: search, requests, friend profiles                 | Done    |
+| Online status for friends ("Online", "Playing …")          | Done    |
 | Library and profile pages                                  | Done    |
 | Real playtime tracking                                     | Done    |
 | Parties: invite friends, play multiplayer games together   | Done    |
