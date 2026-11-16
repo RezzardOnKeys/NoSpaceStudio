@@ -546,6 +546,8 @@ went into `games/inkwars/` like this:
   - **The guest's own character is shown where the host says it is**, moved
     on a little with its last speed (`guest.js`). The view direction follows
     the own mouse at once; the position lags by the network delay.
+    (Changed in version 1.1: the guest now moves its own character itself,
+    see decision 40.)
 - **Colours:** each player picks one of eight; a colour taken by the other
   is greyed out, and the host goes first if both want the same one. Against
   bots the other side gets the colour furthest away.
@@ -567,3 +569,66 @@ guest could find it with browser tools. Both are acceptable among friends.
 The idea of painting ground and diving into one's own colour is known from
 other games; name, characters, arena and code are our own, and the store
 texts do not refer to any other game.
+
+## 40. Inkwars 1.1: the guest moves itself, hits look back, a trail without gaps
+
+**Decision:** Version 1.1 of Inkwars changes three things in the party
+mode and in the shooting. The referee stays the host (decision 39): shots,
+hits, life, tank and paint are decided only there.
+
+- **The guest moves its own character itself.** It runs the same rules
+  (`Sim.updateActor`) on its exact copy of the painted arena, in the same
+  steps of 1/60 s, so a key press shows at once. Every step gets a number
+  and its keys (rounded to whole numbers, so both sides compute with the
+  same values) go to the host (`feed.js`). The host plays every step of the
+  guest exactly once and in order; its copy of the guest's character is
+  moved there, not by `sim.step()` (`Actor.external`). The network does
+  not deliver evenly, so the host plays two or three steps at once when
+  keys pile up and waits a moment when none are there, instead of
+  repeating or skipping keys. The host reports the number of the last step
+  it played (`k` in the snapshot); the guest compares the place after that
+  step with its own and makes up a difference softly within about a
+  quarter of a second (`guest.js`), at once if it is more than 2 m, never
+  into a wall. In a test with an artificial delay of up to 150 ms each way
+  the two places were the same in almost every comparison.
+- **Early own paint on the guest.** The guest's own drops fly on its
+  screen at once, but their splats come from the host one round trip
+  later. So that the guest can swim behind its own shot, those places
+  count as its own colour for moving for one second (`useEarly` in
+  `paint.js`). Early paint is never drawn and never counted.
+- **Hits with a look back.** The guest sees the host's character a little
+  late. Every step of the guest carries the moment on the host's clock its
+  screen showed (`seen`); the host keeps where every character was in the
+  last half second (`Sim.record`, `Sim.poseAt`) and judges the guest's
+  drops against where the target was then, at most 350 ms back
+  (`REWIND_MAX`), like Die Together (decision 35). In the test, without
+  this only 26 to 85 % of the hits the guest saw counted (depending on the
+  delay), with it 95 to 100 %. The price: somebody who just ran behind
+  cover can still be hit for a fraction of a second.
+- **A trail without gaps.** Drips no longer fall every 0.1 s (2.2 m apart)
+  but every 0.3 m, as round splats of radius 0.3, on a straight line from
+  the shooter's feet in the direction the camera looks, which is where W
+  swims. The drop itself flies to the crosshair, a little to the right
+  (the camera looks over the right shoulder), and the impact splat joins
+  the trail. Drips are sent as small steps in whole centimetres (one entry
+  per row of drips), so the party traffic went down a little although
+  there are more drips. One shot at 18 m now paints about 12 m² instead of
+  6 m²; continuous fire on the spot about 13 % more (the drips
+  overlap), fire while walking sideways about 2.5 times as much. The
+  developer asked for the wider trail after the first try with radius
+  0.22; `dripRadius` in `config.js` is the one number to turn down.
+- **Shots land at the crosshair.** The gun now turns in towards the point
+  under the crosshair (before every shot landed 0.6 m left of it), the
+  drop of the water is worked out exactly instead of estimated (far shots
+  fell up to 12 m short, `aimRange` is gone) and the search for that point
+  starts right in front of the gun. Spread went down from 0.035 to 0.012.
+- **Movement:** on foot accel 70 / decel 80 (stops in 0.08 s instead of
+  0.28 s), fish in own water accel 55 / decel 35 (glides 2 m instead of
+  11 m), fish on dry ground accel and decel 40 (a leap out of the own water
+  no longer skids 8 m), steering in the air 16 instead of 9.
+
+**Why:** The developers felt sliding in the movement and a delay on the
+guest's side, and wanted to swim right behind a shot. A guest that moves
+itself feels like the host; the host still decides everything that counts.
+Playing every step exactly once keeps both sides equal without sending
+positions back and forth.

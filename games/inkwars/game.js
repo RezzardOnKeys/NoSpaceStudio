@@ -2,7 +2,8 @@
 // player's input, runs the frame loop and talks to the other player in a
 // party match. Every browser runs this file. In a solo match and for the
 // party host the referee (host.js) runs in the same browser; a party guest
-// gets the state of the match over the network and only shows it (guest.js).
+// gets the state of the match over the network and shows it, moving only its
+// own character ahead by itself (guest.js).
 //
 // The files and what they do:
 //   config.js     numbers and rules that can be tuned
@@ -11,6 +12,7 @@
 //   sim.js        the rules: movement, shooting, water, hits
 //   nav.js        path finding for bots, bots.js the bots
 //   host.js       the referee; the list of all party messages is at its top
+//   feed.js       the guest's keys on the host, one step at a time
 //   guest.js      the guest's copy of a party match
 //   wire.js       how characters and inputs are packed for the network
 //   net.js        party connection with PeerJS, ticker.js a clock for hidden tabs
@@ -20,7 +22,7 @@
 //   game.js       this file
 
 import * as THREE from './vendor/three.module.js';
-import { PALETTE, SNAP_MS, INPUT_MS } from './config.js';
+import { PALETTE, SNAP_MS, INPUT_MS, STEP } from './config.js';
 import { Arena } from './arena.js';
 import { Paint } from './paint.js';
 import { Sim } from './sim.js';
@@ -34,8 +36,8 @@ import { createCameraRig } from './camera.js';
 import { createLobby } from './lobby.js';
 import { setHudColors, showHud, updateHud, showResult, hideResult, onAgain } from './hud.js';
 import { createReferee } from './host.js';
+import { createFeed } from './feed.js';
 import { createMirror } from './guest.js';
-import { packInput, unpackInput } from './wire.js';
 import { openRoom, joinRoom } from './net.js';
 
 // ---------------------------------------------------------------------
@@ -73,12 +75,22 @@ scene.add(projView.mesh, particles.mesh);
 const rig = createCameraRig(camera, arena);
 
 // Who runs the match: the referee here, or a copy of the host's match.
+// The party host plays the guest's keys back one step at a time (feed.js).
+const feed = createFeed();
 const match =
   ROLE === 'guest'
     ? createMirror({ sim, paint })
-    : createReferee({ sim, paint, nav: new Nav(arena) });
+    : createReferee({
+        sim,
+        paint,
+        nav: new Nav(arena),
+        beforeStep: () => {
+          if (guestActor && guestActor.external) feed.play(guestActor, sim, STEP, sim.time + STEP);
+        },
+      });
 if (ROLE === 'guest') {
   paint.readOnly = true;
+  paint.useEarly(MY_TEAM);
   sim.authority = false;
 }
 
@@ -202,6 +214,12 @@ function beginMatch() {
           ]
         : [[1, 0]];
     [me, guestActor = null] = match.start(menu.teamSize, seats);
+    feed.reset();
+    // The guest's keys move its character (feed.js) while the guest is there.
+    if (guestActor) guestActor.external = menu.otherHere;
+    // The party host remembers where everybody was, to judge the guest's
+    // shots against what the guest saw (Sim.poseAt).
+    sim.history = ROLE === 'host' ? new Map() : null;
   }
 
   for (const v of views) scene.remove(v.group);
@@ -264,11 +282,18 @@ function readInput(dt) {
   inp.fish = controls.down('ShiftLeft') || controls.down('ShiftRight');
   inp.shoot = controls.mouseDown || controls.down('KeyE');
 
-  // Aim: at the spot the crosshair points at
+  // Aim: from the gun at the spot the crosshair points at. The camera looks
+  // over the right shoulder, so the gun turns in a little towards that spot.
+  // The gun's place depends on the direction, so it is worked out a few
+  // times; each time it gets closer (matters right in front of a wall).
   rig.aimPoint(yaw, pitch, target);
-  const angles = Sim.aimAngles(sim.muzzle(me, muzzle), target);
+  inp.lookYaw = yaw;
   inp.aimYaw = yaw;
-  inp.aimPitch = angles.pitch;
+  for (let i = 0; i < 5; i++) {
+    const angles = Sim.aimAngles(sim.muzzle(me, muzzle), target);
+    inp.aimYaw = angles.yaw;
+    inp.aimPitch = angles.pitch;
+  }
 }
 
 // ---- Party: host side -----------------------------------------------------------
@@ -294,6 +319,8 @@ function fromGuest(msg) {
     sim.shots = [];
     netEvents = [];
     notice = '';
+    feed.reset();
+    if (guestActor) guestActor.external = true;
     if (inMatch()) {
       // The guest reloaded during a match: bring it back in.
       toGuest({ t: 'start', colors: menu.colors });
@@ -312,7 +339,7 @@ function fromGuest(msg) {
     sendLobby();
     renderLobby();
   } else if (msg.t === 'input' && guestActor && inMatch()) {
-    unpackInput(guestActor.input, msg.i);
+    feed.push(msg.n, msg.s);
   }
 }
 
@@ -322,9 +349,14 @@ function guestLeft() {
   menu.ready = false;
   paint.log = null;
   sim.shots = null;
+  feed.reset();
   if (guestActor) {
     // Nobody steers the character any more: it stands still.
-    unpackInput(guestActor.input, [0, 0, guestActor.input.aimYaw, 0, 0]);
+    const inp = guestActor.input;
+    inp.moveX = inp.moveZ = 0;
+    inp.shoot = inp.jump = inp.fish = false;
+    guestActor.rewind = 0;
+    guestActor.external = false; // the rules move it again (falling, coming back in)
   }
   if (inMatch()) notice = 'Your opponent left. Waiting for them to come back…';
   renderLobby();
@@ -435,11 +467,12 @@ function advance(dt) {
   if (me && inMatch()) readInput(dt);
 
   if (ROLE === 'guest') {
-    match.update(dt);
+    match.update(dt, me);
     if (state === 'countdown' && match.state === 'playing') state = 'playing';
     if (inMatch() && now - lastInput >= INPUT_MS) {
       lastInput = now;
-      toHost({ t: 'input', i: packInput(me.input) });
+      const msg = match.takeInputs();
+      if (msg) toHost(msg);
     }
   } else if (inMatch()) {
     match.step(dt);
@@ -461,7 +494,7 @@ function advance(dt) {
   const over = state === 'playing' && match.state === 'ended';
   if (menu.otherHere && inMatch() && (over || now - lastSnap >= SNAP_MS)) {
     lastSnap = now;
-    toGuest(match.snapshot(netEvents.splice(0)));
+    toGuest({ ...match.snapshot(netEvents.splice(0)), k: feed.ack });
   }
   if (over) {
     const pct = [paint.percent(1), paint.percent(2)];

@@ -53,10 +53,13 @@ export function createCameraRig(camera, arena) {
       camera.rotation.set(pitch, yaw, 0);
     },
 
-    /** The point in the arena the crosshair points at. */
+    /**
+     * The point in the arena the crosshair points at. The search starts just
+     * in front of the gun, so a wall right in front of the player counts too.
+     */
     aimPoint(yaw, pitch, out) {
       setForward(yaw, pitch);
-      arena.raycast(camera.position, fwd, dist + 1.5, 45, out);
+      arena.raycast(camera.position, fwd, dist + 0.6, 45, out);
       return out;
     },
 

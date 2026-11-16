@@ -163,8 +163,11 @@ Ein viertes Beispiel für **viele gemeinsame Daten** ist `games/inkwars/`
 Farbfläche immer wieder zu schicken, schreibt der Host jeden Klecks mit und
 der Gast wiederholt ihn genau gleich (`log` und `apply` in `paint.js`). Wer
 später dazukommt oder neu lädt, bekommt die Farbfläche einmal komplett
-(`exportState`). Die Liste aller Nachrichten steht oben in `host.js`,
-Entscheidung 39 erklärt den Aufbau.
+(`exportState`). Damit sich der Gast ohne Verzögerung bewegt, rechnet er
+seine eigene Figur selbst mit denselben Regeln, schickt die Tasten jedes
+Schritts nummeriert an den Host (`feed.js`) und wird nur sanft korrigiert,
+wenn beide auseinanderlaufen (`guest.js`). Die Liste aller Nachrichten
+steht oben in `host.js`, Entscheidungen 39 und 40 erklären den Aufbau.
 
 ### 4. Ohne Party weiter funktionieren
 

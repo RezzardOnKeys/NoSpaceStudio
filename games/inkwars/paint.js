@@ -3,6 +3,15 @@
 // the picture, the answer to "which colour is here" and the score.
 // With "log" switched on every splat is written down, so the party host can
 // send the splats to the guest, who repeats them exactly (see host.js).
+//
+// A party guest also keeps "early" paint (useEarly): its own drops land on
+// its screen before the host's splats arrive over the network. So that the
+// guest can swim right behind its own shot, those places count as its own
+// colour for moving, for EARLY_TIME seconds, until the real splats are
+// there. Early paint is never drawn and never counted for the score.
+
+// Long enough for the host's splats to arrive even on a slow connection.
+const EARLY_TIME = 1;
 
 import * as THREE from './vendor/three.module.js';
 import { CONFIG } from './config.js';
@@ -22,8 +31,17 @@ export class Paint {
     this.walls = new Map();
     // A list that collects every splat while it is not null (party host).
     this.log = null;
+    // The log entry the last drips went into, and the last drip (paintDrip).
+    this.dripEntry = null;
+    this.dripX = 0;
+    this.dripZ = 0;
     // true on a party guest: only splats sent by the host are painted.
     this.readOnly = false;
+    // Party guest (useEarly): until when a texel counts as the guest's own
+    // colour, on the clock "now" in seconds that guest.js moves on.
+    this.early = null;
+    this.earlyTeam = 0;
+    this.now = 0;
     this.rgb = [
       [0, 0, 0],
       [255, 0, 128],
@@ -66,6 +84,7 @@ export class Paint {
           y0: s.y0,
           height,
           team: new Uint8Array(w * h),
+          early: null,
           data,
           texture: makeTexture(data, w, h),
           dirty: false,
@@ -73,6 +92,12 @@ export class Paint {
       }
     }
     this.reset();
+  }
+  /** Party guest: own splats count early for moving (see the top of this file). */
+  useEarly(team) {
+    this.earlyTeam = team;
+    this.early = new Float32Array(this.total);
+    for (const w of this.walls.values()) w.early = new Float32Array(w.w * w.h);
   }
   setColors(c1, c2) {
     const toRgb = (hex) => [(hex >> 16) & 255, (hex >> 8) & 255, hex & 255];
@@ -95,8 +120,10 @@ export class Paint {
     for (const w of this.walls.values()) {
       w.team.fill(0);
       w.data.fill(0);
+      if (w.early) w.early.fill(0);
       w.dirty = true;
     }
+    if (this.early) this.early.fill(0);
   }
   write(data, i, team) {
     const c = this.rgb[team];
@@ -111,13 +138,54 @@ export class Paint {
    * jumping over edges onto other levels.
    */
   paintFloor(x, z, r, team, yRef) {
-    if (this.readOnly) return;
+    if (this.readOnly) {
+      if (team === this.earlyTeam) this.earlyFloor(x, z, r, yRef);
+      return;
+    }
     const phase = Math.random() * 6.28;
     if (this.log) this.log.push([0, x, z, r, team, yRef, phase]);
     this.splatFloor(x, z, r, team, yRef, phase);
   }
-  /** phase turns the irregular edge of the splat; the guest gets the host's value. */
-  splatFloor(x, z, r, team, yRef, phase) {
+  /**
+   * A small drip of the trail under a flying drop: a round splat, so drips
+   * in a row form a trail without gaps. To keep the party traffic small, a
+   * drip is only a place in whole centimetres; the guest works out the
+   * height from it exactly like the host. Drips in a row are collected in
+   * one entry of the log: [2, team, radius, x1, z1, dx2, dz2, dx3, dz3, ...]
+   * in cm, every further drip as the step from the one before. Those steps
+   * are small numbers, which take only one byte each on the network.
+   */
+  paintDrip(x, z, r, team) {
+    if (this.readOnly) {
+      if (team === this.earlyTeam) this.earlyFloor(x, z, r, this.arena.heightAt(x, z));
+      return;
+    }
+    const cx = Math.round(x * 100);
+    const cz = Math.round(z * 100);
+    const cr = Math.round(r * 100);
+    if (this.log) {
+      const last = this.log[this.log.length - 1];
+      if (last && last === this.dripEntry && last[1] === team && last[2] === cr) {
+        last.push(cx - this.dripX, cz - this.dripZ);
+      } else {
+        this.dripEntry = [2, team, cr, cx, cz];
+        this.log.push(this.dripEntry);
+      }
+      this.dripX = cx;
+      this.dripZ = cz;
+    }
+    this.splatDrip(cx, cz, cr, team);
+  }
+  splatDrip(cx, cz, cr, team) {
+    const x = cx / 100;
+    const z = cz / 100;
+    this.splatFloor(x, z, cr / 100, team, this.arena.heightAt(x, z), 0, 0);
+  }
+  /**
+   * phase turns the irregular edge of the splat; the guest gets the host's
+   * value. wobble is how far the edge goes in (0 = a round splat).
+   */
+  splatFloor(x, z, r, team, yRef, phase, wobble = 0.2) {
     const cx = (x + this.arena.hw) * this.tpm;
     const cz = (z + this.arena.hd) * this.tpm;
     const rr = r * this.tpm;
@@ -132,7 +200,7 @@ export class Paint {
         const d2 = dx * dx + dz * dz;
         if (d2 > rr * rr) continue;
         // an irregular edge, so it looks like a splat
-        const rad = rr * (0.8 + 0.2 * Math.sin(Math.atan2(dz, dx) * 5 + phase));
+        const rad = wobble ? rr * (1 - wobble + wobble * Math.sin(Math.atan2(dz, dx) * 5 + phase)) : rr;
         if (d2 > rad * rad) continue;
         const i = iz * this.TW + ix;
         if (Math.abs(this.heights[i] - yRef) > 0.75) continue;
@@ -147,24 +215,50 @@ export class Paint {
       }
     }
   }
+  /** Marks a round spot as early own paint (party guest, see useEarly). */
+  earlyFloor(x, z, r, yRef) {
+    if (!this.early) return;
+    const cx = (x + this.arena.hw) * this.tpm;
+    const cz = (z + this.arena.hd) * this.tpm;
+    const rr = r * this.tpm;
+    const until = this.now + EARLY_TIME;
+    for (let iz = Math.max(0, Math.floor(cz - rr)); iz <= Math.min(this.TH - 1, Math.ceil(cz + rr)); iz++) {
+      for (let ix = Math.max(0, Math.floor(cx - rr)); ix <= Math.min(this.TW - 1, Math.ceil(cx + rr)); ix++) {
+        const dx = ix + 0.5 - cx;
+        const dz = iz + 0.5 - cz;
+        if (dx * dx + dz * dz > rr * rr) continue;
+        const i = iz * this.TW + ix;
+        if (Math.abs(this.heights[i] - yRef) > 0.75) continue;
+        if (this.locked[i] && this.locked[i] !== this.earlyTeam) continue;
+        this.early[i] = until;
+      }
+    }
+  }
   floorTeamAt(x, z) {
     const ix = Math.floor((x + this.arena.hw) * this.tpm);
     const iz = Math.floor((z + this.arena.hd) * this.tpm);
     if (ix < 0 || iz < 0 || ix >= this.TW || iz >= this.TH) return 0;
-    return this.team[iz * this.TW + ix];
+    const i = iz * this.TW + ix;
+    if (this.early && this.early[i] > this.now) return this.earlyTeam;
+    return this.team[i];
   }
   wall(s, face) {
     return this.walls.get(s.id * 4 + face);
   }
   paintWall(s, face, along, y, r, team) {
-    if (this.readOnly) return;
+    if (this.readOnly) {
+      if (team === this.earlyTeam) this.splatWall(s, face, along, y, r, team, 0, true);
+      return;
+    }
     const phase = Math.random() * 6.28;
     if (this.log) this.log.push([1, s.id, face, along, y, r, team, phase]);
     this.splatWall(s, face, along, y, r, team, phase);
   }
-  splatWall(s, face, along, y, r, team, phase) {
+  /** early: only mark the spot as early own paint (party guest, see useEarly). */
+  splatWall(s, face, along, y, r, team, phase, early = false) {
     const w = this.wall(s, face);
-    if (!w) return;
+    if (!w || (early && !w.early)) return;
+    const until = this.now + EARLY_TIME;
     const cu = ((along - w.start) / w.len) * w.w;
     const cv = ((y - w.y0) / w.height) * w.h;
     const rr = r * this.tpm;
@@ -180,6 +274,10 @@ export class Paint {
         const rad = rr * (0.8 + 0.2 * Math.sin(Math.atan2(dv, du) * 5 + phase));
         if (d2 > rad * rad) continue;
         const i = iv * w.w + iu;
+        if (early) {
+          w.early[i] = until;
+          continue;
+        }
         if (w.team[i] === team) continue;
         w.team[i] = team;
         this.write(w.data, i, team);
@@ -192,12 +290,26 @@ export class Paint {
     if (!w) return 0;
     const iu = Math.min(w.w - 1, Math.max(0, Math.floor(((along - w.start) / w.len) * w.w)));
     const iv = Math.min(w.h - 1, Math.max(0, Math.floor(((y - w.y0) / w.height) * w.h)));
-    return w.team[iv * w.w + iu];
+    const i = iv * w.w + iu;
+    if (w.early && w.early[i] > this.now) return this.earlyTeam;
+    return w.team[i];
   }
-  /** Repeats a splat from the host's log (see paintFloor and paintWall). */
+  /** Repeats a splat from the host's log (see paintFloor, paintWall and paintDrip). */
   apply(op) {
     if (op[0] === 0) this.splatFloor(op[1], op[2], op[3], op[4], op[5], op[6]);
-    else this.splatWall(this.arena.shapes[op[1]], op[2], op[3], op[4], op[5], op[6], op[7]);
+    else if (op[0] === 1) this.splatWall(this.arena.shapes[op[1]], op[2], op[3], op[4], op[5], op[6], op[7]);
+    else if (op[0] === 2) {
+      const team = op[1] === 2 ? 2 : 1;
+      const cr = Math.min(300, Math.max(0, Math.round(op[2]) || 0));
+      let cx = 0;
+      let cz = 0;
+      for (let k = 3; k + 1 < op.length; k += 2) {
+        if (!Number.isInteger(op[k]) || !Number.isInteger(op[k + 1])) return;
+        cx += op[k];
+        cz += op[k + 1];
+        this.splatDrip(cx, cz, cr, team);
+      }
+    }
   }
   /**
    * The whole colour mask as one small package, for a guest who joins a

@@ -58,19 +58,24 @@ table whenever a phase is finished.
   script. **Not yet tested in Safari and not yet with 4 or more real
   players.** No sound yet.
 - **The fourth game is in as a draft:** `games/inkwars/` (Inkwars, version
-  1.0.0, `"status": "draft"`, so only visible locally), a 3D water fight in
+  1.1.0, `"status": "draft"`, so only visible locally), a 3D water fight in
   third person: two sides paint the arena, the side with more painted
   ground after three minutes wins; in "fish form" a player is fast and
   invisible in the own colour. 1 vs 1 from a party, or alone against bots
   (1 v 1 or 2 v 2). It was written by the second developer as a Vite and
   TypeScript project and brought in as plain JavaScript files without a
   build step, laid out like Blind Drop; the party mode was added on the
-  way in (decision 39). Tested in Chrome: solo against a bot, and a party
+  way in (decision 39). Version 1.1 (decision 40): direct movement without
+  sliding, the guest moves its own character itself, hits with a look back
+  for the guest, a trail without gaps to swim behind a shot, shots that
+  land at the crosshair. Tested in Chrome: solo against a bot, and a party
   match with two tabs (menu, colours, same painted arena and score on both
-  screens, reload of the guest during a match, result, rematch). **Not yet
-  tested: Safari, a real party with two accounts, the mouse inside the
-  launcher, hits between two people, a hidden host tab.** No sound yet. To
-  publish it, set `"status": "published"` in `game.json`.
+  screens, reload of the guest during a match, result, rematch; in 1.1 also
+  the guest's movement, swimming behind a shot and a hit by the guest), and
+  with test scripts (hits, aim, a party with artificial network delay).
+  **Not yet tested: Safari, a real party with two accounts over the
+  internet, the mouse inside the launcher.** No sound yet. To publish it,
+  set `"status": "published"` in `game.json`.
 - **Games and news are files in the repository**, not database rows
   (decision 22). A game is a folder `games/<slug>/` with a `game.json`
   (store entry), an optional `description.md` and its images. A news post is

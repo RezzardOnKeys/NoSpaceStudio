@@ -1,16 +1,20 @@
 // Inkwars – the rules: movement, shooting, water, hits. The simulation knows
 // neither keyboard nor screen. Every character only gets an input object per
 // step, no matter whether it comes from a person, a bot or the network.
-// Only the referee's browser runs step(); a party guest only flies the
-// water drops it is told about (updateProjectiles), without painting or hits.
+// Only the referee's browser runs step(). A party guest moves its own
+// character with the same rules (updateActor) and flies the water drops,
+// but paints nothing and hits nobody (authority = false).
 
 import * as THREE from './vendor/three.module.js';
-import { CONFIG } from './config.js';
+import { CONFIG, STEP } from './config.js';
 export const emptyInput = () => ({
   moveX: 0,
   moveZ: 0,
   aimYaw: 0,
   aimPitch: 0,
+  // The direction the player's camera looks (people only, NaN for bots).
+  // The trail of a shot runs that way, which is where W swims (see drip).
+  lookYaw: NaN,
   shoot: false,
   jump: false,
   fish: false,
@@ -42,6 +46,12 @@ export class Actor {
     this.airT = 0;
     this.canJump = true;
     this.prevJump = false;
+    // Party host: how far back in time (seconds) the shots of this character
+    // are judged, because its player saw the others that late (see poseAt).
+    this.rewind = 0;
+    // Party host: true for the guest's character, which is moved by the
+    // guest's keys step by step (feed.js) instead of by step().
+    this.external = false;
   }
   /** As a fish in own water: invisible to enemies. */
   get submerged() {
@@ -64,19 +74,44 @@ export class Sim {
     this.authority = true;
     // A list that collects every new water drop while it is not null (party host).
     this.shots = null;
+    // The clock of the rules in seconds; it only runs while step() is called.
+    this.time = 0;
+    // Party host: where every character was in the last half second, so
+    // the guest's shots can be judged against what the guest saw (poseAt).
+    this.history = null;
   }
-  /** A water drop; on a guest it comes from the host's list (see shots). */
-  addProjectile(x, y, z, vx, vy, vz, team, owner) {
-    const W = CONFIG.weapon;
+  /**
+   * A water drop; on a guest it comes from the host's list (see shots).
+   * Its trail of drips (see drip) runs on a straight line from the shooter's
+   * feet (fromX, fromZ): in the direction lookYaw if given, else towards the
+   * place where the drop will land; it ends level with that place.
+   */
+  addProjectile(x, y, z, vx, vy, vz, team, owner, fromX = x, fromZ = z, lookYaw = NaN) {
+    const land = this.landing(x, y, z, vx, vy, vz);
+    const dx = land.x - fromX;
+    const dz = land.z - fromZ;
+    let ux = 0;
+    let uz = 0;
+    let len = Math.hypot(dx, dz);
+    if (Number.isFinite(lookYaw)) {
+      ux = -Math.sin(lookYaw);
+      uz = -Math.cos(lookYaw);
+      len = Math.max(0, dx * ux + dz * uz);
+    } else if (len > 0) {
+      ux = dx / len;
+      uz = dz / len;
+    }
     this.projectiles.push({
       pos: new THREE.Vector3(x, y, z),
       vel: new THREE.Vector3(vx, vy, vz),
       team,
       owner,
-      life: W.maxLife,
-      dripT: W.dripInterval * 0.5,
+      life: CONFIG.weapon.maxLife,
+      trail: { x: fromX, z: fromZ, ux, uz, len },
+      trailAt: 0, // distance of the next drip along the trail; the first falls at the feet
+      rewind: owner ? owner.rewind : 0,
     });
-    if (this.shots) this.shots.push([x, y, z, vx, vy, vz, team]);
+    if (this.shots) this.shots.push([x, y, z, vx, vy, vz, team, owner ? owner.id : -1]);
   }
   addActor(team, slot, isBot) {
     const a = new Actor(this.actors.length, team, slot, isBot);
@@ -109,20 +144,84 @@ export class Sim {
       a.pos.z - Math.cos(y) * 0.55 - Math.sin(y) * 0.28,
     );
   }
-  /** The angles with which a shot from `from` lands at `to` (the drop of the water included). */
+  /** Where a drop will land if nothing is in its way (only the arena counts). */
+  landing(x, y, z, vx, vy, vz) {
+    const W = CONFIG.weapon;
+    const h = STEP / 2; // the same small steps as updateProjectiles
+    for (let t = 0; t < W.maxLife; t += h) {
+      vy -= W.gravity * h;
+      const nx = x + vx * h;
+      const ny = y + vy * h;
+      const nz = z + vz * h;
+      if (!this.arena.inBounds(nx, nz) || ny <= this.arena.heightAt(nx, nz)) break;
+      x = nx;
+      y = ny;
+      z = nz;
+    }
+    return { x, z };
+  }
+  /**
+   * The angles with which a shot from `from` lands at `to`, the drop of the
+   * water included (the flatter of the two arcs that get there). A point
+   * that is too far away gets the angle that carries the water furthest.
+   */
   static aimAngles(from, to) {
     const W = CONFIG.weapon;
     const dx = to.x - from.x;
     const dy = to.y - from.y;
     const dz = to.z - from.z;
-    const dh = Math.hypot(dx, dz);
-    const t = Math.min(Math.hypot(dh, dy), W.aimRange) / W.speed;
-    const drop = 0.5 * W.gravity * t * t;
-    return { yaw: Math.atan2(-dx, -dz), pitch: Math.atan2(dy + drop, Math.max(dh, 0.001)) };
+    const dh = Math.max(Math.hypot(dx, dz), 0.001);
+    const v2 = W.speed * W.speed;
+    const g = W.gravity;
+    const root = v2 * v2 - g * (g * dh * dh + 2 * dy * v2);
+    const pitch =
+      root >= 0 ? Math.atan((v2 - Math.sqrt(root)) / (g * dh)) : Math.PI / 4 + Math.atan2(dy, dh) / 2;
+    return { yaw: Math.atan2(-dx, -dz), pitch };
   }
   step(dt) {
-    for (const a of this.actors) this.updateActor(a, dt);
+    this.time += dt;
+    for (const a of this.actors) if (!a.external) this.updateActor(a, dt);
+    if (this.history) this.record();
     this.updateProjectiles(dt);
+  }
+  // ── Looking back in time (party host) ──────────────────────
+  /** Writes down where every character is now; keeps half a second. */
+  record() {
+    for (const a of this.actors) {
+      let list = this.history.get(a);
+      if (!list) this.history.set(a, (list = []));
+      list.push({
+        t: this.time,
+        x: a.pos.x,
+        y: a.pos.y,
+        z: a.pos.z,
+        morph: a.morph,
+        open: a.alive && a.invuln <= 0, // could be hit at that moment
+      });
+      while (list.length > 2 && list[0].t < this.time - 0.5) list.shift();
+    }
+  }
+  /**
+   * Where character a was at the time t (between two notes), or the present
+   * if nothing is written down. "open" is false if it could not be hit then.
+   */
+  poseAt(a, t) {
+    const list = this.history && this.history.get(a);
+    const now = { x: a.pos.x, y: a.pos.y, z: a.pos.z, morph: a.morph, open: true };
+    if (!list || list.length === 0 || t >= list[list.length - 1].t) return now;
+    if (t <= list[0].t) return list[0];
+    let i = list.length - 1;
+    while (list[i - 1].t > t) i--;
+    const p = list[i - 1];
+    const q = list[i];
+    const k = (t - p.t) / (q.t - p.t || 1);
+    return {
+      x: p.x + (q.x - p.x) * k,
+      y: p.y + (q.y - p.y) * k,
+      z: p.z + (q.z - p.z) * k,
+      morph: k < 0.5 ? p.morph : q.morph,
+      open: p.open && q.open,
+    };
   }
   // ── Characters ─────────────────────────────────────────────
   updateActor(a, dt) {
@@ -272,6 +371,9 @@ export class Sim {
         -Math.cos(y) * cp * W.speed,
         a.team,
         a,
+        a.pos.x,
+        a.pos.z,
+        inp.lookYaw,
       );
     }
     if (a.fish && a.inOwnInk) a.tank = Math.min(W.tank, a.tank + W.refillPerSec * dt);
@@ -301,9 +403,20 @@ export class Sim {
           dead = true;
           break;
         }
+        // A guest's own drops drip too, but only as early paint (paint.js).
+        if (this.authority || p.owner) this.drip(p);
         for (const a of this.actors) {
           if (!a.alive || a.team === p.team || a.invuln > 0) continue;
-          if (this.hits(p.pos, a)) {
+          let { x, y, z } = a.pos;
+          let morph = a.morph;
+          if (p.rewind > 0) {
+            // A party guest's drop is judged against where the target was
+            // when the guest saw it (see poseAt and REWIND_MAX in config.js).
+            const pose = this.poseAt(a, this.time - p.rewind);
+            if (!pose.open) continue;
+            ({ x, y, z, morph } = pose);
+          }
+          if (this.hits(p.pos, x, y, z, morph)) {
             if (this.authority) this.damage(a, p);
             dead = true;
             break;
@@ -316,11 +429,6 @@ export class Sim {
           dead = true;
           break;
         }
-        p.dripT -= h;
-        if (p.dripT <= 0) {
-          p.dripT = W.dripInterval;
-          if (p.pos.y - gh < 5) this.paint.paintFloor(p.pos.x, p.pos.z, W.dripRadius, p.team, gh);
-        }
       }
       if (dead) {
         this.projectiles[i] = this.projectiles[this.projectiles.length - 1];
@@ -328,14 +436,43 @@ export class Sim {
       }
     }
   }
-  hits(p, a) {
-    const dx = p.x - a.pos.x;
-    const dz = p.z - a.pos.z;
-    if (a.morph > 0.5) {
-      const dy = p.y - (a.pos.y + 0.28);
+  /**
+   * The trail: drips on a straight line from the shooter's feet, one every
+   * dripSpacing metres, so it has no gaps. For a person it runs the way the
+   * camera looks, which is exactly where the fish swims with W. The camera
+   * looks over the right shoulder, so the drop itself flies a little to the
+   * right of the trail (at most about 0.9 m, at the far end), where the big
+   * splat of the impact joins the trail. The trail grows as the drop flies
+   * on (up to the drop's place along the line), so a drop that hits
+   * something early leaves a shorter trail. Drips only fall on a surface
+   * below the drop and at most 5 m below it.
+   */
+  drip(p) {
+    const W = CONFIG.weapon;
+    const tr = p.trail;
+    const along = (p.pos.x - tr.x) * tr.ux + (p.pos.z - tr.z) * tr.uz;
+    const until = Math.min(tr.len, along);
+    while (p.trailAt <= until) {
+      const x = tr.x + tr.ux * p.trailAt;
+      const z = tr.z + tr.uz * p.trailAt;
+      p.trailAt += W.dripSpacing;
+      const gh = this.arena.heightAt(x, z);
+      if (gh <= p.pos.y && p.pos.y - gh < 5) this.paint.paintDrip(x, z, W.dripRadius, p.team);
+    }
+  }
+  /**
+   * Does a drop at p touch a character standing at (x, y, z)? A person is a
+   * capsule from 0.3 to 1.5 m above the feet with radius 0.55, a fish
+   * (morph over 0.5) a ball of radius 0.5 just above the floor.
+   */
+  hits(p, x, y, z, morph) {
+    const dx = p.x - x;
+    const dz = p.z - z;
+    if (morph > 0.5) {
+      const dy = p.y - (y + 0.28);
       return dx * dx + dy * dy + dz * dz < 0.5 * 0.5;
     }
-    const cy = Math.min(a.pos.y + 1.5, Math.max(a.pos.y + 0.3, p.y));
+    const cy = Math.min(y + 1.5, Math.max(y + 0.3, p.y));
     const dy = p.y - cy;
     return dx * dx + dy * dy + dz * dz < 0.55 * 0.55;
   }

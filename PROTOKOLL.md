@@ -15,6 +15,22 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 44 – 2026-11-16 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Inkwars verbessern: Bewegung ohne Rutschen, Gast bewegt sich ohne Verzögerung, genauere Schüsse, lückenlose Spur zum Hinterherschwimmen (danach: Spur breiter), Treffer prüfen, Treffer trotz Netzwerkverzögerung
+**Änderungen:**
+- Bewegung direkter: zu Fuß Stopp in 0,08 s statt 0,28 s, Fisch im eigenen Wasser gleitet 2 m statt 11 m nach, Fischsprung rutscht auf trockenem Boden nicht mehr 8 m weiter, mehr Steuerung in der Luft
+- Gast in der Party rechnet die eigene Figur selbst (gleiche Regeln, gleiche Farbfläche); der Host spielt jeden Tasten-Schritt des Gasts genau einmal ab (neu: `feed.js`) und meldet zurück, der Gast gleicht Abweichungen sanft aus; eigene frische Kleckse zählen beim Gast kurz als „vorläufige Farbe“, damit er sofort hinterherschwimmen kann
+- Treffer mit Rückblick: Der Host prüft Schüsse des Gasts gegen die Position, die der Gast gesehen hat (höchstens 350 ms zurück)
+- Fehler behoben: Jeder Schuss landete 0,6 m links vom Fadenkreuz, weite Schüsse fielen bis 12 m zu kurz; jetzt auf wenige Zentimeter genau, auch nah vor Wänden
+- Streuung 0,035 → 0,012
+- Lückenlose Spur ab den eigenen Füßen in Blickrichtung (Radius 0,3 m, alle 0,3 m ein Tropfen), Tropfen werden platzsparend als Zentimeter-Schritte verschickt
+- Testskripte (nicht im Repo): Treffer (Kapsel, Kugel, schnelle Tropfen, Kanten, Wände, untergetaucht, Unverwundbarkeit, Rückblick), Zielen, Fläche/Datenmenge, Party mit künstlicher Verzögerung
+- Getestet in Chrome (Browser-Fenster der App): allein gegen Bot, Party mit zwei Tabs (Gast-Bewegung, Hinterherschwimmen, Treffer des Gasts, Neuladen des Gasts). Nicht getestet: Safari, echte Party über das Internet mit zwei Konten, Maus im Launcher
+- Spielversion 1.1.0 mit Patch Note, Beschreibung ergänzt, Entscheidung 40, ROADMAP, PARTY-GAMES; Commit-Hash für Version 43 nachgetragen
+**Geänderte Dateien:** games/inkwars/ (neu: feed.js; geändert: config.js, sim.js, paint.js, arena.js, camera.js, game.js, host.js, guest.js, wire.js, game.json, description.md), news/2026-11-16-inkwars-1-1.md (neu), docs/DECISIONS.md, docs/ROADMAP.md, docs/PARTY-GAMES.md, PROTOKOLL.md
+**Commit-Message:** `[v44] feat(inkwars): direct movement, guest prediction, lag-compensated hits and a gap-free trail`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 43 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Neues Spiel aus inkwars.zip prüfen und als viertes Spiel einbauen: direkt mit Party-Modus 1 gegen 1 und allein gegen Bots spielbar
 **Änderungen:**
@@ -32,7 +48,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - `inkwars.zip` gehört nicht ins Repo und kann gelöscht werden
 **Geänderte Dateien:** games/inkwars/ (neu: index.html, game.js, config.js, arena.js, paint.js, sim.js, nav.js, bots.js, host.js, guest.js, wire.js, net.js, ticker.js, scene.js, arenaView.js, actorView.js, effects.js, camera.js, controls.js, lobby.js, hud.js, game.json, description.md, cover.svg, banner.svg, vendor/), news/2026-11-15-inkwars-1-0.md (neu), docs/ROADMAP.md, docs/DECISIONS.md, docs/PARTY-GAMES.md, games/README.md, PROTOKOLL.md
 **Commit-Message:** `[v43] feat(games): add Inkwars, a 3D water fight for two players or against bots`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`0aed2b8`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/0aed2b8)
 
 ## Version 42 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Blind Drop genau prüfen, Fehler beheben, Code so sauber wie möglich aufteilen, alles für den nächsten Chat dokumentieren

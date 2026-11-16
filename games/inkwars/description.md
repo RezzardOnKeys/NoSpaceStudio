@@ -2,10 +2,12 @@ A 3D water fight in a toy studio. Two sides spray the arena with their
 colour. After three minutes the side that painted more ground wins.
 
 - **Spray.** Aim with the mouse and hold the **left mouse button**. Every
-  drop leaves your colour on the floor and on the walls.
+  drop leaves your colour on the floor and on the walls, and a trail that
+  starts right at your feet.
 - **Dive.** Hold **Shift** to turn into a fish. In your own colour you are
-  fast, your opponent cannot see you, and your tank fills up again. You can
-  even swim up walls you have painted. On dry ground a fish only flops.
+  fast, your opponent cannot see you, and your tank fills up again. Shoot,
+  dive and swim straight along your own trail. You can even swim up walls
+  you have painted. On dry ground a fish only flops.
 - **Soak.** Hit your opponent often enough and they are out for three
   seconds, then they start again at their base. Your health comes back when
   you stay out of the water for a moment.

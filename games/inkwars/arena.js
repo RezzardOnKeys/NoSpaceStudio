@@ -109,9 +109,22 @@ export class Arena {
   }
   /** A ray against the terrain. Gives the hit point or the end point. */
   raycast(o, d, tMin, tMax, out) {
+    const under = (t) => o.y + d.y * t <= this.heightAt(o.x + d.x * t, o.z + d.z * t);
     for (let t = tMin; t <= tMax; t += 0.25) {
-      out.set(o.x + d.x * t, o.y + d.y * t, o.z + d.z * t);
-      if (out.y <= this.heightAt(out.x, out.z)) return true;
+      if (under(t)) {
+        // narrow the hit down to about a centimetre between the last two samples
+        let lo = Math.max(tMin, t - 0.25);
+        let hi = t;
+        if (lo < t && !under(lo)) {
+          for (let i = 0; i < 5; i++) {
+            const mid = (lo + hi) / 2;
+            if (under(mid)) hi = mid;
+            else lo = mid;
+          }
+        }
+        out.set(o.x + d.x * hi, o.y + d.y * hi, o.z + d.z * hi);
+        return true;
+      }
     }
     out.set(o.x + d.x * tMax, o.y + d.y * tMax, o.z + d.z * tMax);
     return false;

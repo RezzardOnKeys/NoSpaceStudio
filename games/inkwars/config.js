@@ -13,15 +13,17 @@ export const CONFIG = {
     stepHeight: 0.4, // edges up to this height are walked up without a jump
     coyoteTime: 0.1, // for this long you may still jump after running off an edge
     morphTime: 0.14, // time the change human <-> fish takes
-    // human form
-    human: { maxSpeed: 6.2, accel: 26, decel: 22, jumpSpeed: 7.4 },
-    // fish form in own water: fast, glides on for a long time
-    fishInk: { maxSpeed: 12.5, accel: 30, decel: 7, jumpSpeed: 8.2 },
+    // accel: how fast the speed follows the keys (also when turning);
+    // decel: how fast the character stops after letting go of the keys.
+    // human form: stops and turns almost at once
+    human: { maxSpeed: 6.2, accel: 70, decel: 80, jumpSpeed: 7.4 },
+    // fish form in own water: fast, glides on only briefly
+    fishInk: { maxSpeed: 12.5, accel: 55, decel: 35, jumpSpeed: 8.2 },
     // fish form on dry ground: only flops around
-    fishDry: { maxSpeed: 2.0, accel: 12, decel: 16, jumpSpeed: 4.0 },
+    fishDry: { maxSpeed: 2.0, accel: 40, decel: 40, jumpSpeed: 4.0 },
     fishJumpBoost: 1.12, // extra momentum when jumping out of own water
     enemyInkFactor: 0.4, // speed factor in enemy water
-    airAccel: 9, // how much you can steer in the air
+    airAccel: 16, // how much you can steer in the air
     airMaxSpeed: 6.2, // up to this speed you can accelerate in the air
     climbSpeed: 7, // swimming up a wall
     fishTurnRate: 12, // how fast the fish turns into its direction of travel
@@ -33,15 +35,16 @@ export const CONFIG = {
     fireInterval: 0.1,
     speed: 22,
     gravity: 18,
-    spread: 0.035,
+    spread: 0.012, // random deviation of a shot, in radians either way
     damage: 22,
     floorRadius: 1.15, // splat at the impact
     wallRadius: 0.9,
-    dripRadius: 0.5, // trail of drips under the flight path
-    dripInterval: 0.1,
+    // A trail of drips under the flight path, from the shooter's feet to the
+    // impact without gaps, so you can swim right behind your shot.
+    dripRadius: 0.3, // the trail is twice this wide
+    dripSpacing: 0.3, // one drip every this many metres along the way
     refillPerSec: 50,
     maxLife: 2.5,
-    aimRange: 18, // up to this distance the drop of the water is compensated
   },
   actor: {
     hp: 100,
@@ -86,3 +89,7 @@ export const STEP = 1 / 60;
 // and how often the guest sends its keys and aim to the host (milliseconds).
 export const SNAP_MS = 33;
 export const INPUT_MS = 33;
+// The guest sees the host's character a little late (network and smoothing).
+// The host judges the guest's shots against where its target was at the
+// moment the guest saw, but never further back than this (seconds).
+export const REWIND_MAX = 0.35;

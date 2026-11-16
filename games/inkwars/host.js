@@ -1,8 +1,11 @@
 // Inkwars – the referee. It runs the match: countdown, clock, the rules
 // (sim.js) and the bots. It exists only in one browser: your own in a solo
-// match, the party host's in a party match. The guest's browser never
-// decides anything; it sends its keys and shows what the referee reports
-// (guest.js), so two screens can never disagree about a hit or the score.
+// match, the party host's in a party match. The guest's browser decides
+// nothing: it moves its own character ahead with the same rules so it
+// reacts at once, sends its keys (feed.js) and is corrected softly by what
+// the referee reports (guest.js). Shots, hits, life, tank and paint are
+// decided here only, so two screens can never disagree about a hit or the
+// score.
 //
 // All messages of a party match (sent in game.js):
 //
@@ -10,13 +13,15 @@
 //     { t: 'hello', name, color }   after connecting; color = wanted palette index
 //     { t: 'color', color }         picked another colour in the menu
 //     { t: 'ready', ready }         pressed "Ready"
-//     { t: 'input', i }             keys and aim, see packInput() in wire.js
+//     { t: 'input', n, s }          keys and aim of the steps n, n+1, ...: s is a
+//                                   list of packInput() lists (wire.js, feed.js)
 //
 //   host -> guest
 //     { t: 'lobby', hostName, colors, ready }   the menu; also "back to the menu"
 //     { t: 'start', colors }        a match begins (or goes on after a reload)
 //     { t: 'paint', mask }          the whole colour mask, for a guest who joins late
-//     { t: 'snap', ... }            the state of the match, see snapshot() below
+//     { t: 'snap', ... }            the state of the match, see snapshot() below;
+//                                   k = the guest's last step played (feed.js)
 //     { t: 'end', pct }             time is up; pct = painted share of team 1 and 2
 //     { t: 'full' }                 a third player tried to join (handled in net.js)
 //     plus 'ping' and 'bye' from net.js
@@ -25,7 +30,8 @@ import { CONFIG, STEP } from './config.js';
 import { Bot } from './bots.js';
 import { packActor } from './wire.js';
 
-export function createReferee({ sim, paint, nav }) {
+/** beforeStep() is called before every step of the rules (party host: the guest's keys). */
+export function createReferee({ sim, paint, nav, beforeStep = () => {} }) {
   let bots = [];
   let humans = [];
   let acc = 0;
@@ -74,6 +80,7 @@ export function createReferee({ sim, paint, nav }) {
         acc += dt;
         while (acc >= STEP) {
           for (const b of bots) b.think(STEP);
+          beforeStep();
           sim.step(STEP);
           acc -= STEP;
         }
@@ -94,6 +101,8 @@ export function createReferee({ sim, paint, nav }) {
      * The state of the match for the guest. ops are the splats and shots the
      * new water drops since the last snapshot (both lists are emptied here);
      * events are hits and deaths as [kind, x, y, z, team], kind 0 = hit.
+     * ht is the clock of the rules in milliseconds; the guest sends back
+     * which moment of it its screen showed (see REWIND_MAX in config.js).
      */
     snapshot(events) {
       return {
@@ -101,6 +110,7 @@ export function createReferee({ sim, paint, nav }) {
         s: ref.state,
         tl: ref.timeLeft,
         cd: ref.countdown,
+        ht: Math.round(sim.time * 1000),
         a: sim.actors.map(packActor),
         ops: paint.log ? paint.log.splice(0) : [],
         shots: sim.shots ? sim.shots.splice(0) : [],
