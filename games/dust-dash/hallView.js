@@ -1,5 +1,5 @@
 // Dust Dash – builds the visible hall in the comic look: wooden floor and
-// walls, windows, roof beams and every obstacle from hall.js (shelves,
+// walls, windows with sunbeams, roof beams and every obstacle from hall.js (shelves,
 // workbenches, crates, barrels, posts). Only for looks; where things are
 // and what blocks the way is decided by hall.js.
 
@@ -59,7 +59,8 @@ function boards(colors, rows, seed) {
   return tex;
 }
 
-export function buildHallView(hall) {
+/** film: the dust film from dirtView.js; it is laid over the floor. */
+export function buildHallView(hall, film) {
   const group = new THREE.Group();
   const { W, D, H, hw, hd } = hall;
   const rnd = seeded(31);
@@ -89,7 +90,9 @@ export function buildHallView(hall) {
   // ---- Floor: honey coloured boards along the long side ------------------
   const floorTex = boards(['#d9a05b', '#cf934e', '#e0aa66', '#c98a47', '#d59c58'], 16, 5);
   floorTex.repeat.set(W / 4, D / 4); // one picture covers 4 m: boards of 25 cm
-  const floor = new THREE.Mesh(new THREE.PlaneGeometry(W, D), toon(0xffffff, { map: floorTex }));
+  const floorMat = toon(0xffffff, { map: floorTex });
+  film.applyTo(floorMat);
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(W, D), floorMat);
   floor.rotation.x = -Math.PI / 2;
   floor.receiveShadow = true;
   group.add(floor);
@@ -126,7 +129,7 @@ export function buildHallView(hall) {
   // ---- Windows in the two long walls: bright panes in dark frames --------
   const pane = flat(0xfff3c8);
   for (const side of [-1, 1]) {
-    for (const x of [-14, -7, 0, 7, 14]) {
+    for (let x = -21; x <= 21; x += 7) {
       const win = new THREE.Group();
       win.position.set(x, 3.5, side * (hd - 0.03));
       if (side === 1) win.rotation.y = Math.PI;
@@ -146,6 +149,37 @@ export function buildHallView(hall) {
       bar(3, 0.07, 0, 0.3);
       group.add(win);
     }
+  }
+
+  // ---- Sunbeams: the low sun shines in through the front windows (z = +hd).
+  // Each beam is drawn as four very faint, glowing sides from the window
+  // down to the floor, plus a bright patch where the light lands. The
+  // slant matches the sun in scene.js: 1 m down is 0.6 m along -x and
+  // 1.15 m along -z.
+  const ray = flat(0xffe2a0, {
+    transparent: true,
+    opacity: 0.085,
+    side: THREE.DoubleSide,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    fog: false,
+  });
+  const patch = ray.clone();
+  patch.opacity = 0.26;
+  const quadOf = (a, b, c, d, material) => {
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute([...a, ...b, ...c, ...a, ...c, ...d], 3));
+    group.add(new THREE.Mesh(g, material));
+  };
+  for (let x = -21; x <= 21; x += 7) {
+    const at = (wx, wy) => [wx, wy, hd - 0.05]; // a corner of the window
+    const land = (wx, wy, lift = 0) => [wx - 0.6 * wy, lift, hd - 1.15 * wy]; // where its light lands
+    const [l, r, lo, hi] = [x - 1.5, x + 1.5, 2.2, 4.8];
+    quadOf(at(l, lo), at(l, hi), land(l, hi), land(l, lo), ray);
+    quadOf(at(r, lo), at(r, hi), land(r, hi), land(r, lo), ray);
+    quadOf(at(l, hi), at(r, hi), land(r, hi), land(l, hi), ray);
+    quadOf(at(l, lo), at(r, lo), land(r, lo), land(l, lo), ray);
+    quadOf(land(l, lo, 0.02), land(r, lo, 0.02), land(r, hi, 0.02), land(l, hi, 0.02), patch);
   }
 
   // ---- A big barn door behind each start point (closed, only for looks) --
@@ -171,7 +205,7 @@ export function buildHallView(hall) {
     beam.position.set(x, H - 0.25, 0);
     group.add(beam);
   }
-  for (const z of [-6, 6]) {
+  for (const z of [-9, 9]) {
     const beam = new THREE.Mesh(new THREE.BoxGeometry(W, 0.4, 0.4), toon(WOOD.dark));
     beam.position.set(0, H - 0.62, z);
     group.add(beam);

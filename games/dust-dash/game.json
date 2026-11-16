@@ -3,8 +3,10 @@
   "shortDescription": "Vacuum an old wooden hall against a friend and race for the surprise deliveries.",
   "genres": ["Casual", "Party"],
   "engine": "HTML5",
-  "version": "0.1.0",
-  "status": "draft",
+  "version": "1.0.0",
+  "status": "published",
   "publishedAt": "2026-11-16",
-  "maxPlayers": 2
+  "maxPlayers": 2,
+  "cover": "cover.svg",
+  "banner": "banner.svg"
 }

@@ -789,3 +789,150 @@ Step 2 (hall and walking), added to decision 44:
   host still runs the clock for both.
 - **Gentle shadows:** obstacles throw a soft shadow from the afternoon sun,
   walls and roof do not, so the hall stays bright.
+
+Step 3 (dirt, vacuuming, points), added to decision 44:
+
+- **Slower while vacuuming:** 4.2 m/s instead of the planned 5, asked for
+  by the developer after trying step 2 (`move.vacuumSpeed`).
+- **6000 pieces** (`dirt.pieces`), about 40 % dust bunnies, 36 % crumbs and
+  24 % shavings. How dirty a spot is comes from simple sums: a little on
+  the open floor, more along walls, in corners, around obstacles and
+  workbenches, most under workbenches, plus 24 extra dirty spots placed by
+  the seed. Shavings lie mostly within 2.5 m of a workbench.
+- **Only sums and square roots in `dirt.js`**, and whole-number random
+  numbers. Sine and cosine can differ in the last digit between browsers;
+  with them two screens could build different pieces from the same seed.
+- **Every piece can be reached.** A piece is only placed where a player can
+  stand within 1.3 m with a free line to it. Nothing lies inside shelves,
+  crates, barrels or posts; under workbenches it does.
+- **The nozzle's area** is a strip in front of the player, 1.6 m long and
+  1.2 m wide, starting 15 cm behind the player's middle. A piece in it
+  belongs to the player at once and counts 1 point at that moment; flying
+  into the nozzle (0.1 to 0.2 s, shrinking in the last quarter) is only the
+  picture. The vacuum does not pull through shelves, crates, barrels and
+  posts, but it does reach under workbenches.
+- **The dust film** has 8 values per metre. It is wiped by two soft circles
+  along the nozzle's strip. It is drawn by changing the floor's material
+  (`film.applyTo`), as Inkwars does for its colour.
+- **The own vacuum** is drawn in a second go on top of the hall with a
+  fresh depth, so it never sticks into a wall. Pieces fly to the front
+  edge of its nozzle.
+- **The seed** is a random whole number the host (or the player alone)
+  picks at every start; it travels in the `start` message. Behind the menu
+  the hall shows the dirt of seed 1, after a match what was left.
+- **Still open in the party** (comes with step 5): each browser vacuums its
+  own copy of the dirt and counts only its own score.
+- **Measured:** two test players that always walk to the nearest piece
+  empty the hall of 40 x 26 m in about 2:24, one alone gets 5900 of 6000
+  pieces in four minutes. People are slower, but the plan wants that two
+  good players do not finish the hall in four minutes. More pieces do not
+  help (the time goes into covering the floor, not into the pieces). The
+  developer was asked: bigger hall (about 56 x 36 m) or a shorter round.
+
+A bigger hall and step 4 (deliveries and power-ups), added to decision 44:
+
+- **The hall is 56 x 36 m** (the developer chose this over a shorter
+  round). Two test players that always walk to the nearest piece now need
+  almost the full four minutes; people will not finish it. The layout was
+  made new: six shelves, three workbenches, crates, barrels and four posts
+  per half, point mirrored, the big workbench in the middle; start points
+  3 m in front of the short walls. 11500 pieces (the same 5.7 per square
+  metre as before) and 46 extra dirty spots.
+- **Walking distances** come from `nav.js`: the floor in squares of half a
+  metre, the way around obstacles to every square (no cutting corners).
+  One search takes a few milliseconds.
+- **A fair spot** for a box: a square with 1.1 m of free room around it,
+  at least 9 m to walk for everybody, and the players' ways differ by at
+  most 2 m. If no square is that fair, the fairest one is taken. In 300
+  random tests the ways never differed by more than 2 m.
+- **Timing:** first box after 25 s, it falls for 1.5 s, lies until somebody
+  comes within 1.2 m, and the next timer of 35 s starts when it is opened
+  (so a box that nobody fetches stops the deliveries). If two players reach
+  it in the same step, the closer one gets it. A box can only be opened
+  once it has landed.
+- **Power-ups** (10 s, a new one replaces the old one): wide nozzle 2.4 m
+  wide; turbo shoes 1.45 times as fast (10.2 m/s walking, 6.1 m/s
+  vacuuming); strong suction 3.2 m reach and 1.62 m wide; golden nozzle 2
+  points per piece. Which one comes is random with equal chances.
+- **The icon** shows from the moment the hatch opens, not only when the box
+  lies, so both can start running at once. Label top left: "Delivery in
+  0:24", "Delivery incoming!", "Delivery waiting!".
+- **The power-up card** sits at the bottom left with a round badge and a
+  bar; the badges use plain signs instead of drawn icons for now. The
+  changed nozzle looks come with step 7, as the order of work says.
+- **Still open in the party** (step 5): each browser has its own boxes.
+
+Step 5 (the party mode), added to decision 44:
+
+- **Built like Inkwars 1.1** (decision 40): the host is the referee, the
+  guest runs the same walking rules for its own character, numbers every
+  step and sends its keys (`feed.js`); the host plays every step once and
+  reports the last one (`k`); the guest makes up a difference within about
+  a quarter of a second, at once above 2 m, never into a wall. Keys are
+  sent as whole numbers (the view direction in thousandths of a radian),
+  and the guest walks with exactly those rounded values.
+- **Vacuuming is decided where the guest's steps are played**, on the host,
+  with the guest's own keys. So the guest gets what was in front of its
+  nozzle on its own screen, apart from pieces the host player took first.
+- **Early pieces on the guest:** what lies in front of the guest's own
+  nozzle flies in at once but does not count. The score always comes from
+  the host. An early piece that the host has not confirmed after one second
+  is put back on the floor. In the test with 100 to 150 ms delay each way
+  that happened to 32 of about 1100 pieces of the guest.
+- **What a snapshot holds** (about 30 per second): state and clocks, every
+  player (place, speed, view direction, vacuuming, score, power-up), the
+  delivery, per seat the pieces taken since the last snapshot (sorted,
+  sent as steps from one number to the next), the boxes opened, and `k`.
+- **Late join or reload:** the `start` message (with the seed and the
+  host's name) and once the list of all pieces that are gone (message
+  `dirt`; about 2 bytes per piece). The dust film is not sent; a guest who
+  reloads sees dust again where it was wiped. That is only for looks.
+- **The other player** (`playerView.js`): a round character with big eyes
+  in its colour, a tank on its back, a hose and a nozzle on the floor in
+  front. Its picture glides after the reported place, so it never jerks.
+  The bot is drawn with the same character.
+- **When somebody leaves:** as in Inkwars. The guest's character stands
+  still and the host sees a notice; coming back puts the guest into the
+  running match. If the host leaves, the guest waits in the menu.
+- **Tested with a script** that runs host and guest with a delay of 0, 40
+  to 80 and 100 to 150 ms each way for 70 seconds: the scores on both
+  sides were equal every time, every box was opened on both sides, a late
+  joiner had exactly the same pieces as the host.
+
+Steps 6 to 8 (the bot, polish, publishing as 1.0.0), added to decision 44:
+
+- **The bot** (`bot.js`) presses the same "keys" as a player and walks at
+  the same speeds. In this order it: runs for a delivery if its walking
+  distance is at most 1.15 times the player's (it notices a box after
+  0.6 s, thinks again every 4 s while the box lies there, and stops
+  vacuuming while it is more than 7 m away); walks to the nearest piece it
+  can see (3 m, nothing solid in between); otherwise walks around the
+  obstacles to the area with the most dirt for the way (it knows how much
+  is left in every square of 2 x 2 m). It is made beatable by turning
+  slowly (2.4 rad/s), a rest of 1.8 s before walking to a new area and a
+  breather of 2.2 s after every 5 s of vacuuming. Alone in an untouched
+  hall and with every box it reaches 4000 to 4600 points in four minutes;
+  without these brakes it reached about 6000. Nobody has played against
+  it with a mouse yet, so the numbers under `bot` in `config.js` may need
+  tuning. If it does not move for 0.6 s it picks another area.
+- **Sunbeams** are faint glowing sides from each front window down to the
+  floor plus a bright patch, slanted like the sun in `scene.js`; 520
+  specks of dust float near those windows. Both are only for looks and
+  are not cut off by obstacles.
+- **Nozzle looks with a power-up:** wide nozzle 1.7 times as wide, strong
+  suction with a purple glow, golden nozzle golden with a warm glow; turbo
+  shoes change nothing on the nozzle. The other player's nozzle shows wide
+  and golden too.
+- **The own nozzle lies on the floor** (the developer asked for it). First
+  it was a model fixed to the camera and drawn on top of everything, so
+  it seemed to stick into shelves. Now it is a real object in the hall:
+  the head lies 1.05 m in front of the player, a pipe leads to the hand at
+  the bottom right, and in front of a wall, shelf, crate, barrel or post
+  it is pulled in so it never enters them (`Hall.roomAhead`); it does go
+  under workbenches. The other player's nozzle is pulled in the same way.
+  Pieces fly to the nozzle on the floor.
+- **Cover and banner** are SVG pictures drawn by hand (a small script made
+  the scattered dirt): the hall, a cleaner with its vacuum, a clean lane, a
+  delivery box in a beam of light and the stamped title.
+- **Published as 1.0.0** with `"status": "published"`; the patch note is
+  `news/2026-11-16-dust-dash-1-0.md`.

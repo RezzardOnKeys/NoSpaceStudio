@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800">
+  <rect width="600" height="800" fill="#b9783f"/>
+  <!-- back wall: upright boards -->
+  <rect x="0" y="0" width="44" height="430" fill="#b9783f"/>
+  <rect x="0" y="0" width="3" height="430" fill="#6a3f1f" opacity=".55"/>
+  <rect x="43" y="0" width="44" height="430" fill="#a86833"/>
+  <rect x="43" y="0" width="3" height="430" fill="#6a3f1f" opacity=".55"/>
+  <rect x="86" y="0" width="44" height="430" fill="#a86833"/>
+  <rect x="86" y="0" width="3" height="430" fill="#6a3f1f" opacity=".55"/>
+  <rect x="129" y="0" width="44" height="430" fill="#c08247"/>
+  <rect x="129" y="0" width="3" height="430" fill="#6a3f1f" opacity=".55"/>
+  <rect x="171" y="0" width="44" height="430" fill="#c08247"/>
+  <rect x="171" y="0" width="3" height="430" fill="#6a3f1f" opacity=".55"/>
+  <rect x="214" y="0" width="44" height="430" fill="#ad6d37"/>
+  <rect x="214" y="0" width="3" height="430" fill="#6a3f1f" opacity=".55"/>
+  <rect x="257" y="0" width="44" height="430" fill="#ad6d37"/>
+  <rect x="257" y="0" width="3" height="430" fill="#6a3f1f" opacity=".55"/>
+  <rect x="300" y="0" width="44" height="430" fill="#b9783f"/>
+  <rect x="300" y="0" width="3" height="430" fill="#6a3f1f" opacity=".55"/>
+  <rect x="343" y="0" width="44" height="430" fill="#b9783f"/>
+  <rect x="343" y="0" width="3" height="430" fill="#6a3f1f" opacity=".55"/>
+  <rect x="386" y="0" width="44" height="430" fill="#a86833"/>
+  <rect x="386" y="0" width="3" height="430" fill="#6a3f1f" opacity=".55"/>
+  <rect x="429" y="0" width="44" height="430" fill="#a86833"/>
+  <rect x="429" y="0" width="3" height="430" fill="#6a3f1f" opacity=".55"/>
+  <rect x="471" y="0" width="44" height="430" fill="#c08247"/>
+  <rect x="471" y="0" width="3" height="430" fill="#6a3f1f" opacity=".55"/>
+  <rect x="514" y="0" width="44" height="430" fill="#c08247"/>
+  <rect x="514" y="0" width="3" height="430" fill="#6a3f1f" opacity=".55"/>
+  <rect x="557" y="0" width="44" height="430" fill="#ad6d37"/>
+  <rect x="557" y="0" width="3" height="430" fill="#6a3f1f" opacity=".55"/>
+  <rect x="600" y="0" width="44" height="430" fill="#ad6d37"/>
+  <rect x="600" y="0" width="3" height="430" fill="#6a3f1f" opacity=".55"/>
+  <!-- roof beam -->
+  <rect x="0" y="0" width="600" height="56" fill="#6a3f1f"/>
+  <rect x="0" y="56" width="600" height="10" fill="#3b2413"/>
+  <!-- windows with warm light -->
+  <rect x="60" y="86" width="120" height="181" fill="#fff3c8" stroke="#3b2413" stroke-width="8"/>
+  <path d="M120 86v181M60 162h120" stroke="#3b2413" stroke-width="4"/>
+  <polygon points="60,267 180,267 108,800 -72,800" fill="#ffe2a0" opacity=".2"/>
+  <rect x="420" y="86" width="120" height="181" fill="#fff3c8" stroke="#3b2413" stroke-width="8"/>
+  <path d="M480 86v181M420 162h120" stroke="#3b2413" stroke-width="4"/>
+  <polygon points="420,267 540,267 468,800 288,800" fill="#ffe2a0" opacity=".2"/>
+  <!-- floor: dusty boards -->
+  <rect x="0" y="430" width="600" height="370" fill="#a3958a"/>
+  <path d="M0 430H600" stroke="#6f6258" stroke-width="2" opacity=".7"/>
+  <path d="M0 446H600" stroke="#6f6258" stroke-width="2" opacity=".7"/>
+  <path d="M0 480H600" stroke="#6f6258" stroke-width="2" opacity=".7"/>
+  <path d="M0 525H600" stroke="#6f6258" stroke-width="2" opacity=".7"/>
+  <path d="M0 581H600" stroke="#6f6258" stroke-width="2" opacity=".7"/>
+  <path d="M0 646H600" stroke="#6f6258" stroke-width="2" opacity=".7"/>
+  <path d="M0 719H600" stroke="#6f6258" stroke-width="2" opacity=".7"/>
+  <path d="M0 800H600" stroke="#6f6258" stroke-width="2" opacity=".7"/>
+  <rect x="0" y="420" width="600" height="19" fill="#6a3f1f"/>
+  <!-- the clean lane: warm wood where the nozzle has been -->
+  <polygon points="202,800 508,800 401,632 288,632" fill="#d9a05b"/>
+  <path d="M279 800L316 632" stroke="#8a5527" stroke-width="2" opacity=".7"/>
+  <path d="M356 800L344 632" stroke="#8a5527" stroke-width="2" opacity=".7"/>
+  <path d="M432 800L373 632" stroke="#8a5527" stroke-width="2" opacity=".7"/>
+  <!-- dirt: fluff, crumbs, shavings -->
+  <rect x="194" y="510" width="7" height="6" rx="2" transform="rotate(9 194 510)" fill="#5c3a20" stroke="#3b2413" stroke-width="1.5"/>
+  <path d="M56 654a11 9 0 1 1 14 6" fill="none" stroke="#f0d48f" stroke-width="5.0" stroke-linecap="round"/>
+  <ellipse cx="129" cy="488" rx="9" ry="6" fill="#8f8880" stroke="#3b2413" stroke-width="1.5"/>
+  <path d="M54 601a10 8 0 1 1 13 5" fill="none" stroke="#f0d48f" stroke-width="4.3" stroke-linecap="round"/>
+  <rect x="74" y="534" width="8" height="7" rx="2" transform="rotate(7 74 534)" fill="#5c3a20" stroke="#3b2413" stroke-width="1.5"/>
+  <ellipse cx="133" cy="645" rx="14" ry="10" fill="#b5ada4" stroke="#3b2413" stroke-width="1.9"/>
+  <ellipse cx="87" cy="499" rx="9" ry="6" fill="#9c948a" stroke="#3b2413" stroke-width="1.5"/>
+  <rect x="108" y="653" width="11" height="9" rx="3" transform="rotate(47 108 653)" fill="#6b4526" stroke="#3b2413" stroke-width="2.0"/>
+  <rect x="36" y="528" width="8" height="7" rx="2" transform="rotate(54 36 528)" fill="#7a5230" stroke="#3b2413" stroke-width="1.5"/>
+  <ellipse cx="108" cy="719" rx="17" ry="12" fill="#b5ada4" stroke="#3b2413" stroke-width="2.3"/>
+  <ellipse cx="588" cy="499" rx="9" ry="6" fill="#b5ada4" stroke="#3b2413" stroke-width="1.5"/>
+  <ellipse cx="91" cy="622" rx="13" ry="9" fill="#9c948a" stroke="#3b2413" stroke-width="1.8"/>
+  <rect x="47" y="645" width="11" height="9" rx="3" transform="rotate(40 47 645)" fill="#7a5230" stroke="#3b2413" stroke-width="1.9"/>
+  <rect x="504" y="774" width="14" height="12" rx="4" transform="rotate(8 504 774)" fill="#6b4526" stroke="#3b2413" stroke-width="2.6"/>
+  <path d="M532 575a9 7 0 1 1 12 4" fill="none" stroke="#f0d48f" stroke-width="4.0" stroke-linecap="round"/>
+  <ellipse cx="172" cy="705" rx="16" ry="11" fill="#b5ada4" stroke="#3b2413" stroke-width="2.2"/>
+  <rect x="48" y="609" width="10" height="8" rx="2" transform="rotate(17 48 609)" fill="#7a5230" stroke="#3b2413" stroke-width="1.8"/>
+  <ellipse cx="518" cy="552" rx="11" ry="7" fill="#b5ada4" stroke="#3b2413" stroke-width="1.5"/>
+  <ellipse cx="138" cy="487" rx="9" ry="6" fill="#9c948a" stroke="#3b2413" stroke-width="1.5"/>
+  <rect x="140" y="621" width="10" height="9" rx="3" transform="rotate(33 140 621)" fill="#7a5230" stroke="#3b2413" stroke-width="1.8"/>
+  <ellipse cx="2" cy="599" rx="12" ry="9" fill="#9c948a" stroke="#3b2413" stroke-width="1.7"/>
+  <path d="M191 501a7 6 0 1 1 9 3" fill="none" stroke="#f0d48f" stroke-width="3.1" stroke-linecap="round"/>
+  <rect x="570" y="678" width="12" height="10" rx="3" transform="rotate(58 570 678)" fill="#5c3a20" stroke="#3b2413" stroke-width="2.1"/>
+  <ellipse cx="479" cy="590" rx="12" ry="8" fill="#8f8880" stroke="#3b2413" stroke-width="1.7"/>
+  <ellipse cx="114" cy="787" rx="19" ry="13" fill="#8f8880" stroke="#3b2413" stroke-width="2.6"/>
+  <ellipse cx="0" cy="510" rx="9" ry="6" fill="#b5ada4" stroke="#3b2413" stroke-width="1.5"/>
+  <rect x="125" y="585" width="9" height="8" rx="2" transform="rotate(44 125 585)" fill="#5c3a20" stroke="#3b2413" stroke-width="1.7"/>
+  <rect x="509" y="790" width="15" height="13" rx="4" transform="rotate(61 509 790)" fill="#7a5230" stroke="#3b2413" stroke-width="2.7"/>
+  <ellipse cx="52" cy="494" rx="9" ry="6" fill="#b5ada4" stroke="#3b2413" stroke-width="1.5"/>
+  <rect x="571" y="580" width="9" height="8" rx="2" transform="rotate(3 571 580)" fill="#5c3a20" stroke="#3b2413" stroke-width="1.6"/>
+  <ellipse cx="179" cy="674" rx="15" ry="10" fill="#b5ada4" stroke="#3b2413" stroke-width="2.1"/>
+  <ellipse cx="473" cy="712" rx="16" ry="11" fill="#8f8880" stroke="#3b2413" stroke-width="2.3"/>
+  <ellipse cx="491" cy="706" rx="16" ry="11" fill="#9c948a" stroke="#3b2413" stroke-width="2.2"/>
+  <rect x="594" y="723" width="13" height="11" rx="3" transform="rotate(24 594 723)" fill="#5c3a20" stroke="#3b2413" stroke-width="2.3"/>
+  <ellipse cx="485" cy="700" rx="16" ry="11" fill="#b5ada4" stroke="#3b2413" stroke-width="2.2"/>
+  <rect x="48" y="494" width="7" height="6" rx="2" transform="rotate(43 48 494)" fill="#6b4526" stroke="#3b2413" stroke-width="1.5"/>
+  <rect x="546" y="574" width="9" height="8" rx="2" transform="rotate(15 546 574)" fill="#7a5230" stroke="#3b2413" stroke-width="1.6"/>
+  <rect x="469" y="709" width="13" height="11" rx="3" transform="rotate(22 469 709)" fill="#7a5230" stroke="#3b2413" stroke-width="2.3"/>
+  <path d="M473 570a9 7 0 1 1 11 4" fill="none" stroke="#f0d48f" stroke-width="4.0" stroke-linecap="round"/>
+  <ellipse cx="583" cy="591" rx="12" ry="8" fill="#8f8880" stroke="#3b2413" stroke-width="1.7"/>
+  <path d="M76 510a7 6 0 1 1 9 4" fill="none" stroke="#f0d48f" stroke-width="3.2" stroke-linecap="round"/>
+  <!-- delivery box in a beam of light -->
+  <polygon points="60,0 203,0 232,616 32,616" fill="#ffe7a0" opacity=".28"/>
+  <rect x="96" y="541" width="71" height="71" fill="#c99a5b" stroke="#3b2413" stroke-width="6" stroke-linejoin="round"/>
+  <rect x="125" y="541" width="14" height="71" fill="#f1e2bd"/>
+  <rect x="96" y="541" width="71" height="71" fill="none" stroke="#3b2413" stroke-width="6" stroke-linejoin="round"/>
+  <!-- the cleaner: round, big eyes, a vacuum on the back -->
+  <g stroke="#3b2413" stroke-width="7.6" stroke-linejoin="round" stroke-linecap="round">
+    <ellipse cx="330" cy="637" rx="105" ry="20" fill="#3b2413" opacity=".25" stroke="none"/>
+    <rect x="367" y="462" width="71" height="122" rx="24" fill="#d9d2c3"/>
+    <rect x="364" y="446" width="78" height="24" rx="8" fill="#c06a18"/>
+    <path d="M415 487C492 436 364 623 245 575" fill="none" stroke="#3b2413" stroke-width="27.2"/>
+    <path d="M415 487C492 436 364 623 245 575" fill="none" stroke="#4a4038" stroke-width="13.6"/>
+    <ellipse cx="296" cy="626" rx="29" ry="15" fill="#c06a18"/>
+    <ellipse cx="361" cy="626" rx="29" ry="15" fill="#c06a18"/>
+    <ellipse cx="330" cy="541" rx="78" ry="85" fill="#f08a24"/>
+    <circle cx="327" cy="436" r="59" fill="#f08a24"/>
+    <circle cx="301" cy="429" r="22" fill="#fff"/>
+    <circle cx="347" cy="429" r="22" fill="#fff"/>
+    <circle cx="296" cy="433" r="10" fill="#3b2413" stroke="none"/>
+    <circle cx="342" cy="433" r="10" fill="#3b2413" stroke="none"/>
+    <path d="M310 465q14 12 29 0" fill="none"/>
+    <path d="M245 575L208 623" stroke="#3b2413" stroke-width="22.1"/>
+    <path d="M245 575L208 623" stroke="#d9d2c3" stroke-width="9.3"/>
+    <circle cx="255" cy="572" r="17" fill="#f08a24"/>
+    <rect x="157" y="616" width="88" height="20" rx="5" fill="#f08a24"/>
+  </g>
+  <!-- pieces flying into the nozzle -->
+  <circle cx="109" cy="589" r="8" fill="#b5ada4" stroke="#3b2413" stroke-width="3.4"/>
+  <circle cx="66" cy="616" r="8" fill="#7a5230" stroke="#3b2413" stroke-width="3.4"/>
+  <circle cx="126" cy="632" r="8" fill="#9c948a" stroke="#3b2413" stroke-width="3.4"/>
+  <path d="M32 606h51M41 640h42" stroke="#fff3c8" stroke-width="5.1" stroke-linecap="round" opacity=".9"/>
+  <!-- the title, stamped -->
+  <g transform="rotate(-4 300 160)">
+    <rect x="75" y="63" width="451" height="124" rx="11" fill="#e6cd9c" stroke="#3b2413" stroke-width="5.5"/>
+    <rect x="87" y="76" width="425" height="98" rx="7" fill="none" stroke="#b5432a" stroke-width="4.6"/>
+    <text x="300" y="169" text-anchor="middle" font-family="Stencil, Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif" font-size="92" letter-spacing="6" fill="#b5432a">DUST DASH</text>
+  </g>
+</svg>

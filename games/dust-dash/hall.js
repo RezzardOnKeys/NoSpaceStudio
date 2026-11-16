@@ -26,20 +26,35 @@ export class Hall {
     // One half is laid out by hand, the other is its point mirror, so both
     // start points have exactly the same hall in front of them.
     const half = [
-      part('shelf', -16, -10, -12.7, -11.9, 2.4), // along the back wall
-      part('shelf', -12.4, -11.6, -8, -2.5, 2.4), // makes a lane next to the start
-      part('shelf', -7, -2, -4.6, -3.8, 2.4),
-      part('bench', -8.5, -5.5, 3, 4.2, 0.9),
-      part('bench', -14.5, -9.5, 11.7, 12.7, 0.9), // against the front wall
-      part('crates', -6, -4.6, -9.2, -7.8, 1.4),
-      part('crates', -4.5, -3.6, -8.8, -7.9, 0.7),
-      part('crates', -1.2, 0.2, 7.2, 8.6, 1.4),
-      part('crates', -18.6, -17.4, -11.6, -10.4, 2.1),
-      part('barrel', -17.6, -16.7, 9, 9.9, 1.1),
-      part('barrel', -16.5, -15.6, 10.2, 11.1, 1.1),
-      part('barrel', -3.2, -2.3, 10.6, 11.5, 1.1),
-      part('post', -10.25, -9.75, 5.75, 6.25, H),
-      part('post', -10.25, -9.75, -6.25, -5.75, H),
+      // shelves: they make the lanes
+      part('shelf', -24, -17, -17.7, -16.9, 2.4), // along the back wall
+      part('shelf', -16.4, -15.6, -11, -4, 2.4), // a lane next to the start
+      part('shelf', -22, -21.2, 5, 11, 2.4),
+      part('shelf', -12, -6, -5.4, -4.6, 2.4),
+      part('shelf', -10, -4, 12, 12.8, 2.4),
+      part('shelf', -3, -2.2, -14, -9, 2.4),
+      // workbenches: dirt lies under them
+      part('bench', -12, -8.5, 4, 5.2, 0.9),
+      part('bench', -20, -14, 16.7, 17.7, 0.9), // against the front wall
+      part('bench', -9, -6, -13.5, -12.3, 0.9),
+      // crates and barrels
+      part('crates', -8.4, -7, -10.2, -8.8, 1.4),
+      part('crates', -8.3, -7.4, -8.7, -7.8, 0.7),
+      part('crates', -1.6, -0.2, 8.2, 9.6, 1.4),
+      part('crates', -26.6, -25.4, -16.6, -15.4, 2.1),
+      part('crates', -14, -12.6, 9, 10.4, 1.4),
+      part('crates', -12.5, -11.6, 9.2, 10.1, 0.7),
+      part('crates', -20.5, -19.1, -9.5, -8.1, 0.7),
+      part('barrel', -25.6, -24.7, 13, 13.9, 1.1),
+      part('barrel', -24.5, -23.6, 14.2, 15.1, 1.1),
+      part('barrel', -4.2, -3.3, 15.6, 16.5, 1.1),
+      part('barrel', -13, -12.1, -15, -14.1, 1.1),
+      part('barrel', -2, -1.1, 3.6, 4.5, 1.1),
+      // posts under the two long roof beams (hallView.js draws the beams at z = -9 and 9)
+      part('post', -18.25, -17.75, 8.75, 9.25, H),
+      part('post', -18.25, -17.75, -9.25, -8.75, H),
+      part('post', -6.25, -5.75, 8.75, 9.25, H),
+      part('post', -6.25, -5.75, -9.25, -8.75, H),
     ];
     this.parts = [
       ...half,
@@ -63,6 +78,47 @@ export class Hall {
       if (dx * dx + dz * dz < r * r) return false;
     }
     return true;
+  }
+
+  /**
+   * Is there a shelf, a crate, a barrel or a post between a player at
+   * (ax, az) and a piece of dirt at (bx, bz)? The vacuum does not pull
+   * through those. Workbenches do not count: the nozzle fits under them.
+   */
+  blocksSuction(ax, az, bx, bz) {
+    const dx = bx - ax;
+    const dz = bz - az;
+    const n = Math.max(1, Math.ceil(Math.sqrt(dx * dx + dz * dz) / 0.2));
+    for (let i = 1; i <= n; i++) {
+      const x = ax + (dx * i) / n;
+      const z = az + (dz * i) / n;
+      for (const p of this.parts) {
+        if (p.kind !== 'bench' && x > p.x0 && x < p.x1 && z > p.z0 && z < p.z1) return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * How much free floor lies straight ahead of (x, z) in direction yaw for
+   * something `half` metres wide to each side (a nozzle), up to `max`
+   * metres. Walls, shelves, crates, barrels and posts end it; workbenches
+   * do not (a nozzle fits under them).
+   */
+  roomAhead(x, z, yaw, half, max) {
+    const fx = -Math.sin(yaw);
+    const fz = -Math.cos(yaw);
+    for (let d = 0.1; d <= max; d += 0.05) {
+      for (const side of [-half, 0, half]) {
+        const px = x + fx * d - fz * side;
+        const pz = z + fz * d + fx * side;
+        if (Math.abs(px) > this.hw || Math.abs(pz) > this.hd) return d - 0.05;
+        for (const p of this.parts) {
+          if (p.kind !== 'bench' && px > p.x0 && px < p.x1 && pz > p.z0 && pz < p.z1) return d - 0.05;
+        }
+      }
+    }
+    return max;
   }
 
   /**

@@ -169,6 +169,20 @@ Schritts nummeriert an den Host (`feed.js`) und wird nur sanft korrigiert,
 wenn beide auseinanderlaufen (`guest.js`). Die Liste aller Nachrichten
 steht oben in `host.js`, Entscheidungen 39 und 40 erklären den Aufbau.
 
+Ein fünftes Beispiel für **Dinge, die aus einer Zufallszahl entstehen**, ist
+`games/dust-dash/` (1 gegen 1, noch ein Entwurf). Dort liegen 11.500
+Dreckteile in der Halle. Der Host schickt sie nicht, sondern nur eine
+Zufallszahl (den „Seed“) in der `start`-Nachricht; beide Browser bauen
+daraus genau dieselben Teile mit denselben Nummern (`dirt.js`, dort wird
+bewusst nur mit Summen und Wurzeln gerechnet, weil Sinus und Kosinus je
+nach Browser minimal abweichen können). Danach schickt der Host nur noch
+die Nummern der weggesaugten Teile, klein verpackt als Abstand von einer
+Nummer zur nächsten (`packIds` in `wire.js`). Der Gast lässt Teile vor
+seiner eigenen Düse sofort losfliegen („early“ in `guest.js`); zählt der
+Host sie nicht innerhalb einer Sekunde, liegen sie wieder da. Wer neu lädt,
+bekommt einmal die Liste aller fehlenden Teile (Nachricht `dirt`).
+Entscheidung 44 erklärt den Aufbau.
+
 ### 4. Ohne Party weiter funktionieren
 
 Ohne `#party=...` wurde das Spiel allein gestartet (oder direkt über seine

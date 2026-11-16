@@ -8,10 +8,14 @@ before changing it.
 
 Slug and folder: `games/dust-dash/`. Title in the store: **Dust Dash**.
 
-**Status:** being built. Steps 1 and 2 of the order of work are done
-(folder, draft store entry, menu, party connection, a round with clock and
-result; the hall in comic look and walking in first person).
-The choices made while building are in decision 44.
+**Status:** built and published as version 1.0.0 (2026-11-16). All eight
+steps of the order of work are done. Changed while building, all agreed
+with the developer: walking while vacuuming is 4.2 m/s instead of about 5;
+the hall is 56 x 36 m instead of about 40 x 26 m (in the smaller hall two
+good players would have cleaned everything long before the four minutes
+were over); the interface has its own look (parcel tag, wooden sign,
+receipt); the player's own nozzle lies on the floor and is pulled in
+before obstacles. Every choice made while building is in decision 44.
 
 ## The idea in one sentence
 
@@ -60,8 +64,8 @@ Like Inkwars (`games/inkwars/lobby.js`):
 - Without a mouse: **arrow keys** turn the view, **E** vacuums (like
   Inkwars).
 - No jumping.
-- **Vacuuming slows you down:** walking speed is about **5 m/s while
-  vacuuming** and about **7 m/s while not vacuuming**. So players must
+- **Vacuuming slows you down:** walking speed is about **4.2 m/s while
+  vacuuming** (first planned as 5) and about **7 m/s while not vacuuming**. So players must
   decide: run to the delivery quickly, or take the dirt on the way and
   maybe miss it. Both numbers go into `config.js`.
 
@@ -138,7 +142,8 @@ Like Inkwars (`games/inkwars/lobby.js`):
 
 ## The hall
 
-- One hall for the first version, about 40 × 26 m, made of simple boxes
+- One hall for the first version, 56 × 36 m (first planned as about
+  40 × 26 m), made of simple boxes
   (like `games/inkwars/arena.js`), laid out by hand, **fair for both
   start points** (point mirrored like Inkwars, or the same on both sides).
 - Wooden floor and walls, big windows with warm sunlight falling in as

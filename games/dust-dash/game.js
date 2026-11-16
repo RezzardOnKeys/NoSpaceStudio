@@ -2,34 +2,60 @@
 // player's input, runs the frame loop and talks to the other player in a
 // party match. Every browser runs this file. In a match alone and for the
 // party host the referee (host.js) runs in the same browser; a party guest
-// gets the state of the match over the network and shows it (guest.js).
-// For now every player walks only in their own picture of the hall; the
-// other player becomes visible when the party mode is finished.
+// gets the state of the match over the network and shows it, moving only
+// its own character ahead by itself (guest.js).
 //
 // The files and what they do (the list grows while the game is built, the
 // full plan is docs/DUST-DASH.md):
 //   config.js     numbers and rules that can be tuned
 //   hall.js       the hall as numbers (obstacles, start points, collision)
-//   sim.js        the rules: how a player walks
+//   dirt.js       the pieces of dirt from a seed, and which are still there
+//   sim.js        the rules: walking, vacuuming, deliveries, power-ups
+//   nav.js        walking distances around the obstacles (fair deliveries, the bot's way)
 //   host.js       the referee; the list of all party messages is at its top
+//   bot.js        the bot you play against alone
+//   feed.js       the guest's keys on the host, one step at a time
 //   guest.js      the guest's copy of a party match
+//   wire.js       how players, inputs and dirt lists are packed for the network
 //   net.js        party connection with PeerJS, ticker.js a clock for hidden tabs
-//   scene.js      the 3D view (look.js comic style, hallView.js the hall)
+//   scene.js      the 3D view (look.js comic style, hallView.js the hall,
+//                 dirtView.js the dirt and the dust film, viewModel.js the
+//                 player's own vacuum, playerView.js the other player,
+//                 effects.js the delivery box)
+//   marker.js     the delivery icon on the screen (also through walls)
 //   controls.js   keyboard and mouse
 //   lobby.js      the menu before a match, hud.js the display during a match
 //                 and the receipt at the end
 //   game.js       this file
 
 import * as THREE from './vendor/three.module.js';
-import { CONFIG, PALETTE, SNAP_MS, STEP, MAX_PLAYERS } from './config.js';
+import { CONFIG, PALETTE, SNAP_MS, INPUT_MS, STEP, MAX_PLAYERS } from './config.js';
 import { Hall } from './hall.js';
+import { Dirt } from './dirt.js';
 import { Sim } from './sim.js';
+import { Nav } from './nav.js';
 import { createScene } from './scene.js';
 import { buildHallView } from './hallView.js';
+import { createFilm, createDirtView } from './dirtView.js';
+import { createViewModel } from './viewModel.js';
+import { PlayerView } from './playerView.js';
+import { createEffects } from './effects.js';
+import { createMarker } from './marker.js';
 import { createControls } from './controls.js';
 import { createLobby } from './lobby.js';
-import { setHudColors, showHud, updateHud, showResult, hideResult, onAgain } from './hud.js';
+import {
+  setHudColors,
+  showHud,
+  updateHud,
+  showResult,
+  hideResult,
+  onAgain,
+  announce,
+  toast,
+} from './hud.js';
 import { createReferee } from './host.js';
+import { createFeed } from './feed.js';
+import { packIds } from './wire.js';
 import { createMirror } from './guest.js';
 import { openRoom, joinRoom } from './net.js';
 
@@ -58,18 +84,45 @@ const validColor = (v) => Number.isInteger(v) && v >= 0 && v < PALETTE.length;
 const canvas = document.getElementById('game');
 const { renderer, scene, camera } = createScene(canvas);
 const hall = new Hall();
-const sim = new Sim(hall);
-scene.add(buildHallView(hall));
-// Players who asked their system for less motion get no swaying camera.
+const dirt = new Dirt(hall);
+const sim = new Sim(hall, dirt, new Nav(hall));
+// Players who asked their system for less motion get no swaying or shaking.
 const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const film = createFilm(hall);
+scene.add(buildHallView(hall, film));
+const vacuum = createViewModel(hall, calm);
+scene.add(vacuum.group);
+const dirtView = createDirtView(dirt, nozzleOf);
+scene.add(dirtView.group);
+const effects = createEffects(hall, calm);
+scene.add(effects.group);
+const marker = createMarker();
+
+/** Where the nozzle of a seat's player is: pieces of dirt fly there. */
+function nozzleOf(seat, out) {
+  if (me && seat === me.seat) return vacuum.mouth(out);
+  const p = sim.players[seat];
+  if (!p) return out.set(0, 0.2, 0);
+  return out.set(p.x - Math.sin(p.yaw) * 0.7, 0.2, p.z - Math.cos(p.yaw) * 0.7);
+}
 
 // Who runs the match: the referee here, or a copy of the host's match.
-const match = ROLE === 'guest' ? createMirror() : createReferee();
+// The party host plays the guest's keys back one step at a time (feed.js).
+const feed = createFeed();
+const match =
+  ROLE === 'guest'
+    ? createMirror({ sim, mySeat: MY_SEAT })
+    : createReferee({
+        sim,
+        beforeStep: () => {
+          if (guestPlayer && guestPlayer.external) feed.play(guestPlayer, sim, STEP);
+        },
+      });
 
 // ---- State of this player's screen --------------------------------------
 let state = 'menu'; // menu | countdown | playing | ended
 let me = null; // the player's own character
-let stepTime = 0; // time not yet used up by whole steps of the rules
+let views = []; // the other players' characters: { seat, view }
 let clock = 0; // seconds since the page loaded (for the camera in the menu)
 let stride = 0; // how far the player has walked (for the swaying camera)
 let endT = 0; // seconds since the match ended
@@ -88,7 +141,11 @@ const menu = {
 // Party connection
 let toHost = () => {}; // guest: sends a message to the host
 let guestConn = null; // host: the guest's connection
+let guestPlayer = null; // host: the guest's character
+let netRemoved = []; // host: per seat, the pieces taken since the last snapshot
+let netOpened = []; // host: boxes opened since the last snapshot
 let lastSnap = 0;
+let lastInput = 0;
 
 const inMatch = () => state === 'countdown' || state === 'playing';
 const controls = createControls(canvas, inMatch);
@@ -139,9 +196,11 @@ const lobby = createLobby({
     if (ROLE === 'host' && !(menu.otherHere && menu.ready)) return;
     if (ROLE === 'host') {
       menu.ready = false;
-      toGuest({ t: 'start', colors: menu.colors });
     }
-    beginMatch();
+    // A new number for every match: the dirt lies differently each time.
+    const seed = 1 + Math.floor(Math.random() * 2147483000);
+    if (ROLE === 'host') toGuest({ t: 'start', hostName: PARTY.name, colors: menu.colors, seed });
+    beginMatch(seed);
     controls.lock();
   },
 });
@@ -159,14 +218,30 @@ function renderLobby() {
 }
 
 // ---- Match ------------------------------------------------------------------
-function beginMatch() {
-  match.start(MAX_PLAYERS);
-  sim.reset();
-  for (let seat = 0; seat < MAX_PLAYERS; seat++) sim.addPlayer(seat);
+/** seed: the number the dirt is laid out from (the same on both screens). */
+function beginMatch(seed) {
+  // Alone, the other seat is played by the bot.
+  match.start(MAX_PLAYERS, seed, ROLE === 'solo' ? [OTHER_SEAT] : []);
   me = sim.players[MY_SEAT];
+  if (ROLE === 'host') {
+    guestPlayer = sim.players[OTHER_SEAT];
+    feed.reset();
+    // The guest's keys move its character (feed.js) while the guest is there.
+    guestPlayer.external = menu.otherHere;
+  }
+  netRemoved = sim.players.map(() => []);
+  netOpened = [];
+  // Everybody else gets a character in their colour.
+  for (const v of views) scene.remove(v.view.group);
+  views = sim.players
+    .filter((p) => p !== me)
+    .map((p) => ({ seat: p.seat, view: new PlayerView(PALETTE[menu.colors[p.seat]].hex, calm, hall) }));
+  for (const v of views) scene.add(v.view.group);
+  dirtView.rebuild();
+  film.reset();
+  vacuum.setColor(PALETTE[menu.colors[MY_SEAT]].hex);
   controls.yaw = me.yaw;
   controls.pitch = 0;
-  stepTime = 0;
   stride = 0;
   notice = '';
   state = 'countdown';
@@ -231,9 +306,15 @@ function fromGuest(msg) {
     menu.otherName = cleanName(msg.name);
     menu.ready = false;
     notice = '';
+    feed.reset();
     if (inMatch()) {
-      // The guest reloaded during a match: bring it back in.
-      toGuest({ t: 'start', colors: menu.colors });
+      // The guest reloaded during a match: bring it back in, with the list
+      // of all pieces that are gone already.
+      guestPlayer.external = true;
+      netRemoved = sim.players.map(() => []);
+      netOpened = [];
+      toGuest({ t: 'start', hostName: PARTY.name, colors: menu.colors, seed: match.seed });
+      toGuest({ t: 'dirt', gone: packIds(dirt.gone()) });
     } else {
       takeGuestColor(msg.color);
       sendLobby();
@@ -247,6 +328,8 @@ function fromGuest(msg) {
     menu.ready = Boolean(msg.ready);
     sendLobby();
     renderLobby();
+  } else if (msg.t === 'input' && guestPlayer && inMatch()) {
+    feed.push(msg.n, msg.s);
   }
 }
 
@@ -254,6 +337,14 @@ function guestLeft() {
   guestConn = null;
   menu.otherHere = false;
   menu.ready = false;
+  feed.reset();
+  if (guestPlayer) {
+    // Nobody steers the character any more: it stands still.
+    const inp = guestPlayer.input;
+    inp.f = inp.s = 0;
+    inp.vac = false;
+    guestPlayer.external = false;
+  }
   if (inMatch()) notice = 'Your opponent left. Waiting for them to come back…';
   renderLobby();
 }
@@ -278,7 +369,12 @@ function fromHost(msg) {
       menu.colors = [msg.colors[0], msg.colors[1]];
     }
     menu.ready = false;
-    beginMatch();
+    // A guest who reloaded has not seen the menu: the name comes along here.
+    menu.otherName = cleanName(msg.hostName);
+    menu.otherHere = true;
+    beginMatch(Number.isInteger(msg.seed) && msg.seed > 0 ? msg.seed : 1);
+  } else if (msg.t === 'dirt' && inMatch()) {
+    for (const id of match.onDirt(msg.gone)) dirtView.hide(id);
   } else if (msg.t === 'snap' && inMatch()) {
     match.onSnap(msg);
   } else if (msg.t === 'end' && inMatch()) {
@@ -355,23 +451,57 @@ function advance(dt) {
   readInput(dt);
   match.step(dt);
   if (state === 'countdown' && match.state === 'playing') state = 'playing';
-  if (state === 'playing') {
-    stepTime += dt;
-    while (stepTime >= STEP) {
-      sim.updatePlayer(me, STEP);
-      stepTime -= STEP;
-    }
-  } else {
-    // Before "GO!" nobody can walk, but everybody may already look around.
-    me.yaw = controls.yaw;
-  }
-  if (ROLE === 'guest') return;
 
+  // What the rules did in these steps: pieces of dirt fly into a nozzle.
+  // ... or somebody opened the delivery box.
+  const tellGuest = ROLE === 'host' && menu.otherHere;
+  for (const e of sim.events) {
+    if (e.type === 'suck') {
+      dirtView.suck(e.id, e.seat);
+      if (tellGuest) netRemoved[e.seat].push(e.id);
+    } else if (e.type === 'back') {
+      dirtView.show(e.id);
+    } else if (e.type === 'open') {
+      effects.burst(e.x, e.z);
+      if (e.seat === MY_SEAT) announce(e.power);
+      else toast(ROLE === 'solo' ? 'Bot' : menu.otherName, e.power);
+      if (tellGuest) netOpened.push([e.seat, e.power, e.x, e.z]);
+    }
+  }
+  sim.events.length = 0;
+  // Where a nozzle is at work, the dust film is wiped off the floor.
+  if (state === 'playing') {
+    for (const p of sim.players) {
+      if (!p.vacuuming) continue;
+      const fx = -Math.sin(p.yaw);
+      const fz = -Math.cos(p.yaw);
+      // A row of soft circles along the nozzle's area (longer and wider with a power-up).
+      const area = sim.nozzle(p);
+      const r = area.width * 0.62;
+      const last = Math.max(0.35, area.reach - r * 0.8);
+      for (let ahead = 0.35; ; ahead = Math.min(last, ahead + r)) {
+        film.wipe(p.x + fx * ahead, p.z + fz * ahead, r);
+        if (ahead >= last) break;
+      }
+    }
+  }
   const now = performance.now();
+  if (ROLE === 'guest') {
+    // The keys of the last steps go to the host.
+    if (now - lastInput >= INPUT_MS) {
+      lastInput = now;
+      const msg = match.takeInputs();
+      if (msg) toHost(msg);
+    }
+    return;
+  }
+
   const over = match.state === 'ended';
   if (menu.otherHere && (over || now - lastSnap >= SNAP_MS)) {
     lastSnap = now;
-    toGuest(match.snapshot());
+    toGuest(match.snapshot(netRemoved, netOpened, feed.ack));
+    netRemoved = sim.players.map(() => []);
+    netOpened = [];
   }
   if (over) {
     toGuest({ t: 'end', sc: match.scores });
@@ -382,7 +512,7 @@ function advance(dt) {
 /** The camera sits in the player's head and sways a little while walking. */
 function firstPerson(dt) {
   // The rules move in steps of 1/60 s; the picture glides between the last two.
-  const k = state === 'playing' ? stepTime / STEP : 1;
+  const k = match.between;
   const x = me.px + (me.x - me.px) * k;
   const z = me.pz + (me.z - me.pz) * k;
   const speed = Math.hypot(me.vx, me.vz);
@@ -390,6 +520,8 @@ function firstPerson(dt) {
   const sway = calm ? 0 : Math.sin(stride * 1.9) * 0.035 * Math.min(1, speed / CONFIG.move.walkSpeed);
   camera.position.set(x, CONFIG.move.eyeHeight + sway, z);
   camera.rotation.set(controls.pitch, controls.yaw, 0);
+  vacuum.setPower(me.power);
+  vacuum.update(dt, x, z, controls.yaw, stride, Math.min(1, speed / CONFIG.move.walkSpeed), me.vacuuming);
 }
 
 /** Behind the menu the camera looks around the hall from above. */
@@ -427,9 +559,18 @@ function frame() {
       other: match.scores[OTHER_SEAT],
       locked: controls.locked(),
       notice,
+      delivery: sim.delivery,
+      power: me.power,
+      powerT: me.powerT,
     });
+    marker.update(camera, sim.delivery, me);
   }
+  if (state !== 'menu') for (const v of views) v.view.update(dt, sim.players[v.seat]);
+  dirtView.update(dt);
+  effects.update(dt, sim.delivery, clock);
 
+  // The own vacuum is only there while the player walks around.
+  vacuum.show(inMatch());
   renderer.render(scene, camera);
 }
 requestAnimationFrame(frame);

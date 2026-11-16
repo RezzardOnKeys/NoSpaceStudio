@@ -46,11 +46,47 @@
       #timer::after { right: 18px; }
       .score { position: relative; margin-top: 12px; min-width: 74px; padding: 3px 12px 3px 24px; text-align: right; font-size: 24px; font-weight: 700; color: #fff; text-shadow: 0 2px 0 rgba(0,0,0,.35); border: 3px solid var(--ink); border-radius: 3px; box-shadow: 3px 4px 0 rgba(40,22,8,.45); }
       .score::before { content: ''; position: absolute; left: 7px; top: 50%; width: 8px; height: 8px; margin-top: -4px; border-radius: 50%; background: var(--ink); }
-      #score1 { transform: rotate(-4deg); }
-      #score2 { transform: rotate(3deg); }
+      #score1 { --tilt: -4deg; }
+      #score2 { --tilt: 3deg; }
+      .score { transform: rotate(var(--tilt)); }
+      .score.hop { animation: hop .16s ease-out; }
+      @keyframes hop { 40% { transform: rotate(var(--tilt)) translateY(-4px) scale(1.12); } }
+      @media (prefers-reduced-motion: reduce) { .score.hop { animation: none; } }
       #status { position: absolute; left: 0; right: 0; top: 28%; text-align: center; font: 96px var(--stencil); letter-spacing: 4px; color: var(--cream); -webkit-text-stroke: 4px var(--ink); paint-order: stroke fill; text-shadow: 0 7px 0 rgba(40,22,8,.4); }
       #hint { position: absolute; left: 50%; bottom: 76px; transform: translateX(-50%) rotate(-1deg); max-width: 90vw; padding: 6px 14px; font-size: 16px; font-weight: 700; color: var(--ink); background: var(--kraft); border: 2px solid var(--ink); box-shadow: 3px 3px 0 rgba(40,22,8,.45); }
       #hint:empty { display: none; }
+      /* Top left: a parcel label with the time until the next delivery. */
+      #delivery { position: absolute; left: 16px; top: 16px; display: flex; align-items: center; gap: 9px; padding: 6px 12px 6px 9px; font-size: 16px; font-weight: 700; color: var(--ink); background: var(--kraft); border: 3px solid var(--ink); border-radius: 4px; box-shadow: 3px 4px 0 rgba(40,22,8,.45); transform: rotate(-2deg); }
+      #delivery.now { background: #ffd96b; }
+      .parcel { position: relative; flex: none; width: 26px; height: 22px; background: #c99a5b; border: 3px solid var(--ink); border-radius: 3px; }
+      .parcel::before { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 6px; margin-left: -3px; background: #f1e2bd; }
+      /* Bottom left: the active power-up with a bar that runs down. */
+      #power { position: absolute; left: 16px; bottom: 20px; width: 210px; padding: 8px 10px 10px; color: var(--ink); background: var(--paper); border: 3px solid var(--ink); border-radius: 4px; box-shadow: 3px 4px 0 rgba(40,22,8,.45); transform: rotate(1.5deg); }
+      #power .row { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 700; }
+      #powerIcon { flex: none; width: 30px; height: 30px; display: grid; place-items: center; font: 20px/1 var(--stencil); color: #fff; border: 3px solid var(--ink); border-radius: 50%; }
+      #powerBar { height: 10px; margin-top: 7px; background: rgba(59,36,19,.18); border: 2px solid var(--ink); }
+      #powerFill { height: 100%; width: 100%; transform-origin: left; }
+      /* A big stamped word when the player opens a box, a strip for the other player's box. */
+      #big { position: absolute; left: 0; right: 0; top: 44%; text-align: center; font: min(64px, 9vw) var(--stencil); letter-spacing: 3px; color: #ffd96b; -webkit-text-stroke: 4px var(--ink); paint-order: stroke fill; text-shadow: 0 6px 0 rgba(40,22,8,.4); opacity: 0; }
+      #big.show { animation: big 1.9s ease-out; }
+      @keyframes big { 0% { opacity: 0; transform: scale(1.7) rotate(-6deg); } 12% { opacity: 1; transform: scale(1) rotate(-3deg); } 78% { opacity: 1; transform: scale(1) rotate(-3deg); } 100% { opacity: 0; transform: translateY(-16px) rotate(-3deg); } }
+      #toast { position: absolute; left: 50%; top: 96px; transform: translateX(-50%) rotate(1deg); padding: 5px 12px; font-size: 15px; font-weight: 700; color: var(--ink); background: var(--paper); border: 2px solid var(--ink); box-shadow: 3px 3px 0 rgba(40,22,8,.45); opacity: 0; }
+      #toast.show { animation: toast 3s; }
+      @keyframes toast { 0%, 100% { opacity: 0; } 8%, 85% { opacity: 1; } }
+      /* The delivery icon: moved around by marker.js (also through walls). */
+      #marker { position: absolute; left: 0; top: 0; width: 0; height: 0; }
+      #marker .pin { position: absolute; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 3px; }
+      #marker .parcel { box-shadow: 0 0 0 3px var(--cream), 0 3px 0 3px rgba(40,22,8,.45); }
+      #markerDist { padding: 0 6px; font-size: 14px; font-weight: 700; white-space: nowrap; color: var(--ink); background: var(--cream); border: 2px solid var(--ink); border-radius: 3px; }
+      #markerArrow { position: absolute; left: -9px; top: -10px; width: 0; height: 0; border-left: 17px solid var(--cream); border-top: 10px solid transparent; border-bottom: 10px solid transparent; filter: drop-shadow(2px 0 0 var(--ink)) drop-shadow(-1px 0 0 var(--ink)) drop-shadow(0 2px 0 var(--ink)) drop-shadow(0 -2px 0 var(--ink)); }
+      @media (prefers-reduced-motion: reduce) {
+        #big.show { animation-name: toast; }
+      }
+      /* On a narrow screen the clock moves below the delivery label. */
+      @media (max-width: 760px) {
+        #board { top: 46px; }
+        #toast { top: 142px; }
+      }
       #cross { position: absolute; left: 50%; top: 50%; width: 8px; height: 8px; margin: -4px; border-radius: 50%; background: var(--cream); border: 2px solid var(--ink); }
 
       /* ---- Menu: a parcel tag at the left, the hall stays visible ---- */
@@ -59,7 +95,7 @@
       .tag { position: relative; max-height: 94vh; overflow: auto; padding: 58px 30px 24px; color: var(--ink); background: repeating-linear-gradient(3deg, rgba(120,80,30,.07) 0 2px, transparent 2px 6px), var(--kraft); clip-path: polygon(15% 0, 85% 0, 100% 46px, 100% 100%, 0 100%, 0 46px); }
       .tag::before { content: ''; position: absolute; left: 50%; top: 16px; width: 24px; height: 24px; margin-left: -12px; border-radius: 50%; background: #5b3a1c; border: 5px solid #cfae75; }
       .sheet { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; opacity: .7; text-align: center; }
-      h1 { width: fit-content; margin: 10px auto 12px; padding: 2px 18px 0; font: 62px/1.1 var(--stencil); letter-spacing: 4px; color: var(--stamp); border: 5px double var(--stamp); border-radius: 6px; transform: rotate(-3deg); }
+      h1 { width: fit-content; margin: 10px auto 12px; padding: 2px 18px 0; white-space: nowrap; font: min(62px, 12vw)/1.1 var(--stencil); letter-spacing: 4px; color: var(--stamp); border: 5px double var(--stamp); border-radius: 6px; transform: rotate(-3deg); }
       .sub { margin-bottom: 4px; font-size: 15px; font-weight: 700; text-align: center; }
       h2 { margin: 18px 0 10px; padding-bottom: 4px; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; border-bottom: 2px dashed rgba(59,36,19,.5); }
       /* The colours are little paint tins. */
@@ -104,6 +140,17 @@
         <div id="timer">4:00</div>
         <div id="score2" class="score" aria-label="Opponent's score">0</div>
       </div>
+      <div id="delivery"><span class="parcel"></span><span id="deliveryText" role="status"></span></div>
+      <div id="marker" hidden>
+        <div id="markerArrow"></div>
+        <div class="pin"><span class="parcel"></span><span id="markerDist"></span></div>
+      </div>
+      <div id="power" hidden>
+        <div class="row"><span id="powerIcon"></span><span id="powerName"></span></div>
+        <div id="powerBar"><div id="powerFill"></div></div>
+      </div>
+      <div id="big" role="status"></div>
+      <div id="toast" role="status"></div>
       <div id="cross"></div>
       <div id="status"></div>
       <div id="hint" role="status"></div>

@@ -14,7 +14,7 @@ export function createScene(canvas) {
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(HAZE);
-  scene.fog = new THREE.Fog(HAZE, 26, 95);
+  scene.fog = new THREE.Fog(HAZE, 34, 125);
   const camera = new THREE.PerspectiveCamera(CONFIG.look.fov, 1, 0.08, 200);
   camera.rotation.order = 'YXZ';
 
@@ -22,16 +22,16 @@ export function createScene(canvas) {
   scene.add(new THREE.HemisphereLight(0xfff0d2, 0x9a6a3a, 1.7));
   // ... and the low afternoon sun that falls in through the front windows.
   const sun = new THREE.DirectionalLight(0xffc98a, 1.9);
-  sun.position.set(9, 15, 17);
+  sun.position.set(12, 20, 23);
   sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);
   Object.assign(sun.shadow.camera, {
-    left: -26,
-    right: 26,
-    top: 20,
-    bottom: -20,
+    left: -36,
+    right: 36,
+    top: 28,
+    bottom: -28,
     near: 1,
-    far: 60,
+    far: 80,
   });
   sun.shadow.bias = -0.0008;
   sun.shadow.radius = 4; // soft edges

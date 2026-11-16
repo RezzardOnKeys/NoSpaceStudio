@@ -79,24 +79,24 @@ table whenever a phase is finished.
   **Not yet tested: Safari, a real party with two accounts over the
   internet, the mouse inside the launcher.** No sound yet. To publish it,
   set `"status": "published"` in `game.json`.
-- **The fifth game is being built:** "Dust Dash"
-  (`games/dust-dash/`, `"status": "draft"`, so only visible locally), a
-  cosy first person race in an old wooden hall: two players vacuum up
-  dust, dirt and sawdust for points for four minutes, and whoever reaches
-  the random delivery box first gets a power-up for ten seconds. 1 vs 1
-  from a party or alone against one bot. The complete plan is in
-  [DUST-DASH.md](DUST-DASH.md); its "Order of work" has eight steps.
-  **Done: steps 1 and 2** (folder, store entry, menu with eight colours,
-  party connection, a round: countdown, four-minute clock, result,
-  rematch; the hall in comic look with shelves, workbenches, crates,
-  barrels and posts, walking in first person with collisions, 7 m/s and
-  5 m/s while holding the vacuum button; decision 44). Its interface has
+- **The fifth game is in:** `games/dust-dash/` (Dust Dash, version 1.0.0,
+  published), a cosy first person race in an old wooden hall of 56 x 36 m:
+  two players vacuum up 11500 pieces of dust, dirt and sawdust for points
+  for four minutes (the dirt is laid out new from a seed in every match),
+  walking is slower while vacuuming, and a delivery box drops about every
+  35 seconds at a spot that is equally far for both; whoever touches it
+  first gets one of four power-ups for ten seconds. 1 vs 1 from a party
+  (the host is the referee, the guest moves itself ahead, decision 44) or
+  alone against one bot that plays by the same rules. Its interface has
   its own look (a parcel tag as menu, a wooden sign as clock, a receipt as
-  result). Tested in Chrome alone and as a party with two tabs; in a party
-  each player still walks only in their own picture of the hall. **Still
-  to do: steps 3 to 8** (dirt and vacuuming, deliveries and power-ups, the
-  full party mode, the bot, polish with cover and patch note,
-  documentation).
+  result). The plan it was built from is [DUST-DASH.md](DUST-DASH.md).
+  Tested in Chrome: alone against the bot, a party with two tabs (also a
+  reload during a match), and with test scripts (the hall, fair delivery
+  spots, power-ups, the bot over full rounds, a party with an artificial
+  network delay). **Not yet tested: Safari, a real party with two accounts
+  over the internet, the mouse (pointer lock) by Claude, how strong the
+  bot feels against a person** (its numbers are under `bot` in
+  `config.js`). No sound yet.
 - **Games and news are files in the repository**, not database rows
   (decision 22). A game is a folder `games/<slug>/` with a `game.json`
   (store entry), an optional `description.md` and its images. A news post is
@@ -315,9 +315,10 @@ Collected in conversations with the developers; nothing decided yet.
   `maxPlayers` are written for 1 vs 1), sound effects, touch controls, a
   mouse speed slider like in Die Together, not sending a submerged
   player's position to the other screen, a second arena.
-- **Dust Dash** is decided and fully planned: [DUST-DASH.md](DUST-DASH.md).
-  Later ideas for it: more players and more bots, more halls, sound (like
-  the other games, it starts without any sound).
+- **Dust Dash follow-ups** (the game itself is built, see above): more
+  players and more bots (players are a list, the limit is `MAX_PLAYERS`),
+  more halls, sound, drawn icons for the power-ups, a mouse speed slider,
+  sending the dust film to a guest who reloads.
 - **Other 3D ideas from the brainstorm** (not decided): "Other Eyes" (you
   see through your opponent's eyes), a time loop duel (your previous rounds
   play along as clones), "Echo" (dark arena, sound makes it visible),
@@ -335,7 +336,7 @@ Collected in conversations with the developers; nothing decided yet.
   real SMTP provider is needed before going public (phase 7).
 - `brand.contactEmail` is still the placeholder `contact@example.com`.
 - Fullscreen in the player and Safari in general have not been tested yet.
-  This includes Blind Drop, Die Together and Inkwars (3D with WebGL), which
-  were only tested in Chrome.
+  This includes Blind Drop, Die Together, Inkwars and Dust Dash (3D with
+  WebGL), which were only tested in Chrome.
 - Route-level lazy loading is still to do (the bundle is one large chunk).
 - `eslint-plugin-jsx-a11y` can be added once it supports ESLint 10.

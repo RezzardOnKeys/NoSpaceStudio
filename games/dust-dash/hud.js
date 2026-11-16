@@ -1,8 +1,9 @@
 // Dust Dash – the HTML on top of the 3D view during and after a match: the
-// round clock (a wooden sign), both scores (paper tags), the big status
-// text, notices and the result (a receipt).
+// round clock (a wooden sign), both scores (paper tags), the delivery label,
+// the active power-up, the big status text, notices and the result (a
+// receipt).
 
-import { CONFIG } from './config.js';
+import { CONFIG, POWERS } from './config.js';
 import { css } from './lobby.js';
 
 const $ = (id) => document.getElementById(id);
@@ -19,16 +20,72 @@ export function setHudColors(mine, other) {
 
 export const showHud = (on) => $('hud').classList.toggle('hidden', !on);
 
+// Sign and colour of each power-up's round badge, in the order of POWERS.
+const BADGES = [
+  { sign: '↔', color: '#3f8fe0' },
+  { sign: '»', color: '#e8554e' },
+  { sign: '@', color: '#8a63d8' },
+  { sign: '★', color: '#e2a81e' },
+];
+
+/** Starts a CSS animation on an element again from the beginning. */
+function replay(el, text) {
+  el.textContent = text;
+  el.classList.remove('show');
+  void el.offsetWidth;
+  el.classList.add('show');
+}
+
+/** The player opened a box: the power-up's name as a big stamped word. */
+export const announce = (power) => replay($('big'), `${POWERS[power]}!`);
+/** Somebody else opened a box: a small paper strip under the clock. */
+export const toast = (name, power) => replay($('toast'), `${name} got ${POWERS[power]}`);
+
+/** Writes a score on its tag; the tag hops a little when the number changes. */
+function setScore(el, value) {
+  const text = String(value);
+  if (el.textContent === text) return;
+  el.textContent = text;
+  if (value > 0) {
+    el.classList.remove('hop');
+    void el.offsetWidth; // start the animation again
+    el.classList.add('hop');
+  }
+}
+
 /**
- * s: { state, timeLeft, countdown, mine, other, locked, notice }
+ * s: { state, timeLeft, countdown, mine, other, locked, notice, delivery,
+ *      power, powerT }
  * mine and other are the two scores; locked: the mouse is caught by the
- * game; notice is a network notice ('' if none).
+ * game; notice is a network notice ('' if none); delivery is the delivery
+ * of the rules; power and powerT the player's power-up (-1: none) and the
+ * seconds it still lasts.
  */
 export function updateHud(s) {
   const t = Math.max(0, Math.ceil(s.timeLeft));
   $('timer').textContent = clockText(t);
-  $('score1').textContent = String(s.mine);
-  $('score2').textContent = String(s.other);
+  setScore($('score1'), s.mine);
+  setScore($('score2'), s.other);
+
+  const d = s.delivery;
+  const wait = Math.max(0, Math.ceil(d.t));
+  $('deliveryText').textContent =
+    d.state === 'timer'
+      ? `Delivery in ${clockText(wait)}`
+      : d.state === 'falling'
+        ? 'Delivery incoming!'
+        : 'Delivery waiting!';
+  $('delivery').classList.toggle('now', d.state !== 'timer');
+
+  $('power').hidden = s.power < 0;
+  if (s.power >= 0) {
+    const badge = BADGES[s.power];
+    $('powerIcon').textContent = badge.sign;
+    $('powerIcon').style.backgroundColor = badge.color;
+    $('powerName').textContent = POWERS[s.power];
+    $('powerFill').style.backgroundColor = badge.color;
+    $('powerFill').style.transform = `scaleX(${Math.max(0, s.powerT / CONFIG.power.time)})`;
+  }
 
   let status = '';
   if (s.state === 'countdown') status = String(Math.max(1, Math.ceil(s.countdown)));

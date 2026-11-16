@@ -15,6 +15,68 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 54 – 2026-11-16 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Dust Dash: letzte Feinschliffe machen und das Spiel als erste Version online stellen; außerdem soll der Staubsauger am Boden bleiben und nicht in Hindernisse ragen
+**Änderungen:**
+- Bot für das Spiel allein (`bot.js`): drückt dieselben „Tasten“ wie ein Spieler, gleiche Geschwindigkeiten; läuft zur Lieferung, wenn sein Weg höchstens 1,15-mal so lang ist wie der des Spielers, saugt den nächsten sichtbaren Dreck, läuft sonst um Hindernisse herum zur dreckigsten Stelle; mit Pausen und langsamem Drehen schlagbar gemacht (allein etwa 4000–4600 Punkte pro Runde, ohne Bremsen waren es 6000); alle Zahlen unter `bot` in `config.js`
+- Eigener Sauger neu: die Düse liegt jetzt wirklich auf dem Boden vor dem Spieler, ein Rohr führt zur Hand unten rechts; vor Wänden, Regalen, Kisten, Fässern und Pfosten wird sie eingezogen und ragt nie hinein (unter Werkbänke passt sie); gleiches bei der Figur des anderen Spielers; die Teile fliegen zur Düse am Boden
+- Feinschliff: Sonnenstrahlen durch die vorderen Fenster mit hellem Fleck auf dem Boden, schwebender Staub im Licht, Düse sieht mit Power-up anders aus (breit, lila Leuchten bei starkem Sog, golden mit Leuchten)
+- Cover und Banner (SVG), Store-Beschreibung, Patch Note `news/2026-11-16-dust-dash-1-0.md`
+- Veröffentlicht: `game.json` auf Version 1.0.0 und `"status": "published"`
+- Getestet: Skripte (Bot über volle Runden mit drei Startwerten: bleibt nie hängen, holt Kisten; Platz der Düse vor Regal und Wand; Party-Simulation erneut ohne Abweichung bei den Punkten) und in Chrome allein gegen den Bot (Bot sammelt Punkte und holt eine Kiste, Düse am Boden, Sonnenstrahlen). Nicht getestet: Party im Browser nach den letzten Änderungen (nur per Skript), Safari, echte Party über den Launcher, Maus, wie stark sich der Bot gegen einen Menschen anfühlt, Store-Seite im Launcher mit Cover und Banner (nur Build und die Bilder einzeln angesehen)
+- Doku: Entscheidung 44 ergänzt, ROADMAP (Spiel fertig, Folgeideen), docs/DUST-DASH.md (Status), games/README.md
+**Geänderte Dateien:** games/dust-dash/ (neu: bot.js, cover.svg, banner.svg; geändert: game.js, host.js, nav.js, hall.js, hallView.js, effects.js, viewModel.js, playerView.js, config.js, game.json, description.md), news/2026-11-16-dust-dash-1-0.md (neu), docs/DECISIONS.md, docs/ROADMAP.md, docs/DUST-DASH.md, games/README.md, PROTOKOLL.md
+**Commit-Message:** `[v54] feat(games): publish Dust Dash 1.0.0 with the bot, polish and a nozzle that stays on the floor`
+**GitHub-Commit:** _ausstehend_
+
+## Version 53 – 2026-11-16 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Dust Dash Schritt 5: voller Party-Modus (Host als Schiedsrichter, Gast bewegt sich selbst voraus, Dreck und Kisten übers Netz, Neuladen mitten in der Runde)
+**Änderungen:**
+- Der Host entscheidet alles, was zählt: wer welches Teil bekommt, Punkte, Kisten, Power-ups. Beide Bildschirme zeigen denselben Dreck und dieselben Punkte
+- Der Gast bewegt seine Figur sofort selbst mit denselben Regeln und schickt seine Tasten Schritt für Schritt (`feed.js`, `wire.js` von Inkwars übernommen und angepasst); der Host spielt jeden Schritt genau einmal ab, der Gast wird sanft korrigiert
+- Dreck vor der eigenen Düse fliegt beim Gast sofort los; zählt der Host ein Teil nicht innerhalb einer Sekunde (der andere war schneller), liegt es wieder da
+- Der Host schickt nur die Nummern der weggesaugten Teile (klein verpackt als Abstände), dazu Kiste, Power-ups und Punkte, etwa 30-mal pro Sekunde
+- Neue Figur für den anderen Spieler (`playerView.js`): rund, große Augen, in seiner Farbe, Sauger auf dem Rücken mit Schlauch und Düse; hüpft beim Laufen, Düse zittert beim Saugen (nicht bei „Bewegung reduzieren“). Der Bot wird genauso gezeichnet (steht aber noch still)
+- Neuladen mitten in der Runde: der Gast ist wieder in der laufenden Runde, mit seinen Punkten und ohne die schon weggesaugten Teile
+- Behoben: nach dem Neuladen stand auf der Quittung „Player“ statt des Host-Namens
+- Getestet: Skript mit künstlicher Verzögerung (0, 40–80, 100–150 ms je Richtung, 70 Sekunden): Punkte auf beiden Seiten immer gleich, jede Kiste auf beiden Seiten geöffnet, Nachzügler hat exakt dieselben Teile. In Chrome mit zwei Tabs: Gast läuft und saugt (Punkte kommen vom Host, auch bei verstecktem Host-Tab), beide sehen die Figur des anderen, Gast lädt neu und ist wieder drin, Gast öffnet die Kiste („ben got Golden nozzle“ beim Host), gleiches Ergebnis auf beiden Quittungen, „Again“ bringt beide ins Menü. Nicht getestet: Safari, echte Party über den Launcher mit zwei Konten und echtem Internet, Maus, volle 4-Minuten-Runde, dass der Host dem Gast ein Teil wegschnappt (nur im Skript)
+- Entscheidung 44 ergänzt, ROADMAP, docs/DUST-DASH.md und docs/PARTY-GAMES.md (fünftes Beispiel) aktualisiert
+**Geänderte Dateien:** games/dust-dash/ (neu: feed.js, wire.js, playerView.js; geändert: game.js, host.js, guest.js, sim.js, dirt.js, dirtView.js, config.js), docs/DECISIONS.md, docs/ROADMAP.md, docs/DUST-DASH.md, docs/PARTY-GAMES.md, PROTOKOLL.md
+**Commit-Message:** `[v53] feat(dust-dash): full party mode with a guest that moves itself and shared dirt`
+**GitHub-Commit:** _ausstehend_
+
+## Version 52 – 2026-11-16 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Dust Dash: Halle vergrößern (statt kürzerer Runde), danach weiter mit Schritt 4 (Lieferkisten und Power-ups)
+**Änderungen:**
+- Halle von 40 × 26 m auf 56 × 36 m vergrößert, Hindernisse neu ausgelegt (pro Hälfte sechs Regale, drei Werkbänke, Kisten, Fässer, vier Pfosten; punktgespiegelt), 11500 statt 6000 Dreckteile (gleiche Dichte), Fenster, Balken, Licht und Schatten angepasst
+- Gemessen: zwei perfekte Test-Sauger brauchen jetzt fast die vollen 4 Minuten (vorher 2:24); echte Spieler bekommen die Halle nicht mehr leer
+- Lieferungen: oben links „Delivery in 0:24“; erste Kiste nach 25 s, danach 35 s nach dem Öffnen der letzten; Dachluke geht auf, Lichtstrahl zeigt die Stelle, Karton fällt und hüpft kurz
+- Faire Stelle: freier Boden, für beide mindestens 9 m Laufweg und höchstens 2 m Unterschied (Laufwege um die Hindernisse herum, neue Datei `nav.js`)
+- Liefer-Symbol mit Entfernung in Metern, auch durch Wände; liegt die Kiste hinter einem oder außerhalb des Bildes, sitzt es am Bildschirmrand mit Pfeil
+- Wer die Kiste zuerst berührt, bekommt 10 Sekunden ein zufälliges Power-up (breite Düse, Turbo-Schuhe, starker Sog, goldene Düse = doppelte Punkte); nicht stapelbar, ein neues ersetzt das alte; großes Wort in der Mitte („Turbo shoes!“), beim anderen ein Papierstreifen („Ben got Turbo shoes“); Karte unten links mit ablaufendem Balken; Funken beim Öffnen
+- Der Staubfilm wird passend zur aktuellen Düsenfläche gewischt (breiter bzw. länger mit Power-up)
+- Getestet: Skripte (Halle ohne Überschneidungen und überall erreichbar, 300 faire Stellen, Ablauf Timer → Fallen → Warten → Öffnen → 10 s → 35 s, Wirkung aller vier Power-ups) und in Chrome allein (Kiste fällt, Symbol und Pfeil am Rand, automatisch hingelaufen und geöffnet, Power-up-Karte läuft ab, nächster Timer) sowie Party mit zwei Tabs (Start, Lieferung erscheint bei beiden). Dabei ein Rundungsfehler in der Wegsuche gefunden und behoben. Nicht getestet: Maus, Safari, echte Party über den Launcher, volle 4-Minuten-Runde. In der Party hat jeder noch eigene Kisten, eigenen Dreck und eigene Punkte (Schritt 5); der Bot steht still (Schritt 6); die Düse sieht mit Power-up noch gleich aus (Schritt 7)
+- Entscheidung 44 ergänzt, ROADMAP und docs/DUST-DASH.md aktualisiert
+**Geänderte Dateien:** games/dust-dash/ (neu: nav.js, effects.js, marker.js; geändert: hall.js, hallView.js, scene.js, sim.js, host.js, guest.js, game.js, hud.js, config.js, index.html), docs/DECISIONS.md, docs/ROADMAP.md, docs/DUST-DASH.md, PROTOKOLL.md
+**Commit-Message:** `[v52] feat(dust-dash): bigger hall, deliveries at fair spots and four power-ups`
+**GitHub-Commit:** _ausstehend_
+
+## Version 51 – 2026-11-16 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Dust Dash: beim Saugen etwas langsamer laufen, weitermachen mit Schritt 3 (Dreck, Saugen, Punkte); Frage, ob die Halle für 4 Minuten nicht zu klein ist
+**Änderungen:**
+- Lauftempo beim Saugen von 5 auf 4,2 m/s gesenkt (`move.vacuumSpeed`), normales Tempo bleibt 7 m/s
+- Dreck aus einem Startwert: 6000 Teile (Staubflusen, Dreckkrümel, Holzspäne), dichter an Wänden, in Ecken, um Hindernisse und unter Werkbänken, dazu 24 zufällige Dreckflecken; beide Browser bauen aus demselben Startwert exakt dieselben Teile (nur Summen und Wurzeln, kein Sinus), jedes Teil ist erreichbar
+- Saugen: Teile im Streifen vor der Düse (1,6 m lang, 1,2 m breit) gehören sofort dem Spieler, zählen 1 Punkt und fliegen in einem kleinen Bogen in die Düse, wo sie wegschrumpfen; nicht durch Regale, Kisten, Fässer und Pfosten hindurch, aber unter Werkbänke
+- Staubfilm auf dem Boden: wo die Düse war, kommt der warme Holzboden zum Vorschein (nur Optik)
+- Eigener Sauger in Ego-Sicht unten rechts in der Spielerfarbe (Düse, Rohr, Schlauch), wippt beim Laufen und zittert leicht beim Saugen (nicht bei „Bewegung reduzieren“); wird über der Halle gezeichnet und steckt nie in einer Wand
+- Punkteanhänger hüpft, wenn die Zahl steigt; die Quittung zählt die echten Punkte hoch; jede Runde bekommt einen neuen Startwert (in der `start`-Nachricht)
+- Gemessen (Skript): zwei perfekte Test-Sauger leeren die Halle in etwa 2:24, einer allein schafft 5900 von 6000 Teilen in 4 Minuten. Die Halle ist für 4 Minuten also zu klein; Entscheidung (größere Halle oder kürzere Runde) liegt bei den Entwicklern
+- Getestet in Chrome: allein (Saugen, Punkte, saubere Spur, Quittung) und als Party mit zwei Tabs (Gast saugt in seiner Kopie, Quittung beim Gast). Nicht getestet: Maus, Safari, echte Party über den Launcher. In der Party saugt jeder noch seine eigene Kopie und sieht nur die eigenen Punkte (kommt mit Schritt 5); der Bot steht noch still
+- Entscheidung 44 um Schritt 3 ergänzt, ROADMAP und docs/DUST-DASH.md aktualisiert; Commit-Hash für Version 49 und 50 nachgetragen
+**Geänderte Dateien:** games/dust-dash/ (neu: dirt.js, dirtView.js, viewModel.js; geändert: game.js, sim.js, host.js, guest.js, hall.js, hallView.js, hud.js, config.js, index.html), docs/DECISIONS.md, docs/ROADMAP.md, docs/DUST-DASH.md, PROTOKOLL.md
+**Commit-Message:** `[v51] feat(dust-dash): add dirt from a seed, vacuuming, the dust film and points`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 50 – 2026-11-16 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Dust Dash Schritt 2 (Halle und Bewegung) und das ganze Interface neu gestalten, weil es zu sehr nach Blind Drop aussah
 **Änderungen:**
@@ -26,7 +88,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Entscheidung 44 um Schritt 2 ergänzt, ROADMAP und Status in docs/DUST-DASH.md aktualisiert
 **Geänderte Dateien:** games/dust-dash/ (neu: hall.js, sim.js, look.js, hallView.js, controls.js; geändert: index.html, game.js, config.js, lobby.js, hud.js, scene.js), docs/DECISIONS.md, docs/ROADMAP.md, docs/DUST-DASH.md, PROTOKOLL.md
 **Commit-Message:** `[v50] feat(dust-dash): add the hall, first person movement and an interface of its own`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`a912f97`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/a912f97)
 
 ## Version 49 – 2026-11-16 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Dust Dash nach docs/DUST-DASH.md bauen, Schritt 1: Ordner, game.json (Entwurf), Menü und Party-Verbindung von Inkwars übernehmen, Spiel startet allein und mit zwei Tabs
@@ -40,7 +102,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Entscheidung 44 angelegt (offene Punkte aus dem Plan), ROADMAP, games/README.md und Status in docs/DUST-DASH.md aktualisiert; Commit-Hash für Version 48 nachgetragen
 **Geänderte Dateien:** games/dust-dash/ (neu: index.html, game.js, config.js, lobby.js, hud.js, host.js, guest.js, scene.js, net.js, ticker.js, game.json, description.md, vendor/), docs/DECISIONS.md, docs/ROADMAP.md, docs/DUST-DASH.md, games/README.md, PROTOKOLL.md
 **Commit-Message:** `[v49] feat(dust-dash): add draft store entry, menu and party connection`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`a912f97`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/a912f97)
 
 ## Version 48 – 2026-11-16 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Neues Spiel planen (nur Idee und Startprompt für einen neuen Chat): gemütliches Aufräum-Spiel als Partyspiel
