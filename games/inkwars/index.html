@@ -42,6 +42,10 @@
       #hpFill { height: 100%; width: 100%; background: #6ee36e; }
       #hpLabel { position: absolute; left: 30px; bottom: 54px; font-weight: 800; font-size: 13px; }
       #status { position: absolute; left: 0; right: 0; top: 30%; text-align: center; font-size: 64px; font-weight: 900; }
+      #kill { position: absolute; left: 0; right: 0; top: 40%; text-align: center; font-size: 38px; font-weight: 900; opacity: 0; }
+      #kill.show { animation: kill 1.4s ease-out; }
+      @keyframes kill { 0% { opacity: 0; transform: scale(1.6); } 12% { opacity: 1; transform: scale(1); } 75% { opacity: 1; } 100% { opacity: 0; transform: translateY(-14px); } }
+      @keyframes killFade { 0%, 75% { opacity: 1; } 100% { opacity: 0; } }
       #hint { position: absolute; left: 0; right: 0; bottom: 90px; text-align: center; font-size: 17px; font-weight: 700; }
       #hurt { position: absolute; inset: 0; box-shadow: inset 0 0 160px 40px rgba(255,40,40,.8); opacity: 0; }
 
@@ -74,6 +78,7 @@
 
       @media (prefers-reduced-motion: reduce) {
         #bar div { transition: none; }
+        #kill.show { animation-name: killFade; }
       }
     </style>
   </head>
@@ -93,6 +98,7 @@
       <div id="tankLabel" class="shadow">TANK</div>
       <div id="tank"><div id="tankFill"></div></div>
       <div id="status" class="shadow"></div>
+      <div id="kill" class="shadow" role="status"></div>
       <div id="hint" class="shadow"></div>
     </div>
 

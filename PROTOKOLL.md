@@ -15,6 +15,19 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 45 – 2026-11-16 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Inkwars: Spur um die Hälfte breiter, Schüsse schneller, deutlich sichtbare Animation, wenn ein Gegner „stirbt“
+**Änderungen:**
+- Spur 1,5-mal so breit (Radius 0,45 m statt 0,3 m), weiterhin lückenlos
+- Tropfen fliegen schneller (30 statt 22 m/s); sie fallen stärker, damit die Reichweite (~28 m) gleich bleibt
+- Neue Animation beim Ausscheiden: Figur schwillt in der Farbe des Gegners an, platzt mit Spritzer, Ring und vielen Tropfen, die Mütze fliegt weg und bleibt bis zum Wiedereinstieg liegen, „SOAKED!“ steigt auf; wer getroffen hat, sieht „Opponent soaked!“
+- Läuft bei Host und Gast gleich; bei „Bewegung reduzieren“ ohne Wackeln und Drehen
+- Getestet: Zielen, Treffer- und Flächen-Skripte, im Browser allein gegen Bot (Animation, breitere Spur). Nicht getestet: Party-Ansicht der Animation beim Gast, Safari
+- Spielversion 1.2.0 mit Patch Note, Entscheidung 41, ROADMAP; Commit-Hash für Version 44 nachgetragen
+**Geänderte Dateien:** games/inkwars/ (config.js, actorView.js, game.js, hud.js, index.html, game.json), news/2026-11-16-inkwars-1-2.md (neu), docs/DECISIONS.md, docs/ROADMAP.md, PROTOKOLL.md
+**Commit-Message:** `[v45] feat(inkwars): faster drops, wider trail and a visible knockout`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 44 – 2026-11-16 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Inkwars verbessern: Bewegung ohne Rutschen, Gast bewegt sich ohne Verzögerung, genauere Schüsse, lückenlose Spur zum Hinterherschwimmen (danach: Spur breiter), Treffer prüfen, Treffer trotz Netzwerkverzögerung
 **Änderungen:**
@@ -29,7 +42,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Spielversion 1.1.0 mit Patch Note, Beschreibung ergänzt, Entscheidung 40, ROADMAP, PARTY-GAMES; Commit-Hash für Version 43 nachgetragen
 **Geänderte Dateien:** games/inkwars/ (neu: feed.js; geändert: config.js, sim.js, paint.js, arena.js, camera.js, game.js, host.js, guest.js, wire.js, game.json, description.md), news/2026-11-16-inkwars-1-1.md (neu), docs/DECISIONS.md, docs/ROADMAP.md, docs/PARTY-GAMES.md, PROTOKOLL.md
 **Commit-Message:** `[v44] feat(inkwars): direct movement, guest prediction, lag-compensated hits and a gap-free trail`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`2ad79c0`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/2ad79c0)
 
 ## Version 43 – 2026-11-15 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Neues Spiel aus inkwars.zip prüfen und als viertes Spiel einbauen: direkt mit Party-Modus 1 gegen 1 und allein gegen Bots spielbar

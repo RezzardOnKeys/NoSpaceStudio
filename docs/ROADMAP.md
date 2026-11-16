@@ -58,7 +58,7 @@ table whenever a phase is finished.
   script. **Not yet tested in Safari and not yet with 4 or more real
   players.** No sound yet.
 - **The fourth game is in as a draft:** `games/inkwars/` (Inkwars, version
-  1.1.0, `"status": "draft"`, so only visible locally), a 3D water fight in
+  1.2.0, `"status": "draft"`, so only visible locally), a 3D water fight in
   third person: two sides paint the arena, the side with more painted
   ground after three minutes wins; in "fish form" a player is fast and
   invisible in the own colour. 1 vs 1 from a party, or alone against bots
@@ -68,7 +68,8 @@ table whenever a phase is finished.
   way in (decision 39). Version 1.1 (decision 40): direct movement without
   sliding, the guest moves its own character itself, hits with a look back
   for the guest, a trail without gaps to swim behind a shot, shots that
-  land at the crosshair. Tested in Chrome: solo against a bot, and a party
+  land at the crosshair. Version 1.2 (decision 41): faster drops, a wider
+  trail, a visible knockout. Tested in Chrome: solo against a bot, and a party
   match with two tabs (menu, colours, same painted arena and score on both
   screens, reload of the guest during a match, result, rematch; in 1.1 also
   the guest's movement, swimming behind a shot and a hit by the guest), and

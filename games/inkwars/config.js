@@ -33,16 +33,16 @@ export const CONFIG = {
     tank: 100,
     shotCost: 2.2,
     fireInterval: 0.1,
-    speed: 22,
-    gravity: 18,
+    speed: 30, // how fast a drop flies (m/s)
+    gravity: 32, // how fast it falls; with speed 30 the water reaches about 28 m
     spread: 0.012, // random deviation of a shot, in radians either way
     damage: 22,
     floorRadius: 1.15, // splat at the impact
     wallRadius: 0.9,
     // A trail of drips under the flight path, from the shooter's feet to the
     // impact without gaps, so you can swim right behind your shot.
-    dripRadius: 0.3, // the trail is twice this wide
-    dripSpacing: 0.3, // one drip every this many metres along the way
+    dripRadius: 0.45, // the trail is twice this wide
+    dripSpacing: 0.4, // one drip every this many metres along the way
     refillPerSec: 50,
     maxLife: 2.5,
   },

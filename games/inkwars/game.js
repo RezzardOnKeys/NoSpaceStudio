@@ -34,7 +34,15 @@ import { createScene } from './scene.js';
 import { createControls } from './controls.js';
 import { createCameraRig } from './camera.js';
 import { createLobby } from './lobby.js';
-import { setHudColors, showHud, updateHud, showResult, hideResult, onAgain } from './hud.js';
+import {
+  setHudColors,
+  showHud,
+  updateHud,
+  showResult,
+  hideResult,
+  onAgain,
+  showKill,
+} from './hud.js';
 import { createReferee } from './host.js';
 import { createFeed } from './feed.js';
 import { createMirror } from './guest.js';
@@ -223,7 +231,7 @@ function beginMatch() {
   }
 
   for (const v of views) scene.remove(v.group);
-  views = sim.actors.map((a) => new ActorView(a, hex[a.team - 1]));
+  views = sim.actors.map((a) => new ActorView(a, hex[a.team - 1], hex[2 - a.team]));
   for (const v of views) scene.add(v.group);
 
   controls.yaw = me.yaw;
@@ -294,6 +302,15 @@ function readInput(dt) {
     inp.aimYaw = angles.yaw;
     inp.aimPitch = angles.pitch;
   }
+}
+
+/**
+ * A character went out at (x, y, z); team is the side whose water did it.
+ * A big burst of that water, and a message if it was the player's side.
+ */
+function soaked(x, y, z, team) {
+  particles.burst(x, y, z, teamColors[team], 90, 8);
+  if (team === MY_TEAM) showKill('Opponent soaked!');
 }
 
 // ---- Party: host side -----------------------------------------------------------
@@ -389,9 +406,9 @@ function fromHost(msg) {
     }
   } else if (msg.t === 'snap' && inMatch()) {
     for (const e of match.onSnap(msg, me)) {
-      const c = teamColors[e[4] === 2 ? 2 : 1];
-      if (e[0] === 0) particles.burst(e[1], e[2], e[3], c, 8, 4);
-      else particles.burst(e[1], e[2], e[3], c, 50, 7);
+      const team = e[4] === 2 ? 2 : 1;
+      if (e[0] === 0) particles.burst(e[1], e[2], e[3], teamColors[team], 8, 4);
+      else soaked(e[1], e[2], e[3], team);
     }
   } else if (msg.t === 'end' && inMatch()) {
     const pct = Array.isArray(msg.pct) ? msg.pct.map((v) => (Number.isFinite(v) ? v : 0)) : [0, 0];
@@ -483,7 +500,7 @@ function advance(dt) {
     const c = teamColors[e.team];
     if (e.type === 'splash') particles.burst(e.x, e.y, e.z, c, 4, 3);
     else if (e.type === 'hit') particles.burst(e.x, e.y, e.z, c, 8, 4);
-    else particles.burst(e.x, e.y, e.z, c, 50, 7);
+    else soaked(e.x, e.y, e.z, e.team);
     if (menu.otherHere && ROLE === 'host' && e.type !== 'splash') {
       netEvents.push([e.type === 'hit' ? 0 : 1, e.x, e.y, e.z, e.team]);
     }

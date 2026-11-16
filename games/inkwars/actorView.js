@@ -44,6 +44,38 @@ function eyes(parent, x, y, z, r, lid) {
     parent.add(eye);
   }
 }
+/** A flat picture with a word on it (the "SOAKED!" above a character that is out). */
+function wordSprite(text, color) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 128;
+  const g = canvas.getContext('2d');
+  g.font = '900 92px system-ui, -apple-system, "Segoe UI", sans-serif';
+  g.textAlign = 'center';
+  g.textBaseline = 'middle';
+  g.lineJoin = 'round';
+  g.lineWidth = 18;
+  g.strokeStyle = '#ffffff';
+  g.strokeText(text, 256, 66);
+  g.fillStyle = '#' + new THREE.Color(color).getHexString();
+  g.fillText(text, 256, 66);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  const sprite = new THREE.Sprite(
+    new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false }),
+  );
+  sprite.scale.set(2.8, 0.7, 1);
+  sprite.renderOrder = 10;
+  return sprite;
+}
+
+// Going out ("soaked"), in seconds: the character swells up with the
+// opponent's water, then bursts; a splash dome and a ring spread out, the
+// cap flies off and stays on the floor, "SOAKED!" rises above the spot.
+const SWELL = 0.16;
+const BURST = 0.5;
+const WORD = 1.6;
+
 function cap(parent, r, m, dark) {
   const g = new THREE.Group();
   const dome = mesh(new THREE.SphereGeometry(r, 18, 10, 0, Math.PI * 2, 0, Math.PI / 2), m);
@@ -56,7 +88,8 @@ function cap(parent, r, m, dark) {
   return g;
 }
 export class ActorView {
-  constructor(actor, color) {
+  /** color: the character's team colour, otherColor: the opponent's (for going out). */
+  constructor(actor, color, otherColor = 0xffffff) {
     this.actor = actor;
     this.group = new THREE.Group();
     this.human = new THREE.Group();
@@ -235,14 +268,100 @@ export class ActorView {
     this.ripple.position.y = 0.04;
     this.group.add(this.human, this.fishG, this.ripple);
     this.group.scale.setScalar(0.88);
+
+    // ── Going out (see SWELL, BURST, WORD) ──
+    const water = (opacity) =>
+      new THREE.MeshBasicMaterial({ color: otherColor, transparent: true, opacity, depthWrite: false });
+    this.blob = new THREE.Mesh(new THREE.SphereGeometry(0.8, 20, 14), water(0.85));
+    this.blob.position.y = 0.8;
+    const ringG = new THREE.RingGeometry(0.8, 1, 40);
+    ringG.rotateX(-Math.PI / 2);
+    this.ring = new THREE.Mesh(ringG, water(0.8));
+    this.ring.position.y = 0.06;
+    this.lostCap = new THREE.Group();
+    cap(this.lostCap, R * 1.05, team, teamDark);
+    this.capVel = new THREE.Vector3();
+    this.word = wordSprite('SOAKED!', otherColor);
+    this.group.add(this.blob, this.ring, this.lostCap, this.word);
+    this.wasAlive = actor.alive;
+    this.outT = 99;
+    this.endOut();
+  }
+  /** The character just went out: start the animation where it stands now. */
+  startOut() {
+    this.outT = 0;
+    this.lostCap.position.set(0, this.actor.morph > 0.5 ? 0.5 : 1.56, 0);
+    this.lostCap.rotation.set(0, 0, 0);
+    const side = Math.random() * Math.PI * 2;
+    this.capVel.set(Math.cos(side) * 1.6, 6.5, Math.sin(side) * 1.6);
+  }
+  /** Back in the game: everything of the animation disappears. */
+  endOut() {
+    this.blob.visible = false;
+    this.ring.visible = false;
+    this.lostCap.visible = false;
+    this.word.visible = false;
+  }
+  /** One frame of going out; the group stays where the character went out. */
+  updateOut(dt) {
+    const t = (this.outT += dt);
+    this.group.visible = true;
+    this.ripple.visible = false;
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (t < SWELL) {
+      // swelling up, a little wobbly, while the opponent's water closes in
+      const k = t / SWELL;
+      const wob = still ? 0 : Math.sin(t * 70) * 0.06;
+      const body = this.actor.morph < 0.5 ? this.human : this.fishG;
+      const base = body === this.human ? 1 : Math.max(0.001, this.actor.morph);
+      body.scale.set(base * (1 + 0.55 * k + wob), base * (1 - 0.2 * k), base * (1 + 0.55 * k + wob));
+      this.blob.visible = true;
+      this.blob.scale.setScalar(0.3 + 0.9 * k);
+      this.blob.material.opacity = 0.35 + 0.5 * k;
+    } else {
+      // burst: the body is gone, the water spreads and fades
+      this.human.visible = false;
+      this.fishG.visible = false;
+      const k = Math.min(1, (t - SWELL) / (BURST - SWELL));
+      this.blob.visible = k < 1;
+      this.blob.scale.set(1.2 + 1.2 * k, 1.2 * (1 - k * 0.8), 1.2 + 1.2 * k);
+      this.blob.material.opacity = 0.85 * (1 - k);
+      this.ring.visible = k < 1;
+      this.ring.scale.setScalar(1 + 2 * k);
+      this.ring.material.opacity = 0.8 * (1 - k);
+      // the cap flies off and stays where it lands
+      this.lostCap.visible = true;
+      if (this.capVel.y !== 0 || this.lostCap.position.y > 0.05) {
+        this.capVel.y -= 18 * dt;
+        this.lostCap.position.addScaledVector(this.capVel, dt);
+        if (!still) this.lostCap.rotation.x += dt * 9;
+        if (this.lostCap.position.y <= 0.05) {
+          this.lostCap.position.y = 0.05;
+          this.capVel.set(0, 0, 0);
+          this.lostCap.rotation.set(0, this.lostCap.rotation.y, 0.35);
+        }
+      }
+    }
+    // the word rises and fades
+    this.word.visible = t < WORD;
+    if (this.word.visible) {
+      const pop = Math.min(1, t / 0.12);
+      this.word.position.y = 2.3 + (still ? 0 : t * 0.6);
+      this.word.scale.set(2.8 * pop, 0.7 * pop, 1);
+      this.word.material.opacity = Math.min(1, (WORD - t) / 0.4);
+    }
   }
   update(dt, viewerTeam) {
     const a = this.actor;
     this.t += dt;
     if (!a.alive) {
-      this.group.visible = false;
+      if (this.wasAlive) this.startOut();
+      this.wasAlive = false;
+      this.updateOut(dt);
       return;
     }
+    if (!this.wasAlive) this.endOut();
+    this.wasAlive = true;
     this.group.visible = a.invuln > 0 ? Math.floor(this.t * 12) % 2 === 0 : true;
     this.group.position.copy(a.pos);
     this.group.rotation.y = a.yaw;

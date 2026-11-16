@@ -68,6 +68,15 @@ export function showResult(minePct, otherPct, k, canRestart, note) {
   $('endNote').textContent = note;
 }
 
+/** A short message in the middle when the player's side soaked an opponent. */
+export function showKill(text) {
+  const el = $('kill');
+  el.textContent = text;
+  el.classList.remove('show');
+  void el.offsetWidth; // start the animation again
+  el.classList.add('show');
+}
+
 export const hideResult = () => $('end').classList.add('hidden');
 export const onAgain = (fn) => {
   $('again').onclick = fn;

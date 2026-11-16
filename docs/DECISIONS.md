@@ -632,3 +632,30 @@ guest's side, and wanted to swim right behind a shot. A guest that moves
 itself feels like the host; the host still decides everything that counts.
 Playing every step exactly once keeps both sides equal without sending
 positions back and forth.
+
+## 41. Inkwars 1.2: faster water, wider trail, a visible knockout
+
+**Decision:** After trying 1.1 the developers asked for three changes:
+
+- **Faster drops:** `speed` 22 → 30 m/s. `gravity` went up from 18 to 32 at
+  the same time, so the water still reaches about 28 m and the arena stays
+  the same size to play in. Aiming still works it out exactly (decision
+  40); the hit and aim tests still pass.
+- **Wider trail:** `dripRadius` 0.3 → 0.45 m (0.9 m wide), one drip every
+  0.4 m instead of 0.3 m, still without gaps. One shot at 18 m now paints
+  about 18 m² (1.0: 6 m², 1.1: 12 m²), continuous fire on the spot about
+  22 m² per second (1.0: 15 m²). The party traffic for drips went down a
+  little (fewer drips per metre). The arena fills faster, for both sides
+  and the bots alike.
+- **A visible knockout** (`actorView.js`, only looks, no rule changes):
+  when a character goes out it swells up in the opponent's colour for
+  0.16 s, bursts into a splash dome, a ring on the floor and a big burst of
+  drops, its cap flies off and stays on the floor until it comes back in,
+  and "SOAKED!" rises above the spot. The side that did it sees "Opponent
+  soaked!" in the middle of the screen. It is driven by the "out" flag
+  alone, so it looks the same on the host and the guest. With reduced
+  motion the wobble, the spinning cap and the rising word stay still.
+
+**Why:** Before, a character that went out simply disappeared, and it was
+not clear whether it was really out. The other two are the developers'
+feel after playing 1.1.
