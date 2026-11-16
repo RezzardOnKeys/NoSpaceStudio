@@ -1,0 +1,10 @@
+{
+  "title": "Dust Dash",
+  "shortDescription": "Vacuum an old wooden hall against a friend and race for the surprise deliveries.",
+  "genres": ["Casual", "Party"],
+  "engine": "HTML5",
+  "version": "0.1.0",
+  "status": "draft",
+  "publishedAt": "2026-11-16",
+  "maxPlayers": 2
+}

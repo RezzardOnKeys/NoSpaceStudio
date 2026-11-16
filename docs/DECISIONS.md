@@ -727,3 +727,65 @@ passed their test scripts again.
 **Why:** Colour without water above it, and a line that does not follow
 the drops, looked wrong. Painting only where water arrives is simple and
 easy to read.
+
+## 44. Dust Dash: built from its plan, with these choices
+
+**Decision:** Dust Dash (`games/dust-dash/`) is built step by step from
+[DUST-DASH.md](DUST-DASH.md), with Inkwars as the template (decisions 38 to
+40: one small file per job, the host as referee, PeerJS and three.js from
+`vendor/`). This entry collects every choice the plan left open; it grows
+with each step.
+
+Step 1 (folder, menu, party connection):
+
+- **Seats instead of teams.** Players are a list; seat 0 is the host (or
+  the player alone), seat 1 the guest (or the bot). Scores, colours and
+  messages are lists in seat order. The limit is `MAX_PLAYERS` in
+  `config.js` plus `"maxPlayers"` in `game.json`.
+- **Eight own colours** with warm names (Tomato, Orange, Honey, Leaf, Teal,
+  Sky, Plum, Rose). Alone, the bot gets the colour furthest away from the
+  player's, as in Inkwars.
+- **Version 0.1.0 while it is being built**, no cover yet (the store shows
+  the placeholder picture); 1.0.0, cover, banner and the patch note come
+  with step 7. Genres: Casual, Party.
+- **`guest.js` exists from the start** with the same shape as the referee
+  (`start`, `step`, `toMenu`, the clock and the scores), so `game.js` uses
+  either without asking which one it has. The guest lets the clock run on
+  by itself between two reports of the host.
+- **The result card shows at once** when the time is up (Inkwars waits for
+  its camera to fly up; Dust Dash has no view from above).
+- A guest who reloads after the time is up waits in the menu until the
+  host presses "Again", as in Inkwars.
+
+**Why:** Copying what already works in Inkwars keeps the two games alike
+for the developers and for later Claude sessions. A list of seats instead
+of two fixed teams leaves room for more players and bots later, which the
+plan asks for.
+
+Step 2 (hall and walking), added to decision 44:
+
+- **An interface of its own.** The developer found the first menu too close
+  to Blind Drop and Inkwars (a white card in the middle). Dust Dash now
+  shows its interface as things from the workshop: the menu is a parcel tag
+  at the left edge with the hall visible next to it, the colours are paint
+  tins, the players are lines on a form, the clock is a wooden sign on two
+  cords with a paper tag for each score, notices are paper strips and the
+  result is a receipt with a stamped verdict. Typewriter and stencil
+  letters from the fonts of the system (nothing is loaded from other
+  sites).
+- **The hall** is 40 x 26 m and 6 m high, the middle is (0, 0). One half is
+  laid out by hand, the other is its point mirror; a big workbench stands
+  in the middle. Obstacles are boxes with a kind (`shelf`, `bench`,
+  `crates`, `barrel`, `post`); a barrel is drawn round but blocks as a
+  square. Start points are 3 m in front of the two short walls, looking at
+  the middle.
+- **Walking** follows the keys with accel 70 and decel 80 like Inkwars on
+  foot. The body is a circle of radius 0.4 m that slides along walls and
+  obstacles. The rules run in steps of 1/60 s; the camera glides between
+  the last two steps and sways a little while walking (not with reduced
+  motion). Eye height 1.55 m, field of view 75 degrees.
+- **Until step 5 every player walks only in their own browser.** Nothing
+  about the position is sent yet and the other player is not drawn; the
+  host still runs the clock for both.
+- **Gentle shadows:** obstacles throw a soft shadow from the afternoon sun,
+  walls and roof do not, so the hall stays bright.

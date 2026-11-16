@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dust Dash</title>
+    <style>
+      /* The whole interface looks like things from the workshop: the menu is
+         a parcel tag, the clock a wooden sign, the result a receipt. */
+      :root {
+        --ink: #3b2413; /* dark brown, for text and outlines */
+        --kraft: #e6cd9c; /* parcel paper */
+        --paper: #fbf3df;
+        --stamp: #b5432a; /* red stamp ink */
+        --cream: #ffe9b8;
+        --type: 'American Typewriter', 'Courier New', Courier, monospace;
+        --stencil: 'Stencil', Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+      }
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0;
+        height: 100%;
+        overflow: hidden; /* the game fills the window and never scrolls */
+        background: #f1d3a0;
+      }
+      body {
+        font-family: var(--type);
+        color: var(--paper);
+        user-select: none;
+        -webkit-user-select: none;
+      }
+      canvas { display: block; width: 100%; height: 100%; }
+      .layer { position: fixed; inset: 0; }
+      .hidden, [hidden] { display: none !important; }
+      button { font: inherit; cursor: pointer; }
+      button:focus-visible { outline: 4px solid var(--stamp); outline-offset: 3px; }
+      button:disabled { cursor: not-allowed; }
+
+      /* ---- Display during a match ---- */
+      #hud { pointer-events: none; }
+      /* A wooden sign hanging from two cords, a paper tag for each score. */
+      #board { position: absolute; top: 0; left: 50%; transform: translateX(-50%); display: flex; align-items: flex-start; gap: 6px; padding-top: 22px; }
+      #timer { position: relative; min-width: 132px; padding: 2px 20px 0; text-align: center; font: 38px/1.25 var(--stencil); letter-spacing: 3px; color: var(--cream); background: linear-gradient(#a96d36, #87532a); border: 3px solid var(--ink); border-radius: 5px; box-shadow: 0 5px 0 rgba(40,22,8,.45); }
+      #timer::before, #timer::after { content: ''; position: absolute; top: -25px; width: 4px; height: 22px; background: #d2b07a; border: 1px solid var(--ink); }
+      #timer::before { left: 18px; }
+      #timer::after { right: 18px; }
+      .score { position: relative; margin-top: 12px; min-width: 74px; padding: 3px 12px 3px 24px; text-align: right; font-size: 24px; font-weight: 700; color: #fff; text-shadow: 0 2px 0 rgba(0,0,0,.35); border: 3px solid var(--ink); border-radius: 3px; box-shadow: 3px 4px 0 rgba(40,22,8,.45); }
+      .score::before { content: ''; position: absolute; left: 7px; top: 50%; width: 8px; height: 8px; margin-top: -4px; border-radius: 50%; background: var(--ink); }
+      #score1 { transform: rotate(-4deg); }
+      #score2 { transform: rotate(3deg); }
+      #status { position: absolute; left: 0; right: 0; top: 28%; text-align: center; font: 96px var(--stencil); letter-spacing: 4px; color: var(--cream); -webkit-text-stroke: 4px var(--ink); paint-order: stroke fill; text-shadow: 0 7px 0 rgba(40,22,8,.4); }
+      #hint { position: absolute; left: 50%; bottom: 76px; transform: translateX(-50%) rotate(-1deg); max-width: 90vw; padding: 6px 14px; font-size: 16px; font-weight: 700; color: var(--ink); background: var(--kraft); border: 2px solid var(--ink); box-shadow: 3px 3px 0 rgba(40,22,8,.45); }
+      #hint:empty { display: none; }
+      #cross { position: absolute; left: 50%; top: 50%; width: 8px; height: 8px; margin: -4px; border-radius: 50%; background: var(--cream); border: 2px solid var(--ink); }
+
+      /* ---- Menu: a parcel tag at the left, the hall stays visible ---- */
+      #menu { display: flex; align-items: center; padding: 0 clamp(12px, 6vw, 96px); background: linear-gradient(90deg, rgba(59,36,19,.6), rgba(59,36,19,0) 75%); }
+      .tagWrap { width: min(430px, 100%); filter: drop-shadow(7px 10px 0 rgba(40,22,8,.4)); transform: rotate(-1.2deg); }
+      .tag { position: relative; max-height: 94vh; overflow: auto; padding: 58px 30px 24px; color: var(--ink); background: repeating-linear-gradient(3deg, rgba(120,80,30,.07) 0 2px, transparent 2px 6px), var(--kraft); clip-path: polygon(15% 0, 85% 0, 100% 46px, 100% 100%, 0 100%, 0 46px); }
+      .tag::before { content: ''; position: absolute; left: 50%; top: 16px; width: 24px; height: 24px; margin-left: -12px; border-radius: 50%; background: #5b3a1c; border: 5px solid #cfae75; }
+      .sheet { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; opacity: .7; text-align: center; }
+      h1 { width: fit-content; margin: 10px auto 12px; padding: 2px 18px 0; font: 62px/1.1 var(--stencil); letter-spacing: 4px; color: var(--stamp); border: 5px double var(--stamp); border-radius: 6px; transform: rotate(-3deg); }
+      .sub { margin-bottom: 4px; font-size: 15px; font-weight: 700; text-align: center; }
+      h2 { margin: 18px 0 10px; padding-bottom: 4px; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; border-bottom: 2px dashed rgba(59,36,19,.5); }
+      /* The colours are little paint tins. */
+      #palette { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px 14px; }
+      .can { position: relative; height: 46px; padding: 0; border: 3px solid var(--ink); border-radius: 6px 6px 11px 11px; box-shadow: inset 0 9px 0 rgba(255,255,255,.3), inset 0 -7px 0 rgba(0,0,0,.18), 3px 3px 0 var(--ink); }
+      .can.on { transform: translate(-2px, -5px) rotate(-4deg); box-shadow: inset 0 9px 0 rgba(255,255,255,.3), inset 0 -7px 0 rgba(0,0,0,.18), 6px 8px 0 var(--ink); }
+      .can.on::after { content: '✓'; position: absolute; inset: 6px 0 0; font-size: 22px; font-weight: 700; color: #fff; text-shadow: 0 2px 0 rgba(0,0,0,.4); }
+      .can:disabled { opacity: .4; box-shadow: none; background-image: linear-gradient(to top right, transparent 45%, var(--ink) 45% 55%, transparent 55%); }
+      /* Who cleans against whom, like lines on a form. */
+      .who { display: flex; align-items: baseline; gap: 8px; margin-top: 6px; font-size: 17px; font-weight: 700; }
+      .who .dots { flex: 1; border-bottom: 2px dotted rgba(59,36,19,.55); transform: translateY(-4px); }
+      .who .chip { align-self: center; width: 18px; height: 18px; border: 2px solid var(--ink); border-radius: 4px; }
+      .go { display: block; width: 100%; margin-top: 20px; padding: 13px 10px 11px; font-size: 23px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #fff; text-shadow: 0 2px 0 rgba(0,0,0,.4); background: #f08a24; border: 3px solid var(--ink); border-radius: 5px; box-shadow: 5px 5px 0 var(--ink); }
+      .go:active { transform: translate(4px, 4px); box-shadow: 1px 1px 0 var(--ink); }
+      .go:disabled { filter: grayscale(1); opacity: .5; }
+      .note { min-height: 20px; margin-top: 12px; font-size: 14px; font-style: italic; font-weight: 700; text-align: center; }
+      .keys { margin: 14px 0 0; padding: 0; list-style: none; font-size: 13px; line-height: 2.1; font-weight: 700; }
+      kbd { padding: 1px 6px; font: inherit; background: var(--paper); border: 2px solid var(--ink); border-radius: 4px; box-shadow: 0 2px 0 var(--ink); }
+
+      /* ---- Result: a receipt ---- */
+      #end { display: flex; align-items: center; justify-content: center; background: rgba(40,22,8,.4); }
+      .slipWrap { width: min(340px, 90vw); filter: drop-shadow(6px 9px 0 rgba(40,22,8,.4)); transform: rotate(1.5deg); }
+      .slip { padding: 24px 26px 44px; color: var(--ink); background: var(--paper); text-align: center; -webkit-mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 20px 100%; mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 20px 100%; }
+      .slip .head { font: 30px var(--stencil); letter-spacing: 3px; }
+      .slip .small { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; opacity: .7; }
+      .slip hr { margin: 12px 0; border: 0; border-top: 2px dashed rgba(59,36,19,.5); }
+      .line { display: flex; align-items: baseline; gap: 8px; font-size: 18px; font-weight: 700; }
+      .line .dots { flex: 1; border-bottom: 2px dotted rgba(59,36,19,.55); transform: translateY(-4px); }
+      .line .count { font-size: 34px; }
+      #endTitle { width: fit-content; min-height: 50px; margin: 6px auto 0; padding: 2px 14px 0; font: 36px/1.2 var(--stencil); letter-spacing: 3px; border-radius: 6px; transform: rotate(-4deg); }
+      #endTitle:not(:empty) { border: 4px double currentColor; }
+      #endTitle.win { color: #3f7d3a; }
+      #endTitle.lose { color: var(--stamp); }
+    </style>
+  </head>
+  <body>
+    <canvas id="game"></canvas>
+
+    <div id="hud" class="layer hidden">
+      <div id="board">
+        <div id="score1" class="score" aria-label="Your score">0</div>
+        <div id="timer">4:00</div>
+        <div id="score2" class="score" aria-label="Opponent's score">0</div>
+      </div>
+      <div id="cross"></div>
+      <div id="status"></div>
+      <div id="hint" role="status"></div>
+    </div>
+
+    <div id="menu" class="layer">
+      <div class="tagWrap">
+        <div class="tag">
+          <div class="sheet">Job sheet · the old workshop hall</div>
+          <h1>DUST DASH</h1>
+          <div class="sub" id="sub"></div>
+          <h2>Pick your vacuum</h2>
+          <div id="palette"></div>
+          <h2>Cleaning crew</h2>
+          <div id="versus"></div>
+          <button type="button" class="go" id="start">Start</button>
+          <div class="note" id="lobbyStatus" role="status"></div>
+          <h2>How to</h2>
+          <ul class="keys">
+            <li><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> walk · <kbd>Mouse</kbd> look around</li>
+            <li>hold <kbd>Left click</kbd> to vacuum (you walk slower then)</li>
+            <li>no mouse: <kbd>Arrow keys</kbd> look, <kbd>E</kbd> vacuums</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div id="end" class="layer hidden">
+      <div class="slipWrap">
+        <div class="slip">
+          <div class="head">DUST DASH</div>
+          <div class="small">Cleaning receipt</div>
+          <hr />
+          <div class="line"><span id="endName1">You</span><span class="dots"></span><span class="count" id="end1">0</span></div>
+          <div class="line"><span id="endName2">Bot</span><span class="dots"></span><span class="count" id="end2">0</span></div>
+          <hr />
+          <div id="endTitle" role="status"></div>
+          <button type="button" class="go" id="again">Again</button>
+          <div class="note" id="endNote"></div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="game.js"></script>
+  </body>
+</html>

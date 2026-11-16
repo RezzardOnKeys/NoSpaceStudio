@@ -15,6 +15,33 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 50 – 2026-11-16 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Dust Dash Schritt 2 (Halle und Bewegung) und das ganze Interface neu gestalten, weil es zu sehr nach Blind Drop aussah
+**Änderungen:**
+- Interface komplett neu, als Dinge aus der Werkstatt: Menü ist ein Paketanhänger am linken Rand (die Halle bleibt daneben sichtbar), Farben sind kleine Farbdosen, die Spieler stehen wie auf einem Formular, die Uhr ist ein Holzschild an zwei Schnüren mit je einem Papieranhänger für die Punkte, Hinweise sind Papierstreifen, das Ergebnis ist eine Quittung mit Stempel („You win!“, „You lose“, „Draw“); Schreibmaschinen- und Schablonenschrift aus den Systemschriften
+- Halle 40 × 26 m im Comic-Stil (Toon-Schattierung, dicke braune Umrisse): Dielenboden, Bretterwände, Fenster, Scheunentore, Dachbalken, Regale mit Kartons und Farbdosen, Werkbänke mit Werkzeug, Kistenstapel, Fässer, Pfosten; eine Hälfte von Hand gebaut, die andere punktgespiegelt (fair für beide Startpunkte)
+- Bewegung in Ego-Perspektive: WASD, Maus (Pointer Lock) oder Pfeiltasten zum Umsehen, Kollision mit Wänden und Hindernissen (man gleitet daran entlang), 7 m/s normal und 5 m/s bei gehaltener Saugtaste (linke Maustaste oder E), im Countdown nur Umsehen; leichtes Wippen der Kamera (nicht bei „Bewegung reduzieren“)
+- Hinter dem Menü schwenkt die Kamera langsam durch die Halle; Fadenkreuz-Punkt und Hinweis „Click the game to look around with the mouse“
+- Getestet: Skript (Tempo 7 und 5 m/s, 200.000 Zufallsschritte ohne einmal in einem Hindernis zu stehen, jede freie Stelle von beiden Startpunkten erreichbar) und in Chrome allein (Menü, Countdown, Laufen bis an die Werkbank und an ein Regal, Drehen mit Pfeiltasten, Quittung) sowie als Party mit zwei Tabs (neues Menü mit gesperrter Farbe, Ready, Start, Gast läuft). Nicht getestet: Maussteuerung mit Pointer Lock (geht in meinem Test-Browser nicht), Safari, echte Party über den Launcher. In der Party läuft jeder noch nur in seinem eigenen Bild der Halle (Positionen kommen in Schritt 5)
+- Entscheidung 44 um Schritt 2 ergänzt, ROADMAP und Status in docs/DUST-DASH.md aktualisiert
+**Geänderte Dateien:** games/dust-dash/ (neu: hall.js, sim.js, look.js, hallView.js, controls.js; geändert: index.html, game.js, config.js, lobby.js, hud.js, scene.js), docs/DECISIONS.md, docs/ROADMAP.md, docs/DUST-DASH.md, PROTOKOLL.md
+**Commit-Message:** `[v50] feat(dust-dash): add the hall, first person movement and an interface of its own`
+**GitHub-Commit:** _ausstehend_
+
+## Version 49 – 2026-11-16 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Dust Dash nach docs/DUST-DASH.md bauen, Schritt 1: Ordner, game.json (Entwurf), Menü und Party-Verbindung von Inkwars übernehmen, Spiel startet allein und mit zwei Tabs
+**Änderungen:**
+- Neuer Ordner `games/dust-dash/` mit Store-Eintrag als Entwurf (`"status": "draft"`, `"maxPlayers": 2`, Version 0.1.0, noch ohne Cover)
+- Menü wie bei Inkwars im warmen Holz-Look: acht Farben (vergebene Farbe ausgegraut, Host hat Vorrang), allein „Start“ gegen den Bot, in der Party „Ready“ (Gast) und „Start match“ (Host), Steuerung unter den Buttons
+- Party-Verbindung (PeerJS, `net.js`, `ticker.js`) und `vendor/` von Inkwars übernommen; Host ist Schiedsrichter (`host.js`, Nachrichtenliste oben), Gast zeigt dessen Stand (`guest.js`)
+- Leere Runde als Grundgerüst: Countdown 3-2-1, „GO!“, Uhr 4:00, beide Punktestände (noch immer 0), Ergebniskarte, „Again“ nur beim Host
+- Getestet in Chrome: allein gegen den Bot (Menü, Farbwahl, Countdown, Uhr, Ergebnis) und als Party mit zwei Tabs (Farben, Ready, Start, gleiche Uhr auf beiden Seiten auch bei verstecktem Host-Tab, Neuladen des Gasts mitten in der Runde, Ergebnis, zurück ins Menü). Für den Test lief die Runde kurz mit 12 statt 240 Sekunden. Nicht getestet: Safari, echte Party über den Launcher mit zwei Konten
+- Noch nicht gebaut: Halle, Bewegung, Dreck, Lieferungen, Bot (Schritte 2 bis 8)
+- Entscheidung 44 angelegt (offene Punkte aus dem Plan), ROADMAP, games/README.md und Status in docs/DUST-DASH.md aktualisiert; Commit-Hash für Version 48 nachgetragen
+**Geänderte Dateien:** games/dust-dash/ (neu: index.html, game.js, config.js, lobby.js, hud.js, host.js, guest.js, scene.js, net.js, ticker.js, game.json, description.md, vendor/), docs/DECISIONS.md, docs/ROADMAP.md, docs/DUST-DASH.md, games/README.md, PROTOKOLL.md
+**Commit-Message:** `[v49] feat(dust-dash): add draft store entry, menu and party connection`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 48 – 2026-11-16 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Neues Spiel planen (nur Idee und Startprompt für einen neuen Chat): gemütliches Aufräum-Spiel als Partyspiel
 **Änderungen:**
@@ -27,7 +54,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Noch kein Code
 **Geänderte Dateien:** docs/DUST-DASH.md (neu), docs/ROADMAP.md, PROTOKOLL.md
 **Commit-Message:** `[v48] docs: plan the game Dust Dash`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`8f924c1`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/8f924c1)
 
 ## Version 47 – 2026-11-16 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Inkwars: Schuss wie eine echte Wasserpistole (Vorbild: bekannte Tinten-Shooter), Farbe nur, wo das Wasser landet, vor sich spritzen und direkt hineinschwimmen; Tempo der Schüsse bleibt

@@ -79,13 +79,24 @@ table whenever a phase is finished.
   **Not yet tested: Safari, a real party with two accounts over the
   internet, the mouse inside the launcher.** No sound yet. To publish it,
   set `"status": "published"` in `game.json`.
-- **The fifth game is planned, not built yet:** "Dust Dash"
-  (`games/dust-dash/`), a cosy first person race in an old wooden hall:
-  two players vacuum up dust, dirt and sawdust for points for four
-  minutes, and whoever reaches the random delivery box first gets a
-  power-up for ten seconds. 1 vs 1 from a party or alone against one bot.
-  The complete plan is in [DUST-DASH.md](DUST-DASH.md). Build it from that
-  file.
+- **The fifth game is being built:** "Dust Dash"
+  (`games/dust-dash/`, `"status": "draft"`, so only visible locally), a
+  cosy first person race in an old wooden hall: two players vacuum up
+  dust, dirt and sawdust for points for four minutes, and whoever reaches
+  the random delivery box first gets a power-up for ten seconds. 1 vs 1
+  from a party or alone against one bot. The complete plan is in
+  [DUST-DASH.md](DUST-DASH.md); its "Order of work" has eight steps.
+  **Done: steps 1 and 2** (folder, store entry, menu with eight colours,
+  party connection, a round: countdown, four-minute clock, result,
+  rematch; the hall in comic look with shelves, workbenches, crates,
+  barrels and posts, walking in first person with collisions, 7 m/s and
+  5 m/s while holding the vacuum button; decision 44). Its interface has
+  its own look (a parcel tag as menu, a wooden sign as clock, a receipt as
+  result). Tested in Chrome alone and as a party with two tabs; in a party
+  each player still walks only in their own picture of the hall. **Still
+  to do: steps 3 to 8** (dirt and vacuuming, deliveries and power-ups, the
+  full party mode, the bot, polish with cover and patch note,
+  documentation).
 - **Games and news are files in the repository**, not database rows
   (decision 22). A game is a folder `games/<slug>/` with a `game.json`
   (store entry), an optional `description.md` and its images. A news post is

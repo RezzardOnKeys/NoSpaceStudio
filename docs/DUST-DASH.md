@@ -8,7 +8,10 @@ before changing it.
 
 Slug and folder: `games/dust-dash/`. Title in the store: **Dust Dash**.
 
-**Status:** planned, not built yet.
+**Status:** being built. Steps 1 and 2 of the order of work are done
+(folder, draft store entry, menu, party connection, a round with clock and
+result; the hall in comic look and walking in first person).
+The choices made while building are in decision 44.
 
 ## The idea in one sentence
 
