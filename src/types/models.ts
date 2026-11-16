@@ -123,6 +123,16 @@ export interface Party {
   sessionId: string | null;
 }
 
+/** A message in the party chat. */
+export interface PartyMessage {
+  id: number;
+  /** The writer's profile; null if their account no longer exists. */
+  author: Profile | null;
+  body: string;
+  /** ISO date string. */
+  createdAt: string;
+}
+
 /** An invitation the signed-in user received. */
 export interface PartyInvite {
   id: string;

@@ -52,6 +52,16 @@ type PartyMemberRow = {
   joined_at: string;
 };
 
+type PartyMessageRow = {
+  /** Counts up: newer messages have bigger numbers. */
+  id: number;
+  party_id: string;
+  user_id: string;
+  /** 1 to 500 characters, trimmed (0010_party_chat.sql). */
+  body: string;
+  created_at: string;
+};
+
 type PartyInviteRow = {
   id: string;
   party_id: string;
@@ -192,6 +202,27 @@ export type Database = {
           },
         ];
       };
+      party_messages: {
+        Row: PartyMessageRow;
+        Insert: never;
+        Update: never;
+        Relationships: [
+          {
+            foreignKeyName: 'party_messages_party_id_fkey';
+            columns: ['party_id'];
+            isOneToOne: false;
+            referencedRelation: 'parties';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'party_messages_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
     };
     Views: Record<never, never>;
     Functions: {
@@ -218,6 +249,7 @@ export type Database = {
       };
       kick_party_member: { Args: { target_user: string }; Returns: undefined };
       transfer_party_host: { Args: { target_user: string }; Returns: undefined };
+      send_party_message: { Args: { p_body: string }; Returns: undefined };
       set_avatar: { Args: Record<never, never>; Returns: string };
       record_playtime: { Args: { p_game_slug: string; p_seconds: number }; Returns: number };
     };

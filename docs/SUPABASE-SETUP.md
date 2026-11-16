@@ -46,6 +46,7 @@ ausgeführt werden, jede genau einmal. In jeder Datei steht in Kommentaren
 | `0007_party_host_tools.sql`                | Party: Mitglieder entfernen, Host weitergeben                |
 | `0008_online_status.sql`                   | Online-Status und „zuletzt gesehen“ für Freunde              |
 | `0009_active_status_and_party_cleanup.sql` | Online nur bei echter Nutzung, Party verlassen, wenn offline |
+| `0010_party_chat.sql`                      | Party-Chat auf der Party-Seite                               |
 
 Für jede Datei, beginnend mit `0001`:
 

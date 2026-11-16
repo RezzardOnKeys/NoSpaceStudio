@@ -1,8 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
 
 import { useToast } from '@/components/ui/toast-context';
 import { useAuth } from '@/features/auth/auth-context';
 import { queryKeys } from '@/lib/query-keys';
+import { getSupabaseOrNull } from '@/lib/supabase';
 
 import {
   acceptPartyInvite,
@@ -11,9 +13,11 @@ import {
   describePartyError,
   fetchMyParty,
   fetchPartyInvites,
+  fetchPartyMessages,
   inviteToParty,
   kickPartyMember,
   leaveParty,
+  sendPartyMessage,
   startPartyGame,
   stopPartyGame,
   transferPartyHost,
@@ -113,4 +117,60 @@ export function useStartPartyGame() {
 
 export function useStopPartyGame() {
   return usePartyAction(stopPartyGame);
+}
+
+/**
+ * The party chat. Realtime reloads it as soon as somebody writes; asking
+ * again every 20 seconds is the safety net, like for the party itself.
+ */
+export function usePartyMessages(partyId: string) {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const supabase = getSupabaseOrNull();
+    if (!supabase) return;
+
+    const refresh = () =>
+      void queryClient.invalidateQueries({ queryKey: queryKeys.partyMessages(partyId) });
+    const channel = supabase
+      .channel(`party-messages-${partyId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'party_messages',
+          filter: `party_id=eq.${partyId}`,
+        },
+        refresh,
+      )
+      .subscribe();
+
+    return () => void supabase.removeChannel(channel);
+  }, [partyId, queryClient]);
+
+  return useQuery({
+    queryKey: queryKeys.partyMessages(partyId),
+    queryFn: () => fetchPartyMessages(partyId),
+    refetchInterval: REFRESH_MS,
+    refetchOnWindowFocus: true,
+  });
+}
+
+/** Sends a chat message; the caller clears its text field on success. */
+export function useSendPartyMessage(partyId: string) {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: sendPartyMessage,
+    onError: (error) => {
+      toast({
+        title: 'Message not sent',
+        description: describePartyError(error),
+        variant: 'error',
+      });
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.partyMessages(partyId) }),
+  });
 }

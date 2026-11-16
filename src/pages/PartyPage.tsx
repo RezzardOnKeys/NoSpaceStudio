@@ -1,4 +1,4 @@
-import { LogOut, PartyPopper, UserPlus } from 'lucide-react';
+import { LogOut, MessageCircle, PartyPopper, UserPlus } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { Link } from 'react-router';
 
@@ -13,6 +13,7 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { useAuth } from '@/features/auth/auth-context';
 import { useGames } from '@/features/games/queries';
 import { InviteFriendsModal } from '@/features/party/InviteFriendsModal';
+import { PartyChat } from '@/features/party/PartyChat';
 import { partyPlayPath } from '@/features/party/party-session';
 import { PartyMembers } from '@/features/party/PartyMembers';
 import { useCreateParty, useLeaveParty, useParty } from '@/features/party/queries';
@@ -126,6 +127,17 @@ function PartyDetails({ party }: PartyDetailsProps) {
           </Link>
         </Card>
       )}
+
+      <Section
+        title={
+          <>
+            <MessageCircle className="size-5 text-accent-bright" aria-hidden="true" />
+            Chat
+          </>
+        }
+      >
+        <PartyChat partyId={party.id} />
+      </Section>
 
       <InviteFriendsModal open={inviteOpen} onClose={() => setInviteOpen(false)} party={party} />
     </>

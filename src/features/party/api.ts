@@ -1,6 +1,6 @@
 import { toProfile } from '@/features/profile/api';
 import { getSupabase } from '@/lib/supabase';
-import type { Party, PartyInvite } from '@/types/models';
+import type { Party, PartyInvite, PartyMessage } from '@/types/models';
 
 /*
  * Parties live in Supabase (supabase/migrations/0006_parties.sql). All
@@ -116,6 +116,41 @@ export async function transferPartyHost(userId: string): Promise<void> {
   if (error) throw error;
 }
 
+/** How many of the newest chat messages are loaded. */
+const CHAT_HISTORY_LIMIT = 100;
+
+/** Longest chat message; the same limit is enforced in the database. */
+export const PARTY_MESSAGE_MAX_LENGTH = 500;
+
+/**
+ * The newest messages of the party chat, oldest first
+ * (supabase/migrations/0010_party_chat.sql). The database only returns
+ * messages written since the user joined the party.
+ */
+export async function fetchPartyMessages(partyId: string): Promise<PartyMessage[]> {
+  const { data, error } = await getSupabase()
+    .from('party_messages')
+    .select('id, body, created_at, author:profiles(*)')
+    .eq('party_id', partyId)
+    .order('created_at', { ascending: false })
+    .limit(CHAT_HISTORY_LIMIT);
+  if (error) throw error;
+
+  return data
+    .map((row) => ({
+      id: row.id,
+      author: row.author ? toProfile(row.author) : null,
+      body: row.body,
+      createdAt: row.created_at,
+    }))
+    .reverse();
+}
+
+export async function sendPartyMessage(body: string): Promise<void> {
+  const { error } = await getSupabase().rpc('send_party_message', { p_body: body });
+  if (error) throw error;
+}
+
 const PARTY_ERROR_MESSAGES: Record<string, string> = {
   not_friends: 'You can only invite confirmed friends.',
   already_in_party: 'This player is already in your party.',
@@ -125,6 +160,9 @@ const PARTY_ERROR_MESSAGES: Record<string, string> = {
   not_host: 'Only the party host can do that.',
   not_member: 'This player is no longer in your party.',
   cannot_kick_yourself: 'To leave the party, use "Leave party".',
+  empty_message: 'Write something first.',
+  message_too_long: `Messages can have at most ${PARTY_MESSAGE_MAX_LENGTH} characters.`,
+  too_fast: 'You are writing very fast. Wait a few seconds and send it again.',
 };
 
 export function describePartyError(error: unknown): string {

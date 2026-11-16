@@ -14,6 +14,8 @@ export const queryKeys = {
   /** The signed-in user's party and the invitations they received. */
   party: ['party', 'mine'],
   partyInvites: ['party', 'invites'],
+  /** Kept outside 'party' so a change to the party does not reload the whole chat. */
+  partyMessages: (partyId: string) => ['party-messages', partyId],
   /** Online status of the signed-in user's friends. */
   friendStatuses: ['friend-statuses'],
 } as const;

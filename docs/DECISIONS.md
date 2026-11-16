@@ -1085,3 +1085,38 @@ is opened instead of with the first visit (`routes/lazy-page.ts`, used in
 **Why:** The bundle was one large file, which slows down the first visit,
 especially on phones, and grows with every page we add. Splitting it now is
 cheaper than later.
+
+## 49. Party chat on the Party page
+
+**Decision:** The developer asked for a text chat for parties that is
+visible only in the Party section, and only while you are in a party.
+
+- **Where:** a "Chat" box below the members on the Party page
+  (`features/party/PartyChat.tsx`). It does not appear in games, in the
+  sidebar or as a floating notice, and there is no unread badge.
+- **Who reads what** (`0010_party_chat.sql`): only members of the party,
+  and only messages written since they joined. A member who joins later
+  does not see older messages; a member who leaves or is removed loses
+  access at once.
+- **How long:** messages are deleted with their party (also when it ends
+  automatically, decision 47). In a long party, messages older than 24
+  hours are deleted whenever somebody writes. Messages cannot be edited or
+  deleted by hand.
+- **Rules in the database** (`send_party_message`): 1 to 500 characters
+  (spaces at both ends removed), at most 5 messages in 10 seconds. The
+  website cannot insert rows directly.
+- **Live updates:** Supabase Realtime tells the page about new messages of
+  the own party; the page then loads the newest 100 again. Every 20
+  seconds it asks again as a safety net, like the party itself. A failed
+  refresh keeps the messages on screen.
+- **Display:** messages from the same person within five minutes are one
+  block (one picture and name); your own name is coloured; messages of
+  people whose account no longer exists show "Former member". The list
+  follows new messages only while it is scrolled to the end.
+- **No moderation:** parties are small groups formed by inviting friends,
+  so there is no filter or report button. The privacy policy asks not to
+  share personal data in the chat.
+
+**Why:** Members of a party had no way to talk to each other inside the
+launcher. Keeping the chat on the Party page keeps the rest of the
+launcher and the games free of it, as requested.

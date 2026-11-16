@@ -15,6 +15,18 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 60 – 2026-11-16 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Party-Chat einbauen, der nur im Bereich „Party“ links zu sehen ist, wenn man in einer Party ist
+**Änderungen:**
+- Neue Migration `0010_party_chat.sql`: Tabelle `party_messages` und Funktion `send_party_message`. Lesen dürfen nur Mitglieder der Party, und zwar nur Nachrichten seit ihrem Beitritt. 1 bis 500 Zeichen, höchstens 5 Nachrichten in 10 Sekunden. Nachrichten werden mit der Party gelöscht, in langen Partys nach spätestens 24 Stunden
+- Neuer Kasten „Chat“ auf der Party-Seite unter den Mitgliedern (`PartyChat.tsx`): neue Nachrichten erscheinen sofort (Realtime, alle 20 Sekunden zusätzlich nachfragen), Nachrichten derselben Person innerhalb von 5 Minuten als ein Block, eigener Name farbig, Zeichenzähler ab 400 Zeichen, Senden mit Enter
+- Datenschutzerklärung (Abschnitte 2, 4 und 8), Entscheidung 49, ROADMAP, SUPABASE-SETUP.md (Tabelle), CLAUDE.md
+- Commit-Hash für Version 59 nachgetragen
+- Getestet: lint, typecheck, build, Prettier; Aussehen vorübergehend auf der UI-Kit-Seite mit Beispielnachrichten (Desktop und Handy-Breite, lange Nachricht, „Former member“, leerer Chat) und Fehlerfall beim Senden als Gast (Meldung erscheint, Text bleibt stehen); die Testanzeige ist wieder entfernt. Nicht getestet: alles mit Konto (echtes Senden und Empfangen, Realtime, Beitritt und Verlassen), die Migration selbst (sie ist noch nicht in Supabase ausgeführt), Safari
+**Geänderte Dateien:** supabase/migrations/0010_party_chat.sql (neu), src/features/party/PartyChat.tsx (neu), src/features/party/api.ts, src/features/party/queries.ts, src/pages/PartyPage.tsx, src/types/database.ts, src/types/models.ts, src/lib/query-keys.ts, src/lib/format.ts, legal/privacy.md, docs/DECISIONS.md, docs/ROADMAP.md, docs/SUPABASE-SETUP.md, CLAUDE.md, PROTOKOLL.md
+**Commit-Message:** `[v60] feat(party): add a chat for party members on the Party page`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 59 – 2026-11-16 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Optimierungsliste für das ganze System; davon Punkt 1 (Zip-Dateien aus dem Repo) und Punkt 2 (Launcher in Teile aufteilen) umsetzen, Punkt 3 (UI-Kit nur lokal) und 4 (Cloudflare `_headers`) in die Roadmap für Phase 7
 **Änderungen:**
@@ -28,7 +40,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Getestet: lint, typecheck, build; im Browser der fertige Build als Gast (Store, Spiel-Seite, News, Impressum, Datenschutz, Anmelden, 404, Library → Anmelden, Player mit Dust Dash, jeweils direkt aufgerufen und per Klick), dazu ein fehlendes Seiten-File nachgestellt (einmal neu geladen, danach Fehlermeldung statt Schleife); Entwicklungsserver mit Spiel-Seite, News und UI-Kit. Nicht getestet: Seiten mit Konto (Library, Freunde, Party, Profil), Safari
 **Geänderte Dateien:** src/routes/router.tsx, src/routes/lazy-page.ts (neu), src/lib/stale-chunks.ts (neu), src/components/layout/PageFallback.tsx (neu), src/components/layout/AppShell.tsx, src/components/layout/RootLayout.tsx, src/features/auth/AuthLayout.tsx, src/main.tsx, .gitignore, .claude/launch.json, docs/ROADMAP.md, docs/DECISIONS.md, CLAUDE.md, PROTOKOLL.md
 **Commit-Message:** `[v59] perf(launcher): load pages on demand, keep zip archives out of the repository`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`fdfabd1`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/fdfabd1)
 
 ## Version 58 – 2026-11-16 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Neuer Chat: alle Dateien auf den neuesten Stand bringen und einen Startprompt schreiben

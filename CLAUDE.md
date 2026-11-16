@@ -123,6 +123,7 @@ files owned by root. Do not work around it silently; tell the developer to run
   members into the host's game. `PartyAlerts` (also in RootLayout) floats new
   invitations and a crown for a new host over every screen. Members who are
   offline for 3 minutes leave their party automatically (migration 0009).
+  The Party page has a chat (`PartyChat`, migration 0010, decision 49).
   The player passes `#party=…&role=…&name=…&avatar=…`
   to the game; how a game uses it is in `docs/PARTY-GAMES.md`. Games set
   `maxPlayers` in `game.json`.

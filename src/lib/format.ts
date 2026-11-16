@@ -1,4 +1,5 @@
 const dateFormatter = new Intl.DateTimeFormat('en', { dateStyle: 'medium' });
+const timeFormatter = new Intl.DateTimeFormat('en', { timeStyle: 'short' });
 const relativeFormatter = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
 
 /** 4350 -> "1h 12m", 300 -> "5m", 20 -> "under 1m". */
@@ -24,6 +25,11 @@ export function formatTimer(totalSeconds: number): string {
 /** "Nov 14, 2026" */
 export function formatDate(iso: string): string {
   return dateFormatter.format(new Date(iso));
+}
+
+/** "2:05 PM" */
+export function formatTime(iso: string): string {
+  return timeFormatter.format(new Date(iso));
 }
 
 const RELATIVE_STEPS: { unit: Intl.RelativeTimeFormatUnit; seconds: number }[] = [

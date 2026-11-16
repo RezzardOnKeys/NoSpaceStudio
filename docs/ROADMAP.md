@@ -123,11 +123,13 @@ table whenever a phase is finished.
   members, single player games and games that are too small for the party
   get a grey button with the reason (decision 34). How a game
   supports parties: [PARTY-GAMES.md](PARTY-GAMES.md).
-- The database schema is in `supabase/migrations/` (0001 to 0009). Each file
+- The database schema is in `supabase/migrations/` (0001 to 0010). Each file
   is run once in the Supabase SQL editor. **0001 to 0008 have all been run**
   in the shared project. **0009** (decision 47) was pushed before it was
   run; the developer was about to run it. If `report_away` is missing in
-  Supabase (Database → Functions), it has not been run yet. A new file
+  Supabase (Database → Functions), it has not been run yet. **0010** (party chat,
+  decision 49) is new and not run yet; if the table `party_messages` is
+  missing (Table Editor), run it. A new file
   gets the next number and is run once by one developer. Games are referenced by their slug (folder name).
 - **Claude cannot test anything that needs an account** (no passwords).
   Playtime saving, the profile picture upload and all party flows are only
@@ -142,6 +144,8 @@ table whenever a phase is finished.
   (decision 30). Since decision 47 "online" means really using it: a tab
   in the background for 30 seconds, five minutes without input (in a game:
   without the window in front) or a closed tab count as offline at once.
+- **Party chat** (decision 49): members of a party write short messages
+  to each other on the Party page (migration `0010`).
 - **Parties tidy up themselves** (decision 47): whoever is offline for more
   than three minutes leaves their party (as host the role passes on). New
   invitations and a crown for a new host float over every screen,
@@ -321,6 +325,8 @@ Requirements:
   running party game. Badge for invitations on "Party".
 - Offline members (more than three minutes) leave their party
   automatically (`0009_active_status_and_party_cleanup.sql`, decision 47).
+- Party chat on the Party page (`0010_party_chat.sql`, decision 49): text
+  messages for the members, kept until the party ends (at most 24 hours).
 - Game page: "Play with party" for the host, a hint for single player games.
 - The player passes room code, role, name and the link to the profile
   picture to the game (`#party=...`).
@@ -357,8 +363,8 @@ Collected in conversations with the developers; nothing decided yet.
   opponent's position.
 - **Other game ideas:** drawing and guessing ("Doodle Dash", 3–8 players),
   quiz, memory duel, reaction mini games.
-- **Launcher ideas:** leaderboards per game (games report a score), party
-  chat, achievements, a "delete my account" button (the privacy policy
+- **Launcher ideas:** leaderboards per game (games report a score),
+  achievements, a "delete my account" button (the privacy policy
   promises deletion on request by email).
 
 ## Open points carried forward

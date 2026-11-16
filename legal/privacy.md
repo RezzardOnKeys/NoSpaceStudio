@@ -29,6 +29,8 @@ For every question about your data, and to use any of your rights (section
 - **Online status, current game and "last seen":** visible to your confirmed
   friends.
 - **Party membership and invitations:** visible to the members of the party.
+- **Party chat messages:** visible to the members of the party who were in
+  it when the message was written.
 - **Technical data** (IP address, browser, time of access): needed to
   deliver the website and keep it secure, processed by our hosting
   providers.
@@ -49,8 +51,8 @@ Framework; we have a data processing agreement with Cloudflare.
 
 ## 4. Accounts and database (Supabase)
 
-Accounts, profiles, friendships, playtime, parties, online status and
-profile pictures are stored with Supabase (Supabase, Inc., USA). The
+Accounts, profiles, friendships, playtime, parties (including party chat
+messages), online status and profile pictures are stored with Supabase (Supabase, Inc., USA). The
 database is located in the European Union (Frankfurt, Germany). Supabase
 processes the data on our behalf under a data processing agreement.
 
@@ -101,6 +103,13 @@ Legal basis: Art. 6 (1) (b) GDPR.
 In a party, the members see each other and the game the party is playing.
 If you are offline for more than three minutes, you leave your party
 automatically.
+
+Members of a party can write text messages to each other in the party chat.
+A message is stored with your username and the time and can be read by the
+members who were in the party when you wrote it; people who join later or
+have left cannot read it. Messages cannot be edited. They are deleted when
+the party ends, and in a party that runs longer, after 24 hours at the
+latest. Please do not share personal data in the chat.
 When a multiplayer game starts, the players' browsers connect **directly to
 each other** (WebRTC). For this, the other players receive your IP address;
 this is technically necessary for a direct connection.
