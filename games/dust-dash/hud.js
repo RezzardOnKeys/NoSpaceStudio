@@ -119,6 +119,21 @@ export function showResult({ mine, other, myName, otherName, k, canRestart, note
   $('endNote').textContent = note;
 }
 
+/**
+ * The labels during the camera tour at the end. on: show or hide them;
+ * share: the cleaned part of the hall (0..1); taken / total: pieces of
+ * dirt vacuumed in this round and pieces there were; k: 0..1, the numbers
+ * count up while it grows.
+ */
+export function showTour(on, share = 0, taken = 0, total = 0, k = 1) {
+  $('tour').classList.toggle('hidden', !on);
+  if (!on) return;
+  const e = 1 - (1 - k) * (1 - k);
+  $('tourPct').textContent = String(Math.round(share * 100 * e));
+  $('tourFill').style.width = `${share * 100 * e}%`;
+  $('tourCount').textContent = `${Math.round(taken * e).toLocaleString('en-US')} of ${total.toLocaleString('en-US')} pieces vacuumed`;
+}
+
 export const hideResult = () => $('end').classList.add('hidden');
 export const onAgain = (fn) => {
   $('again').onclick = fn;

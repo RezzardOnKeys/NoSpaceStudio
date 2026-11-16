@@ -116,6 +116,14 @@
       kbd { padding: 1px 6px; font: inherit; background: var(--paper); border: 2px solid var(--ink); border-radius: 4px; box-shadow: 0 2px 0 var(--ink); }
 
       /* ---- Result: a receipt ---- */
+      /* The camera tour at the end: a label at the top, the cleaned share at the bottom. */
+      #tour { pointer-events: none; }
+      #tourTitle { position: absolute; left: 50%; top: 22px; transform: translateX(-50%) rotate(-2deg); padding: 4px 18px 0; font: min(46px, 9vw)/1.2 var(--stencil); letter-spacing: 3px; color: var(--stamp); background: var(--kraft); border: 4px double var(--stamp); border-radius: 6px; box-shadow: 4px 5px 0 rgba(40,22,8,.45); }
+      #tourStats { position: absolute; left: 50%; bottom: 48px; transform: translateX(-50%) rotate(1deg); width: min(420px, 88vw); padding: 10px 16px 12px; color: var(--ink); background: var(--paper); border: 3px solid var(--ink); border-radius: 4px; box-shadow: 4px 5px 0 rgba(40,22,8,.45); text-align: center; font-weight: 700; }
+      #tourStats .big { font: min(30px, 7vw)/1.2 var(--stencil); letter-spacing: 2px; }
+      #tourBar { height: 12px; margin: 8px 0 6px; background: #a3958a; border: 2px solid var(--ink); }
+      #tourFill { height: 100%; width: 0; background: #d9a05b; }
+      #tourSkip { position: absolute; right: 16px; bottom: 14px; font-size: 13px; font-weight: 700; opacity: .85; text-shadow: 0 2px 0 rgba(70,40,10,.6); }
       #end { display: flex; align-items: center; justify-content: center; background: rgba(40,22,8,.4); }
       .slipWrap { width: min(340px, 90vw); filter: drop-shadow(6px 9px 0 rgba(40,22,8,.4)); transform: rotate(1.5deg); }
       .slip { padding: 24px 26px 44px; color: var(--ink); background: var(--paper); text-align: center; -webkit-mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 20px 100%; mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 20px 100%; }
@@ -176,6 +184,16 @@
           </ul>
         </div>
       </div>
+    </div>
+
+    <div id="tour" class="layer hidden">
+      <div id="tourTitle">TIME'S UP!</div>
+      <div id="tourStats">
+        <div class="big"><span id="tourPct">0</span> % of the hall is clean</div>
+        <div id="tourBar"><div id="tourFill"></div></div>
+        <div id="tourCount"></div>
+      </div>
+      <div id="tourSkip">Click or press any key to skip</div>
     </div>
 
     <div id="end" class="layer hidden">

@@ -15,6 +15,20 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 56 – 2026-11-16 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Dust Dash: nach Rundenende eine etwa 10 Sekunden lange, cinematische Kamerafahrt durch die Halle (nicht von oben wie Inkwars), damit man sieht, wie viel gesaugt wurde, danach erst der Sieger
+**Änderungen:**
+- Neue Datei `tour.js`: Wenn die Zeit um ist, fliegt die Kamera 10 Sekunden durch die Halle: tief an den sonnigen Fenstern entlang, über die Mitte nach oben, am Ende Blick über die ganze Halle aus der hinteren Ecke; sanfter Anfang und sanftes Ende
+- Während der Fahrt: oben „TIME'S UP!“, unten ein Papierschild, das hochzählt, wie viel Prozent der Halle sauber sind und wie viele Teile gesaugt wurden (beide Spieler zusammen)
+- Danach erscheint die Quittung wie bisher; „Again“ beim Host erst mit der Quittung
+- Überspringen mit Klick oder einer neuen Taste (nur auf dem eigenen Bildschirm; eine noch gedrückte Taste aus dem Spiel zählt nicht)
+- Bei „Bewegung reduzieren“ drei Standbilder statt der Fahrt
+- Getestet: Skript (Kamera bleibt in der Halle, mindestens 0,75 m von jedem Hindernis), in Chrome allein (Fahrt mit Bildern am Anfang, in der Mitte und am Ende, Quittung danach, Überspringen per Klick) und als Party mit zwei Tabs (Fahrt und Zahlen bei Host und Gast, danach Quittung). Für den Test lief die Runde mit 20 Sekunden, der Wert steht wieder auf 240. Nicht getestet: Safari, echte Party über den Launcher, die Standbilder bei „Bewegung reduzieren“
+- Spielversion 1.1.0 mit Patch Note, Entscheidung 46, ROADMAP und docs/DUST-DASH.md; Commit-Hash für Version 55 nachgetragen
+**Geänderte Dateien:** games/dust-dash/ (neu: tour.js; geändert: game.js, hud.js, index.html, game.json), news/2026-11-16-dust-dash-1-1.md (neu), docs/DECISIONS.md, docs/ROADMAP.md, docs/DUST-DASH.md, PROTOKOLL.md
+**Commit-Message:** `[v56] feat(dust-dash): camera flight through the hall at the end of a round`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 55 – 2026-11-16 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Inkwars: Schaut man etwas über die Bildschirmmitte, fliegen die Schüsse viel zu hoch; sie sollen sich verhalten wie unterhalb der Mitte. Dazu Frage, wo die Namen der Spieler gespeichert sind (in Supabase unter Authentication steht kein Display name)
 **Änderungen:**
@@ -26,7 +40,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Frage beantwortet (ohne Änderung): Die Namen stehen in der Tabelle `profiles` (Spalte `username`), nicht in Authentication
 **Geänderte Dateien:** games/inkwars/ (game.js, camera.js, config.js, game.json), news/2026-11-16-inkwars-1-3-1.md (neu), docs/DECISIONS.md, docs/ROADMAP.md, PROTOKOLL.md
 **Commit-Message:** `[v55] fix(inkwars): keep shots close to the crosshair when looking above the horizon`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`d39a8e2`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/d39a8e2)
 
 ## Version 54 – 2026-11-16 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Dust Dash: letzte Feinschliffe machen und das Spiel als erste Version online stellen; außerdem soll der Staubsauger am Boden bleiben und nicht in Hindernisse ragen

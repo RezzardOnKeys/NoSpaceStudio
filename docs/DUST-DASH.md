@@ -158,10 +158,13 @@ Like Inkwars (`games/inkwars/lobby.js`):
 
 1. Countdown 3 s (players can look around, not move).
 2. **4 minutes** of vacuuming and deliveries.
-3. When the time is up, everything stops. The result card shows both
-   scores counting up and "You win!", "You lose" or "Draw". **No view of
-   the hall from above** and no map of who cleaned where (that would be
-   too much like Inkwars).
+3. When the time is up, everything stops. Since version 1.1 the camera
+   first flies through the hall for ten seconds (low along the windows, up
+   over the middle, a view over the whole hall at the end) and a label
+   shows how much of the hall is clean (decision 46). Then the result card
+   shows both scores counting up and "You win!", "You lose" or "Draw".
+   **Still no view of the hall from straight above** and no map of who
+   cleaned where (that would be too much like Inkwars).
 4. Host: "Again" brings both back to the menu.
 
 ## The bot (alone only)

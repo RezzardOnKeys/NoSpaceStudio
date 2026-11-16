@@ -80,7 +80,7 @@ table whenever a phase is finished.
   **Not yet tested: Safari, a real party with two accounts over the
   internet, the mouse inside the launcher.** No sound yet. To publish it,
   set `"status": "published"` in `game.json`.
-- **The fifth game is in:** `games/dust-dash/` (Dust Dash, version 1.0.0,
+- **The fifth game is in:** `games/dust-dash/` (Dust Dash, version 1.1.0,
   published), a cosy first person race in an old wooden hall of 56 x 36 m:
   two players vacuum up 11500 pieces of dust, dirt and sawdust for points
   for four minutes (the dirt is laid out new from a seed in every match),
@@ -90,7 +90,9 @@ table whenever a phase is finished.
   (the host is the referee, the guest moves itself ahead, decision 44) or
   alone against one bot that plays by the same rules. Its interface has
   its own look (a parcel tag as menu, a wooden sign as clock, a receipt as
-  result). The plan it was built from is [DUST-DASH.md](DUST-DASH.md).
+  result). Version 1.1 (decision 46): a ten-second camera flight through
+  the hall when the time is up, showing how much was cleaned, before the
+  result. The plan it was built from is [DUST-DASH.md](DUST-DASH.md).
   Tested in Chrome: alone against the bot, a party with two tabs (also a
   reload during a match), and with test scripts (the hall, fair delivery
   spots, power-ups, the bot over full rounds, a party with an artificial

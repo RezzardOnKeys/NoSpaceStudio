@@ -23,6 +23,7 @@
 //                 player's own vacuum, playerView.js the other player,
 //                 effects.js the delivery box)
 //   marker.js     the delivery icon on the screen (also through walls)
+//   tour.js       the camera flight through the hall when the time is up
 //   controls.js   keyboard and mouse
 //   lobby.js      the menu before a match, hud.js the display during a match
 //                 and the receipt at the end
@@ -41,6 +42,7 @@ import { createViewModel } from './viewModel.js';
 import { PlayerView } from './playerView.js';
 import { createEffects } from './effects.js';
 import { createMarker } from './marker.js';
+import { createTour } from './tour.js';
 import { createControls } from './controls.js';
 import { createLobby } from './lobby.js';
 import {
@@ -52,6 +54,7 @@ import {
   onAgain,
   announce,
   toast,
+  showTour,
 } from './hud.js';
 import { createReferee } from './host.js';
 import { createFeed } from './feed.js';
@@ -97,6 +100,7 @@ scene.add(dirtView.group);
 const effects = createEffects(hall, calm);
 scene.add(effects.group);
 const marker = createMarker();
+const tour = createTour(camera, calm);
 
 /** Where the nozzle of a seat's player is: pieces of dirt fly there. */
 function nozzleOf(seat, out) {
@@ -247,6 +251,7 @@ function beginMatch(seed) {
   state = 'countdown';
   lobby.show(false);
   hideResult();
+  showTour(false);
   showHud(true);
   setHudColors(PALETTE[menu.colors[MY_SEAT]].hex, PALETTE[menu.colors[OTHER_SEAT]].hex);
 }
@@ -258,7 +263,18 @@ function endMatch(scores) {
   finalScores = [scores[MY_SEAT] || 0, scores[OTHER_SEAT] || 0];
   controls.unlock();
   showHud(false);
+  marker.hide();
+  // First a flight through the hall, then the receipt (see frame()).
+  tour.start();
 }
+
+// A new click or key press skips the camera tour (on this screen only). A
+// key that is still held from the match repeats by itself; that does not count.
+const skipTour = (e) => {
+  if (!e.repeat && state === 'ended' && tour.running()) tour.skip();
+};
+canvas.addEventListener('mousedown', skipTour);
+window.addEventListener('keydown', skipTour);
 
 function toMenu() {
   state = 'menu';
@@ -266,6 +282,7 @@ function toMenu() {
   controls.unlock();
   showHud(false);
   hideResult();
+  showTour(false);
   lobby.show(true);
   renderLobby();
 }
@@ -538,7 +555,13 @@ function frame() {
 
   if (state === 'menu') {
     menuCamera();
+  } else if (state === 'ended' && tour.running()) {
+    tour.update(dt);
+    const total = dirt.count;
+    const taken = total - dirt.left;
+    showTour(true, taken / total, taken, total, Math.min(1, tour.progress() * 2.5));
   } else if (state === 'ended') {
+    showTour(false);
     endT += dt;
     showResult({
       mine: finalScores[0],

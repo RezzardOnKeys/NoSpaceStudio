@@ -965,3 +965,30 @@ reaches 28 m.
 **Why:** A shot that suddenly jumps into a steep lob when the crosshair
 moves a few pixels feels broken. Keeping the shot close to the view
 direction is what players expect.
+
+## 46. Dust Dash 1.1: a camera flight through the hall at the end of a round
+
+**Decision:** When the time is up, the camera flies through the hall for
+ten seconds before the receipt appears (`tour.js`). The developer asked
+for a cinematic look at how much was cleaned after every round, explicitly
+not a view from above like Inkwars; the plan (`docs/DUST-DASH.md`) had
+ruled out a view from above, and that still holds.
+
+- **The way** is laid out by hand as a smooth curve through six points:
+  low (1.4 m) near the front left corner, along the sunny front windows,
+  up over the middle and to 4.7 m in the back right corner, looking over
+  the whole hall at the end. The camera looks at a second curve of points
+  on the floor. The flight starts and ends slowly. A test script checks
+  that the camera stays inside the hall and at least 0.75 m away from
+  every obstacle and post.
+- **What is shown:** "TIME'S UP!" at the top and a paper label at the
+  bottom that counts up "… % of the hall is clean" and "… of 11,500 pieces
+  vacuumed" (both players together; the share is the share of pieces, the
+  dust film is only for looks). The characters stay where they stood.
+- **Skip:** a click or a new key press skips the flight on that screen
+  only; a key still held from the match does not count. The host's
+  "Again" button appears only with the receipt, as before.
+- **Reduced motion:** three still pictures from the way (about 3.3 s each)
+  instead of the flight.
+- Host and guest each run the flight on their own screen; nothing new is
+  sent over the network.
