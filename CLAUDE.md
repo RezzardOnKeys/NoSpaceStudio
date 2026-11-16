@@ -120,11 +120,16 @@ files owned by root. Do not work around it silently; tell the developer to run
   Games are referenced by their slug.
 - **Parties** (decision 25): `features/party/`. `PartyWatcher` (mounted once in
   `components/layout/RootLayout.tsx`) listens to Supabase Realtime and pulls
-  members into the host's game. The player passes `#party=…&role=…&name=…&avatar=…`
+  members into the host's game. `PartyAlerts` (also in RootLayout) floats new
+  invitations and a crown for a new host over every screen. Members who are
+  offline for 3 minutes leave their party automatically (migration 0009).
+  The player passes `#party=…&role=…&name=…&avatar=…`
   to the game; how a game uses it is in `docs/PARTY-GAMES.md`. Games set
   `maxPlayers` in `game.json`.
 - **Online status** (decision 30): `features/presence/`. `PresenceReporter`
-  (in RootLayout) reports every 30 s; show a friend's status with
+  (in RootLayout) reports every 30 s only while the player really uses the
+  launcher (`activity.ts`: tab visible, recent input, or a focused game) and
+  says "away" once when that stops (decision 47); show a friend's status with
   `PresenceAvatar`, `useStatusLabel` or `StatusLine`. There is no "appear
   offline" option on purpose.
 - **Legal texts** are `legal/*.md` (decision 31). When a feature processes new

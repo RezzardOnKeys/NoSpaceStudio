@@ -35,16 +35,17 @@ einen Teil der Datenbank. Sie müssen **in der Reihenfolge ihrer Nummern**
 ausgeführt werden, jede genau einmal. In jeder Datei steht in Kommentaren
 (Zeilen mit `--`), was die einzelnen Teile tun.
 
-| Datei                       | Was sie anlegt                                            |
-| --------------------------- | --------------------------------------------------------- |
-| `0001_profiles.sql`         | Profile (Benutzername, Avatar), automatisch beim Anmelden |
-| `0002_friendships.sql`      | Freundschaften und Freundschaftsanfragen                  |
-| `0003_playtime.sql`         | Spielzeit pro Nutzer und die Gesamtspielzeit pro Spiel    |
-| `0004_storage.sql`          | Speicherplatz für Profilbilder                            |
-| `0005_one_time_avatar.sql`  | Profilbild kann nur einmal gewählt werden                 |
-| `0006_parties.sql`          | Partys: zusammen in Spiele gehen                          |
-| `0007_party_host_tools.sql` | Party: Mitglieder entfernen, Host weitergeben             |
-| `0008_online_status.sql`    | Online-Status und „zuletzt gesehen“ für Freunde           |
+| Datei                                      | Was sie anlegt                                               |
+| ------------------------------------------ | ------------------------------------------------------------ |
+| `0001_profiles.sql`                        | Profile (Benutzername, Avatar), automatisch beim Anmelden    |
+| `0002_friendships.sql`                     | Freundschaften und Freundschaftsanfragen                     |
+| `0003_playtime.sql`                        | Spielzeit pro Nutzer und die Gesamtspielzeit pro Spiel       |
+| `0004_storage.sql`                         | Speicherplatz für Profilbilder                               |
+| `0005_one_time_avatar.sql`                 | Profilbild kann nur einmal gewählt werden                    |
+| `0006_parties.sql`                         | Partys: zusammen in Spiele gehen                             |
+| `0007_party_host_tools.sql`                | Party: Mitglieder entfernen, Host weitergeben                |
+| `0008_online_status.sql`                   | Online-Status und „zuletzt gesehen“ für Freunde              |
+| `0009_active_status_and_party_cleanup.sql` | Online nur bei echter Nutzung, Party verlassen, wenn offline |
 
 Für jede Datei, beginnend mit `0001`:
 

@@ -64,6 +64,8 @@ type UserStatusRow = {
   user_id: string;
   game_slug: string | null;
   last_seen_at: string;
+  /** false after "I am away" (0009_active_status_and_party_cleanup.sql). */
+  active: boolean;
 };
 
 type GameStatsRow = {
@@ -204,6 +206,7 @@ export type Database = {
       start_party_game: { Args: { p_game_slug: string }; Returns: string };
       stop_party_game: { Args: Record<never, never>; Returns: undefined };
       report_status: { Args: { p_game_slug: string | null }; Returns: undefined };
+      report_away: { Args: Record<never, never>; Returns: undefined };
       friend_statuses: {
         Args: Record<never, never>;
         Returns: {

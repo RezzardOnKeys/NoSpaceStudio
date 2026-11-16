@@ -15,6 +15,20 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 57 – 2026-11-16 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Online-Status prüfen (Kollege war online, obwohl das Fenster nur irgendwo offen war); online nur bei echter Nutzung von Launcher oder Spiel; Party automatisch verlassen, wenn man offline geht; neuer Host bekommt eine kleine Nachricht mit Krone auf jedem Bildschirm; Party-Einladungen auf jedem Bildschirm; danach mehrfach auf Fehler prüfen und berichten
+**Änderungen:**
+- Ursache gefunden: Der Launcher meldete alle 30 Sekunden „online“, auch in einem Tab im Hintergrund, solange er offen war
+- „Online“ heißt jetzt: Tab sichtbar (oder erst seit weniger als 30 Sekunden versteckt) und in den letzten 5 Minuten Maus, Tastatur oder Touch benutzt; im Spiel zählt ein Fenster im Vordergrund. Sonst meldet der Launcher einmal „weg“ und Freunde sehen sofort „Offline“; auch beim Schließen des Tabs
+- Neue Migration `0009_active_status_and_party_cleanup.sql`: Spalte `active`, Funktion `report_away`, angepasste `report_status` und `friend_statuses`; wer länger als 3 Minuten offline ist, verlässt automatisch seine Party (als Host übernimmt das älteste Mitglied, ein laufendes Spiel wird gestoppt)
+- Neue schwebende Hinweise oben rechts auf jedem Bildschirm, auch im Spiel (`PartyAlerts.tsx`): Party-Einladungen mit „Join party“, „Decline“ und „später“ (dann wartet sie oben in den normalen Seiten); Krone „You are now the party host“ für den neuen Host, 7 Sekunden
+- Mehrere Tabs offen: ein Tab im Hintergrund meldet kein „weg“, solange in einem anderen Tab gerade gearbeitet wird
+- Geprüft: lint, typecheck, build; Aktivitätsregeln mit einem Testskript (12 Fälle: Leerlauf, versteckter Tab, Spiel mit und ohne Fokus, zwei Tabs); SQL mehrfach von Hand durchgesehen; Launcher als Gast im Browser (Store, Spiel-Seite) ohne neue Fehler. Nicht getestet: alles mit Konto (ich kann mich nicht anmelden), also Status bei Freunden, Party-Aufräumen, Krone und Einladungskarten im echten Ablauf; die Migration ist noch nicht in Supabase ausgeführt
+- Doku: Entscheidung 47, ROADMAP, CLAUDE.md, SUPABASE-SETUP.md (Tabelle), Datenschutzerklärung (Online-Status und Party)
+**Geänderte Dateien:** supabase/migrations/0009_active_status_and_party_cleanup.sql (neu), src/features/presence/ (activity.ts neu, PresenceReporter.tsx, api.ts), src/features/party/ (PartyAlerts.tsx neu, invite-alerts.ts neu, PartyNotices.tsx), src/components/layout/RootLayout.tsx, src/types/database.ts, legal/privacy.md, docs/DECISIONS.md, docs/ROADMAP.md, docs/SUPABASE-SETUP.md, CLAUDE.md, PROTOKOLL.md
+**Commit-Message:** `[v57] feat(presence): online only while active, leave parties when offline, party alerts on every screen`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 56 – 2026-11-16 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Dust Dash: nach Rundenende eine etwa 10 Sekunden lange, cinematische Kamerafahrt durch die Halle (nicht von oben wie Inkwars), damit man sieht, wie viel gesaugt wurde, danach erst der Sieger
 **Änderungen:**
@@ -27,7 +41,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Spielversion 1.1.0 mit Patch Note, Entscheidung 46, ROADMAP und docs/DUST-DASH.md; Commit-Hash für Version 55 nachgetragen
 **Geänderte Dateien:** games/dust-dash/ (neu: tour.js; geändert: game.js, hud.js, index.html, game.json), news/2026-11-16-dust-dash-1-1.md (neu), docs/DECISIONS.md, docs/ROADMAP.md, docs/DUST-DASH.md, PROTOKOLL.md
 **Commit-Message:** `[v56] feat(dust-dash): camera flight through the hall at the end of a round`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`5f55fcb`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/5f55fcb)
 
 ## Version 55 – 2026-11-16 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Inkwars: Schaut man etwas über die Bildschirmmitte, fliegen die Schüsse viel zu hoch; sie sollen sich verhalten wie unterhalb der Mitte. Dazu Frage, wo die Namen der Spieler gespeichert sind (in Supabase unter Authentication steht kein Display name)

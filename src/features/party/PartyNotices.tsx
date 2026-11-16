@@ -7,6 +7,7 @@ import { buttonStyles } from '@/components/ui/button-styles';
 import { useAuth } from '@/features/auth/auth-context';
 import { useGames } from '@/features/games/queries';
 
+import { useInvitesPutAside } from './invite-alerts';
 import { partyPlayPath } from './party-session';
 import { useAcceptPartyInvite, useDeclinePartyInvite, useParty, usePartyInvites } from './queries';
 
@@ -14,12 +15,16 @@ const boxClass =
   'flex flex-wrap items-center gap-3 rounded-xl border border-accent/40 bg-accent-soft px-4 py-3';
 
 /**
- * Shown above every page: party invitations to answer, and a way back into
- * the party's game for members who are not in it (e.g. after a reload).
+ * Shown above the content of the regular pages: party invitations the
+ * player put aside with "Later" on the floating card (PartyAlerts shows
+ * new ones on every screen), and a way back into the party's game for
+ * members who are not in it (e.g. after a reload).
  */
 export function PartyNotices() {
   const { userId } = useAuth();
-  const { data: invites } = usePartyInvites();
+  const { data: allInvites } = usePartyInvites();
+  const putAside = useInvitesPutAside();
+  const invites = allInvites?.filter((invite) => putAside.has(invite.id));
   const { data: party } = useParty();
   const { data: games } = useGames();
   const accept = useAcceptPartyInvite();

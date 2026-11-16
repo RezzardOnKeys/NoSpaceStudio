@@ -1,4 +1,4 @@
-_Last updated: November 14, 2026_
+_Last updated: November 16, 2026_
 
 This privacy policy explains which personal data {{brand}} processes, why,
 and which rights you have. {{brand}} is a free hobby project without
@@ -79,11 +79,18 @@ your email address and password reset links. They are sent through Supabase.
 
 - **Playtime** is saved while a game is open and your browser tab is
   visible, about every 30 seconds.
-- **Online status:** while the launcher is open, it reports every 30 seconds
-  that you are online and which game you are playing. From this, your
-  friends see "Online", "Playing …" or "Offline · last seen …". There is no
-  setting to hide your status; it is only visible to people you accepted as
-  friends.
+- **Online status:** while you use the launcher or a game, it reports
+  every 30 seconds that you are online and which game you are playing.
+  When its tab has been in the background for half a minute, when you have
+  not used the mouse, keyboard or touch screen for five minutes (in a game:
+  when the window has not been in front for five minutes), or when you
+  close the tab, it reports once that you are away. From this, your friends
+  see "Online", "Playing …" or "Offline · last seen …". To know whether
+  you are using it, the launcher only notes the time of your last input in
+  your browser (also in its local storage, so several open tabs agree); it
+  does not record what you type or click and sends nothing about it. There
+  is no setting to hide your status; it is only visible to people you
+  accepted as friends.
 - A **total playtime per game** of all players combined is public, without
   any connection to individual players.
 
@@ -92,6 +99,8 @@ Legal basis: Art. 6 (1) (b) GDPR.
 ## 8. Parties and multiplayer games
 
 In a party, the members see each other and the game the party is playing.
+If you are offline for more than three minutes, you leave your party
+automatically.
 When a multiplayer game starts, the players' browsers connect **directly to
 each other** (WebRTC). For this, the other players receive your IP address;
 this is technically necessary for a direct connection.

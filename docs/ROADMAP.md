@@ -137,7 +137,13 @@ table whenever a phase is finished.
 - **Online status:** friends see "Online", "Playing …" or "Offline · last
   seen …" (dot on the avatar, text in lists and on the profile, "N online"
   next to Friends). There is deliberately no way to appear offline
-  (decision 30).
+  (decision 30). Since decision 47 "online" means really using it: a tab
+  in the background for 30 seconds, five minutes without input (in a game:
+  without the window in front) or a closed tab count as offline at once.
+- **Parties tidy up themselves** (decision 47): whoever is offline for more
+  than three minutes leaves their party (as host the role passes on). New
+  invitations and a crown for a new host float over every screen,
+  including a running game. **Migration `0009` must be run in Supabase.**
 - **Imprint and privacy policy are written** (English, `legal/*.md`). Name,
   address and contact email are still
   `[TODO]` placeholders; the pages show a warning until they are filled in.

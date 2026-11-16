@@ -992,3 +992,62 @@ ruled out a view from above, and that still holds.
   instead of the flight.
 - Host and guest each run the flight on their own screen; nothing new is
   sent over the network.
+
+## 47. Online only while really in use; offline players leave their party
+
+**Decision:** The developer noticed friends who stayed "Online" while their
+launcher was only open somewhere in the background, and wanted: online only
+while somebody is really in the launcher or a game, leaving the party when
+going offline, a visible notice for a new host and invitations on every
+screen.
+
+- **What counts as "really here"** (`features/presence/activity.ts`): the
+  launcher's tab is visible (or was hidden less than 30 seconds ago, so a
+  quick look at another tab changes nothing) and the mouse, keyboard or a
+  touch screen was used in the last five minutes. Inside a game the input
+  goes to the game's frame on another origin, which the launcher cannot
+  see; there a browser window in front with focus counts as being active,
+  checked every five seconds.
+- **Reporting** (`PresenceReporter`): while active, "I am here" every 30
+  seconds as before (`report_status`). When that stops, "I am away" once
+  (`report_away`, new), so friends see "Offline" at once instead of after
+  75 seconds. Closing or reloading the tab also sends "I am away", with a
+  `keepalive` request that survives the closing page. After a reload the
+  first report is repeated ten seconds later, in case the old page's
+  "away" arrives after it. With several launcher tabs, a tab that goes
+  away does not report it while another tab was used in the last 15
+  seconds (they share the time of the last input in `localStorage`).
+- **Database** (`0009_active_status_and_party_cleanup.sql`): a new column
+  `active` in `user_status`; `friend_statuses` counts a friend as online
+  only while active and reported in the last 75 seconds (a crashed browser
+  still goes offline after 75 seconds).
+- **Leaving the party:** every `report_status` call of any player first runs
+  `clean_up_parties`, which removes every party member whose last report or
+  "away" is more than three minutes old, with the rules of `leave_party`
+  (as host the member who joined first takes over and a running game is
+  stopped; an empty party is deleted). The three minutes are a grace time
+  for reloads, a short look elsewhere and a short loss of connection. It
+  runs on reports instead of a timer in the database, so nothing needs to
+  be switched on in Supabase. Because it runs before the caller's own row
+  is updated, a player who comes back after a long break leaves the old
+  party even if nobody else was online in the meantime. The two helper
+  functions cannot be called by the website.
+- **Party notices on every screen** (`features/party/PartyAlerts.tsx`,
+  mounted in `RootLayout`, so also on the player page): cards in the top
+  right corner, below the top bar. A new invitation shows with "Join
+  party" and "Decline"; the clock button puts it aside, after which it
+  waits in the box above the content of the regular pages (`PartyNotices`)
+  and in the Party badge. The new host sees a golden crown that hops in
+  ("You are now the party host") for seven seconds, whether the host role
+  was handed over, or the old host left or went offline. Joining or
+  starting a party shows no crown. In the browser's fullscreen mode of a
+  game the cards are not visible (only the game's frame is shown there).
+- **Not changed:** there is still no way to appear offline (decision 30),
+  and the status is still visible to confirmed friends only.
+
+**Why:** A status that says "online" for a forgotten tab is misleading, and
+a party with members who left long ago blocks games for the others. The
+grace times keep both from flickering during normal use. The price: a
+party host who leaves the game's tab in the background for more than
+three and a half minutes loses the host role and the game is stopped for
+the party.
