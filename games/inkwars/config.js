@@ -43,6 +43,9 @@ export const CONFIG = {
     // impact without gaps, so you can swim right behind your shot.
     dripRadius: 0.45, // the trail is twice this wide
     dripSpacing: 0.4, // one drip every this many metres along the way
+    // The drips fall out of the stream and paint only where they land.
+    dripFallSpeed: 9, // speed downwards when a drip leaves the stream
+    dripGravity: 50, // drips fall faster than drops, so the trail follows closely
     refillPerSec: 50,
     maxLife: 2.5,
   },

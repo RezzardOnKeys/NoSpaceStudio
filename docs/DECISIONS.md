@@ -659,3 +659,32 @@ positions back and forth.
 **Why:** Before, a character that went out simply disappeared, and it was
 not clear whether it was really out. The other two are the developers'
 feel after playing 1.1.
+
+## 42. Inkwars 1.2.1: the trail is made of falling drips
+
+**Decision:** Up to 1.2 the trail was painted on the floor right under a
+flying drop, whatever its height, and not at all once the drop was more
+than 5 m up. Aimed a little upwards, colour appeared where no water came
+down, then stopped, and the impact landed far behind after a gap. The
+developer asked for colour only where water really lands, without losing
+the trail to swim behind.
+
+Now a drop sheds a small drip every 0.4 m of its way (`Sim.drip`). Each
+drip is visible, falls down (`dripFallSpeed` 9, `dripGravity` 50) onto its
+spot on the straight line from the shooter's feet and paints only when it
+arrives (`Sim.updateDrips`, `sim.drips`). There is no height limit any
+more, so the line from the feet to the splat is always complete; from a
+high arc the drips simply take longer (about 0.4 s from 8 m). Drips in the
+first metre land at once: they are under the shooter, and a fish should be
+able to start swimming at once. In the browser test a fish that dove right
+after the shot stayed in its own colour the whole way, aimed down, level
+and up.
+
+The rules did not change otherwise: the host still paints, the guest
+repeats the host's splats exactly and only uses its own drips as early
+paint for moving (decision 40); every screen shows the drips falling. The
+painted area of a shot at the floor is the same as in 1.2; a high shot now
+gets its whole trail instead of a broken one.
+
+**Why:** Colour without visible water looked like a mistake, and the gap
+made high shots look broken.

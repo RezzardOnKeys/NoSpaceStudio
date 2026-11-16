@@ -15,6 +15,19 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 46 – 2026-11-16 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Inkwars: Die Farbspur wächst am Boden, obwohl dort keine Tropfen landen, und bei hohen Schüssen hat sie eine Lücke; Farbe soll nur dort entstehen, wo Wasser ankommt, Hinterherschwimmen soll bleiben
+**Änderungen:**
+- Ursache gefunden und gemessen: Die Spur wurde direkt unter dem fliegenden Tropfen auf den Boden gemalt (egal wie hoch er war) und gar nicht mehr, wenn er höher als 5 m war; bei einem leicht nach oben gezielten Schuss z. B. 9 m Spur, 18 m Lücke, dann der Aufprall
+- Neu: Der Strahl verliert sichtbare kleine Tropfen, die herunterfallen und erst beim Aufkommen färben; die Linie von den Füßen bis zum Aufprall ist bei jedem Winkel lückenlos
+- Tropfen im ersten Meter (unter der eigenen Figur) landen sofort, damit der Fisch direkt losschwimmen kann
+- Beim Gast fallen dieselben Tropfen; er nutzt seine eigenen weiter nur als vorläufige Farbe zum Schwimmen, alles Gemalte kommt vom Host
+- Getestet: Skripte (Lücken bei allen Winkeln, Treffer, Host/Gast-Farbfläche gleich) und im Browser allein gegen Bot: Hinterherschwimmen nach unten, geradeaus und nach oben ohne einen Moment auf trockenem Boden. Nicht getestet: Party im Browser, Safari
+- Spielversion 1.2.1 mit Patch Note, Entscheidung 42, ROADMAP; Commit-Hash für Version 45 nachgetragen
+**Geänderte Dateien:** games/inkwars/ (config.js, sim.js, effects.js, game.js, guest.js, host.js, game.json), news/2026-11-16-inkwars-1-2-1.md (neu), docs/DECISIONS.md, docs/ROADMAP.md, PROTOKOLL.md
+**Commit-Message:** `[v46] fix(inkwars): paint the trail only where falling drips land`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 45 – 2026-11-16 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Inkwars: Spur um die Hälfte breiter, Schüsse schneller, deutlich sichtbare Animation, wenn ein Gegner „stirbt“
 **Änderungen:**
@@ -26,7 +39,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Spielversion 1.2.0 mit Patch Note, Entscheidung 41, ROADMAP; Commit-Hash für Version 44 nachgetragen
 **Geänderte Dateien:** games/inkwars/ (config.js, actorView.js, game.js, hud.js, index.html, game.json), news/2026-11-16-inkwars-1-2.md (neu), docs/DECISIONS.md, docs/ROADMAP.md, PROTOKOLL.md
 **Commit-Message:** `[v45] feat(inkwars): faster drops, wider trail and a visible knockout`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`2115428`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/2115428)
 
 ## Version 44 – 2026-11-16 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Inkwars verbessern: Bewegung ohne Rutschen, Gast bewegt sich ohne Verzögerung, genauere Schüsse, lückenlose Spur zum Hinterherschwimmen (danach: Spur breiter), Treffer prüfen, Treffer trotz Netzwerkverzögerung

@@ -69,6 +69,8 @@ export class Sim {
     this.paint = paint;
     this.actors = [];
     this.projectiles = [];
+    // Small drips falling out of the stream (see drip); they paint where they land.
+    this.drips = [];
     this.events = [];
     // false on a party guest: water drops fly, but nothing is painted or hit.
     this.authority = true;
@@ -388,6 +390,7 @@ export class Sim {
   }
   // ── Water ──────────────────────────────────────────────────
   updateProjectiles(dt) {
+    this.updateDrips(dt);
     const W = CONFIG.weapon;
     const ar = this.arena;
     const h = dt / 2;
@@ -403,8 +406,9 @@ export class Sim {
           dead = true;
           break;
         }
-        // A guest's own drops drip too, but only as early paint (paint.js).
-        if (this.authority || p.owner) this.drip(p);
+        // Every drop drips on every screen; on a guest the drips only paint
+        // early paint for its own drops (paint.js), the rest comes from the host.
+        this.drip(p);
         for (const a of this.actors) {
           if (!a.alive || a.team === p.team || a.invuln > 0) continue;
           let { x, y, z } = a.pos;
@@ -437,15 +441,17 @@ export class Sim {
     }
   }
   /**
-   * The trail: drips on a straight line from the shooter's feet, one every
-   * dripSpacing metres, so it has no gaps. For a person it runs the way the
-   * camera looks, which is exactly where the fish swims with W. The camera
-   * looks over the right shoulder, so the drop itself flies a little to the
-   * right of the trail (at most about 0.9 m, at the far end), where the big
-   * splat of the impact joins the trail. The trail grows as the drop flies
-   * on (up to the drop's place along the line), so a drop that hits
-   * something early leaves a shorter trail. Drips only fall on a surface
-   * below the drop and at most 5 m below it.
+   * The trail: while a drop flies, small drips fall out of it, one for
+   * every dripSpacing metres. Each one lands on a straight line from the
+   * shooter's feet and paints only there, when it arrives (updateDrips), so
+   * colour appears only where water really comes down. The places are one
+   * after the other without gaps, however high the drop flies; the higher
+   * it is, the longer its drips take to fall. For a person the line runs
+   * the way the camera looks, which is exactly where the fish swims with W.
+   * The camera looks over the right shoulder, so the drips fall a little
+   * sideways (at most about 0.9 m, at the far end), where the big splat of
+   * the impact joins the trail. A drop that hits something early leaves a
+   * shorter trail. Over a surface higher than the drop nothing falls.
    */
   drip(p) {
     const W = CONFIG.weapon;
@@ -453,11 +459,47 @@ export class Sim {
     const along = (p.pos.x - tr.x) * tr.ux + (p.pos.z - tr.z) * tr.uz;
     const until = Math.min(tr.len, along);
     while (p.trailAt <= until) {
-      const x = tr.x + tr.ux * p.trailAt;
-      const z = tr.z + tr.uz * p.trailAt;
+      const at = p.trailAt;
+      const x = tr.x + tr.ux * at;
+      const z = tr.z + tr.uz * at;
       p.trailAt += W.dripSpacing;
       const gh = this.arena.heightAt(x, z);
-      if (gh <= p.pos.y && p.pos.y - gh < 5) this.paint.paintDrip(x, z, W.dripRadius, p.team);
+      const h = p.pos.y - gh;
+      if (h < 0) continue;
+      // Falling time from height h (h = v t + g t² / 2). The first metre lies
+      // under the shooter, where a falling drip cannot be seen anyway: it
+      // lands at once, so a fish can start swimming right away.
+      const v = W.dripFallSpeed;
+      const fall = at < 1 ? 0 : (-v + Math.sqrt(v * v + 2 * W.dripGravity * h)) / W.dripGravity;
+      this.drips.push({
+        from: { x: p.pos.x, y: p.pos.y, z: p.pos.z },
+        x,
+        z,
+        t: 0,
+        fall,
+        team: p.team,
+        pos: new THREE.Vector3(p.pos.x, p.pos.y, p.pos.z),
+      });
+    }
+  }
+  /** Moves the falling drips; a drip that arrives paints its spot. */
+  updateDrips(dt) {
+    const W = CONFIG.weapon;
+    for (let i = this.drips.length - 1; i >= 0; i--) {
+      const d = this.drips[i];
+      d.t += dt;
+      if (d.t >= d.fall) {
+        this.paint.paintDrip(d.x, d.z, W.dripRadius, d.team);
+        this.drips[i] = this.drips[this.drips.length - 1];
+        this.drips.pop();
+        continue;
+      }
+      const k = d.t / d.fall;
+      d.pos.set(
+        d.from.x + (d.x - d.from.x) * k,
+        d.from.y - W.dripFallSpeed * d.t - 0.5 * W.dripGravity * d.t * d.t,
+        d.from.z + (d.z - d.from.z) * k,
+      );
     }
   }
   /**

@@ -253,6 +253,7 @@ function endMatch(pct) {
   endT = 0;
   finalPct = [pct[MY_TEAM - 1], pct[2 - MY_TEAM]];
   sim.projectiles = [];
+  sim.drips = [];
   controls.unlock();
   showHud(false);
 }
@@ -526,7 +527,7 @@ function frame() {
   advance(dt);
 
   for (const v of views) v.update(dt, MY_TEAM);
-  projView.update(sim.projectiles);
+  projView.update(sim.projectiles, sim.drips);
   particles.update(dt);
 
   if (state === 'menu') {
