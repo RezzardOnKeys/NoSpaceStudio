@@ -6,15 +6,12 @@
 // but paints nothing and hits nobody (authority = false).
 
 import * as THREE from './vendor/three.module.js';
-import { CONFIG, STEP } from './config.js';
+import { CONFIG } from './config.js';
 export const emptyInput = () => ({
   moveX: 0,
   moveZ: 0,
   aimYaw: 0,
   aimPitch: 0,
-  // The direction the player's camera looks (people only, NaN for bots).
-  // The trail of a shot runs that way, which is where W swims (see drip).
-  lookYaw: NaN,
   shoot: false,
   jump: false,
   fish: false,
@@ -69,8 +66,6 @@ export class Sim {
     this.paint = paint;
     this.actors = [];
     this.projectiles = [];
-    // Small drips falling out of the stream (see drip); they paint where they land.
-    this.drips = [];
     this.events = [];
     // false on a party guest: water drops fly, but nothing is painted or hit.
     this.authority = true;
@@ -82,35 +77,15 @@ export class Sim {
     // the guest's shots can be judged against what the guest saw (poseAt).
     this.history = null;
   }
-  /**
-   * A water drop; on a guest it comes from the host's list (see shots).
-   * Its trail of drips (see drip) runs on a straight line from the shooter's
-   * feet (fromX, fromZ): in the direction lookYaw if given, else towards the
-   * place where the drop will land; it ends level with that place.
-   */
-  addProjectile(x, y, z, vx, vy, vz, team, owner, fromX = x, fromZ = z, lookYaw = NaN) {
-    const land = this.landing(x, y, z, vx, vy, vz);
-    const dx = land.x - fromX;
-    const dz = land.z - fromZ;
-    let ux = 0;
-    let uz = 0;
-    let len = Math.hypot(dx, dz);
-    if (Number.isFinite(lookYaw)) {
-      ux = -Math.sin(lookYaw);
-      uz = -Math.cos(lookYaw);
-      len = Math.max(0, dx * ux + dz * uz);
-    } else if (len > 0) {
-      ux = dx / len;
-      uz = dz / len;
-    }
+  /** A water drop; on a guest it comes from the host's list (see shots). */
+  addProjectile(x, y, z, vx, vy, vz, team, owner) {
     this.projectiles.push({
       pos: new THREE.Vector3(x, y, z),
       vel: new THREE.Vector3(vx, vy, vz),
       team,
       owner,
       life: CONFIG.weapon.maxLife,
-      trail: { x: fromX, z: fromZ, ux, uz, len },
-      trailAt: 0, // distance of the next drip along the trail; the first falls at the feet
+      skimAt: null, // where it last coloured the ground while flying low (skim)
       rewind: owner ? owner.rewind : 0,
     });
     if (this.shots) this.shots.push([x, y, z, vx, vy, vz, team, owner ? owner.id : -1]);
@@ -145,22 +120,6 @@ export class Sim {
       a.pos.y + 1.2,
       a.pos.z - Math.cos(y) * 0.55 - Math.sin(y) * 0.28,
     );
-  }
-  /** Where a drop will land if nothing is in its way (only the arena counts). */
-  landing(x, y, z, vx, vy, vz) {
-    const W = CONFIG.weapon;
-    const h = STEP / 2; // the same small steps as updateProjectiles
-    for (let t = 0; t < W.maxLife; t += h) {
-      vy -= W.gravity * h;
-      const nx = x + vx * h;
-      const ny = y + vy * h;
-      const nz = z + vz * h;
-      if (!this.arena.inBounds(nx, nz) || ny <= this.arena.heightAt(nx, nz)) break;
-      x = nx;
-      y = ny;
-      z = nz;
-    }
-    return { x, z };
   }
   /**
    * The angles with which a shot from `from` lands at `to`, the drop of the
@@ -373,9 +332,6 @@ export class Sim {
         -Math.cos(y) * cp * W.speed,
         a.team,
         a,
-        a.pos.x,
-        a.pos.z,
-        inp.lookYaw,
       );
     }
     if (a.fish && a.inOwnInk) a.tank = Math.min(W.tank, a.tank + W.refillPerSec * dt);
@@ -390,7 +346,6 @@ export class Sim {
   }
   // ── Water ──────────────────────────────────────────────────
   updateProjectiles(dt) {
-    this.updateDrips(dt);
     const W = CONFIG.weapon;
     const ar = this.arena;
     const h = dt / 2;
@@ -406,9 +361,9 @@ export class Sim {
           dead = true;
           break;
         }
-        // Every drop drips on every screen; on a guest the drips only paint
-        // early paint for its own drops (paint.js), the rest comes from the host.
-        this.drip(p);
+        // On a guest this only marks early paint for its own drops (paint.js);
+        // everything else that is painted comes from the host.
+        this.skim(p);
         for (const a of this.actors) {
           if (!a.alive || a.team === p.team || a.invuln > 0) continue;
           let { x, y, z } = a.pos;
@@ -441,66 +396,22 @@ export class Sim {
     }
   }
   /**
-   * The trail: while a drop flies, small drips fall out of it, one for
-   * every dripSpacing metres. Each one lands on a straight line from the
-   * shooter's feet and paints only there, when it arrives (updateDrips), so
-   * colour appears only where water really comes down. The places are one
-   * after the other without gaps, however high the drop flies; the higher
-   * it is, the longer its drips take to fall. For a person the line runs
-   * the way the camera looks, which is exactly where the fish swims with W.
-   * The camera looks over the right shoulder, so the drips fall a little
-   * sideways (at most about 0.9 m, at the far end), where the big splat of
-   * the impact joins the trail. A drop that hits something early leaves a
-   * shorter trail. Over a surface higher than the drop nothing falls.
+   * Water that flies low over a surface (at most skimHeight above it)
+   * colours the ground right under it, one spot every skimSpacing metres,
+   * like a water jet that grazes the floor. A drop high up paints nothing
+   * on its way; only where it comes down (impact).
    */
-  drip(p) {
+  skim(p) {
     const W = CONFIG.weapon;
-    const tr = p.trail;
-    const along = (p.pos.x - tr.x) * tr.ux + (p.pos.z - tr.z) * tr.uz;
-    const until = Math.min(tr.len, along);
-    while (p.trailAt <= until) {
-      const at = p.trailAt;
-      const x = tr.x + tr.ux * at;
-      const z = tr.z + tr.uz * at;
-      p.trailAt += W.dripSpacing;
-      const gh = this.arena.heightAt(x, z);
-      const h = p.pos.y - gh;
-      if (h < 0) continue;
-      // Falling time from height h (h = v t + g t² / 2). The first metre lies
-      // under the shooter, where a falling drip cannot be seen anyway: it
-      // lands at once, so a fish can start swimming right away.
-      const v = W.dripFallSpeed;
-      const fall = at < 1 ? 0 : (-v + Math.sqrt(v * v + 2 * W.dripGravity * h)) / W.dripGravity;
-      this.drips.push({
-        from: { x: p.pos.x, y: p.pos.y, z: p.pos.z },
-        x,
-        z,
-        t: 0,
-        fall,
-        team: p.team,
-        pos: new THREE.Vector3(p.pos.x, p.pos.y, p.pos.z),
-      });
+    const gh = this.arena.heightAt(p.pos.x, p.pos.z);
+    const low = p.pos.y - gh <= W.skimHeight;
+    if (!low) {
+      p.skimAt = null;
+      return;
     }
-  }
-  /** Moves the falling drips; a drip that arrives paints its spot. */
-  updateDrips(dt) {
-    const W = CONFIG.weapon;
-    for (let i = this.drips.length - 1; i >= 0; i--) {
-      const d = this.drips[i];
-      d.t += dt;
-      if (d.t >= d.fall) {
-        this.paint.paintDrip(d.x, d.z, W.dripRadius, d.team);
-        this.drips[i] = this.drips[this.drips.length - 1];
-        this.drips.pop();
-        continue;
-      }
-      const k = d.t / d.fall;
-      d.pos.set(
-        d.from.x + (d.x - d.from.x) * k,
-        d.from.y - W.dripFallSpeed * d.t - 0.5 * W.dripGravity * d.t * d.t,
-        d.from.z + (d.z - d.from.z) * k,
-      );
-    }
+    if (p.skimAt && Math.hypot(p.pos.x - p.skimAt.x, p.pos.z - p.skimAt.z) < W.skimSpacing) return;
+    p.skimAt = { x: p.pos.x, z: p.pos.z };
+    this.paint.paintSpot(p.pos.x, p.pos.z, W.skimRadius, p.team);
   }
   /**
    * Does a drop at p touch a character standing at (x, y, z)? A person is a
@@ -542,8 +453,16 @@ export class Sim {
   impact(p, gh) {
     const W = CONFIG.weapon;
     if (prev.y >= gh) {
-      // from above onto a surface
-      this.paint.paintFloor(p.pos.x, p.pos.z, W.floorRadius, p.team, gh);
+      // From above onto a surface. The flatter the drop comes in, the longer
+      // the splat in its direction of flight; its middle moves back a little,
+      // so it reaches back along the way the water came.
+      const hs = Math.hypot(p.vel.x, p.vel.z);
+      const flat = hs / Math.max(0.001, p.vel.length()); // 1 = grazing, 0 = straight down
+      const ux = hs > 0 ? p.vel.x / hs : 1;
+      const uz = hs > 0 ? p.vel.z / hs : 0;
+      const stretch = 1 + W.splatStretch * flat * flat;
+      const back = W.floorRadius * (stretch - 1) * 0.5;
+      this.paint.paintFloor(p.pos.x - ux * back, p.pos.z - uz * back, W.floorRadius, p.team, gh, ux, uz, stretch);
       this.events.push({ type: 'splash', x: p.pos.x, y: gh, z: p.pos.z, team: p.team });
       return;
     }

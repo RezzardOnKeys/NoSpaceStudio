@@ -72,7 +72,7 @@ export function unpackActor(a, list, own) {
 /**
  * Guest: the keys and aim of one step of the rules as whole numbers
  * (movement in hundredths, angles in thousandths of a radian), which take
- * few bytes. The last number is the camera's direction (lookYaw in sim.js). seenMs is the moment on the host's clock that the guest's
+ * few bytes. seenMs is the moment on the host's clock that the guest's
  * screen showed (see guest.js), -1 if not known yet.
  * The guest moves its own character with exactly these rounded values, so
  * host and guest work with the same numbers.
@@ -86,7 +86,6 @@ export function packInput(inp, seenMs) {
     Math.round(inp.aimPitch * 1000),
     flags,
     seenMs,
-    Math.round(inp.lookYaw * 1000),
   ];
 }
 
@@ -104,7 +103,6 @@ export function unpackInput(inp, list) {
   inp.shoot = Boolean(flags & SHOOT);
   inp.jump = Boolean(flags & JUMP);
   inp.fish = Boolean(flags & (FISH << 2));
-  inp.lookYaw = Number.isFinite(list[6]) ? list[6] / 1000 : NaN;
 }
 
 /** The moment a step list (packInput) says the guest saw, in seconds, or null. */

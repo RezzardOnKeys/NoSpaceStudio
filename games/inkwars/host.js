@@ -49,7 +49,6 @@ export function createReferee({ sim, paint, nav, beforeStep = () => {} }) {
     start(teamSize, humanSeats) {
       sim.actors = [];
       sim.projectiles = [];
-      sim.drips = [];
       sim.events = [];
       paint.reset();
       bots = [];
@@ -88,7 +87,6 @@ export function createReferee({ sim, paint, nav, beforeStep = () => {} }) {
         if (ref.timeLeft <= 0) {
           ref.state = 'ended';
           sim.projectiles = [];
-          sim.drips = [];
         }
       }
     },
@@ -97,7 +95,6 @@ export function createReferee({ sim, paint, nav, beforeStep = () => {} }) {
     toMenu() {
       ref.state = 'menu';
       sim.projectiles = [];
-      sim.drips = [];
     },
 
     /**

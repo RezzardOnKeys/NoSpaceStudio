@@ -23,6 +23,23 @@ function makeTexture(data, w, h) {
   t.needsUpdate = true;
   return t;
 }
+/**
+ * Is the texel at (dx, dz) from the middle of a splat inside it? rr is the
+ * radius in texels. A splat can be stretched: stretch times as long in the
+ * direction (ux, uz) as across it (stretch 1 = round). wobble makes the edge
+ * irregular (0 = smooth), phase turns that edge.
+ */
+function inSplat(dx, dz, rr, phase, wobble, ux, uz, stretch) {
+  const a = (dx * ux + dz * uz) / stretch;
+  const c = stretch === 1 ? 0 : -dx * uz + dz * ux;
+  const nx = stretch === 1 ? dx : a;
+  const nz = stretch === 1 ? dz : c;
+  const d2 = nx * nx + nz * nz;
+  if (d2 > rr * rr) return false;
+  if (!wobble) return true;
+  const rad = rr * (1 - wobble + wobble * Math.sin(Math.atan2(nz, nx) * 5 + phase));
+  return d2 <= rad * rad;
+}
 export class Paint {
   constructor(arena) {
     this.arena = arena;
@@ -31,10 +48,10 @@ export class Paint {
     this.walls = new Map();
     // A list that collects every splat while it is not null (party host).
     this.log = null;
-    // The log entry the last drips went into, and the last drip (paintDrip).
-    this.dripEntry = null;
-    this.dripX = 0;
-    this.dripZ = 0;
+    // The log entry the last spots went into, and the last spot (paintSpot).
+    this.spotEntry = null;
+    this.spotX = 0;
+    this.spotZ = 0;
     // true on a party guest: only splats sent by the host are painted.
     this.readOnly = false;
     // Party guest (useEarly): until when a texel counts as the guest's own
@@ -137,25 +154,29 @@ export class Paint {
    * A splat on a surface that can be walked on. yRef keeps the colour from
    * jumping over edges onto other levels.
    */
-  paintFloor(x, z, r, team, yRef) {
+  paintFloor(x, z, r, team, yRef, ux = 1, uz = 0, stretch = 1) {
     if (this.readOnly) {
-      if (team === this.earlyTeam) this.earlyFloor(x, z, r, yRef);
+      if (team === this.earlyTeam) this.earlyFloor(x, z, r, yRef, ux, uz, stretch);
       return;
     }
     const phase = Math.random() * 6.28;
-    if (this.log) this.log.push([0, x, z, r, team, yRef, phase]);
-    this.splatFloor(x, z, r, team, yRef, phase);
+    if (this.log) {
+      const op = [0, x, z, r, team, yRef, phase];
+      if (stretch !== 1) op.push(ux, uz, stretch);
+      this.log.push(op);
+    }
+    this.splatFloor(x, z, r, team, yRef, phase, 0.2, ux, uz, stretch);
   }
   /**
-   * A small drip of the trail under a flying drop: a round splat, so drips
-   * in a row form a trail without gaps. To keep the party traffic small, a
-   * drip is only a place in whole centimetres; the guest works out the
-   * height from it exactly like the host. Drips in a row are collected in
+   * A small round spot under water that flies low over the ground
+   * (Sim.skim); spots in a row form a stripe. To keep the party traffic small, a
+   * spot is only a place in whole centimetres; the guest works out the
+   * height from it exactly like the host. Spots in a row are collected in
    * one entry of the log: [2, team, radius, x1, z1, dx2, dz2, dx3, dz3, ...]
-   * in cm, every further drip as the step from the one before. Those steps
+   * in cm, every further spot as the step from the one before. Those steps
    * are small numbers, which take only one byte each on the network.
    */
-  paintDrip(x, z, r, team) {
+  paintSpot(x, z, r, team) {
     if (this.readOnly) {
       if (team === this.earlyTeam) this.earlyFloor(x, z, r, this.arena.heightAt(x, z));
       return;
@@ -165,43 +186,39 @@ export class Paint {
     const cr = Math.round(r * 100);
     if (this.log) {
       const last = this.log[this.log.length - 1];
-      if (last && last === this.dripEntry && last[1] === team && last[2] === cr) {
-        last.push(cx - this.dripX, cz - this.dripZ);
+      if (last && last === this.spotEntry && last[1] === team && last[2] === cr) {
+        last.push(cx - this.spotX, cz - this.spotZ);
       } else {
-        this.dripEntry = [2, team, cr, cx, cz];
-        this.log.push(this.dripEntry);
+        this.spotEntry = [2, team, cr, cx, cz];
+        this.log.push(this.spotEntry);
       }
-      this.dripX = cx;
-      this.dripZ = cz;
+      this.spotX = cx;
+      this.spotZ = cz;
     }
-    this.splatDrip(cx, cz, cr, team);
+    this.splatSpot(cx, cz, cr, team);
   }
-  splatDrip(cx, cz, cr, team) {
+  splatSpot(cx, cz, cr, team) {
     const x = cx / 100;
     const z = cz / 100;
     this.splatFloor(x, z, cr / 100, team, this.arena.heightAt(x, z), 0, 0);
   }
   /**
    * phase turns the irregular edge of the splat; the guest gets the host's
-   * value. wobble is how far the edge goes in (0 = a round splat).
+   * value. wobble is how far the edge goes in (0 = a round splat); ux, uz
+   * and stretch make it longer in one direction (see inSplat).
    */
-  splatFloor(x, z, r, team, yRef, phase, wobble = 0.2) {
+  splatFloor(x, z, r, team, yRef, phase, wobble = 0.2, ux = 1, uz = 0, stretch = 1) {
     const cx = (x + this.arena.hw) * this.tpm;
     const cz = (z + this.arena.hd) * this.tpm;
     const rr = r * this.tpm;
-    const x0 = Math.max(0, Math.floor(cx - rr));
-    const x1 = Math.min(this.TW - 1, Math.ceil(cx + rr));
-    const z0 = Math.max(0, Math.floor(cz - rr));
-    const z1 = Math.min(this.TH - 1, Math.ceil(cz + rr));
+    const reach = rr * stretch;
+    const x0 = Math.max(0, Math.floor(cx - reach));
+    const x1 = Math.min(this.TW - 1, Math.ceil(cx + reach));
+    const z0 = Math.max(0, Math.floor(cz - reach));
+    const z1 = Math.min(this.TH - 1, Math.ceil(cz + reach));
     for (let iz = z0; iz <= z1; iz++) {
       for (let ix = x0; ix <= x1; ix++) {
-        const dx = ix + 0.5 - cx;
-        const dz = iz + 0.5 - cz;
-        const d2 = dx * dx + dz * dz;
-        if (d2 > rr * rr) continue;
-        // an irregular edge, so it looks like a splat
-        const rad = wobble ? rr * (1 - wobble + wobble * Math.sin(Math.atan2(dz, dx) * 5 + phase)) : rr;
-        if (d2 > rad * rad) continue;
+        if (!inSplat(ix + 0.5 - cx, iz + 0.5 - cz, rr, phase, wobble, ux, uz, stretch)) continue;
         const i = iz * this.TW + ix;
         if (Math.abs(this.heights[i] - yRef) > 0.75) continue;
         if (this.locked[i] && this.locked[i] !== team) continue;
@@ -215,18 +232,17 @@ export class Paint {
       }
     }
   }
-  /** Marks a round spot as early own paint (party guest, see useEarly). */
-  earlyFloor(x, z, r, yRef) {
+  /** Marks a spot as early own paint (party guest, see useEarly); same shape as splatFloor. */
+  earlyFloor(x, z, r, yRef, ux = 1, uz = 0, stretch = 1) {
     if (!this.early) return;
     const cx = (x + this.arena.hw) * this.tpm;
     const cz = (z + this.arena.hd) * this.tpm;
     const rr = r * this.tpm;
+    const reach = rr * stretch;
     const until = this.now + EARLY_TIME;
-    for (let iz = Math.max(0, Math.floor(cz - rr)); iz <= Math.min(this.TH - 1, Math.ceil(cz + rr)); iz++) {
-      for (let ix = Math.max(0, Math.floor(cx - rr)); ix <= Math.min(this.TW - 1, Math.ceil(cx + rr)); ix++) {
-        const dx = ix + 0.5 - cx;
-        const dz = iz + 0.5 - cz;
-        if (dx * dx + dz * dz > rr * rr) continue;
+    for (let iz = Math.max(0, Math.floor(cz - reach)); iz <= Math.min(this.TH - 1, Math.ceil(cz + reach)); iz++) {
+      for (let ix = Math.max(0, Math.floor(cx - reach)); ix <= Math.min(this.TW - 1, Math.ceil(cx + reach)); ix++) {
+        if (!inSplat(ix + 0.5 - cx, iz + 0.5 - cz, rr, 0, 0, ux, uz, stretch)) continue;
         const i = iz * this.TW + ix;
         if (Math.abs(this.heights[i] - yRef) > 0.75) continue;
         if (this.locked[i] && this.locked[i] !== this.earlyTeam) continue;
@@ -294,10 +310,14 @@ export class Paint {
     if (w.early && w.early[i] > this.now) return this.earlyTeam;
     return w.team[i];
   }
-  /** Repeats a splat from the host's log (see paintFloor, paintWall and paintDrip). */
+  /** Repeats a splat from the host's log (see paintFloor, paintWall and paintSpot). */
   apply(op) {
-    if (op[0] === 0) this.splatFloor(op[1], op[2], op[3], op[4], op[5], op[6]);
-    else if (op[0] === 1) this.splatWall(this.arena.shapes[op[1]], op[2], op[3], op[4], op[5], op[6], op[7]);
+    if (op[0] === 0) {
+      // a stretched splat carries its direction and length (see paintFloor)
+      const long = op.length >= 10 && op.slice(7, 10).every(Number.isFinite);
+      const stretch = long ? Math.min(4, Math.max(1, op[9])) : 1;
+      this.splatFloor(op[1], op[2], op[3], op[4], op[5], op[6], 0.2, long ? op[7] : 1, long ? op[8] : 0, stretch);
+    } else if (op[0] === 1) this.splatWall(this.arena.shapes[op[1]], op[2], op[3], op[4], op[5], op[6], op[7]);
     else if (op[0] === 2) {
       const team = op[1] === 2 ? 2 : 1;
       const cr = Math.min(300, Math.max(0, Math.round(op[2]) || 0));
@@ -307,7 +327,7 @@ export class Paint {
         if (!Number.isInteger(op[k]) || !Number.isInteger(op[k + 1])) return;
         cx += op[k];
         cz += op[k + 1];
-        this.splatDrip(cx, cz, cr, team);
+        this.splatSpot(cx, cz, cr, team);
       }
     }
   }

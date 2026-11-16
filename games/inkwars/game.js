@@ -253,7 +253,6 @@ function endMatch(pct) {
   endT = 0;
   finalPct = [pct[MY_TEAM - 1], pct[2 - MY_TEAM]];
   sim.projectiles = [];
-  sim.drips = [];
   controls.unlock();
   showHud(false);
 }
@@ -296,7 +295,6 @@ function readInput(dt) {
   // The gun's place depends on the direction, so it is worked out a few
   // times; each time it gets closer (matters right in front of a wall).
   rig.aimPoint(yaw, pitch, target);
-  inp.lookYaw = yaw;
   inp.aimYaw = yaw;
   for (let i = 0; i < 5; i++) {
     const angles = Sim.aimAngles(sim.muzzle(me, muzzle), target);
@@ -527,7 +525,7 @@ function frame() {
   advance(dt);
 
   for (const v of views) v.update(dt, MY_TEAM);
-  projView.update(sim.projectiles, sim.drips);
+  projView.update(sim.projectiles);
   particles.update(dt);
 
   if (state === 'menu') {

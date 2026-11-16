@@ -1,14 +1,19 @@
-// Inkwars – small moving things: flying water drops, the small drips that
-// fall out of them, and splash particles.
+// Inkwars – small moving things: flying water drops and splash particles.
 
 import * as THREE from './vendor/three.module.js';
 const dummy = new THREE.Object3D();
 const col = new THREE.Color();
-/** Flying water: drops at full size, falling drips smaller (sim.drips). */
+const ahead = new THREE.Vector3();
+// How much longer than wide a flying drop looks.
+const STRETCH = 2.6;
+/**
+ * Flying water: every drop is drawn as a smooth blob stretched along its
+ * direction of flight, so a stream of drops reads as one jet of water.
+ */
 export class ProjectileView {
   constructor(colors) {
     this.colors = colors;
-    this.max = 2500;
+    this.max = 500;
     this.mesh = new THREE.InstancedMesh(
       new THREE.SphereGeometry(0.14, 8, 6),
       new THREE.MeshLambertMaterial(),
@@ -18,19 +23,18 @@ export class ProjectileView {
     this.mesh.count = 0;
     this.mesh.frustumCulled = false;
   }
-  update(drops, drips) {
-    let n = 0;
-    const add = (p, size) => {
-      if (n >= this.max) return;
+  update(list) {
+    const n = Math.min(list.length, this.max);
+    for (let i = 0; i < n; i++) {
+      const p = list[i];
       dummy.position.copy(p.pos);
-      dummy.scale.set(size, size * 1.4, size);
+      ahead.copy(p.pos).add(p.vel);
+      dummy.lookAt(ahead);
+      dummy.scale.set(0.85, 0.85, STRETCH);
       dummy.updateMatrix();
-      this.mesh.setMatrixAt(n, dummy.matrix);
-      this.mesh.setColorAt(n, this.colors[p.team]);
-      n++;
-    };
-    for (const p of drops) add(p, 1);
-    for (const d of drips) add(d, 0.45);
+      this.mesh.setMatrixAt(i, dummy.matrix);
+      this.mesh.setColorAt(i, this.colors[p.team]);
+    }
     this.mesh.count = n;
     this.mesh.instanceMatrix.needsUpdate = true;
     if (this.mesh.instanceColor) this.mesh.instanceColor.needsUpdate = true;

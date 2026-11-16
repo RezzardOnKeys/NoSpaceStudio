@@ -617,6 +617,8 @@ hits, life, tank and paint are decided only there.
   overlap), fire while walking sideways about 2.5 times as much. The
   developer asked for the wider trail after the first try with radius
   0.22; `dripRadius` in `config.js` is the one number to turn down.
+  (Replaced in version 1.3 by colour only where the water lands, see
+  decision 43.)
 - **Shots land at the crosshair.** The gun now turns in towards the point
   under the crosshair (before every shot landed 0.6 m left of it), the
   drop of the water is worked out exactly instead of estimated (far shots
@@ -688,3 +690,40 @@ gets its whole trail instead of a broken one.
 
 **Why:** Colour without visible water looked like a mistake, and the gap
 made high shots look broken.
+
+## 43. Inkwars 1.3: colour only where the water lands
+
+**Decision:** The trail of 1.1 to 1.2.1 (decisions 40 to 42) is gone. It was
+painted on a line in the camera's direction, next to the real flight path,
+and in 1.2.1 it was made of small falling drips; aimed upwards that looked
+like a wide rain of water under the shot. The developer wanted a shot like
+a real water pistol, colour only where the water lands, and to be able to
+spray the floor in front and dive in. Now:
+
+- **A drop paints where it comes down**, a splat of radius 1.15 m that is
+  longer in the direction of flight the flatter it comes in (up to 1.9
+  times as long, `splatStretch`), its middle moved back a little so it
+  reaches back along the way the water came (`Sim.impact`). The splat is
+  sent to the guest with its direction and length (`paintFloor`, op 0).
+- **Water that flies low over the ground** (at most 0.6 m, `skimHeight`)
+  colours the ground right under it, one spot every 0.4 m (`Sim.skim`,
+  sent like the old drips as small steps in centimetres, op 2). A drop
+  high in the air paints nothing on its way.
+- **Drops look like a jet:** every drop is drawn stretched along its
+  direction of flight (`ProjectileView`).
+- Removed: the falling drips (`sim.drips`), the camera direction in the
+  input (`lookYaw`) and the precomputed landing point.
+- Kept: speed 30 m/s, gravity 32, spread 0.012, exact aiming, the guest's
+  own movement and early paint (its own splats count at once for moving),
+  hits with a look back.
+
+Measured: a shot at the floor paints 3.6 to 5.6 m² (1.0: 3.6 to 5.9 m²),
+continuous fire on the spot about 7 m² per second; the party traffic for
+paint went down to about 0.8 KB/s. Spraying the floor 1 to 3 m in front
+and diving at once puts the fish in its own colour right away (browser
+test). Hits, aiming, the guest's copy of the colour and the look back
+passed their test scripts again.
+
+**Why:** Colour without water above it, and a line that does not follow
+the drops, looked wrong. Painting only where water arrives is simple and
+easy to read.

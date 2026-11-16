@@ -39,13 +39,12 @@ export const CONFIG = {
     damage: 22,
     floorRadius: 1.15, // splat at the impact
     wallRadius: 0.9,
-    // A trail of drips under the flight path, from the shooter's feet to the
-    // impact without gaps, so you can swim right behind your shot.
-    dripRadius: 0.45, // the trail is twice this wide
-    dripSpacing: 0.4, // one drip every this many metres along the way
-    // The drips fall out of the stream and paint only where they land.
-    dripFallSpeed: 9, // speed downwards when a drip leaves the stream
-    dripGravity: 50, // drips fall faster than drops, so the trail follows closely
+    // Water colours the ground only where it comes down, plus right under
+    // it while it flies low over the ground (a water jet grazing the floor).
+    splatStretch: 0.9, // a flat impact is up to 1 + this times as long as wide
+    skimHeight: 0.6, // flying at most this high above the ground colours it
+    skimRadius: 0.45, // the stripe is twice this wide
+    skimSpacing: 0.4, // one spot every this many metres
     refillPerSec: 50,
     maxLife: 2.5,
   },

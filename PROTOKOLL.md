@@ -15,6 +15,20 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 47 – 2026-11-16 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Inkwars: Schuss wie eine echte Wasserpistole (Vorbild: bekannte Tinten-Shooter), Farbe nur, wo das Wasser landet, vor sich spritzen und direkt hineinschwimmen; Tempo der Schüsse bleibt
+**Änderungen:**
+- Fallende Tröpfchen und die Spur in Blickrichtung komplett entfernt (das war die Ursache für das „Streuen“ nach oben und unten)
+- Farbe nur noch am Aufprall: länglicher Klecks in Flugrichtung, je flacher der Einschlag, desto länger, etwas nach hinten gezogen
+- Wasser dicht über dem Boden (höchstens 0,6 m) färbt direkt darunter
+- Tropfen sehen aus wie ein Wasserstrahl (in Flugrichtung gestreckt)
+- Aufgeräumt: `lookYaw`, Landepunkt-Vorausberechnung und `sim.drips` entfernt; Tempo, Zielen, Streuung, Gast-Vorhersage und Treffer mit Rückblick unverändert
+- Getestet: Skripte (Farbmuster je Zielweite und für hohe Schüsse, Treffer, Zielen, Host/Gast-Farbfläche gleich, Rückblick 100 %), im Browser allein gegen Bot (Schuss nach oben und geradeaus, vor sich spritzen und sofort als Fisch in der eigenen Farbe). Nicht getestet: Party im Browser, Safari
+- Spielversion 1.3.0 mit Patch Note, Beschreibung angepasst, Entscheidung 43, ROADMAP; Commit-Hash für Version 46 nachgetragen
+**Geänderte Dateien:** games/inkwars/ (config.js, sim.js, paint.js, effects.js, game.js, guest.js, host.js, wire.js, game.json, description.md), news/2026-11-16-inkwars-1-3.md (neu), docs/DECISIONS.md, docs/ROADMAP.md, PROTOKOLL.md
+**Commit-Message:** `[v47] feat(inkwars): clean water jet that paints only where it lands`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 46 – 2026-11-16 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Inkwars: Die Farbspur wächst am Boden, obwohl dort keine Tropfen landen, und bei hohen Schüssen hat sie eine Lücke; Farbe soll nur dort entstehen, wo Wasser ankommt, Hinterherschwimmen soll bleiben
 **Änderungen:**
@@ -26,7 +40,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Spielversion 1.2.1 mit Patch Note, Entscheidung 42, ROADMAP; Commit-Hash für Version 45 nachgetragen
 **Geänderte Dateien:** games/inkwars/ (config.js, sim.js, effects.js, game.js, guest.js, host.js, game.json), news/2026-11-16-inkwars-1-2-1.md (neu), docs/DECISIONS.md, docs/ROADMAP.md, PROTOKOLL.md
 **Commit-Message:** `[v46] fix(inkwars): paint the trail only where falling drips land`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`e3d5571`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/e3d5571)
 
 ## Version 45 – 2026-11-16 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Inkwars: Spur um die Hälfte breiter, Schüsse schneller, deutlich sichtbare Animation, wenn ein Gegner „stirbt“

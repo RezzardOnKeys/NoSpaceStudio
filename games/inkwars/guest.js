@@ -122,7 +122,6 @@ export function createMirror({ sim, paint }) {
     start(teamSize) {
       sim.actors = [];
       sim.projectiles = [];
-      sim.drips = [];
       sim.events = [];
       paint.reset();
       for (let slot = 0; slot < teamSize; slot++) {
@@ -232,7 +231,6 @@ export function createMirror({ sim, paint }) {
     toMenu() {
       mirror.state = 'menu';
       sim.projectiles = [];
-      sim.drips = [];
       resetOwn();
     },
   };
