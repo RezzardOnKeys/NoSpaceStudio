@@ -15,6 +15,18 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 62 – 2026-11-16 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Inkwars freischalten (stand noch auf „draft“ und war deshalb auf der echten Seite unsichtbar)
+**Änderungen:**
+- Inkwars steht jetzt auf `"status": "published"`, das Veröffentlichungsdatum ist heute (2026-11-16), damit es im Store unter „Newest“ ganz oben steht
+- Damit werden auf der echten Seite auch die bisher versteckten Inkwars-Patch-Notes 1.0 bis 1.3.1 sichtbar (News und Spiel-Seite)
+- Neuer News-Beitrag „Inkwars is out – paint the arena“ (Typ Announcement, keine neue Versionsnummer, weil sich weder Spiel noch Launcher geändert haben)
+- ROADMAP: Inkwars nicht mehr als Entwurf geführt
+- Getestet: lint, typecheck, build; im fertigen Build (Port 4173) Store, Spiel-Seite und News als Gast. Nicht getestet: Safari, eine echte Party mit zwei Konten über das Internet, die Maus im Launcher (diese Punkte waren schon vorher offen)
+**Geänderte Dateien:** games/inkwars/game.json, news/2026-11-16-inkwars-release.md (neu), docs/ROADMAP.md, PROTOKOLL.md
+**Commit-Message:** `[v62] feat(inkwars): publish Inkwars for everyone`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 61 – 2026-11-16 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Seit gestern fehlen alle Launcher-News: nachträglich mit Datum und Inhalt einfügen, Spiel-News auf Vollständigkeit und Reihenfolge prüfen, und in den Dateien für Claude festhalten, dass News nie wieder vergessen werden
 **Änderungen:**

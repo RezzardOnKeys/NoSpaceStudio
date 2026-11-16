@@ -57,8 +57,8 @@ table whenever a phase is finished.
   developers two against the bot, tested in Chrome with up to 8 tabs, and the rules (hits, lives, reload, walls, round end) with a test
   script. **Not yet tested in Safari and not yet with 4 or more real
   players.** No sound yet.
-- **The fourth game is in as a draft:** `games/inkwars/` (Inkwars, version
-  1.3.1, `"status": "draft"`, so only visible locally), a 3D water fight in
+- **The fourth game is in:** `games/inkwars/` (Inkwars, version 1.3.1,
+  published on 2026-11-16), a 3D water fight in
   third person: two sides paint the arena, the side with more painted
   ground after three minutes wins; in "fish form" a player is fast and
   invisible in the own colour. 1 vs 1 from a party, or alone against bots
@@ -78,8 +78,7 @@ table whenever a phase is finished.
   the guest's movement, swimming behind a shot and a hit by the guest), and
   with test scripts (hits, aim, a party with artificial network delay).
   **Not yet tested: Safari, a real party with two accounts over the
-  internet, the mouse inside the launcher.** No sound yet. To publish it,
-  set `"status": "published"` in `game.json`.
+  internet, the mouse inside the launcher.** No sound yet.
 - **The fifth game is in:** `games/dust-dash/` (Dust Dash, version 1.1.0,
   published), a cosy first person race in an old wooden hall of 56 x 36 m:
   two players vacuum up 11500 pieces of dust, dirt and sawdust for points
