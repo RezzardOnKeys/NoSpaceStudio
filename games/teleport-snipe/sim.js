@@ -1,7 +1,8 @@
 // Teleport Snipe – the rules. For now: how a player moves through the
 // garden (running, jumping, crouching, sliding, stairs) and bumps into the
-// boxes of map.js. Shots, hits, teleports and rounds are added in the next
-// steps of the plan. This file has no drawing and no network in it: the
+// boxes of map.js, the reload after a shot, and where a shot ends (it hits
+// at once, there is no bullet flight). Teleports and rounds are added in
+// the next steps of the plan. This file has no drawing and no network in it: the
 // referee (host.js) and the guest's copy (guest.js) both use it, so a
 // player moves the same way on every screen.
 //
@@ -10,7 +11,7 @@
 // towards -z, a positive yaw turns to the left.
 
 import { CONFIG } from './config.js';
-import { BOXES } from './map.js';
+import { BOXES, DUMMIES } from './map.js';
 
 const EPS = 0.001;
 // A fast player moves in several small pieces per step, so it can never
@@ -35,11 +36,12 @@ export function createPlayer(seat) {
     crouching: false,
     slideT: 0, // seconds of slide left
     slideCool: 0, // seconds until the next slide is possible
+    reload: 0, // seconds until the rifle can shoot again
     jumpWas: false, // the jump key was held in the step before
     crouchWas: false,
     // f: forward (1) / back (-1), s: right (1) / left (-1), yaw: view
-    // direction, jump and crouch: keys held.
-    input: { f: 0, s: 0, yaw: 0, jump: false, crouch: false },
+    // direction, jump, crouch and zoom: keys held.
+    input: { f: 0, s: 0, yaw: 0, jump: false, crouch: false, zoom: false },
   };
 }
 
@@ -54,9 +56,13 @@ export function placePlayer(p, spot) {
   p.crouching = false;
   p.slideT = 0;
   p.slideCool = 0;
+  p.reload = 0;
 }
 
 export const bodyHeight = (p) => (p.crouching ? CONFIG.move.crouchHeight : CONFIG.move.height);
+
+/** Height of the eyes above the ground: shots start here. */
+export const eyeOf = (p) => p.y + (p.crouching ? CONFIG.look.crouchEyeHeight : CONFIG.look.eyeHeight);
 
 // ── Collision helpers ─────────────────────────────────────────────────
 
@@ -177,6 +183,13 @@ function approach(p, tx, tz, amount) {
   }
 }
 
+/** The top speed on the ground: slower when crouching, and slower while zoomed. */
+function walkSpeed(p) {
+  const M = CONFIG.move;
+  const base = p.crouching ? M.crouchSpeed : M.runSpeed;
+  return p.input.zoom ? base * CONFIG.rifle.zoomSpeed : base;
+}
+
 /** Moves one player by one step of the rules (dt seconds) using p.input. */
 export function movePlayer(p, dt) {
   const M = CONFIG.move;
@@ -187,6 +200,7 @@ export function movePlayer(p, dt) {
   p.pz = p.z;
   p.yaw = inp.yaw;
   p.slideCool = Math.max(0, p.slideCool - dt);
+  p.reload = Math.max(0, p.reload - dt);
 
   // Crouching: down at once, up only where there is room for the whole body.
   if (inp.crouch) p.crouching = true;
@@ -233,11 +247,11 @@ export function movePlayer(p, dt) {
     p.vx = dx * target;
     p.vz = dz * target;
   } else if (p.grounded) {
-    const max = p.crouching ? M.crouchSpeed : M.runSpeed;
+    const max = walkSpeed(p);
     approach(p, wx * max, wz * max, (wishing ? M.accel : M.decel) * dt);
   } else if (wishing) {
     // In the air the keys steer strongly, but never slow down a fast jump.
-    const max = Math.max(p.crouching ? M.crouchSpeed : M.runSpeed, speed);
+    const max = Math.max(walkSpeed(p), speed);
     approach(p, wx * max, wz * max, M.airAccel * dt);
   }
 
@@ -273,4 +287,95 @@ export function movePlayer(p, dt) {
       else p.y = floor;
     }
   }
+}
+
+// ── Shots ─────────────────────────────────────────────────────────────
+
+/**
+ * Where a ray from (ox, oy, oz) along the direction (dx, dy, dz) enters a
+ * box, as a distance, or Infinity if it misses. The direction must have
+ * length 1.
+ */
+function rayBox(ox, oy, oz, dx, dy, dz, x0, x1, y0, y1, z0, z1) {
+  let near = 0;
+  let far = Infinity;
+  for (const [o, d, lo, hi] of [
+    [ox, dx, x0, x1],
+    [oy, dy, y0, y1],
+    [oz, dz, z0, z1],
+  ]) {
+    if (Math.abs(d) < 1e-9) {
+      if (o < lo || o > hi) return Infinity;
+    } else {
+      let t0 = (lo - o) / d;
+      let t1 = (hi - o) / d;
+      if (t0 > t1) [t0, t1] = [t1, t0];
+      near = Math.max(near, t0);
+      far = Math.min(far, t1);
+      if (near > far) return Infinity;
+    }
+  }
+  return near;
+}
+
+/**
+ * A shot: it hits at once along a straight line. targets is a list of
+ * bodies that can be hit: { x, y, z, height, id }. The answer:
+ * { dist, x, y, z, target } where target is the id of the body that was
+ * hit, or null when the shot ended in a wall, the ground or the sky.
+ */
+export function castShot(ox, oy, oz, dx, dy, dz, targets) {
+  const R = CONFIG.rifle;
+  let dist = R.range;
+  let target = null;
+  // The ground.
+  if (dy < 0) dist = Math.min(dist, -oy / dy);
+  for (const b of BOXES) {
+    if (!b.sight) continue;
+    dist = Math.min(dist, rayBox(ox, oy, oz, dx, dy, dz, b.x0, b.x1, b.y0, b.y1, b.z0, b.z1));
+  }
+  for (const t of targets) {
+    const r = R.hitRadius;
+    const d = rayBox(ox, oy, oz, dx, dy, dz, t.x - r, t.x + r, t.y, t.y + t.height + R.hitExtra, t.z - r, t.z + r);
+    if (d < dist) {
+      dist = d;
+      target = t.id;
+    }
+  }
+  return { dist, x: ox + dx * dist, y: oy + dy * dist, z: oz + dz * dist, target };
+}
+
+/** Seconds a hit dummy lies on the ground before it stands up again. */
+const DUMMY_DOWN = 1.5;
+
+/** Fresh dummies (map.js) for a match: { x, y, z, down } where down counts the seconds left lying. */
+export function createDummies() {
+  return DUMMIES.map((d) => ({ x: d.x, y: d.y, z: d.z, down: 0 }));
+}
+
+/** Dummies that were hit stand up again after a while. */
+export function tickDummies(dummies, dt) {
+  for (const d of dummies) d.down = Math.max(0, d.down - dt);
+}
+
+/**
+ * A player pulls the trigger. shot: { ox, oy, oz, dx, dy, dz } – where the
+ * shot starts (the eyes) and its direction with the spread already in it.
+ * Only works when the rifle is loaded; then it needs `reload` seconds again.
+ * The answer is castShot()'s, or null if the rifle was not loaded.
+ * target is 'p<seat>' for a player and 'd<index>' for a dummy.
+ */
+export function fireShot(shooter, shot, players, dummies) {
+  if (shooter.reload > 0) return null;
+  shooter.reload = CONFIG.rifle.reload;
+  const targets = [];
+  for (const p of players) {
+    if (p !== shooter) targets.push({ x: p.x, y: p.y, z: p.z, height: bodyHeight(p), id: `p${p.seat}` });
+  }
+  dummies.forEach((d, i) => {
+    if (d.down <= 0) targets.push({ x: d.x, y: d.y, z: d.z, height: CONFIG.move.height, id: `d${i}` });
+  });
+  const result = castShot(shot.ox, shot.oy, shot.oz, shot.dx, shot.dy, shot.dz, targets);
+  if (result.target && result.target[0] === 'd') dummies[Number(result.target.slice(1))].down = DUMMY_DOWN;
+  return result;
 }

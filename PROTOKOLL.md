@@ -15,6 +15,24 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 67 – 2026-11-17 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Teleport Snipe, Schritt 3: das Gewehr mit Zoom, Sofort-Treffern, Streuung ohne Zoom, 1 s Nachladen, Leuchtspuren, Treffermarkierung und Zielpuppen zum Testen
+**Änderungen:**
+- Zoom mit rechter Maustaste (oder Q halten): rein in 0,12 s, raus in 0,08 s, Sichtfeld 80° → 22°; gezoomt dreht die Maus im gleichen Maß langsamer, damit sich Zielen bei jeder Zoomstufe gleich anfühlt; gezoomt läuft man mit 55 % Tempo
+- Schuss mit linker Maustaste (oder E): trifft sofort (keine Flugzeit, kein Fallen); ohne Zoom landet er bis zu 7° neben dem Fadenkreuz, voll gezoomt genau darauf; danach genau 1 s Nachladen; der erste Klick fängt nur die Maus
+- Jeder Treffer an Körper, Kopf oder Hut zählt; Bäume, Bambus, Felsen, Mauern, Geländer und Dächer halten Schüsse auf, der Teich nicht
+- Eigenes Gewehr unten rechts mit Ärmel in der Mantelfarbe: Rückstoß, Repetieren beim Nachladen, verschwindet beim Zoomen
+- Bildschirm: runde Zielfernrohr-Ansicht mit schwarzem Rand und feinem Fadenkreuz, Ring um die Mitte füllt sich beim Nachladen, weißes Kreuz bei Treffern, kurzer Rückstoß der Sicht (nicht bei „weniger Bewegung“)
+- Leuchtspur jedes Schusses (weiße Linie in der Spielerfarbe, verblasst in 0,4 s) und ein kleiner Blitz am Einschlag
+- Sieben Zielpuppen aus Stroh im Garten (Mitte, Pagodenbalkon, Veranda, Hügel, Brücke …): fallen bei Treffer um und stehen nach 1,5 s wieder auf; sie verschwinden, wenn der Bot kommt (Schritt 6)
+- Alle Werte in `config.js` unter `rifle`; Entscheidung 50 ergänzt; Status in TELEPORT-SNIPE.md und ROADMAP; Version 0.3.0
+- Commit-Hash für Version 66 nachgetragen
+- Kein News-Beitrag: das Spiel ist noch ein Entwurf
+- Getestet: mit einem Testskript Treffer auf 33 m, Nachladesperre und genau 1 s, verdeckt hinter niedriger Mauer (geduckt sicher, stehend Kopf getroffen), Hut zählt, knapp daneben nicht, Bambus hält auf, über den Teich geht, Puppe fällt und steht wieder auf, Tempo gezoomt; im Browser allein (Zoom, Treffer auf die Puppe in der Mitte, Leuchtspur, Ring, Gewehr) und in der Party mit zwei Tabs (Gast zoomt und trifft eine Puppe auf seinem Bildschirm), keine Fehler. Nicht getestet: Zielen und Zoomen mit der echten Maus (Pointer Lock), wie sich Schüsse anfühlen, Safari, Bildrate auf dem MacBook Air
+**Geänderte Dateien:** games/teleport-snipe/config.js, games/teleport-snipe/sim.js, games/teleport-snipe/map.js, games/teleport-snipe/host.js, games/teleport-snipe/guest.js, games/teleport-snipe/controls.js, games/teleport-snipe/hud.js, games/teleport-snipe/index.html, games/teleport-snipe/game.js, games/teleport-snipe/playerView.js, games/teleport-snipe/viewModel.js (neu), games/teleport-snipe/effects.js (neu), games/teleport-snipe/game.json, docs/DECISIONS.md, docs/TELEPORT-SNIPE.md, docs/ROADMAP.md, PROTOKOLL.md
+**Commit-Message:** `[v67] feat(teleport-snipe): add the rifle with zoom, hitscan shots, spread, reload, tracers and test dummies`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 66 – 2026-11-17 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Teleport Snipe, Schritt 2: der Tempelgarten (Daten und Aussehen), Bewegung aus der Ich-Sicht mit Kollisionen, Springen, Ducken, Rutschen, Treppen
 **Änderungen:**
@@ -30,7 +48,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Getestet: mit einem Testskript die Bewegungsregeln (Tempo, Anhalten, Sprunghöhe 1,30 m, Rutschlänge 6,7 m, Pagodentreppe bis auf den Balkon, Geländer halten, Sprung über das Geländer, Kopf unter dem Vordach, Teehaus-Stufen, Hügel, Brücke, Teich gesperrt, Startpunkte frei); im Browser allein (über den Hügel bis unter die Glocke, Ducken hinter der Mauer) und in der Party mit zwei Tabs (Gast läuft, keine Fehler). Nicht getestet: Maus (Pointer Lock), wie sich die Bewegung anfühlt, Bildrate auf einem MacBook Air, Safari. Im Browser-Fenster von Claude laufen Bilder nur mit einem Test-Takt, der nicht im Spielcode steckt
 **Geänderte Dateien:** games/teleport-snipe/map.js, games/teleport-snipe/mapView.js, games/teleport-snipe/sim.js (neu), games/teleport-snipe/config.js, games/teleport-snipe/host.js, games/teleport-snipe/guest.js, games/teleport-snipe/game.js, games/teleport-snipe/game.json, docs/DECISIONS.md, docs/TELEPORT-SNIPE.md, docs/ROADMAP.md, PROTOKOLL.md
 **Commit-Message:** `[v66] feat(teleport-snipe): add the temple garden and first person movement with jumping, crouching and sliding`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`d18117d`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/d18117d)
 
 ## Version 65 – 2026-11-17 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Teleport Snipe nach docs/TELEPORT-SNIPE.md bauen, Schritt für Schritt mit Übergabe nach jedem Schritt; hier Schritt 1: Ordner, game.json als Entwurf, Menü mit Farben und Mausgeschwindigkeits-Regler, Party-Verbindung, Spielstart allein und mit zwei Tabs

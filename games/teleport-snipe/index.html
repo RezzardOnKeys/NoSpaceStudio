@@ -52,6 +52,27 @@
       #hint { position: absolute; left: 50%; bottom: 40px; transform: translateX(-50%); max-width: 90vw; padding: 6px 14px; font-size: 15px; font-weight: 700; background: var(--paper); border: 2px solid var(--ink); border-radius: 3px; box-shadow: 0 3px 0 rgba(36,25,18,.35); }
       #hint:empty { display: none; }
       #cross { position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 1.5px var(--ink); }
+      /* Zoomed: a round scope view with a black edge and thin cross lines. */
+      #scope { position: absolute; inset: 0; overflow: hidden; opacity: 0; }
+      #scope .lens { position: absolute; left: 50%; top: 50%; width: 92vmin; height: 92vmin; margin: -46vmin 0 0 -46vmin; border-radius: 50%; box-shadow: 0 0 0 100vmax #0b0907, inset 0 0 0 6px #0b0907, inset 0 0 40px 18px rgba(0,0,0,.55); }
+      #scope .line { position: absolute; background: rgba(11,9,7,.9); }
+      #scope .h { left: calc(50% - 46vmin); right: calc(50% - 46vmin); top: 50%; height: 1.5px; margin-top: -0.75px; }
+      #scope .v { top: calc(50% - 46vmin); bottom: calc(50% - 46vmin); left: 50%; width: 1.5px; margin-left: -0.75px; }
+      /* Thicker posts towards the edge, like a real reticle. */
+      #scope .h.post { height: 5px; margin-top: -2.5px; }
+      #scope .h.post.l { right: calc(50% + 12vmin); }
+      #scope .h.post.r { left: calc(50% + 12vmin); }
+      #scope .v.post { width: 5px; margin-left: -2.5px; top: calc(50% + 12vmin); }
+      /* A ring around the middle that fills during the reload. */
+      #reload { position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; margin: -22px; transform: rotate(-90deg); }
+      #reload circle { fill: none; stroke-width: 3.5; }
+      #reload .track { stroke: rgba(36,25,18,.35); }
+      #reload .fill { stroke: #fff; stroke-linecap: round; stroke-dasharray: 100.5; filter: drop-shadow(0 0 1px rgba(0,0,0,.8)); }
+      /* Hit marker: a short white cross. */
+      #hitMarker { position: absolute; left: 50%; top: 50%; width: 34px; height: 34px; margin: -17px; opacity: 0; }
+      #hitMarker::before, #hitMarker::after { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 3px; margin-left: -1.5px; background: linear-gradient(#fff 0 32%, transparent 32% 68%, #fff 68%); filter: drop-shadow(0 0 1.5px rgba(0,0,0,.9)); }
+      #hitMarker::before { transform: rotate(45deg); }
+      #hitMarker::after { transform: rotate(-45deg); }
 
       /* ---- Menu: a wooden plaque at the left, the garden stays visible ---- */
       #menu { display: flex; align-items: center; padding: 0 clamp(12px, 6vw, 96px); background: linear-gradient(90deg, rgba(36,25,18,.55), rgba(36,25,18,0) 75%); }
@@ -112,7 +133,20 @@
         </div>
         <div id="firstTo"></div>
       </div>
+      <div id="scope">
+        <div class="lens"></div>
+        <div class="line h"></div>
+        <div class="line v"></div>
+        <div class="line h post l"></div>
+        <div class="line h post r"></div>
+        <div class="line v post"></div>
+      </div>
       <div id="cross"></div>
+      <svg id="reload" viewBox="0 0 44 44" aria-hidden="true">
+        <circle class="track" cx="22" cy="22" r="16" />
+        <circle class="fill" id="reloadFill" cx="22" cy="22" r="16" />
+      </svg>
+      <div id="hitMarker" aria-hidden="true"></div>
       <div id="status" role="status"></div>
       <div id="hint" role="status"></div>
     </div>

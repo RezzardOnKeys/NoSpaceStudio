@@ -8,12 +8,14 @@
 // full plan is docs/TELEPORT-SNIPE.md):
 //   config.js     every number that can be tuned
 //   map.js        the temple garden as numbers (boxes, stairs, start points)
-//   sim.js        the rules: moving, jumping, crouching, sliding, collisions
+//   sim.js        the rules: moving, jumping, crouching, sliding, collisions,
+//                 the reload and where a shot ends
 //   host.js       the referee; the list of all party messages is at its top
 //   guest.js      the guest's copy of a party match
 //   net.js        party connection with PeerJS, ticker.js a clock for hidden tabs
 //   scene.js      the 3D view (mapView.js the garden, playerView.js the
-//                 other player)
+//                 other player and the target dummies, viewModel.js the own
+//                 rifle, effects.js tracers and hit flashes)
 //   controls.js   keyboard, mouse and the mouse speed slider
 //   lobby.js      the menu before a match, hud.js the display during a match
 //   game.js       this file
@@ -24,6 +26,8 @@ import { bodyHeight } from './sim.js';
 import { createScene } from './scene.js';
 import { buildMapView } from './mapView.js';
 import { PlayerView } from './playerView.js';
+import { createViewModel } from './viewModel.js';
+import { createEffects } from './effects.js';
 import { createControls } from './controls.js';
 import { createLobby } from './lobby.js';
 import { showHud, setHudPlayers, updateHud } from './hud.js';
@@ -58,6 +62,13 @@ const { renderer, scene, camera } = createScene(canvas);
 scene.add(buildMapView());
 // Players who asked their system for less motion get a still menu camera.
 const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const rifle = createViewModel(calm);
+const effects = createEffects();
+scene.add(effects.group);
+// The garden first, then the own rifle on top of it (its own depth).
+renderer.autoClear = false;
+// The straw colour of the target dummies.
+const STRAW = 0xd8c28a;
 
 // Who runs the match: the referee here, or a copy of the host's match.
 const match =
@@ -69,6 +80,10 @@ let other = null; // the other player's figure
 let me = null; // the player's own body in the rules (sim.js)
 let eyeY = 0; // the camera's height above the ground, smoothed
 let eyeLift = CONFIG.look.eyeHeight; // eye height above the feet (lower when crouching)
+let zoom = 0; // 0 = normal view, 1 = fully zoomed in
+let kick = 0; // the recoil: how far the view is lifted right now (radians)
+let hitT = 0; // seconds the hit marker is still shown
+let dummyViews = []; // one figure per target dummy
 let clock = 0; // seconds since the page loaded (for the camera in the menu)
 let notice = ''; // a network notice shown during a match
 
@@ -161,6 +176,10 @@ function beginMatch() {
   if (other) scene.remove(other.group);
   other = new PlayerView(PALETTE[menu.colors[OTHER_SEAT]].hex);
   scene.add(other.group);
+  for (const v of dummyViews) scene.remove(v.group);
+  dummyViews = match.dummies.map(() => new PlayerView(STRAW));
+  for (const v of dummyViews) scene.add(v.group);
+  rifle.setColor(PALETTE[menu.colors[MY_SEAT]].hex);
   resetView();
   notice = '';
   state = match.state;
@@ -181,6 +200,9 @@ function resetView() {
   controls.pitch = 0;
   eyeY = me.y;
   eyeLift = CONFIG.look.eyeHeight;
+  zoom = 0;
+  kick = 0;
+  hitT = 0;
 }
 
 function toMenu() {
@@ -190,6 +212,8 @@ function toMenu() {
   showHud(false);
   if (other) scene.remove(other.group);
   other = null;
+  for (const v of dummyViews) scene.remove(v.group);
+  dummyViews = [];
   lobby.show(true);
   renderLobby();
 }
@@ -333,6 +357,84 @@ function readInput(dt) {
   inp.yaw = controls.yaw;
   inp.jump = controls.down('Space');
   inp.crouch = controls.down('ShiftLeft') || controls.down('ShiftRight') || controls.down('KeyC');
+  inp.zoom = controls.zooming();
+}
+
+// ---- The rifle ------------------------------------------------------------------
+const TAN_FOV = Math.tan(THREE.MathUtils.degToRad(CONFIG.look.fov / 2));
+const TAN_ZOOM = Math.tan(THREE.MathUtils.degToRad(CONFIG.rifle.zoomFov / 2));
+
+/** Zooms in or out at the speed from config.js and sets the field of view. */
+function updateZoom(dt) {
+  const R = CONFIG.rifle;
+  const want = inMatch() && controls.zooming();
+  zoom = want ? Math.min(1, zoom + dt / R.zoomIn) : Math.max(0, zoom - dt / R.zoomOut);
+  // Zooming in the tangent of the angle feels even from start to end.
+  const tanHalf = TAN_FOV + (TAN_ZOOM - TAN_FOV) * zoom;
+  const fov = THREE.MathUtils.radToDeg(2 * Math.atan(tanHalf));
+  if (Math.abs(camera.fov - fov) > 0.001) {
+    camera.fov = fov;
+    camera.updateProjectionMatrix();
+  }
+  // The mouse turns the view slower in the same measure as the picture grows.
+  controls.zoomScale = tanHalf / TAN_FOV;
+}
+
+const aim = new THREE.Vector3();
+const side = new THREE.Vector3();
+const lift = new THREE.Vector3();
+const from = new THREE.Vector3();
+const to = new THREE.Vector3();
+const screen = new THREE.Vector2();
+const ray = new THREE.Raycaster();
+
+/** A direction up to `degrees` off the crosshair, evenly spread over a circle. */
+function spreadAim(degrees) {
+  const euler = new THREE.Euler(controls.pitch, controls.yaw, 0, 'YXZ');
+  aim.set(0, 0, -1).applyEuler(euler);
+  if (degrees <= 0) return aim;
+  side.set(1, 0, 0).applyEuler(euler);
+  lift.set(0, 1, 0).applyEuler(euler);
+  const off = Math.tan(THREE.MathUtils.degToRad(degrees) * Math.sqrt(Math.random()));
+  const turn = Math.random() * Math.PI * 2;
+  return aim.addScaledVector(side, Math.cos(turn) * off).addScaledVector(lift, Math.sin(turn) * off).normalize();
+}
+
+/** Pulls the trigger if the player pressed it: the shot hits at once. */
+function shoot() {
+  if (!controls.takeShot() || state !== 'playing') return;
+  // Without zoom the shot goes somewhere around the crosshair; fully zoomed exactly on it.
+  const dir = spreadAim(CONFIG.rifle.spread * (1 - zoom));
+  const eye = camera.position;
+  const result = match.shoot(MY_SEAT, { ox: eye.x, oy: eye.y, oz: eye.z, dx: dir.x, dy: dir.y, dz: dir.z });
+  if (!result) return; // still reloading
+  to.set(result.x, result.y, result.z);
+  // The tracer starts at the muzzle as it is seen on the screen; zoomed in
+  // (no rifle visible) just below the eyes.
+  if (zoom < 0.6) {
+    ray.setFromCamera(rifle.muzzleOnScreen(screen), camera);
+    from.copy(ray.ray.origin).addScaledVector(ray.ray.direction, 0.7);
+  } else {
+    from.copy(eye).addScaledVector(dir, 0.6);
+    from.y -= 0.12;
+  }
+  const color = PALETTE[menu.colors[MY_SEAT]].hex;
+  effects.tracer(from, to, color);
+  effects.impact(to, result.target ? 0xffffff : color);
+  if (result.target) hitT = CONFIG.rifle.hitMarkerTime;
+  rifle.kick();
+  if (!calm) kick += CONFIG.rifle.kick;
+}
+
+/** Hit dummies fall over backwards and stand up again. */
+function updateDummies(dt) {
+  match.dummies.forEach((d, i) => {
+    const v = dummyViews[i];
+    if (!v) return;
+    v.place(d.x, d.y, d.z, Math.atan2(d.x, d.z));
+    const want = d.down > 0 ? Math.PI / 2 : 0;
+    v.group.rotation.x += (want - v.group.rotation.x) * (1 - Math.exp(-(d.down > 0 ? 18 : 6) * dt));
+  });
 }
 
 // ---- Main loop ------------------------------------------------------------------
@@ -376,7 +478,11 @@ function firstPerson(dt) {
   eyeLift += (lift - eyeLift) * (1 - Math.exp(-L.crouchBlend * dt));
   // Never higher than the body allows (when standing up under a roof).
   camera.position.set(x, eyeY + Math.min(eyeLift, bodyHeight(me) - 0.1), z);
-  camera.rotation.set(controls.pitch, controls.yaw, 0);
+  // The recoil lifts the view for a moment; the aim itself does not move.
+  kick *= Math.exp(-CONFIG.rifle.kickBack * dt);
+  camera.rotation.set(controls.pitch + kick, controls.yaw, 0);
+  const speed = Math.min(1, Math.hypot(me.vx, me.vz) / CONFIG.move.runSpeed);
+  rifle.update(dt, me.grounded ? speed : 0, me.reload / CONFIG.rifle.reload, zoom);
 }
 
 /** The other player's figure stands where that player is. */
@@ -398,11 +504,15 @@ function frame() {
   requestAnimationFrame(frame);
   const dt = elapsed();
   advance(dt);
+  updateZoom(dt);
+  hitT = Math.max(0, hitT - dt);
   if (state === 'menu') {
     menuCamera();
   } else {
     firstPerson(dt);
+    shoot();
     placeOther();
+    updateDummies(dt);
     updateHud({
       state,
       countdown: match.countdown,
@@ -410,8 +520,17 @@ function frame() {
       other: match.scores[OTHER_SEAT],
       locked: controls.locked(),
       notice,
+      zoom,
+      reload: me.reload / CONFIG.rifle.reload,
+      hit: hitT / CONFIG.rifle.hitMarkerTime,
     });
   }
+  effects.update(dt);
+  renderer.clear();
   renderer.render(scene, camera);
+  if (state !== 'menu') {
+    renderer.clearDepth();
+    renderer.render(rifle.scene, rifle.camera);
+  }
 }
 requestAnimationFrame(frame);

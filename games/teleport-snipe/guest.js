@@ -7,7 +7,7 @@
 
 import { CONFIG, MAX_PLAYERS, STEP } from './config.js';
 import { startOf } from './map.js';
-import { createPlayer, placePlayer, movePlayer } from './sim.js';
+import { createPlayer, placePlayer, movePlayer, createDummies, tickDummies, fireShot } from './sim.js';
 
 const STATES = ['countdown', 'playing'];
 const num = (v, fallback = 0) => (Number.isFinite(v) ? v : fallback);
@@ -21,6 +21,7 @@ export function createMirror({ mySeat }) {
     countdown: 0,
     scores: [0, 0],
     players: Array.from({ length: MAX_PLAYERS }, (_, seat) => createPlayer(seat)),
+    dummies: createDummies(), // straw targets until the bot exists (map.js)
     get between() {
       return mirror.state === 'playing' ? stepTime / STEP : 1;
     },
@@ -29,6 +30,7 @@ export function createMirror({ mySeat }) {
     start() {
       mirror.round = 1;
       mirror.scores = new Array(MAX_PLAYERS).fill(0);
+      mirror.dummies = createDummies();
       mirror.beginRound();
     },
 
@@ -49,6 +51,7 @@ export function createMirror({ mySeat }) {
         stepTime += dt;
         while (stepTime >= STEP) {
           movePlayer(me, STEP);
+          tickDummies(mirror.dummies, STEP);
           stepTime -= STEP;
         }
       }
@@ -56,6 +59,15 @@ export function createMirror({ mySeat }) {
 
     toMenu() {
       mirror.state = 'menu';
+    },
+
+    /**
+     * The guest shoots. Until step 5 of the plan the shot is decided on the
+     * guest's own screen; then the host will decide it.
+     */
+    shoot(seat, shot) {
+      if (mirror.state !== 'playing') return null;
+      return fireShot(mirror.players[seat], shot, mirror.players, mirror.dummies);
     },
 
     /** Takes over a report from the host. Every value is checked: it comes from another computer. */

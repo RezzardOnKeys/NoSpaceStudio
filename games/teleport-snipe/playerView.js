@@ -29,8 +29,10 @@ export class PlayerView {
   /** color: the coat colour as a number (0xrrggbb). */
   constructor(color) {
     this.group = new THREE.Group();
+    // Turn first, then tip over: a falling figure falls along its own facing.
+    this.group.rotation.order = 'YXZ';
     const g = this.group;
-    part(g,new THREE.CylinderGeometry(0.26, 0.42, 1.3, 10), color, 0, 0.65, 0);
+    part(g, new THREE.CylinderGeometry(0.26, 0.42, 1.3, 10), color, 0, 0.65, 0);
     part(g, new THREE.CylinderGeometry(0.2, 0.26, 0.22, 10), color, 0, 1.38, 0); // shoulders
     part(g, new THREE.SphereGeometry(0.2, 12, 10), SKIN, 0, 1.6, 0);
     part(g, new THREE.ConeGeometry(0.42, 0.22, 14), STRAW, 0, 1.8, 0); // hat

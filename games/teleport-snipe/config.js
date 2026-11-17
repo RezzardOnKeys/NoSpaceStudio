@@ -39,6 +39,24 @@ export const CONFIG = {
     minSpeed: 5, // only when running at least this fast
     steer: 2.5, // how much the keys bend the slide (radians per second)
   },
+  // ── The rifle ───────────────────────────────────────────────
+  rifle: {
+    reload: 1, // seconds after every shot (a fixed rule of the game, not for tuning)
+    zoomFov: 22, // field of view when fully zoomed in
+    zoomIn: 0.12, // seconds to zoom in ...
+    zoomOut: 0.08, // ... and out
+    zoomSpeed: 0.55, // moving speed while zoomed, as a share of the normal speed
+    spread: 7, // without zoom a shot goes up to this many degrees off the crosshair
+    range: 150, // metres; nothing in the garden is further away
+    // The body that a shot can hit is a little wider and higher than the
+    // body that bumps into walls, so it matches the coat and the hat.
+    hitRadius: 0.42,
+    hitExtra: 0.15,
+    kick: 0.03, // recoil: the view jumps up this far (radians) and settles again
+    kickBack: 14, // how fast it settles (per second)
+    tracerTime: 0.4, // seconds a tracer line takes to fade out
+    hitMarkerTime: 0.3,
+  },
   // ── Rounds and the match ────────────────────────────────────
   match: {
     countdown: 3, // seconds before a round: look around, no moving or shooting

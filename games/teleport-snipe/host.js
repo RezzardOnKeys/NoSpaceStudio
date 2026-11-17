@@ -23,7 +23,7 @@
 
 import { CONFIG, MAX_PLAYERS, STEP } from './config.js';
 import { startOf } from './map.js';
-import { createPlayer, placePlayer, movePlayer } from './sim.js';
+import { createPlayer, placePlayer, movePlayer, createDummies, tickDummies, fireShot } from './sim.js';
 
 /** localSeats: the seats whose keys are read in this browser. */
 export function createReferee({ localSeats }) {
@@ -34,6 +34,7 @@ export function createReferee({ localSeats }) {
     countdown: 0, // seconds left before the round starts
     scores: [0, 0], // won rounds per seat
     players: Array.from({ length: MAX_PLAYERS }, (_, seat) => createPlayer(seat)),
+    dummies: createDummies(), // straw targets until the bot exists (map.js)
     /** How far the picture is between the last two steps of the rules (0..1). */
     get between() {
       return ref.state === 'playing' ? stepTime / STEP : 1;
@@ -43,6 +44,7 @@ export function createReferee({ localSeats }) {
     start() {
       ref.round = 1;
       ref.scores = new Array(MAX_PLAYERS).fill(0);
+      ref.dummies = createDummies();
       ref.beginRound();
     },
 
@@ -68,6 +70,7 @@ export function createReferee({ localSeats }) {
         stepTime += dt;
         while (stepTime >= STEP) {
           for (const seat of localSeats) movePlayer(ref.players[seat], STEP);
+          tickDummies(ref.dummies, STEP);
           stepTime -= STEP;
         }
       }
@@ -75,6 +78,12 @@ export function createReferee({ localSeats }) {
 
     toMenu() {
       ref.state = 'menu';
+    },
+
+    /** A player shoots (see fireShot in sim.js); only while a round is played. */
+    shoot(seat, shot) {
+      if (ref.state !== 'playing') return null;
+      return fireShot(ref.players[seat], shot, ref.players, ref.dummies);
     },
 
     /** The state of the match for the guest. */

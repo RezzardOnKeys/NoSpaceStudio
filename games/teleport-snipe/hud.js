@@ -1,7 +1,9 @@
 // Teleport Snipe – the display during a match: the score on a paper strip
 // at the top (own side left, opponent right, "First to 3"), the big text in
-// the middle (countdown) and a hint at the bottom. The round card and the
-// result are added in step 4 of the plan.
+// the middle (countdown), a hint at the bottom, and around the middle of
+// the screen the crosshair dot, the scope when zoomed, the reload ring and
+// the hit marker. The round card and the result are added in step 4 of the
+// plan.
 
 import { CONFIG } from './config.js';
 import { css } from './lobby.js';
@@ -30,11 +32,21 @@ function put(key, id, text) {
   $(id).textContent = text;
 }
 
+// The length of the reload ring's circle (2 * pi * 16).
+const RING = 100.5;
+
 /**
- * s: { state, countdown, mine, other, locked, notice }
- * locked: the mouse is caught by the game; notice: a network problem.
+ * s: { state, countdown, mine, other, locked, notice, zoom, reload, hit }
+ * locked: the mouse is caught by the game; notice: a network problem;
+ * zoom: 0..1; reload: 0..1 how much of the reload is left; hit: 0..1 how
+ * much of the hit marker's time is left.
  */
 export function updateHud(s) {
+  $('scope').style.opacity = String(Math.min(1, s.zoom * 1.6));
+  $('cross').style.opacity = String(1 - Math.min(1, s.zoom * 2));
+  $('reload').style.opacity = s.reload > 0 ? '1' : '0';
+  $('reloadFill').style.strokeDashoffset = String(RING * s.reload);
+  $('hitMarker').style.opacity = String(s.hit);
   put('mine', 'myScore', String(s.mine));
   put('other', 'otherScore', String(s.other));
   put('status', 'status', s.state === 'countdown' ? String(Math.max(1, Math.ceil(s.countdown))) : '');

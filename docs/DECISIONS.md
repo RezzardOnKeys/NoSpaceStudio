@@ -1169,6 +1169,30 @@ something open, these defaults were chosen (the list grows with every step):
   away) keeps them apart where it matters.
 - In a party, each screen moves only its own player until step 5; the
   other player's figure stands at its start point until then.
+- **Step 3 (the rifle):** "spread within about 7°" is read as: without
+  zoom a shot lands up to 7° away from the crosshair, evenly spread over
+  that circle. While zooming in, the spread shrinks with the zoom (none
+  when fully zoomed). Zooming is measured in the angle's tangent, so the
+  picture grows evenly; the mouse (and the arrow keys) turn the view
+  slower in the same measure.
+- The first click into the game only catches the mouse and does not
+  shoot. A click during the reload is ignored (not saved for later).
+- A shot starts at the eyes (the camera) and can hit a body that is a
+  little wider (0.84 m) and higher (+0.15 m, the hat) than the body that
+  bumps into walls. Tree crowns, bamboo, rocks, walls, railings and roofs
+  stop a shot; the invisible blocks over the pond do not.
+- The recoil only lifts the picture for a moment; the aim does not move.
+  With reduced motion the picture does not jump (the rifle still kicks).
+- The own rifle is drawn in its own small scene on top of the garden, so
+  it never sinks into a wall, with a sleeve in the coat colour; it works
+  the bolt during the reload and is hidden when zoomed in.
+- Tracers are a white line in a sleeve of the shooter's colour with normal
+  (not glowing) colours, because glowing colours almost vanish against
+  the bright gravel.
+- Seven straw dummies (map.js) stand around the garden to try the rifle.
+  A hit dummy falls over and stands up after 1.5 s. They are removed when
+  the bot arrives (step 6). Until step 5 a guest's shots are decided on
+  the guest's own screen.
 
 **Why:** The plan asks to record every choice made while building. The
 proven connection code keeps party matches reliable, and the menu gets a

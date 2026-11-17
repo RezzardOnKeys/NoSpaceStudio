@@ -1,6 +1,8 @@
 // Teleport Snipe – keyboard and mouse. Keeps the list of pressed keys, the
-// view direction (yaw and pitch) and catches the mouse inside the game
-// ("pointer lock"), so it can turn the view without leaving the window.
+// view direction (yaw and pitch), the rifle's buttons (hold the right
+// button or Q to zoom, left click or E to shoot) and catches the mouse
+// inside the game ("pointer lock"), so it can turn the view without
+// leaving the window.
 
 import { CONFIG } from './config.js';
 
@@ -27,11 +29,24 @@ function loadSpeed() {
 export function createControls(canvas, inMatch) {
   const keys = new Set();
   const clampPitch = (p) => Math.max(PITCH_MIN, Math.min(PITCH_MAX, p));
+  let shotQueued = false;
   const c = {
     yaw: 0,
     pitch: 0,
     speed: loadSpeed(),
+    // While zoomed the mouse turns the view slower by this factor, so aiming
+    // feels the same at every zoom level (set by game.js every frame).
+    zoomScale: 1,
+    zoomHeld: false, // the right mouse button is held
     down: (code) => keys.has(code),
+    /** True once for every press of the trigger (left click or E). */
+    takeShot() {
+      const fire = shotQueued;
+      shotQueued = false;
+      return fire;
+    },
+    /** Zoom is wanted: right mouse button or Q held. */
+    zooming: () => c.zoomHeld || keys.has('KeyQ'),
     locked: () => document.pointerLockElement === canvas,
 
     lock() {
@@ -73,25 +88,46 @@ export function createControls(canvas, inMatch) {
     turnWithKeys(dt) {
       const L = CONFIG.look;
       const k = (code) => (keys.has(code) ? 1 : 0);
-      c.yaw += (k('ArrowLeft') - k('ArrowRight')) * L.keyTurn * dt;
-      c.pitch = clampPitch(c.pitch + (k('ArrowUp') - k('ArrowDown')) * L.keyTurn * 0.6 * dt);
+      const turn = L.keyTurn * c.zoomScale * dt;
+      c.yaw += (k('ArrowLeft') - k('ArrowRight')) * turn;
+      c.pitch = clampPitch(c.pitch + (k('ArrowUp') - k('ArrowDown')) * turn * 0.6);
     },
   };
 
-  canvas.addEventListener('mousedown', () => {
-    if (inMatch() && !c.locked()) c.lock();
+  canvas.addEventListener('mousedown', (e) => {
+    if (!inMatch()) return;
+    // The first click only catches the mouse; it does not shoot.
+    if (!c.locked()) {
+      c.lock();
+      return;
+    }
+    if (e.button === 0) shotQueued = true;
+    if (e.button === 2) c.zoomHeld = true;
+  });
+  window.addEventListener('mouseup', (e) => {
+    if (e.button === 2) c.zoomHeld = false;
+  });
+  // The right button belongs to the zoom, not to the browser's menu.
+  canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+  document.addEventListener('pointerlockchange', () => {
+    if (!c.locked()) c.zoomHeld = false;
   });
   window.addEventListener('mousemove', (e) => {
     if (!c.locked()) return;
-    c.yaw -= e.movementX * CONFIG.look.mouseSens * c.speed;
-    c.pitch = clampPitch(c.pitch - e.movementY * CONFIG.look.mouseSens * c.speed);
+    const sens = CONFIG.look.mouseSens * c.speed * c.zoomScale;
+    c.yaw -= e.movementX * sens;
+    c.pitch = clampPitch(c.pitch - e.movementY * sens);
   });
   window.addEventListener('keydown', (e) => {
     keys.add(e.code);
+    if (inMatch() && e.code === 'KeyE' && !e.repeat) shotQueued = true;
     if (inMatch() && GAME_KEYS.includes(e.code)) e.preventDefault();
   });
   window.addEventListener('keyup', (e) => keys.delete(e.code));
-  window.addEventListener('blur', () => keys.clear());
+  window.addEventListener('blur', () => {
+    keys.clear();
+    c.zoomHeld = false;
+  });
 
   return c;
 }
