@@ -15,6 +15,21 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 65 – 2026-11-17 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Teleport Snipe nach docs/TELEPORT-SNIPE.md bauen, Schritt für Schritt mit Übergabe nach jedem Schritt; hier Schritt 1: Ordner, game.json als Entwurf, Menü mit Farben und Mausgeschwindigkeits-Regler, Party-Verbindung, Spielstart allein und mit zwei Tabs
+**Änderungen:**
+- Neuer Spielordner `games/teleport-snipe/` (Version 0.1.0, `"status": "draft"`, `"maxPlayers": 2`), three.js und PeerJS mit Lizenzen in `vendor/` (dieselben Dateien wie in Dust Dash)
+- Menü als hölzerne Gebetstafel an einer roten Schnur mit rotem Siegel neben dem Titel: sechs Farben als Lackscheiben (die Farbe des anderen Spielers ist ausgegraut), „The duel“ (wer gegen wen), Start bzw. Ready, „How to play“ und der Regler „Mouse speed“ (0,3× bis 3×, im Browser gespeichert)
+- Party-Verbindung aus Dust Dash übernommen (`net.js`, `ticker.js`, eigener Raumname), Nachrichtenliste oben in `host.js`; der Host ist Schiedsrichter und schickt etwa 30-mal pro Sekunde den Stand
+- Spielstart allein und in der Party: Garten vorerst nur Kies und Tempelmauer, beide Spieler stehen an ihren Startpunkten (Gegner als Figur im Mantel mit Strohhut und Gewehr), 3-Sekunden-Countdown, Anzeige oben „Name 0 : 0 Name“ mit „First to 3“; umsehen mit Maus oder Pfeiltasten. Laufen, Schießen und Runden kommen in den nächsten Schritten
+- Entscheidung 50 (Wahlen beim Bauen), Status in TELEPORT-SNIPE.md, ROADMAP und Tabelle in games/README.md
+- Commit-Hash für Version 64 nachgetragen
+- Kein News-Beitrag: das Spiel ist noch ein Entwurf und auf der echten Seite unsichtbar; die Patch Note 1.0.0 kommt in Schritt 7
+- Getestet in Chrome über den Spiele-Server: Menü am Desktop und in Handy-Breite, Spielstart allein (Countdown, Anzeige, Bot-Figur), Party mit zwei Tabs (Verbindung, Farbwahl des Gastes, vergebene Farbe gesperrt, Ready, Start, Countdown und Spielzustand beim Gast, Neuladen des Gastes mitten im Spiel bringt ihn zurück); keine Fehler in der Konsole; lint, typecheck, build. Nicht getestet: Umsehen mit der Maus (Pointer Lock kann ich nicht bedienen), Safari, Spiel im Launcher, Neuladen des Hosts
+**Geänderte Dateien:** games/teleport-snipe/ (neu: index.html, game.json, config.js, map.js, mapView.js, scene.js, playerView.js, controls.js, lobby.js, hud.js, host.js, guest.js, net.js, ticker.js, game.js, vendor/), docs/DECISIONS.md, docs/TELEPORT-SNIPE.md, docs/ROADMAP.md, games/README.md, PROTOKOLL.md
+**Commit-Message:** `[v65] feat(teleport-snipe): add menu, colours, mouse speed slider and party connection`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 64 – 2026-11-17 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Ideen für ein neues Spiel sammeln; entschieden: „Teleport Snipe“, ein Sniper-Duell 1 gegen 1, bei dem jeder Fehlschuss an eine zufällige Stelle teleportiert. Plan als Datei festhalten und einen Startprompt für den nächsten Chat schreiben
 **Änderungen:**
@@ -26,7 +41,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Nur Dokumentation, kein Spielcode; deshalb kein News-Beitrag
 **Geänderte Dateien:** docs/TELEPORT-SNIPE.md (neu), docs/ROADMAP.md, games/README.md, PROTOKOLL.md
 **Commit-Message:** `[v64] docs: plan the game Teleport Snipe`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`94b8561`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/94b8561)
 
 ## Version 63 – 2026-11-16 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Regler für die Mausgeschwindigkeit in Inkwars und Dust Dash, wie in Die Together, passend zum Design des jeweiligen Spiels

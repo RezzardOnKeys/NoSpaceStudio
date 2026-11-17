@@ -1120,3 +1120,30 @@ visible only in the Party section, and only while you are in a party.
 **Why:** Members of a party had no way to talk to each other inside the
 launcher. Keeping the chat on the Party page keeps the rest of the
 launcher and the games free of it, as requested.
+
+## 50. Teleport Snipe: built from its plan, with these choices
+
+**Decision:** Teleport Snipe (`games/teleport-snipe/`) is built step by
+step from [TELEPORT-SNIPE.md](TELEPORT-SNIPE.md). Where the plan leaves
+something open, these defaults were chosen (the list grows with every step):
+
+- **Step 1 (menu and connection):** the menu is a wooden prayer plaque on
+  a red cord with a red seal next to the title; the six colours are round
+  lacquer discs (Vermilion, Amber, Jade, Azure, Wisteria, Plum blossom).
+  The host (or the player alone) starts with Vermilion; the other side gets
+  the colour furthest away on the colour wheel. The guest presses "Ready",
+  the host "Start duel", as in Dust Dash.
+- The party connection (`net.js`) and the clock for hidden tabs
+  (`ticker.js`) are copied from Dust Dash, with the room name
+  `nss-teleport-snipe-<party code>`. three.js r187 and PeerJS are the same
+  files as in Dust Dash (`vendor/`).
+- The score strip shows the own side left and the opponent right, with
+  "First to 3" below; during the countdown a big number counts down.
+- A guest who reloads during a match gets `start` again and then the
+  current state with the next snapshot.
+- Until step 2 the garden is only gravel and the temple wall; both players
+  stand at their start points and can only look around.
+
+**Why:** The plan asks to record every choice made while building. The
+proven connection code keeps party matches reliable, and the menu gets a
+look of its own that fits the garden, like Dust Dash's parcel tag.

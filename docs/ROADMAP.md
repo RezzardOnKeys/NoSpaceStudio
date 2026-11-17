@@ -101,8 +101,9 @@ table whenever a phase is finished.
   over the internet, the mouse (pointer lock) by Claude, how strong the
   bot feels against a person** (its numbers are under `bot` in
   `config.js`). No sound yet.
-- **The sixth game is planned, not built yet:** "Teleport Snipe"
-  (`games/teleport-snipe/`), a one-on-one sniper duel in a Japanese
+- **The sixth game is being built:** "Teleport Snipe"
+  (`games/teleport-snipe/`, version 0.1.0, draft; step 1 of 8 done: menu,
+  colours, mouse speed slider, party connection), a one-on-one sniper duel in a Japanese
   temple garden: one shot, 1 s reload, every hit kills, and every shot
   that misses the opponent teleports the shooter to a completely random
   spot on the map. First to 3 rounds wins. 1 vs 1 from a party or alone
