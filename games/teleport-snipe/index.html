@@ -115,6 +115,37 @@
       .speed input::-moz-range-thumb { width: 16px; height: 16px; background: var(--red); border: 3px solid var(--ink); border-radius: 50%; }
       .speed output { min-width: 48px; padding: 0 5px; text-align: center; font-size: 13px; line-height: 1.6; font-weight: 700; background: var(--paper); border: 2px solid var(--ink); border-radius: 4px; }
 
+      #roundLabel { position: absolute; left: 0; right: 0; top: calc(30% - 34px); text-align: center; font-size: 15px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: var(--paper); text-shadow: 0 2px 0 var(--ink), 0 0 6px rgba(36,25,18,.6); }
+      /* "Teleported!" for a moment in the middle. */
+      #big { position: absolute; left: 0; right: 0; top: 60%; text-align: center; font: 700 min(44px, 9vw) var(--brush); color: var(--paper); -webkit-text-stroke: 4px var(--ink); paint-order: stroke fill; opacity: 0; }
+      #big.show { animation: big 0.9s ease-out; }
+      @keyframes big { 0% { opacity: 0; transform: scale(1.4); } 15% { opacity: 1; transform: scale(1); } 70% { opacity: 1; } 100% { opacity: 0; transform: translateY(-10px); } }
+      @media (prefers-reduced-motion: reduce) { #big.show { animation: fade 0.9s; } }
+      @keyframes fade { 0%, 100% { opacity: 0; } 15%, 70% { opacity: 1; } }
+
+      /* ---- Round card and result: a hanging paper scroll ---- */
+      .scroll { position: relative; width: min(380px, 88vw); padding: 26px 26px 24px; text-align: center; color: var(--ink); background: linear-gradient(90deg, rgba(110,80,40,.08), transparent 12%, transparent 88%, rgba(110,80,40,.08)), var(--paper); filter: drop-shadow(5px 8px 0 rgba(36,25,18,.35)); }
+      /* Wooden rods at the top and bottom of the scroll. */
+      .scroll::before, .scroll::after { content: ''; position: absolute; left: -14px; right: -14px; height: 14px; background: linear-gradient(#7a4a2a, #4a2c18); border-radius: 7px; }
+      .scroll::before { top: -10px; }
+      .scroll::after { bottom: -10px; }
+      .scroll .small { font-size: 12px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; opacity: .7; }
+      .scroll .verdict { margin: 8px 0 4px; font: 700 34px/1.15 var(--brush); }
+      .scroll .verdict.win { color: #2f7d4a; }
+      .scroll .verdict.lose { color: var(--red); }
+      .tally { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 8px; font-weight: 700; }
+      .tally .num { font: 700 34px/1 var(--brush); }
+      .tally .who { display: flex; align-items: center; gap: 6px; max-width: 34%; font-size: 14px; }
+      .tally .who span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      #card { display: flex; align-items: center; justify-content: center; pointer-events: none; }
+      #card.show .scroll { animation: unroll .35s ease-out; }
+      @keyframes unroll { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+      @media (prefers-reduced-motion: reduce) { #card.show .scroll { animation: none; } }
+      #end { display: flex; align-items: center; justify-content: center; background: rgba(36,25,18,.45); }
+      #end .verdict { font-size: 46px; }
+      #end .go { background-color: var(--red); }
+      #endNote:empty { display: none; }
+
       @media (max-width: 520px) {
         #status { font-size: 80px; }
         .plaque { padding: 64px 18px 20px; }
@@ -147,7 +178,9 @@
         <circle class="fill" id="reloadFill" cx="22" cy="22" r="16" />
       </svg>
       <div id="hitMarker" aria-hidden="true"></div>
+      <div id="roundLabel"></div>
       <div id="status" role="status"></div>
+      <div id="big" role="status"></div>
       <div id="hint" role="status"></div>
     </div>
 
@@ -179,6 +212,24 @@
             </li>
           </ul>
         </div>
+      </div>
+    </div>
+
+    <div id="card" class="layer hidden">
+      <div class="scroll">
+        <div class="small" id="cardRound"></div>
+        <div class="verdict" id="cardVerdict" role="status"></div>
+        <div class="tally" id="cardTally"></div>
+      </div>
+    </div>
+
+    <div id="end" class="layer hidden">
+      <div class="scroll">
+        <div class="small">The duel is over</div>
+        <div class="verdict" id="endVerdict" role="status"></div>
+        <div class="tally" id="endTally"></div>
+        <button type="button" class="go" id="again">Again</button>
+        <div class="note" id="endNote"></div>
       </div>
     </div>
 

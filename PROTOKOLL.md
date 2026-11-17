@@ -15,6 +15,26 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 68 – 2026-11-17 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Teleport Snipe, Schritt 4: Teleports (Stehplätze, Zufall aus dem Seed, zwei Lichtblitze), Runden mit Zeitlupe, Rundenkarte, wer zuerst 3 gewinnt, Ergebnis
+**Änderungen:**
+- Stehplätze: beim Laden ein Raster von 0,75 m auf dem Boden und auf allem, worauf man stehen darf (Balkon, Veranda, Hügel, Brücke, Felsen, niedrige Mauern …), nur wo der ganze Körper Platz hat; etwa 3500 Plätze, nie in Wänden, Bäumen, Laternen, Dächern oder im Teich
+- Neue Datei `random.js`: Zufallszahlen aus einer Zahl pro Match (Seed). Der Teleport-Platz des n-ten Schusses kommt aus Seed, Spieler und n, also auf beiden Bildschirmen gleich; Plätze näher als 1,5 m am Gegner werden übersprungen
+- Jeder Schuss, der den Gegner nicht trifft (auch auf eine Zielpuppe), teleportiert sofort an einen zufälligen Platz; Blickrichtung bleibt, man steht still; „Teleported!“ in der Mitte
+- Lichtblitz an alter und neuer Stelle: weiche Lichtsäule (3 m) in der Spielerfarbe mit weißem Kern und wirbelnden Kirschblüten, blendet in 0,6 s ein und aus, wird von Wänden verdeckt; wer darin landet, wird nicht geblendet
+- Runden: Treffer beendet die Runde sofort, Getroffener kippt um, 1,5 s Zeitlupe (Viertel-Tempo, die Leuchtspur bleibt), dann 2,5 s Rundenkarte als Papierrolle („Round 2 – You win the round“, Stand), Getroffener verschwindet in Blütenblättern; Seiten werden jede Runde getauscht; Countdown zeigt „Round N“
+- Eigene Niederlage: Sicht sinkt zu Boden und kippt leicht (bei „weniger Bewegung“ ohne Kippen)
+- Wer zuerst 3 Runden gewinnt: Ergebnis-Rolle „You win!“ / „You lose“ mit Stand, „Again“ für Host und Solo führt ins Menü, der Gast sieht „Waiting for the host…“
+- Party: Seed geht mit der Startnachricht mit; der Gast übernimmt Zeitlupe, Karte und Ergebnis vom Host und teleportiert sich bei einem Fehlschuss sofort selbst. Abgleich der Positionen und vom Host entschiedene Gast-Treffer folgen in Schritt 5
+- Kleinigkeiten beim Testen gefunden und behoben: Lichtsäulen waren vor dem hellen Kies kaum zu sehen; Leuchtspur nach einem Schuss mit Zoom kam als breiter Kegel von unten (jetzt immer aus der Mündung); Gewehr hinter dem Ergebnis versteckt; Fadenkreuz nach einem Treffer aus
+- Werte in `config.js` unter `teleport` und `match`; Entscheidung 50 ergänzt; Status in TELEPORT-SNIPE.md und ROADMAP; Version 0.4.0
+- Commit-Hash für Version 67 nachgetragen
+- Kein News-Beitrag: das Spiel ist noch ein Entwurf
+- Getestet: mit Testskripten (3000 Teleports: auf beiden Seiten gleich, nie näher als 1,5 m, nie im Hindernis; an allen 3495 Plätzen steht man fest; ganzes Match mit genauen Zeiten 3 s / 1,5 s / 2,5 s bis 3:0; ungültige Nachrichten vom Host werden abgefangen; alle Tests aus Schritt 2 und 3 noch grün); im Browser allein (Teleport mit Text, Lichtsäulen, Sieg 3:0 mit Seitenwechsel, Niederlage 0:3 mit eigenem Umfallen, „Again“ und neues Match) und in der Party mit zwei Tabs (Host trifft Gast, Gast sieht Zeitlupe, Karte „You lose the round“ und Seitenwechsel; Gast teleportiert sich bei Fehlschuss). Für die Browsertests habe ich vorübergehend einen Testzugang ins Spiel eingebaut und wieder entfernt. Nicht getestet: echte Maus, Gefühl der Zeitlupe, Safari, Bildrate
+**Geänderte Dateien:** games/teleport-snipe/random.js (neu), games/teleport-snipe/map.js, games/teleport-snipe/sim.js, games/teleport-snipe/host.js, games/teleport-snipe/guest.js, games/teleport-snipe/config.js, games/teleport-snipe/effects.js, games/teleport-snipe/playerView.js, games/teleport-snipe/viewModel.js, games/teleport-snipe/hud.js, games/teleport-snipe/index.html, games/teleport-snipe/game.js, games/teleport-snipe/game.json, docs/DECISIONS.md, docs/TELEPORT-SNIPE.md, docs/ROADMAP.md, PROTOKOLL.md
+**Commit-Message:** `[v68] feat(teleport-snipe): add teleports with flashes, rounds with slow motion, round card and result`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 67 – 2026-11-17 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Teleport Snipe, Schritt 3: das Gewehr mit Zoom, Sofort-Treffern, Streuung ohne Zoom, 1 s Nachladen, Leuchtspuren, Treffermarkierung und Zielpuppen zum Testen
 **Änderungen:**
@@ -31,7 +51,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Getestet: mit einem Testskript Treffer auf 33 m, Nachladesperre und genau 1 s, verdeckt hinter niedriger Mauer (geduckt sicher, stehend Kopf getroffen), Hut zählt, knapp daneben nicht, Bambus hält auf, über den Teich geht, Puppe fällt und steht wieder auf, Tempo gezoomt; im Browser allein (Zoom, Treffer auf die Puppe in der Mitte, Leuchtspur, Ring, Gewehr) und in der Party mit zwei Tabs (Gast zoomt und trifft eine Puppe auf seinem Bildschirm), keine Fehler. Nicht getestet: Zielen und Zoomen mit der echten Maus (Pointer Lock), wie sich Schüsse anfühlen, Safari, Bildrate auf dem MacBook Air
 **Geänderte Dateien:** games/teleport-snipe/config.js, games/teleport-snipe/sim.js, games/teleport-snipe/map.js, games/teleport-snipe/host.js, games/teleport-snipe/guest.js, games/teleport-snipe/controls.js, games/teleport-snipe/hud.js, games/teleport-snipe/index.html, games/teleport-snipe/game.js, games/teleport-snipe/playerView.js, games/teleport-snipe/viewModel.js (neu), games/teleport-snipe/effects.js (neu), games/teleport-snipe/game.json, docs/DECISIONS.md, docs/TELEPORT-SNIPE.md, docs/ROADMAP.md, PROTOKOLL.md
 **Commit-Message:** `[v67] feat(teleport-snipe): add the rifle with zoom, hitscan shots, spread, reload, tracers and test dummies`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`cbe1d25`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/cbe1d25)
 
 ## Version 66 – 2026-11-17 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Teleport Snipe, Schritt 2: der Tempelgarten (Daten und Aussehen), Bewegung aus der Ich-Sicht mit Kollisionen, Springen, Ducken, Rutschen, Treppen

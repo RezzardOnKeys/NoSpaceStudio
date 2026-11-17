@@ -1,8 +1,8 @@
 // Teleport Snipe – the rules. For now: how a player moves through the
 // garden (running, jumping, crouching, sliding, stairs) and bumps into the
-// boxes of map.js, the reload after a shot, and where a shot ends (it hits
-// at once, there is no bullet flight). Teleports and rounds are added in
-// the next steps of the plan. This file has no drawing and no network in it: the
+// boxes of map.js, the reload after a shot, where a shot ends (it hits at
+// once, there is no bullet flight) and the teleport after every miss. The
+// rounds are run by the referee (host.js). This file has no drawing and no network in it: the
 // referee (host.js) and the guest's copy (guest.js) both use it, so a
 // player moves the same way on every screen.
 //
@@ -11,7 +11,8 @@
 // towards -z, a positive yaw turns to the left.
 
 import { CONFIG } from './config.js';
-import { BOXES, DUMMIES } from './map.js';
+import { BOXES, DUMMIES, SPOTS } from './map.js';
+import { mix, randomRow } from './random.js';
 
 const EPS = 0.001;
 // A fast player moves in several small pieces per step, so it can never
@@ -37,6 +38,8 @@ export function createPlayer(seat) {
     slideT: 0, // seconds of slide left
     slideCool: 0, // seconds until the next slide is possible
     reload: 0, // seconds until the rifle can shoot again
+    shots: 0, // shots fired in this match (the teleport spot depends on it)
+    alive: true, // false once hit, until the next round
     jumpWas: false, // the jump key was held in the step before
     crouchWas: false,
     // f: forward (1) / back (-1), s: right (1) / left (-1), yaw: view
@@ -57,6 +60,7 @@ export function placePlayer(p, spot) {
   p.slideT = 0;
   p.slideCool = 0;
   p.reload = 0;
+  p.alive = true;
 }
 
 export const bodyHeight = (p) => (p.crouching ? CONFIG.move.crouchHeight : CONFIG.move.height);
@@ -366,11 +370,12 @@ export function tickDummies(dummies, dt) {
  * target is 'p<seat>' for a player and 'd<index>' for a dummy.
  */
 export function fireShot(shooter, shot, players, dummies) {
-  if (shooter.reload > 0) return null;
+  if (shooter.reload > 0 || !shooter.alive) return null;
   shooter.reload = CONFIG.rifle.reload;
+  shooter.shots += 1;
   const targets = [];
   for (const p of players) {
-    if (p !== shooter) targets.push({ x: p.x, y: p.y, z: p.z, height: bodyHeight(p), id: `p${p.seat}` });
+    if (p !== shooter && p.alive) targets.push({ x: p.x, y: p.y, z: p.z, height: bodyHeight(p), id: `p${p.seat}` });
   }
   dummies.forEach((d, i) => {
     if (d.down <= 0) targets.push({ x: d.x, y: d.y, z: d.z, height: CONFIG.move.height, id: `d${i}` });
@@ -378,4 +383,53 @@ export function fireShot(shooter, shot, players, dummies) {
   const result = castShot(shot.ox, shot.oy, shot.oz, shot.dx, shot.dy, shot.dz, targets);
   if (result.target && result.target[0] === 'd') dummies[Number(result.target.slice(1))].down = DUMMY_DOWN;
   return result;
+}
+
+// ── Teleports ─────────────────────────────────────────────────────────
+
+/**
+ * Where the n-th shot of a seat in a match sends its shooter: one of the
+ * standing spots of map.js, each with the same chance, picked from the
+ * match's seed. Spots closer than `minDistance` to another player are
+ * skipped (the next number of the same row is tried), so the answer is
+ * the same on every screen that knows where the others stand.
+ */
+export function teleportSpot(seed, seat, n, others) {
+  const next = randomRow(mix(seed, seat, n));
+  const min = CONFIG.teleport.minDistance;
+  let spot = SPOTS[0];
+  for (let tries = 0; tries < 64; tries++) {
+    spot = SPOTS[Math.floor(next() * SPOTS.length)];
+    if (others.every((o) => Math.hypot(spot.x - o.x, spot.y - o.y, spot.z - o.z) >= min)) break;
+  }
+  return spot;
+}
+
+/** Moves a player to a spot at once; the view direction stays as it was. */
+export function teleportPlayer(p, spot) {
+  p.x = p.px = spot.x;
+  p.y = p.py = spot.y;
+  p.z = p.pz = spot.z;
+  p.vx = p.vy = p.vz = 0;
+  p.grounded = true;
+  p.slideT = 0;
+}
+
+/**
+ * A shot with everything that follows from it: fireShot(), and when the
+ * shot did not hit another player, the teleport of the shooter. The
+ * answer: null if the rifle was not loaded, else { result, victim, from, to }
+ * where victim is the seat that was hit (or -1), and from / to are where
+ * the shooter teleported from and to (null without a teleport).
+ */
+export function resolveShot(seed, shooter, shot, players, dummies) {
+  const result = fireShot(shooter, shot, players, dummies);
+  if (!result) return null;
+  const victim = result.target && result.target[0] === 'p' ? Number(result.target.slice(1)) : -1;
+  if (victim >= 0) return { result, victim, from: null, to: null };
+  const from = { x: shooter.x, y: shooter.y, z: shooter.z };
+  const others = players.filter((p) => p !== shooter);
+  const to = teleportSpot(seed, shooter.seat, shooter.shots, others);
+  teleportPlayer(shooter, to);
+  return { result, victim, from, to };
 }

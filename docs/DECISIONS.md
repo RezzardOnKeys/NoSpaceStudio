@@ -1193,6 +1193,34 @@ something open, these defaults were chosen (the list grows with every step):
   A hit dummy falls over and stands up after 1.5 s. They are removed when
   the bot arrives (step 6). Until step 5 a guest's shots are decided on
   the guest's own screen.
+- **Step 4 (teleports and rounds):** the standing spots are worked out in
+  `map.js` when the game loads: a 0.75 m grid on the ground and on the top
+  of every box marked as standable, keeping only spots where the whole
+  standing body fits (about 3500 spots; about 9 % of them are raised).
+  Spots in the middle of a staircase step usually drop out, because the
+  body would overlap the next step.
+- The teleport spot comes from `random.js` (a small "mulberry32" row of
+  numbers) started from the match seed, the seat and the number of the
+  shot in the match (shots count on across rounds). Spots closer than
+  1.5 m to the other player are skipped by taking the next number of the
+  same row, so every screen that knows where the other player stands gets
+  the same spot.
+- After a teleport the player stands still (speed set to zero) and keeps
+  the view direction. Hitting a straw dummy counts as a miss (teleport).
+- The flash is a soft column of light in the player's colour with a
+  white heart and seven whirling petals; it is drawn only from outside,
+  so the player who lands inside it is not blinded. With reduced motion
+  it is weaker and the petals barely turn.
+- The hit player drops at once; their own view sinks to the ground and
+  tips a little (not with reduced motion). When the round card appears
+  the hit player vanishes in a puff of petals. During the slow motion the
+  shooter may stay zoomed in; the tracer of the deciding shot lingers
+  because it fades at the slow speed too.
+- Tracers always start at the muzzle as it sits in the normal view, also
+  for shots fired zoomed in (then they come in from the lower right).
+- The round card and the result are hanging paper scrolls; "Again" leads
+  back to the menu (as in the other games), where the host or the player
+  alone starts the next match.
 
 **Why:** The plan asks to record every choice made while building. The
 proven connection code keeps party matches reliable, and the menu gets a

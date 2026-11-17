@@ -9,15 +9,18 @@
 //   config.js     every number that can be tuned
 //   map.js        the temple garden as numbers (boxes, stairs, start points)
 //   sim.js        the rules: moving, jumping, crouching, sliding, collisions,
-//                 the reload and where a shot ends
-//   host.js       the referee; the list of all party messages is at its top
+//                 the reload, where a shot ends and the teleport after a miss
+//   random.js     the seeded random numbers (teleport spots)
+//   host.js       the referee (rounds, slow motion, score); the list of all
+//                 party messages is at its top
 //   guest.js      the guest's copy of a party match
 //   net.js        party connection with PeerJS, ticker.js a clock for hidden tabs
 //   scene.js      the 3D view (mapView.js the garden, playerView.js the
 //                 other player and the target dummies, viewModel.js the own
-//                 rifle, effects.js tracers and hit flashes)
+//                 rifle, effects.js tracers, teleport flashes and petals)
 //   controls.js   keyboard, mouse and the mouse speed slider
-//   lobby.js      the menu before a match, hud.js the display during a match
+//   lobby.js      the menu before a match, hud.js the display during a match,
+//                 the round card and the result
 //   game.js       this file
 
 import * as THREE from './vendor/three.module.js';
@@ -30,7 +33,18 @@ import { createViewModel } from './viewModel.js';
 import { createEffects } from './effects.js';
 import { createControls } from './controls.js';
 import { createLobby } from './lobby.js';
-import { showHud, setHudPlayers, updateHud } from './hud.js';
+import {
+  showHud,
+  setHudPlayers,
+  updateHud,
+  announce,
+  showCard,
+  hideCard,
+  showResult,
+  hideResult,
+  onAgain,
+} from './hud.js';
+import { newSeed } from './random.js';
 import { createReferee } from './host.js';
 import { createMirror } from './guest.js';
 import { openRoom, joinRoom } from './net.js';
@@ -63,7 +77,7 @@ scene.add(buildMapView());
 // Players who asked their system for less motion get a still menu camera.
 const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const rifle = createViewModel(calm);
-const effects = createEffects();
+const effects = createEffects(calm);
 scene.add(effects.group);
 // The garden first, then the own rifle on top of it (its own depth).
 renderer.autoClear = false;
@@ -75,7 +89,7 @@ const match =
   ROLE === 'guest' ? createMirror({ mySeat: MY_SEAT }) : createReferee({ localSeats: [MY_SEAT] });
 
 // ---- State of this player's screen --------------------------------------
-let state = 'menu'; // menu | countdown | playing
+let state = 'menu'; // menu | countdown | playing | slowmo | card | ended
 let other = null; // the other player's figure
 let me = null; // the player's own body in the rules (sim.js)
 let eyeY = 0; // the camera's height above the ground, smoothed
@@ -84,6 +98,7 @@ let zoom = 0; // 0 = normal view, 1 = fully zoomed in
 let kick = 0; // the recoil: how far the view is lifted right now (radians)
 let hitT = 0; // seconds the hit marker is still shown
 let dummyViews = []; // one figure per target dummy
+let dying = 0; // seconds since the player was hit (0 while alive)
 let clock = 0; // seconds since the page loaded (for the camera in the menu)
 let notice = ''; // a network notice shown during a match
 
@@ -101,7 +116,9 @@ let toHost = () => {}; // guest: sends a message to the host
 let guestConn = null; // host: the guest's connection
 let lastSnap = 0;
 
-const inMatch = () => state === 'countdown' || state === 'playing';
+// A match is running (the keys and the mouse belong to the game); after
+// the last round the result is shown and the mouse is free again.
+const inMatch = () => ['countdown', 'playing', 'slowmo', 'card'].includes(state);
 const controls = createControls(canvas, inMatch);
 controls.bindSpeedSlider(document.getElementById('sens'), document.getElementById('sensValue'));
 
@@ -150,8 +167,10 @@ const lobby = createLobby({
     }
     if (ROLE === 'host' && !(menu.otherHere && menu.ready)) return;
     menu.ready = false;
-    if (ROLE === 'host') toGuest({ t: 'start', hostName: PARTY.name, colors: menu.colors });
-    beginMatch();
+    // A new number for every match: the teleport spots are different each time.
+    const seed = newSeed();
+    if (ROLE === 'host') toGuest({ t: 'start', hostName: PARTY.name, colors: menu.colors, seed });
+    beginMatch(seed);
     controls.lock();
   },
 });
@@ -171,8 +190,9 @@ function renderLobby() {
 // ---- Match ------------------------------------------------------------------
 const otherLabel = () => (ROLE === 'solo' ? 'Bot' : menu.otherName);
 
-function beginMatch() {
-  match.start();
+/** seed: the number all teleport spots of the match come from (the same on both screens). */
+function beginMatch(seed) {
+  match.start(seed);
   if (other) scene.remove(other.group);
   other = new PlayerView(PALETTE[menu.colors[OTHER_SEAT]].hex);
   scene.add(other.group);
@@ -183,6 +203,8 @@ function beginMatch() {
   resetView();
   notice = '';
   state = match.state;
+  hideCard();
+  hideResult();
   lobby.show(false);
   showHud(true);
   setHudPlayers(
@@ -203,6 +225,11 @@ function resetView() {
   zoom = 0;
   kick = 0;
   hitT = 0;
+  dying = 0;
+  if (other) {
+    other.group.visible = true;
+    other.group.rotation.x = 0;
+  }
 }
 
 function toMenu() {
@@ -210,6 +237,8 @@ function toMenu() {
   match.toMenu();
   controls.unlock();
   showHud(false);
+  hideCard();
+  hideResult();
   if (other) scene.remove(other.group);
   other = null;
   for (const v of dummyViews) scene.remove(v.group);
@@ -237,10 +266,10 @@ function fromGuest(msg) {
     menu.otherName = cleanName(msg.name);
     menu.ready = false;
     notice = '';
-    if (inMatch()) {
+    if (state !== 'menu') {
       // The guest reloaded during a match: bring it back in. The next
       // snapshot tells it the round, the score and the countdown.
-      toGuest({ t: 'start', hostName: PARTY.name, colors: menu.colors });
+      toGuest({ t: 'start', hostName: PARTY.name, colors: menu.colors, seed: match.seed });
       toGuest(match.snapshot());
     } else {
       takeGuestColor(msg.color);
@@ -287,8 +316,8 @@ function fromHost(msg) {
     // A guest who reloaded has not seen the menu: the name comes along here.
     menu.otherName = cleanName(msg.hostName);
     menu.otherHere = true;
-    beginMatch();
-  } else if (msg.t === 'snap' && inMatch()) {
+    beginMatch(Number.isInteger(msg.seed) && msg.seed > 0 ? msg.seed : 1);
+  } else if (msg.t === 'snap' && state !== 'menu') {
     const round = match.round;
     match.onSnap(msg);
     if (match.round !== round) resetView();
@@ -367,7 +396,7 @@ const TAN_ZOOM = Math.tan(THREE.MathUtils.degToRad(CONFIG.rifle.zoomFov / 2));
 /** Zooms in or out at the speed from config.js and sets the field of view. */
 function updateZoom(dt) {
   const R = CONFIG.rifle;
-  const want = inMatch() && controls.zooming();
+  const want = inMatch() && controls.zooming() && dying === 0;
   zoom = want ? Math.min(1, zoom + dt / R.zoomIn) : Math.max(0, zoom - dt / R.zoomOut);
   // Zooming in the tangent of the angle feels even from start to end.
   const tanHalf = TAN_FOV + (TAN_ZOOM - TAN_FOV) * zoom;
@@ -387,6 +416,9 @@ const from = new THREE.Vector3();
 const to = new THREE.Vector3();
 const screen = new THREE.Vector2();
 const ray = new THREE.Raycaster();
+// A copy of the camera that never zooms: tracers start at the muzzle as it
+// sits in the normal view, also when the player shoots zoomed in.
+const aimCamera = new THREE.PerspectiveCamera(CONFIG.look.fov, 1, 0.08, 10);
 
 /** A direction up to `degrees` off the crosshair, evenly spread over a circle. */
 function spreadAim(degrees) {
@@ -409,21 +441,76 @@ function shoot() {
   const result = match.shoot(MY_SEAT, { ox: eye.x, oy: eye.y, oz: eye.z, dx: dir.x, dy: dir.y, dz: dir.z });
   if (!result) return; // still reloading
   to.set(result.x, result.y, result.z);
-  // The tracer starts at the muzzle as it is seen on the screen; zoomed in
-  // (no rifle visible) just below the eyes.
-  if (zoom < 0.6) {
-    ray.setFromCamera(rifle.muzzleOnScreen(screen), camera);
-    from.copy(ray.ray.origin).addScaledVector(ray.ray.direction, 0.7);
-  } else {
-    from.copy(eye).addScaledVector(dir, 0.6);
-    from.y -= 0.12;
-  }
+  // The tracer starts at the muzzle as it is seen in the normal view.
+  aimCamera.position.copy(camera.position);
+  aimCamera.quaternion.copy(camera.quaternion);
+  aimCamera.aspect = camera.aspect;
+  aimCamera.updateProjectionMatrix();
+  aimCamera.updateMatrixWorld();
+  ray.setFromCamera(rifle.muzzleOnScreen(screen), aimCamera);
+  from.copy(ray.ray.origin).addScaledVector(ray.ray.direction, 0.7);
   const color = PALETTE[menu.colors[MY_SEAT]].hex;
   effects.tracer(from, to, color);
   effects.impact(to, result.target ? 0xffffff : color);
   if (result.target) hitT = CONFIG.rifle.hitMarkerTime;
   rifle.kick();
   if (!calm) kick += CONFIG.rifle.kick;
+}
+
+// ---- Rounds -------------------------------------------------------------------
+/** Reacts when the match moves on: a hit, the round card, a new round, the end. */
+function followMatch() {
+  const now = match.state;
+  if (now === state) return;
+  state = now;
+  const kill = match.kill;
+  if (now === 'slowmo' && kill) {
+    // The hit: the victim drops at once, the game runs slowly for a moment.
+    if (kill.victim === MY_SEAT) {
+      dying = 0.001;
+      zoom = 0;
+    }
+  } else if (now === 'card' && kill) {
+    // The victim vanishes in a puff of petals; the card shows the score.
+    const v = match.players[kill.victim];
+    effects.puff(v.x, v.y + 0.6, v.z);
+    if (kill.victim === OTHER_SEAT && other) other.group.visible = false;
+    showCard(match.round, kill.shooter === MY_SEAT, match.scores[MY_SEAT], match.scores[OTHER_SEAT]);
+  } else if (now === 'countdown') {
+    hideCard();
+    resetView();
+  } else if (now === 'ended') {
+    hideCard();
+    showHud(false);
+    controls.unlock();
+    showResult({
+      won: match.scores[MY_SEAT] > match.scores[OTHER_SEAT],
+      mine: match.scores[MY_SEAT],
+      other: match.scores[OTHER_SEAT],
+      canRestart: ROLE !== 'guest',
+      note: ROLE === 'guest' ? 'Waiting for the host…' : '',
+    });
+  }
+}
+
+onAgain(() => {
+  toMenu();
+  sendLobby();
+});
+
+/** Teleports since the last frame: a flash where the player was and where they landed. */
+function showEvents() {
+  for (const e of match.events) {
+    if (e.type !== 'teleport') continue;
+    const color = PALETTE[menu.colors[e.seat]].hex;
+    effects.flash(e.from.x, e.from.y, e.from.z, color);
+    effects.flash(e.to.x, e.to.y, e.to.z, color);
+    if (e.seat === MY_SEAT) {
+      announce('Teleported!');
+      eyeY = me.y; // the camera jumps along at once
+    }
+  }
+  match.events.length = 0;
 }
 
 /** Hit dummies fall over backwards and stand up again. */
@@ -453,7 +540,7 @@ function advance(dt) {
   if (!inMatch()) return;
   readInput(dt);
   match.step(dt);
-  state = match.state;
+  followMatch();
   if (ROLE !== 'host' || !menu.otherHere) return;
   const now = performance.now();
   if (now - lastSnap >= SNAP_MS) {
@@ -480,16 +567,26 @@ function firstPerson(dt) {
   camera.position.set(x, eyeY + Math.min(eyeLift, bodyHeight(me) - 0.1), z);
   // The recoil lifts the view for a moment; the aim itself does not move.
   kick *= Math.exp(-CONFIG.rifle.kickBack * dt);
-  camera.rotation.set(controls.pitch + kick, controls.yaw, 0);
+  // When hit, the view sinks to the ground and tips to the side.
+  let roll = 0;
+  if (dying > 0) {
+    dying += dt;
+    const fall = Math.min(1, dying / 0.5);
+    camera.position.y -= fall * (camera.position.y - eyeY - 0.3);
+    roll = calm ? 0 : fall * 0.35;
+  }
+  camera.rotation.set(controls.pitch + kick, controls.yaw, roll);
   const speed = Math.min(1, Math.hypot(me.vx, me.vz) / CONFIG.move.runSpeed);
-  rifle.update(dt, me.grounded ? speed : 0, me.reload / CONFIG.rifle.reload, zoom);
+  // The own rifle is hidden while zoomed and after being hit.
+  rifle.update(dt, me.grounded ? speed : 0, me.reload / CONFIG.rifle.reload, dying > 0 ? 1 : zoom);
 }
 
-/** The other player's figure stands where that player is. */
-function placeOther() {
+/** The other player's figure stands where that player is, and drops when hit. */
+function placeOther(dt) {
   const p = match.players[OTHER_SEAT];
   const k = match.between;
   other.place(p.px + (p.x - p.px) * k, p.py + (p.y - p.py) * k, p.pz + (p.z - p.pz) * k, p.yaw);
+  other.tip(!p.alive, dt);
 }
 
 /** Behind the menu the camera circles slowly over the garden. */
@@ -509,12 +606,16 @@ function frame() {
   if (state === 'menu') {
     menuCamera();
   } else {
+    // In slow motion everything in the garden moves at a quarter of its speed.
+    const gameDt = dt * match.speed;
     firstPerson(dt);
     shoot();
-    placeOther();
-    updateDummies(dt);
+    showEvents();
+    placeOther(gameDt);
+    updateDummies(gameDt);
     updateHud({
       state,
+      round: match.round,
       countdown: match.countdown,
       mine: match.scores[MY_SEAT],
       other: match.scores[OTHER_SEAT],
@@ -525,10 +626,11 @@ function frame() {
       hit: hitT / CONFIG.rifle.hitMarkerTime,
     });
   }
-  effects.update(dt);
+  // The tracer of the deciding shot stays visible through the slow motion.
+  effects.update(dt * match.speed);
   renderer.clear();
   renderer.render(scene, camera);
-  if (state !== 'menu') {
+  if (inMatch()) {
     renderer.clearDepth();
     renderer.render(rifle.scene, rifle.camera);
   }

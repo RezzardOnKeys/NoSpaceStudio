@@ -81,7 +81,7 @@ export function createViewModel(calm) {
       const work = reload > 0 ? Math.sin(Math.min(1, (1 - reload) * 1.25) * Math.PI) : 0;
       rifle.position.set(
         REST.x + Math.sin(sway) * bob,
-        REST.y - Math.abs(Math.cos(sway)) * bob - work * 0.04 - zoom * 0.25,
+        REST.y - Math.abs(Math.cos(sway)) * bob - work * 0.04,
         REST.z + kick * kick * 0.09,
       );
       rifle.rotation.set(kick * kick * 0.18 + work * 0.15, 0, work * 0.35);

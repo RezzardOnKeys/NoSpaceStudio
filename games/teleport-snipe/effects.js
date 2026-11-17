@@ -1,15 +1,48 @@
 // Teleport Snipe – short-lived things in the garden: the bright tracer line
-// of every shot (from the gun to where it hit, fading out) and a small
-// flash where it hit. The teleport flashes and the petals are added in
-// later steps of the plan.
+// of every shot (from the gun to where it hit, fading out), a small flash
+// where it hit, the soft column of light where a player teleported from and
+// to (with a few whirling cherry petals), and the puff of petals in which a
+// hit player vanishes.
 
 import * as THREE from './vendor/three.module.js';
 import { CONFIG } from './config.js';
 
 const up = new THREE.Vector3(0, 1, 0);
 
-export function createEffects() {
+const PETAL_COLORS = [0xf6b3c9, 0xfbd3de, 0xf08fb0];
+
+/** A soft column texture: bright at the bottom, fading out towards the top and the sides. */
+function columnTexture() {
+  const c = document.createElement('canvas');
+  c.width = 64;
+  c.height = 128;
+  const g = c.getContext('2d');
+  const up = g.createLinearGradient(0, 128, 0, 0);
+  up.addColorStop(0, 'rgba(255,255,255,1)');
+  up.addColorStop(0.6, 'rgba(255,255,255,0.8)');
+  up.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = up;
+  g.fillRect(0, 0, 64, 128);
+  // Softer at the left and right edge of the picture (where the column turns away).
+  g.globalCompositeOperation = 'destination-in';
+  const side = g.createLinearGradient(0, 0, 64, 0);
+  side.addColorStop(0, 'rgba(0,0,0,0.7)');
+  side.addColorStop(0.5, 'rgba(0,0,0,1)');
+  side.addColorStop(1, 'rgba(0,0,0,0.7)');
+  g.fillStyle = side;
+  g.fillRect(0, 0, 64, 128);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+/** calm: the player asked the system for less motion (softer flashes, no whirling). */
+export function createEffects(calm) {
   const group = new THREE.Group();
+  const column = new THREE.CylinderGeometry(0.6, 0.8, 1, 16, 1, true);
+  column.translate(0, 0.5, 0);
+  const columnMap = columnTexture();
+  const petal = new THREE.PlaneGeometry(0.16, 0.11);
   const live = []; // { mesh, t, life, fade(k) }
   const core = new THREE.CylinderGeometry(1, 1, 1, 6, 1, true);
   core.translate(0, 0.5, 0); // from one end to the other, not around the middle
@@ -57,6 +90,79 @@ export function createEffects() {
     });
   }
 
+  /** A cherry petal flying along path(k) (k from 0 to 1) and fading at the end. */
+  function petalAlong(life, path) {
+    const mat = new THREE.MeshBasicMaterial({
+      color: PETAL_COLORS[Math.floor(Math.random() * PETAL_COLORS.length)],
+      side: THREE.DoubleSide,
+      transparent: true,
+    });
+    const m = new THREE.Mesh(petal, mat);
+    const spin = (Math.random() - 0.5) * 14;
+    add(m, life, (k) => {
+      path(k, m.position);
+      m.rotation.set(k * spin, k * spin * 0.7, k * 3);
+      mat.opacity = k < 0.8 ? 1 : (1 - k) * 5;
+    });
+  }
+
+  /**
+   * The flash of a teleport at the feet (x, y, z): a column of light in
+   * the player's colour that fades in and out softly, with whirling petals.
+   * The garden hides it like anything else (it does not shine through walls).
+   */
+  function flash(x, y, z, color) {
+    const T = CONFIG.teleport;
+    const peak = calm ? 0.6 : 0.95;
+    for (const [scale, hex, strength] of [
+      [1, color, 1], // the coloured column ...
+      [0.45, 0xffffff, 0.9], // ... with a white heart
+    ]) {
+      const mat = new THREE.MeshBasicMaterial({
+        color: hex,
+        map: columnMap,
+        transparent: true,
+        opacity: 0,
+        depthWrite: false,
+        // Only seen from outside: the player who lands inside a column is
+        // not blinded by it (they see the petals around them).
+        side: THREE.FrontSide,
+      });
+      const m = new THREE.Mesh(column, mat);
+      m.position.set(x, y, z);
+      m.scale.set(scale, T.flashHeight, scale);
+      add(m, T.flashTime, (k) => {
+        // Softly in and out: a half sine wave.
+        mat.opacity = Math.sin(Math.PI * k) * peak * strength;
+        m.scale.x = m.scale.z = scale * (0.8 + 0.4 * k);
+      });
+    }
+    for (let i = 0; i < T.petals; i++) {
+      const a0 = (i / T.petals) * Math.PI * 2;
+      const r = 0.5 + Math.random() * 0.4;
+      const rise = 1 + Math.random() * 1.8;
+      const turn = calm ? 0.4 : 2.5 + Math.random() * 2;
+      petalAlong(T.flashTime * 1.6, (k, out) => {
+        const a = a0 + k * turn * Math.PI;
+        out.set(x + Math.cos(a) * r * (1 + k * 0.5), y + 0.3 + k * rise, z + Math.sin(a) * r * (1 + k * 0.5));
+      });
+    }
+  }
+
+  /** A hit player vanishes in a puff of petals around (x, y, z) (the middle of the body). */
+  function puff(x, y, z) {
+    for (let i = 0; i < 26; i++) {
+      const dx = (Math.random() - 0.5) * 2;
+      const dz = (Math.random() - 0.5) * 2;
+      const up = 0.6 + Math.random() * 1.6;
+      const dy = (Math.random() - 0.5) * 1.2;
+      petalAlong(1.1 + Math.random() * 0.6, (k, out) => {
+        const e = 1 - (1 - k) * (1 - k); // fast at first, then drifting
+        out.set(x + dx * e * 1.4, y + dy + up * e - k * k * 0.8, z + dz * e * 1.4);
+      });
+    }
+  }
+
   function update(dt) {
     for (let i = live.length - 1; i >= 0; i--) {
       const e = live[i];
@@ -71,5 +177,5 @@ export function createEffects() {
     }
   }
 
-  return { group, tracer, impact, update };
+  return { group, tracer, impact, flash, puff, update };
 }

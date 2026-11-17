@@ -51,4 +51,11 @@ export class PlayerView {
     this.group.position.set(x, y, z);
     this.group.rotation.y = yaw;
   }
+
+  /** Tips the figure over (down = true) or stands it up again; call every frame. */
+  tip(down, dt) {
+    const want = down ? Math.PI / 2 : 0;
+    const rate = down ? 14 : 6;
+    this.group.rotation.x += (want - this.group.rotation.x) * (1 - Math.exp(-rate * dt));
+  }
 }

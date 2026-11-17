@@ -226,6 +226,53 @@ for (const [x, z] of [
   PROPS.push({ type: 'stone', x, z });
 }
 
+// ── Standing spots (where a teleport can land) ───────────────────────
+
+/** Body size used for the standing spots; the same numbers as `move` in config.js. */
+const BODY_RADIUS = 0.35;
+const BODY_HEIGHT = 1.75;
+const GRID = 0.75; // metres between two spots
+
+/** Does a standing body fit at this spot (no box in the way)? */
+function fits(x, y, z) {
+  const r = BODY_RADIUS;
+  return !BOXES.some(
+    (b) =>
+      b.y1 > y + 0.001 &&
+      b.y0 < y + BODY_HEIGHT - 0.001 &&
+      x + r > b.x0 &&
+      x - r < b.x1 &&
+      z + r > b.z0 &&
+      z - r < b.z1,
+  );
+}
+
+/** Spots on a grid over one flat surface (a rectangle at height y). */
+function gridOver(x0, x1, z0, z1, y, out) {
+  const start = (lo, hi) => lo + Math.min(GRID / 2, (hi - lo) / 2);
+  for (let x = start(x0, x1); x <= x1; x += GRID) {
+    for (let z = start(z0, z1); z <= z1; z += GRID) {
+      if (fits(x, y, z)) out.push({ x: Math.round(x * 1000) / 1000, y, z: Math.round(z * 1000) / 1000 });
+    }
+  }
+}
+
+/**
+ * Every place where a player can stand: a grid of about 0.75 m on the
+ * ground and on the top of every box that may be stood on (stairs,
+ * balcony, veranda, hill, bridge, rocks, low walls ...), keeping only the
+ * spots where the whole body fits. Never in a wall, tree, lantern or roof,
+ * never in the pond (its invisible blocks are in the way). Worked out once
+ * when the game loads; the order is the same on every screen.
+ */
+export const SPOTS = (() => {
+  const out = [];
+  const h = SIZE / 2 - BODY_RADIUS;
+  gridOver(-h, h, -h, h, 0, out);
+  for (const b of BOXES) if (b.stand) gridOver(b.x0, b.x1, b.z0, b.z1, b.y1, out);
+  return out;
+})();
+
 /**
  * Straw target dummies to try the rifle on, at different heights and
  * distances: in the middle, on the pagoda balcony, the tea house veranda,

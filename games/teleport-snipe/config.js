@@ -57,10 +57,20 @@ export const CONFIG = {
     tracerTime: 0.4, // seconds a tracer line takes to fade out
     hitMarkerTime: 0.3,
   },
+  // ── Teleports after a miss ──────────────────────────────────
+  teleport: {
+    minDistance: 1.5, // never land closer than this to the other player (metres)
+    flashTime: 0.6, // the column of light fades in and out within this time
+    flashHeight: 3, // high enough to be seen above low cover
+    petals: 7, // cherry petals whirling in each flash
+  },
   // ── Rounds and the match ────────────────────────────────────
   match: {
     countdown: 3, // seconds before a round: look around, no moving or shooting
     roundsToWin: 3, // first to this many won rounds wins the match
+    slowmo: 1.5, // seconds of slow motion after the hit that ends a round
+    slowmoSpeed: 0.25, // the game runs at this share of its speed in slow motion
+    cardTime: 2.5, // seconds the round card is shown before the next round
   },
 };
 
