@@ -15,6 +15,19 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 64 – 2026-11-17 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Ideen für ein neues Spiel sammeln; entschieden: „Teleport Snipe“, ein Sniper-Duell 1 gegen 1, bei dem jeder Fehlschuss an eine zufällige Stelle teleportiert. Plan als Datei festhalten und einen Startprompt für den nächsten Chat schreiben
+**Änderungen:**
+- Neuer Spielplan `docs/TELEPORT-SNIPE.md` mit allen Entscheidungen: 1 gegen 1 aus der Party oder allein gegen einen Bot; ein Schuss, immer genau 1 Sekunde nachladen; jeder Treffer tötet; ohne Zoom schießen geht, ist aber sehr ungenau; jeder Fehlschuss teleportiert an eine völlig zufällige Stelle (auch direkt vor den Gegner, kein Schutz, nur nie in Wände, Bäume oder den Teich); ein weich ein- und ausgeblendeter Lichtblitz an alter und neuer Stelle; wer zuerst 3 Runden gewinnt; keine Zeitbegrenzung; flinke Bewegung mit Springen und Rutschen; Map: japanischer Tempelgarten, mittelmäßig übersichtlich, mit Pagode, Teehaus und Hügel als erhöhten Stellen; kein Ton in Version 1.0; nach Fertigstellung direkt veröffentlicht
+- Das Schussgefühl wird mit eigenem Code und eigenen Startwerten nachgebaut (alle Werte in `config.js` zum Einstellen); fremder Spielcode wird nicht durchsucht oder übernommen
+- ROADMAP: sechstes Spiel als geplant eingetragen, verworfene Ideen von heute („Blend In“, „Headcount“) unter „Ideas for later“
+- games/README.md: Inkwars nicht mehr als Entwurf geführt (seit Version 62 veröffentlicht)
+- Commit-Hash für Version 63 nachgetragen
+- Nur Dokumentation, kein Spielcode; deshalb kein News-Beitrag
+**Geänderte Dateien:** docs/TELEPORT-SNIPE.md (neu), docs/ROADMAP.md, games/README.md, PROTOKOLL.md
+**Commit-Message:** `[v64] docs: plan the game Teleport Snipe`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 63 – 2026-11-16 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Regler für die Mausgeschwindigkeit in Inkwars und Dust Dash, wie in Die Together, passend zum Design des jeweiligen Spiels
 **Änderungen:**
@@ -27,7 +40,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Getestet in Chrome über den Spiele-Server: Aussehen am Desktop und in Handy-Breite, Ziehen am Regler, Wert bleibt nach Neuladen, Farbe folgt der Wasserfarbe (Inkwars), mit Testskript nachgemessen, dass sich die Sicht genau um den gewählten Faktor schneller oder langsamer dreht; je ein Solo-Spiel gestartet, keine Fehler in der Konsole; lint, typecheck, build, Prettier. Nicht getestet: das echte Umsehen mit der Maus (Pointer Lock kann ich nicht bedienen), Safari, Firefox (der Regler hat dort eigene Stilregeln, die ich nicht gesehen habe), Spiele im Launcher
 **Geänderte Dateien:** games/inkwars/controls.js, games/inkwars/game.js, games/inkwars/lobby.js, games/inkwars/index.html, games/inkwars/game.json, games/dust-dash/controls.js, games/dust-dash/game.js, games/dust-dash/index.html, games/dust-dash/game.json, news/2026-11-16-inkwars-1-4.md (neu), news/2026-11-16-dust-dash-1-2.md (neu), docs/ROADMAP.md, PROTOKOLL.md
 **Commit-Message:** `[v63] feat(games): add a mouse speed slider to Inkwars and Dust Dash`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`c20e4ac`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/c20e4ac)
 
 ## Version 62 – 2026-11-16 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Inkwars freischalten (stand noch auf „draft“ und war deshalb auf der echten Seite unsichtbar)

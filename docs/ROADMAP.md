@@ -101,6 +101,14 @@ table whenever a phase is finished.
   over the internet, the mouse (pointer lock) by Claude, how strong the
   bot feels against a person** (its numbers are under `bot` in
   `config.js`). No sound yet.
+- **The sixth game is planned, not built yet:** "Teleport Snipe"
+  (`games/teleport-snipe/`), a one-on-one sniper duel in a Japanese
+  temple garden: one shot, 1 s reload, every hit kills, and every shot
+  that misses the opponent teleports the shooter to a completely random
+  spot on the map. First to 3 rounds wins. 1 vs 1 from a party or alone
+  against a bot, published as soon as version 1.0 is done. The complete
+  plan is in [TELEPORT-SNIPE.md](TELEPORT-SNIPE.md). Build it from that
+  file.
 - **Games and news are files in the repository**, not database rows
   (decision 22). A game is a folder `games/<slug>/` with a `game.json`
   (store entry), an optional `description.md` and its images. A news post is
@@ -359,6 +367,14 @@ Collected in conversations with the developers; nothing decided yet.
   players and more bots (players are a list, the limit is `MAX_PLAYERS`),
   more halls, sound, drawn icons for the power-ups,
   sending the dust film to a guest who reloads.
+- **Teleport Snipe** is decided and fully planned:
+  [TELEPORT-SNIPE.md](TELEPORT-SNIPE.md). Ideas discussed for later: a
+  mode where zooming in shows the opponent what you see, sound.
+- **Other game ideas discussed on 2026-11-17 and set aside** (not
+  decided): "Blend In" (hide among identical bots on a market square, tap
+  or shoot the other player), a competitive zombie hunt on a farm
+  ("Headcount": most zombies in 5 minutes, level-up cards with upgrades or
+  sabotage).
 - **Other 3D ideas from the brainstorm** (not decided): "Other Eyes" (you
   see through your opponent's eyes), a time loop duel (your previous rounds
   play along as clones), "Echo" (dark arena, sound makes it visible),
