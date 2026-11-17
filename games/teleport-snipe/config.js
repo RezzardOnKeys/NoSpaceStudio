@@ -9,7 +9,35 @@ export const CONFIG = {
     fov: 80, // field of view without zoom
     mouseSens: 0.0022, // radians per pixel of mouse movement at speed 1×
     keyTurn: 2.2, // arrow keys, radians per second
-    eyeHeight: 1.6, // the camera's height above the ground when standing
+    eyeHeight: 1.6, // the camera's height above the feet when standing
+    crouchEyeHeight: 1.0, // ... and when crouching
+    crouchBlend: 14, // how fast the camera moves down and up when crouching (per second)
+    stepSmooth: 22, // how fast the camera follows a step up or down (per second)
+  },
+  // ── Moving: quick to start and stop, strong control in the air ──
+  move: {
+    radius: 0.35, // half the width of the body (the body is a square column)
+    height: 1.75, // body height when standing
+    crouchHeight: 1.15, // ... when crouching (fits behind the low stone walls)
+    runSpeed: 7.5,
+    crouchSpeed: 3,
+    accel: 75, // on the ground: how fast the speed follows the keys
+    decel: 65, // on the ground: how fast the player stops without keys
+    airAccel: 38, // in the air: how strongly the keys still steer
+    gravity: 24, // high gravity: jumps land fast
+    jumpHeight: 1.3, // highest point of a jump
+    maxFall: 30, // fastest fall speed
+    stepUp: 0.5, // steps up to this height are walked up by themselves
+    stepDown: 0.55, // walking down steps up to this height keeps the feet on the ground
+  },
+  // ── Sliding: crouch while running ──────────────────────────────
+  slide: {
+    startSpeed: 11, // speed at the start of a slide
+    endSpeed: 3, // after `time` seconds it has slowed down to crouch walking
+    time: 0.8,
+    cooldown: 1, // at most one slide per second
+    minSpeed: 5, // only when running at least this fast
+    steer: 2.5, // how much the keys bend the slide (radians per second)
   },
   // ── Rounds and the match ────────────────────────────────────
   match: {
@@ -27,6 +55,9 @@ export const PALETTE = [
   { hex: 0x9461d6, name: 'Wisteria' },
   { hex: 0xe5609d, name: 'Plum blossom' },
 ];
+
+// The rules run in fixed steps, 60 per second, no matter how fast the screen is.
+export const STEP = 1 / 60;
 
 // How many players a match has: always one against one.
 export const MAX_PLAYERS = 2;

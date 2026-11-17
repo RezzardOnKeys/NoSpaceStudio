@@ -15,6 +15,23 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 66 – 2026-11-17 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Teleport Snipe, Schritt 2: der Tempelgarten (Daten und Aussehen), Bewegung aus der Ich-Sicht mit Kollisionen, Springen, Ducken, Rutschen, Treppen
+**Änderungen:**
+- Der Garten als Daten in `map.js` (nur gerade Kästen, dazu Treppen und Startpunkte): Kiesgarten mit fünf Felsen in der Mitte, dreistöckige Pagode im Nordwesten (Balkon auf 3,6 m, elf Steinstufen), Teehaus im Osten (Veranda auf 1,5 m, vier Holzstufen), Stufenhügel im Südwesten (2 m, Glockengerüst oben), Koi-Teich mit roter Brücke im Südosten, Torii, drei Bambushaine, sieben Kirschbäume, acht Steinlaternen, sechs niedrige Steinmauern und die Tempelmauer
+- Das Aussehen in `mapView.js`: Low-Poly mit weichem Licht, geharkter Kies, Pagodendächer, Teehaus mit dunklen Balken, Teich mit Randsteinen und Kois, Bambus als ein einziges Mehrfach-Objekt (schnell)
+- Neue Datei `sim.js` mit den Bewegungsregeln in festen Schritten (60 pro Sekunde): Laufen 7,5 m/s (schnell an, schnell aus), Ducken 3 m/s, Springen 1,3 m hoch bei hoher Schwerkraft, starke Steuerung in der Luft, Rutschen beim Ducken aus dem Lauf (11 m/s, nach 0,8 s auf Ducken-Tempo, einmal pro Sekunde), Stufen bis 0,5 m werden von selbst gegangen, Kopf stößt unter Dächern an, Aufstehen nur, wo Platz ist; alle Werte in `config.js`
+- Kamera gleitet weich über Stufen und beim Ducken; der Gegner steht als Figur an seinem Startpunkt
+- In der Party bewegt sich vorerst jeder nur auf dem eigenen Bildschirm; das Abgleichen über das Netz kommt in Schritt 5
+- Kamera im Menü kreist höher und weiter, damit sie nie durch die Pagode fliegt
+- Entscheidung 50 ergänzt (u. a.: Rutschen endet bei Ducken-Tempo, Spieler stoßen nicht aneinander, Teich mit unsichtbaren Blöcken), Status in TELEPORT-SNIPE.md und ROADMAP, Version 0.2.0
+- Commit-Hash für Version 65 nachgetragen
+- Kein News-Beitrag: das Spiel ist noch ein Entwurf
+- Getestet: mit einem Testskript die Bewegungsregeln (Tempo, Anhalten, Sprunghöhe 1,30 m, Rutschlänge 6,7 m, Pagodentreppe bis auf den Balkon, Geländer halten, Sprung über das Geländer, Kopf unter dem Vordach, Teehaus-Stufen, Hügel, Brücke, Teich gesperrt, Startpunkte frei); im Browser allein (über den Hügel bis unter die Glocke, Ducken hinter der Mauer) und in der Party mit zwei Tabs (Gast läuft, keine Fehler). Nicht getestet: Maus (Pointer Lock), wie sich die Bewegung anfühlt, Bildrate auf einem MacBook Air, Safari. Im Browser-Fenster von Claude laufen Bilder nur mit einem Test-Takt, der nicht im Spielcode steckt
+**Geänderte Dateien:** games/teleport-snipe/map.js, games/teleport-snipe/mapView.js, games/teleport-snipe/sim.js (neu), games/teleport-snipe/config.js, games/teleport-snipe/host.js, games/teleport-snipe/guest.js, games/teleport-snipe/game.js, games/teleport-snipe/game.json, docs/DECISIONS.md, docs/TELEPORT-SNIPE.md, docs/ROADMAP.md, PROTOKOLL.md
+**Commit-Message:** `[v66] feat(teleport-snipe): add the temple garden and first person movement with jumping, crouching and sliding`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 65 – 2026-11-17 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Teleport Snipe nach docs/TELEPORT-SNIPE.md bauen, Schritt für Schritt mit Übergabe nach jedem Schritt; hier Schritt 1: Ordner, game.json als Entwurf, Menü mit Farben und Mausgeschwindigkeits-Regler, Party-Verbindung, Spielstart allein und mit zwei Tabs
 **Änderungen:**
@@ -28,7 +45,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Getestet in Chrome über den Spiele-Server: Menü am Desktop und in Handy-Breite, Spielstart allein (Countdown, Anzeige, Bot-Figur), Party mit zwei Tabs (Verbindung, Farbwahl des Gastes, vergebene Farbe gesperrt, Ready, Start, Countdown und Spielzustand beim Gast, Neuladen des Gastes mitten im Spiel bringt ihn zurück); keine Fehler in der Konsole; lint, typecheck, build. Nicht getestet: Umsehen mit der Maus (Pointer Lock kann ich nicht bedienen), Safari, Spiel im Launcher, Neuladen des Hosts
 **Geänderte Dateien:** games/teleport-snipe/ (neu: index.html, game.json, config.js, map.js, mapView.js, scene.js, playerView.js, controls.js, lobby.js, hud.js, host.js, guest.js, net.js, ticker.js, game.js, vendor/), docs/DECISIONS.md, docs/TELEPORT-SNIPE.md, docs/ROADMAP.md, games/README.md, PROTOKOLL.md
 **Commit-Message:** `[v65] feat(teleport-snipe): add menu, colours, mouse speed slider and party connection`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`708d4f7`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/708d4f7)
 
 ## Version 64 – 2026-11-17 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Ideen für ein neues Spiel sammeln; entschieden: „Teleport Snipe“, ein Sniper-Duell 1 gegen 1, bei dem jeder Fehlschuss an eine zufällige Stelle teleportiert. Plan als Datei festhalten und einen Startprompt für den nächsten Chat schreiben

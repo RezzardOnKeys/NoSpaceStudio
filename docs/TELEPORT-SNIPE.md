@@ -9,8 +9,8 @@ before changing it.
 Slug and folder: `games/teleport-snipe/`. Title in the store:
 **Teleport Snipe**.
 
-**Status:** in progress. Step 1 is done (version 0.1.0, draft); next is
-step 2. Choices made while building: decision 50.
+**Status:** in progress. Steps 1 and 2 are done (version 0.2.0, draft);
+next is step 3. Choices made while building: decision 50.
 
 ## The idea in one sentence
 

@@ -1141,8 +1141,34 @@ something open, these defaults were chosen (the list grows with every step):
   "First to 3" below; during the countdown a big number counts down.
 - A guest who reloads during a match gets `start` again and then the
   current state with the next snapshot.
-- Until step 2 the garden is only gravel and the temple wall; both players
-  stand at their start points and can only look around.
+- **Step 2 (garden and movement):** the garden is built from straight
+  boxes only (no rotated ones), so collisions stay simple and exact. The
+  layout: raked gravel with five rocks in the middle, the pagoda in the
+  north-west (balcony at 3.6 m, eleven stone steps on its east side), the
+  tea house in the east (veranda at 1.5 m, four wooden steps from the
+  west), a stepped hill of five 0.4 m tiers in the south-west (2 m, bell
+  frame on top), the koi pond with a red bridge in the south-east, a torii
+  on the south path, three bamboo groves, seven cherry trees, eight stone
+  lanterns and six low stone walls (one in front of each start point).
+- The body is a square column 0.7 m wide, 1.75 m high (1.15 m crouched);
+  the eyes are at 1.6 m (1.0 m crouched). Low stone walls are 1.1 m: a
+  crouching player is hidden behind them, and they can be jumped over.
+- Steps up to 0.5 m are walked up by themselves; the camera follows steps
+  softly so stairs do not jerk. A jump starts only on a new key press
+  (holding Space does not keep hopping).
+- The slide slows down to crouch walking speed (3 m/s), not to running
+  speed: "walking" in the plan was read as walking while crouched. The
+  speed stays high at first and drops towards the end; the keys bend it a
+  little. One slide per second, counted from the end of a slide. A jump
+  out of a slide keeps its speed (the air never slows a player down).
+- The pond is filled with invisible blocks beside the bridge, so nobody
+  can step or fall into it; they do not block shots or sight. Tree crowns
+  and bamboo groves block sight; the railings of the balcony and the
+  bridge are solid.
+- Players do not bump into each other; the teleport rule (at least 1.5 m
+  away) keeps them apart where it matters.
+- In a party, each screen moves only its own player until step 5; the
+  other player's figure stands at its start point until then.
 
 **Why:** The plan asks to record every choice made while building. The
 proven connection code keeps party matches reliable, and the menu gets a

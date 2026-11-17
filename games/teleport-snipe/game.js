@@ -7,7 +7,8 @@
 // The files and what they do (the list grows while the game is built, the
 // full plan is docs/TELEPORT-SNIPE.md):
 //   config.js     every number that can be tuned
-//   map.js        the temple garden as numbers (size, start points)
+//   map.js        the temple garden as numbers (boxes, stairs, start points)
+//   sim.js        the rules: moving, jumping, crouching, sliding, collisions
 //   host.js       the referee; the list of all party messages is at its top
 //   guest.js      the guest's copy of a party match
 //   net.js        party connection with PeerJS, ticker.js a clock for hidden tabs
@@ -19,7 +20,7 @@
 
 import * as THREE from './vendor/three.module.js';
 import { CONFIG, PALETTE, SNAP_MS, MAX_PLAYERS } from './config.js';
-import { startOf } from './map.js';
+import { bodyHeight } from './sim.js';
 import { createScene } from './scene.js';
 import { buildMapView } from './mapView.js';
 import { PlayerView } from './playerView.js';
@@ -59,11 +60,15 @@ scene.add(buildMapView());
 const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // Who runs the match: the referee here, or a copy of the host's match.
-const match = ROLE === 'guest' ? createMirror() : createReferee();
+const match =
+  ROLE === 'guest' ? createMirror({ mySeat: MY_SEAT }) : createReferee({ localSeats: [MY_SEAT] });
 
 // ---- State of this player's screen --------------------------------------
 let state = 'menu'; // menu | countdown | playing
 let other = null; // the other player's figure
+let me = null; // the player's own body in the rules (sim.js)
+let eyeY = 0; // the camera's height above the ground, smoothed
+let eyeLift = CONFIG.look.eyeHeight; // eye height above the feet (lower when crouching)
 let clock = 0; // seconds since the page loaded (for the camera in the menu)
 let notice = ''; // a network notice shown during a match
 
@@ -156,7 +161,7 @@ function beginMatch() {
   if (other) scene.remove(other.group);
   other = new PlayerView(PALETTE[menu.colors[OTHER_SEAT]].hex);
   scene.add(other.group);
-  placePlayers();
+  resetView();
   notice = '';
   state = match.state;
   lobby.show(false);
@@ -169,13 +174,13 @@ function beginMatch() {
   );
 }
 
-/** Both players stand at their start points of the current round. */
-function placePlayers() {
-  const mine = startOf(MY_SEAT, match.round);
-  controls.yaw = mine.yaw;
+/** The view starts at the own player, looking where the player looks. */
+function resetView() {
+  me = match.players[MY_SEAT];
+  controls.yaw = me.yaw;
   controls.pitch = 0;
-  const theirs = startOf(OTHER_SEAT, match.round);
-  other.place(theirs.x, 0, theirs.z, theirs.yaw);
+  eyeY = me.y;
+  eyeLift = CONFIG.look.eyeHeight;
 }
 
 function toMenu() {
@@ -262,7 +267,7 @@ function fromHost(msg) {
   } else if (msg.t === 'snap' && inMatch()) {
     const round = match.round;
     match.onSnap(msg);
-    if (match.round !== round) placePlayers();
+    if (match.round !== round) resetView();
   }
 }
 
@@ -317,6 +322,19 @@ if (ROLE === 'host') {
 }
 renderLobby();
 
+// ---- Input --------------------------------------------------------------------
+/** Turns keyboard and mouse into the input of the player's body. */
+function readInput(dt) {
+  controls.turnWithKeys(dt);
+  const k = (code) => (controls.down(code) ? 1 : 0);
+  const inp = me.input;
+  inp.f = k('KeyW') - k('KeyS');
+  inp.s = k('KeyD') - k('KeyA');
+  inp.yaw = controls.yaw;
+  inp.jump = controls.down('Space');
+  inp.crouch = controls.down('ShiftLeft') || controls.down('ShiftRight') || controls.down('KeyC');
+}
+
 // ---- Main loop ------------------------------------------------------------------
 let last = performance.now();
 /** Seconds since the last call, at most a tenth of a second. */
@@ -331,7 +349,7 @@ function elapsed() {
 function advance(dt) {
   clock += dt;
   if (!inMatch()) return;
-  controls.turnWithKeys(dt);
+  readInput(dt);
   match.step(dt);
   state = match.state;
   if (ROLE !== 'host' || !menu.otherHere) return;
@@ -342,27 +360,49 @@ function advance(dt) {
   }
 }
 
-/** The camera sits in the player's head at the own start point. */
-function firstPerson() {
-  const mine = startOf(MY_SEAT, match.round);
-  camera.position.set(mine.x, CONFIG.look.eyeHeight, mine.z);
+/** The camera sits in the player's head. */
+function firstPerson(dt) {
+  const L = CONFIG.look;
+  // The rules move in steps of 1/60 s; the picture glides between the last two.
+  const k = match.between;
+  const x = me.px + (me.x - me.px) * k;
+  const y = me.py + (me.y - me.py) * k;
+  const z = me.pz + (me.z - me.pz) * k;
+  // On stairs the feet jump from step to step; the camera follows softly.
+  // In the air it follows exactly, so jumps feel direct.
+  if (me.grounded && Math.abs(y - eyeY) < 0.7) eyeY += (y - eyeY) * (1 - Math.exp(-L.stepSmooth * dt));
+  else eyeY = y;
+  const lift = me.crouching ? L.crouchEyeHeight : L.eyeHeight;
+  eyeLift += (lift - eyeLift) * (1 - Math.exp(-L.crouchBlend * dt));
+  // Never higher than the body allows (when standing up under a roof).
+  camera.position.set(x, eyeY + Math.min(eyeLift, bodyHeight(me) - 0.1), z);
   camera.rotation.set(controls.pitch, controls.yaw, 0);
+}
+
+/** The other player's figure stands where that player is. */
+function placeOther() {
+  const p = match.players[OTHER_SEAT];
+  const k = match.between;
+  other.place(p.px + (p.x - p.px) * k, p.py + (p.y - p.py) * k, p.pz + (p.z - p.pz) * k, p.yaw);
 }
 
 /** Behind the menu the camera circles slowly over the garden. */
 function menuCamera() {
   const a = calm ? 0.8 : clock * 0.05;
-  camera.position.set(Math.cos(a) * 17, 7, Math.sin(a) * 17);
+  // Radius and height keep the camera clear of the pagoda and the trees.
+  camera.position.set(Math.cos(a) * 15, 8, Math.sin(a) * 15);
   camera.lookAt(Math.cos(a + 2.4) * 10, 1, Math.sin(a + 2.4) * 10);
 }
 
 function frame() {
   requestAnimationFrame(frame);
-  advance(elapsed());
+  const dt = elapsed();
+  advance(dt);
   if (state === 'menu') {
     menuCamera();
   } else {
-    firstPerson();
+    firstPerson(dt);
+    placeOther();
     updateHud({
       state,
       countdown: match.countdown,
