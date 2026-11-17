@@ -102,11 +102,13 @@ table whenever a phase is finished.
   bot feels against a person** (its numbers are under `bot` in
   `config.js`). No sound yet.
 - **The sixth game is being built:** "Teleport Snipe"
-  (`games/teleport-snipe/`, version 0.4.0, draft; steps 1 to 4 of 8 done:
+  (`games/teleport-snipe/`, version 0.5.0, draft; steps 1 to 5 of 8 done:
   menu, colours, mouse speed slider, party connection, the temple garden,
   moving, jumping, crouching, sliding, stairs, the rifle with zoom, hitscan
   shots, spread, 1 s reload, tracers, hit marker, test dummies, teleports
-  with flashes, rounds with slow motion, round card, first to 3, result), a one-on-one sniper duel in a Japanese
+  with flashes, rounds with slow motion, round card, first to 3, result,
+  the party with the host as referee, the guest moving ahead and shots
+  with lag compensation), a one-on-one sniper duel in a Japanese
   temple garden: one shot, 1 s reload, every hit kills, and every shot
   that misses the opponent teleports the shooter to a completely random
   spot on the map. First to 3 rounds wins. 1 vs 1 from a party or alone

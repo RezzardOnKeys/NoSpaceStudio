@@ -10,6 +10,8 @@ const STRAW = 0xd9b56a;
 const WOOD = 0x6b3f22;
 const METAL = 0x2e3236;
 const OUTLINE = 0x1d1a17;
+// A crouching body is 1.15 m instead of 1.75 m high (config.js, move).
+const CROUCH_SCALE = 1.15 / 1.75;
 
 const outlineMaterial = new THREE.MeshBasicMaterial({ color: OUTLINE, side: THREE.BackSide });
 
@@ -50,6 +52,13 @@ export class PlayerView {
   place(x, y, z, yaw) {
     this.group.position.set(x, y, z);
     this.group.rotation.y = yaw;
+  }
+
+  /** Crouching makes the figure lower (smoothly); call every frame. */
+  crouch(down, dt) {
+    const want = down ? CROUCH_SCALE : 1;
+    const y = this.group.scale.y;
+    this.group.scale.y = y + (want - y) * (1 - Math.exp(-14 * dt));
   }
 
   /** Tips the figure over (down = true) or stands it up again; call every frame. */

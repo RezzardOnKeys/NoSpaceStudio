@@ -93,3 +93,5 @@ export const MAX_PLAYERS = 2;
 // Party match: how often the host sends the state of the match to the guest
 // (milliseconds, about 30 times per second).
 export const SNAP_MS = 33;
+// ... and how often the guest sends the keys of its last steps (milliseconds).
+export const INPUT_MS = 33;

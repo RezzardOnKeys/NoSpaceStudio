@@ -1221,6 +1221,35 @@ something open, these defaults were chosen (the list grows with every step):
 - The round card and the result are hanging paper scrolls; "Again" leads
   back to the menu (as in the other games), where the host or the player
   alone starts the next match.
+- **Step 5 (party):** the guest moves its own player at once and sends
+  the keys of every step, numbered and marked with the round; the host
+  replays them one by one (`feed.js`, the same idea as in Dust Dash,
+  written new). The host reports the last step it played; the guest
+  compares its own position after that step and makes up a difference
+  softly (in a fifth of a second), takes over one above 1.5 m at once
+  (for example a teleport it did not expect), and ignores one below 1 cm
+  (positions travel rounded to millimetres). Feet can never sink below
+  the ground any more: a correction of a tenth of a millimetre had made
+  the guest fall through it in a test.
+- A guest's shot names the step after which it was fired and the host
+  step at which the guest saw the host's player (the guest shows the
+  other player 4 steps, about 70 ms, in the past, gliding between two
+  reports). The host decides it right after that step, with the other
+  players put back to where they were then (at most half a second back).
+  A shot that starts more than 2.5 m from where the host has the guest's
+  eyes starts at the host's place instead. A reload that has 0.05 s or
+  less left on the host is forgiven.
+- The guest works its own shot out at once for the feeling: tracer, hit
+  marker and the teleport to the seeded spot. The host's answer decides:
+  a hit ends the round only when the host says so; if the host disagrees
+  about a teleport, the guest is moved to the host's spot by the
+  correction above (and sees a flash there).
+- The host sends the other player's shots (tracers) and teleports
+  (flashes) with every report. A crouching player's figure is lower.
+- The host also counts the guest's shots and sends the count, so a guest
+  who reloads during a match gets the same teleport spots again.
+- Found while building step 5: since step 4 the own hit marker had not
+  worked (the shot's answer had changed its shape); fixed.
 
 **Why:** The plan asks to record every choice made while building. The
 proven connection code keeps party matches reliable, and the menu gets a

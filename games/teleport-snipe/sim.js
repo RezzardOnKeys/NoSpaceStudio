@@ -278,6 +278,14 @@ export function movePlayer(p, dt) {
   }
   if (!p.grounded) p.vy = Math.max(-M.maxFall, p.vy - M.gravity * dt);
 
+  // Nothing in the garden lies below the ground: feet that ended up a hair
+  // below it (for example by a correction from the network) stand on it.
+  if (p.y < 0) {
+    p.y = 0;
+    if (p.vy < 0) p.vy = 0;
+    p.grounded = true;
+  }
+
   const pieces = Math.max(1, Math.ceil((Math.max(Math.abs(p.vx), Math.abs(p.vz), Math.abs(p.vy)) * dt) / MAX_MOVE));
   const h = dt / pieces;
   for (let i = 0; i < pieces; i++) {

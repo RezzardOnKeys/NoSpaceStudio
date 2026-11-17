@@ -15,6 +15,24 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 69 – 2026-11-17 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Teleport Snipe, Schritt 5: Party mit dem Host als Schiedsrichter, Gast bewegt sich sofort selbst, Schüsse mit Verzögerungsausgleich, Teleports ohne Warten, Neuladen während eines Matches
+**Änderungen:**
+- Der Gast bewegt sich sofort auf seinem Bildschirm und schickt die Tasten jedes Schritts nummeriert an den Host; der Host spielt sie Schritt für Schritt nach (neue Datei `feed.js`) und meldet, welchen Schritt er zuletzt gespielt hat. Weicht die Position ab, gleicht der Gast weich aus (große Abweichung sofort, Rundungsreste unter 1 cm gar nicht)
+- Neue Datei `wire.js`: wie Spieler, Tasten und Schüsse für das Netz verpackt und beim Empfang geprüft werden
+- Der Host sieht den Gast jetzt laufen, springen und sich ducken; der Gast sieht den Host weich gleitend etwas in der Vergangenheit (etwa 70 ms), eine geduckte Figur ist niedriger
+- Schüsse des Gastes: sofort mit Leuchtspur, Treffermarkierung und Teleport auf dem eigenen Bildschirm; der Host prüft sie gegen die Stelle, an der der Gast den Host gesehen hat (bis 0,5 s zurück), und entscheidet. Treffer des Gastes beenden jetzt auch die Runde
+- Leuchtspuren und Lichtblitze des anderen Spielers sind auf beiden Bildschirmen zu sehen
+- Gast lädt mitten im Match neu: kommt in dieselbe Runde mit Stand, Position und Schusszahl zurück (damit stimmen auch die nächsten Teleport-Plätze)
+- Fehler gefunden und behoben: die Füße konnten durch eine winzige Korrektur unter den Boden rutschen, dann fiel der Spieler endlos (jetzt kann niemand mehr unter den Boden); seit Schritt 4 erschien die eigene Treffermarkierung nicht mehr
+- Entscheidung 50 ergänzt; Status in TELEPORT-SNIPE.md und ROADMAP; Version 0.5.0
+- Commit-Hash für Version 68 nachgetragen
+- Kein News-Beitrag: das Spiel ist noch ein Entwurf
+- Getestet: mit einem Testskript ein ganzes Party-Match mit künstlicher Verzögerung 0, 60 und 150 ms (Gast läuft, springt, duckt sich: Host-Kopie am Ende gleich bis auf 0 bis 1 cm; jeder Schuss, den der Gast als Treffer sieht, wird vom Host bestätigt, obwohl der Host schon 0,9 bis 1,9 m weiter war; Teleports auf beiden Seiten gleich; Host-Schüsse und Teleports kommen beim Gast an); alle früheren Tests noch grün; im Browser mit zwei Tabs (Gast läuft und springt, Host-Kopie exakt gleich; Gast trifft den seitlich laufenden Host über den ganzen Garten, Runde endet; Fehlschuss teleportiert auf beiden Seiten gleich; Gast lädt in Runde 2 neu und ist zurück mit Stand, Position und Schusszahl; geduckter Host hinter der Mauer zeigt nur den Hut; Leuchtspur und Blitz des Hosts beim Gast) und allein (Treffermarkierung). Für die Browsertests habe ich wieder vorübergehend einen Testzugang eingebaut und entfernt. Nicht getestet: eine echte Party mit zwei Konten über das Internet, echte Maus, Safari
+**Geänderte Dateien:** games/teleport-snipe/wire.js (neu), games/teleport-snipe/feed.js (neu), games/teleport-snipe/host.js, games/teleport-snipe/guest.js, games/teleport-snipe/sim.js, games/teleport-snipe/config.js, games/teleport-snipe/playerView.js, games/teleport-snipe/game.js, games/teleport-snipe/game.json, docs/DECISIONS.md, docs/TELEPORT-SNIPE.md, docs/ROADMAP.md, PROTOKOLL.md
+**Commit-Message:** `[v69] feat(teleport-snipe): add the party with the host as referee, guest prediction and lag-compensated shots`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 68 – 2026-11-17 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Teleport Snipe, Schritt 4: Teleports (Stehplätze, Zufall aus dem Seed, zwei Lichtblitze), Runden mit Zeitlupe, Rundenkarte, wer zuerst 3 gewinnt, Ergebnis
 **Änderungen:**
@@ -33,7 +51,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Getestet: mit Testskripten (3000 Teleports: auf beiden Seiten gleich, nie näher als 1,5 m, nie im Hindernis; an allen 3495 Plätzen steht man fest; ganzes Match mit genauen Zeiten 3 s / 1,5 s / 2,5 s bis 3:0; ungültige Nachrichten vom Host werden abgefangen; alle Tests aus Schritt 2 und 3 noch grün); im Browser allein (Teleport mit Text, Lichtsäulen, Sieg 3:0 mit Seitenwechsel, Niederlage 0:3 mit eigenem Umfallen, „Again“ und neues Match) und in der Party mit zwei Tabs (Host trifft Gast, Gast sieht Zeitlupe, Karte „You lose the round“ und Seitenwechsel; Gast teleportiert sich bei Fehlschuss). Für die Browsertests habe ich vorübergehend einen Testzugang ins Spiel eingebaut und wieder entfernt. Nicht getestet: echte Maus, Gefühl der Zeitlupe, Safari, Bildrate
 **Geänderte Dateien:** games/teleport-snipe/random.js (neu), games/teleport-snipe/map.js, games/teleport-snipe/sim.js, games/teleport-snipe/host.js, games/teleport-snipe/guest.js, games/teleport-snipe/config.js, games/teleport-snipe/effects.js, games/teleport-snipe/playerView.js, games/teleport-snipe/viewModel.js, games/teleport-snipe/hud.js, games/teleport-snipe/index.html, games/teleport-snipe/game.js, games/teleport-snipe/game.json, docs/DECISIONS.md, docs/TELEPORT-SNIPE.md, docs/ROADMAP.md, PROTOKOLL.md
 **Commit-Message:** `[v68] feat(teleport-snipe): add teleports with flashes, rounds with slow motion, round card and result`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`cc86f79`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/cc86f79)
 
 ## Version 67 – 2026-11-17 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Teleport Snipe, Schritt 3: das Gewehr mit Zoom, Sofort-Treffern, Streuung ohne Zoom, 1 s Nachladen, Leuchtspuren, Treffermarkierung und Zielpuppen zum Testen

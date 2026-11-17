@@ -13,7 +13,10 @@
 //   random.js     the seeded random numbers (teleport spots)
 //   host.js       the referee (rounds, slow motion, score); the list of all
 //                 party messages is at its top
-//   guest.js      the guest's copy of a party match
+//   feed.js       the guest's keys on the host, one step at a time
+//   guest.js      the guest's copy of a party match (own player ahead,
+//                 corrected softly)
+//   wire.js       how players, keys and shots are packed for the network
 //   net.js        party connection with PeerJS, ticker.js a clock for hidden tabs
 //   scene.js      the 3D view (mapView.js the garden, playerView.js the
 //                 other player and the target dummies, viewModel.js the own
@@ -24,7 +27,7 @@
 //   game.js       this file
 
 import * as THREE from './vendor/three.module.js';
-import { CONFIG, PALETTE, SNAP_MS, MAX_PLAYERS } from './config.js';
+import { CONFIG, PALETTE, SNAP_MS, INPUT_MS, MAX_PLAYERS } from './config.js';
 import { bodyHeight } from './sim.js';
 import { createScene } from './scene.js';
 import { buildMapView } from './mapView.js';
@@ -47,6 +50,7 @@ import {
 import { newSeed } from './random.js';
 import { createReferee } from './host.js';
 import { createMirror } from './guest.js';
+import { createFeed } from './feed.js';
 import { openRoom, joinRoom } from './net.js';
 
 // ---------------------------------------------------------------------
@@ -85,8 +89,10 @@ renderer.autoClear = false;
 const STRAW = 0xd8c28a;
 
 // Who runs the match: the referee here, or a copy of the host's match.
+// The party host moves the guest's player with the guest's keys (feed.js).
+const feed = ROLE === 'host' ? createFeed() : null;
 const match =
-  ROLE === 'guest' ? createMirror({ mySeat: MY_SEAT }) : createReferee({ localSeats: [MY_SEAT] });
+  ROLE === 'guest' ? createMirror({ mySeat: MY_SEAT }) : createReferee({ localSeats: [MY_SEAT], feed });
 
 // ---- State of this player's screen --------------------------------------
 let state = 'menu'; // menu | countdown | playing | slowmo | card | ended
@@ -115,6 +121,7 @@ const menu = {
 let toHost = () => {}; // guest: sends a message to the host
 let guestConn = null; // host: the guest's connection
 let lastSnap = 0;
+let lastInput = 0;
 
 // A match is running (the keys and the mouse belong to the game); after
 // the last round the result is shown and the mouse is free again.
@@ -266,6 +273,9 @@ function fromGuest(msg) {
     menu.otherName = cleanName(msg.name);
     menu.ready = false;
     notice = '';
+    // From now on the guest's keys move the guest's player (from step 0 again).
+    match.remoteSeat = OTHER_SEAT;
+    feed.reset();
     if (state !== 'menu') {
       // The guest reloaded during a match: bring it back in. The next
       // snapshot tells it the round, the score and the countdown.
@@ -284,6 +294,10 @@ function fromGuest(msg) {
     menu.ready = Boolean(msg.ready);
     sendLobby();
     renderLobby();
+  } else if (msg.t === 'input' && msg.r === match.round && inMatch()) {
+    feed.push(msg.n, msg.s);
+  } else if (msg.t === 'shot') {
+    match.remoteShot(OTHER_SEAT, msg);
   }
 }
 
@@ -291,6 +305,12 @@ function guestLeft() {
   guestConn = null;
   menu.otherHere = false;
   menu.ready = false;
+  // Nobody steers the guest's player any more: it stands still.
+  match.remoteSeat = -1;
+  feed.reset();
+  const inp = match.players[OTHER_SEAT].input;
+  inp.f = inp.s = 0;
+  inp.jump = inp.crouch = inp.zoom = false;
   if (inMatch()) notice = 'Your opponent left. Waiting for them to come back…';
   renderLobby();
 }
@@ -438,8 +458,11 @@ function shoot() {
   // Without zoom the shot goes somewhere around the crosshair; fully zoomed exactly on it.
   const dir = spreadAim(CONFIG.rifle.spread * (1 - zoom));
   const eye = camera.position;
-  const result = match.shoot(MY_SEAT, { ox: eye.x, oy: eye.y, oz: eye.z, dx: dir.x, dy: dir.y, dz: dir.z });
-  if (!result) return; // still reloading
+  const out = match.shoot(MY_SEAT, { ox: eye.x, oy: eye.y, oz: eye.z, dx: dir.x, dy: dir.y, dz: dir.z });
+  if (!out) return; // still reloading
+  // A guest also sends the shot to the host, whose answer decides.
+  if (out.message) toHost(out.message);
+  const result = out.result;
   to.set(result.x, result.y, result.z);
   // The tracer starts at the muzzle as it is seen in the normal view.
   aimCamera.position.copy(camera.position);
@@ -501,8 +524,17 @@ onAgain(() => {
 /** Teleports since the last frame: a flash where the player was and where they landed. */
 function showEvents() {
   for (const e of match.events) {
-    if (e.type !== 'teleport') continue;
     const color = PALETTE[menu.colors[e.seat]].hex;
+    if (e.type === 'shot') {
+      // The other player's shot (the own tracer is drawn in shoot()).
+      if (e.seat !== MY_SEAT) {
+        from.set(e.from.x, e.from.y - 0.15, e.from.z);
+        to.set(e.to.x, e.to.y, e.to.z);
+        effects.tracer(from, to, color);
+        effects.impact(to, color);
+      }
+      continue;
+    }
     effects.flash(e.from.x, e.from.y, e.from.z, color);
     effects.flash(e.to.x, e.to.y, e.to.z, color);
     if (e.seat === MY_SEAT) {
@@ -541,8 +573,17 @@ function advance(dt) {
   readInput(dt);
   match.step(dt);
   followMatch();
-  if (ROLE !== 'host' || !menu.otherHere) return;
   const now = performance.now();
+  if (ROLE === 'guest') {
+    // The keys of the last steps go to the host.
+    if (now - lastInput >= INPUT_MS) {
+      lastInput = now;
+      const msg = match.takeInputs();
+      if (msg) toHost(msg);
+    }
+    return;
+  }
+  if (ROLE !== 'host' || !menu.otherHere) return;
   if (now - lastSnap >= SNAP_MS) {
     lastSnap = now;
     toGuest(match.snapshot());
@@ -587,6 +628,7 @@ function placeOther(dt) {
   const k = match.between;
   other.place(p.px + (p.x - p.px) * k, p.py + (p.y - p.py) * k, p.pz + (p.z - p.pz) * k, p.yaw);
   other.tip(!p.alive, dt);
+  other.crouch(p.crouching, dt);
 }
 
 /** Behind the menu the camera circles slowly over the garden. */
