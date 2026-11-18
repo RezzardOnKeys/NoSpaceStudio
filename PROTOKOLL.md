@@ -15,6 +15,22 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 81 – 2026-11-18 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Millpond Schritt 6: Feinschliff (Klick ins Wasser, Tag und Abenddämmerung mit Laternen und Glühwürmchen, weniger Bewegung, Handy-Ansicht), Cover, Banner, Beschreibung, Patch Note, veröffentlichen
+**Änderungen:**
+- Klick ins Wasser: Ein Ring breitet sich aus, und die drei nächsten Kois schwimmen schneller hin, bis sie da sind
+- Abenddämmerung mit **N** (oder dem Knopf „Dusk (N)“, der dann „Day (N)“ heißt): die Sonne sinkt und wird orange, der Himmel wird tiefblau mit orangem Horizont, Wolken und Wasser werden dunkler; vier kleine Steinlaternen auf der Insel leuchten warm, und Glühwürmchen schweben über dem Schilf; geht auch hinter dem Menü
+- Weniger Bewegung: dazu jetzt auch langsamere Glühwürmchen
+- Handy: das Bild rutscht etwas nach oben, damit die Leiste unten das Brett nicht verdeckt; in hohen Fenstern schaut die Kamera steiler von oben und steht weiter weg, sodass das ganze Brett passt
+- Cover und Banner (SVG) im Stil des Spiels: Holzschild mit „MILLPOND“, Teich mit Wassermühle, Insel mit Brett, vorne ein großer Marienkäfer und eine Schnecke; Beschreibung für die Spiel-Seite; Hinweise zu N und zum Wasser im Menü
+- Veröffentlicht: Version 1.0.0, `"status": "published"`; News-Beitrag „Millpond 1.0 – ladybugs against snails by the mill pond“ (Patch Note)
+- Entscheidung 52 ergänzt, ROADMAP, games/README.md, Status in MILLPOND.md
+- Commit-Hash für Version 80 nachgetragen
+- Getestet: Testskript für neugierige Kois (von fünf Stellen rund um den Teich kamen je drei Kois in 20 s auf 2 m heran, nie näher als 10,3 m an die Inselmitte); alle früheren Testskripte grün; im Browser: Abenddämmerung (Bild), Ringe nach einem echten Mausklick ins Wasser, Handy-Ansicht (Menü und Partie, ganzes Brett sichtbar), Cover und Banner; im Launcher Store-Kachel, Spiel-Seite mit Banner, Beschreibung und Patch Note, News-Seite, das Spiel startet im Player; Party mit zwei Tabs startet weiter; lint, typecheck, build, Prettier. Für die Browsertests vorübergehend ein Testzugang, wieder entfernt. Nicht getestet: echtes Antippen auf einem Handy (Touch), die Einstellung „weniger Bewegung“ im Browser (nur im Code geprüft), Safari, Bildrate bei Abenddämmerung auf deinem MacBook (vier Punktlichter kosten etwas Grafikleistung)
+**Geänderte Dateien:** games/millpond/cover.svg (neu), games/millpond/banner.svg (neu), games/millpond/description.md (neu), games/millpond/world.js, games/millpond/scene.js, games/millpond/koi.js, games/millpond/camera.js, games/millpond/config.js, games/millpond/game.js, games/millpond/index.html, games/millpond/game.json, news/2026-11-18-millpond-1-0.md (neu), docs/DECISIONS.md, docs/ROADMAP.md, docs/MILLPOND.md, games/README.md, PROTOKOLL.md
+**Commit-Message:** `[v81] feat(millpond): add dusk, curious koi, phone layout and store images and publish Millpond 1.0.0`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 80 – 2026-11-18 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Millpond Schritt 5: der Computer (leicht, mittel, schwer) im Web Worker und „Undo“
 **Änderungen:**
@@ -28,7 +44,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Getestet: Testskript mit ganzen Partien Stufe gegen Stufe (je 8): Leicht schlägt Zufallszüge 8:0, Mittel schlägt Leicht 8:0, Schwer schlägt Mittel 6:2 und Leicht 8:0, kein ungültiger Zug, längste Denkzeit 1,6 s; im Browser: der Web Worker läuft, die Antwort kam nach 0,78 s, „Undo“ nimmt eigenen Zug und Antwort zurück, auch dreimal direkt nachdem der Computer eine Mühle geschlossen und einen Stein genommen hatte (Bild passt danach zu den Regeln); Regel-, Koi- und Party-Tests weiter grün; lint, typecheck, build. Für die Browsertests vorübergehend ein Testzugang, wieder entfernt. Nicht getestet: „Undo“ direkt nach einer eigenen Mühle im Browser (nur im Code geprüft), wie stark sich die Stufen gegen einen Menschen anfühlen, die Denkzeit auf deinem MacBook (hier gemessen auf diesem Rechner), Safari
 **Geänderte Dateien:** games/millpond/ai.js, games/millpond/aiWorker.js (neu), games/millpond/config.js, games/millpond/game.js, games/millpond/hud.js, games/millpond/index.html, games/millpond/game.json, docs/DECISIONS.md, docs/ROADMAP.md, docs/MILLPOND.md, PROTOKOLL.md
 **Commit-Message:** `[v80] feat(millpond): add the computer with three strengths in a web worker and undo`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`d8a0969`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/d8a0969)
 
 ## Version 79 – 2026-11-18 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Millpond Schritt 4: Party mit Host als Schiedsrichter, Gast-Kopie, Revanche, Aufgeben, Neuladen von Gast und Host

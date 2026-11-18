@@ -18,7 +18,7 @@ these files when it is built. Step by step:
 | `inkwars/` | Inkwars (3D water fight: paint the arena, dive into your own colour; 1 vs 1 from a party or alone against bots; three.js and PeerJS in `vendor/`) |
 | `blockchess/` | Blockchess (3D chess on a floating block island with hand-made pieces; 1 vs 1 from a party or alone against the computer; three.js, chess.js and PeerJS in `vendor/`) |
 | `teleport-snipe/` | Teleport Snipe (one-shot sniper duel in a temple garden, every miss teleports you; 1 vs 1 from a party or alone against a bot; three.js and PeerJS in `vendor/`) |
-| `millpond/` | Millpond (Nine Men's Morris with ladybugs and snails on an island in a mill pond; 1 vs 1 from a party or alone against the computer; three.js and PeerJS in `vendor/`; draft, being built) |
+| `millpond/` | Millpond (Nine Men's Morris with ladybugs and snails on an island in a mill pond; 1 vs 1 from a party or alone against the computer; three.js and PeerJS in `vendor/`) |
 
 ## Rules for a game
 

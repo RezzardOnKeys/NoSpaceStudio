@@ -515,10 +515,17 @@ function canUndo() {
 document.getElementById('undo').onclick = undo;
 document.getElementById('resign').onclick = resign;
 document.getElementById('cam').onclick = () => rig.viewSide(mySide());
+/** Afternoon or dusk; the button names what comes next. */
+function toggleDusk() {
+  document.getElementById('dusk').textContent = view.toggleDusk() ? 'Day (N)' : 'Dusk (N)';
+}
+document.getElementById('dusk').onclick = toggleDusk;
 window.addEventListener('keydown', (e) => {
   const tag = e.target && e.target.tagName;
   if (tag === 'INPUT' || e.metaKey || e.ctrlKey || e.altKey) return;
-  if (e.key.toLowerCase() === 'c' && screen === 'game') rig.viewSide(mySide());
+  const k = e.key.toLowerCase();
+  if (k === 'c' && screen === 'game') rig.viewSide(mySide());
+  if (k === 'n') toggleDusk();
 });
 
 // ---- Mouse and touch on the board ------------------------------------------------
@@ -532,7 +539,16 @@ canvas.addEventListener('pointerup', (e) => {
   down = null;
   if (moved > 6 || screen !== 'game') return;
   const p = board.pick(e.clientX, e.clientY, view.camera, pieces.pickable());
-  if (p !== null) onPoint(p);
+  if (p !== null) {
+    onPoint(p);
+    return;
+  }
+  // A click into the water: rings spread and the nearest koi come to look.
+  const w = view.waterAt(e.clientX, e.clientY);
+  if (w) {
+    view.koi.ripple(w.x, w.z);
+    view.koi.attract(w.x, w.z);
+  }
 });
 canvas.addEventListener('pointermove', (e) => {
   if (screen !== 'game' || e.pointerType !== 'mouse' || down) return;

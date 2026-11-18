@@ -55,6 +55,11 @@ export const CONFIG = {
     // The camera never looks from below this angle (0 = straight down,
     // 0.5 = level with the board), so it never dips under the water.
     maxPolar: 0.44,
+    // In a narrow window the camera may stand up to this many times further back.
+    maxFit: 2.5,
+    // On a phone the picture is moved up by this part of the screen height,
+    // so the panel at the bottom does not cover the board.
+    phoneShift: 0.11,
   },
   // The island, the pond and the land round it (metres; the board's top is at height 0).
   world: {
@@ -66,6 +71,20 @@ export const CONFIG = {
     pondRadius: 24,
     water: { color: '#4f9aa8', opacity: 0.62, wave: 0.025 },
     sky: { top: '#78b8e4', horizon: '#fbe3c4' },
+    // Dusk (N): the colours of the sky, the clouds, the water and the light.
+    dusk: {
+      top: '#33406e',
+      horizon: '#f3a06e',
+      clouds: '#f6b08a',
+      cloudGlow: '#7a3d3a',
+      water: '#36677c',
+      sun: '#ff9a5a',
+      sky: '#9a94c8',
+      ground: '#3d4a30',
+      fade: 1.2, // seconds the change takes
+    },
+    lanterns: { radius: 6.3, color: '#ffb35c', light: 2.2, reach: 5 },
+    fireflies: { count: 46 },
     // The water mill stands on the shore at this angle (radians, 0 = +x).
     // After a mill on the board the wheel turns `boost` times faster for a
     // moment and slows down again over boostTime seconds.
@@ -81,6 +100,7 @@ export const CONFIG = {
     millRoom: 6, // and this far from the water mill
     depth: 0.16, // how deep under the surface they swim
     curious: 3, // how many koi come to look at a splash
+    rush: 2.4, // and how much faster they swim there
     rippleTime: 1.8, // seconds a ring on the water lasts
     rippleSize: 2.6, // metres a ring grows to
   },

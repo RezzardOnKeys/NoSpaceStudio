@@ -37,7 +37,10 @@ function nextTarget(f, rnd) {
  * dir, tx, tz }. Used by the picture and by the test scripts.
  */
 export function stepFish(f, dt, rnd) {
-  if (Math.hypot(f.tx - f.x, f.tz - f.z) < 1.5) nextTarget(f, rnd);
+  if (Math.hypot(f.tx - f.x, f.tz - f.z) < 1.5) {
+    f.rush = false;
+    nextTarget(f, rnd);
+  }
   let dx = f.tx - f.x;
   let dz = f.tz - f.z;
   const len = Math.hypot(dx, dz) || 1;
@@ -71,10 +74,12 @@ export function stepFish(f, dt, rnd) {
   const want = Math.atan2(dx, dz);
   let turn = want - f.heading;
   turn = Math.atan2(Math.sin(turn), Math.cos(turn));
-  const maxTurn = K.turnRate * dt;
+  // A curious fish swims faster and turns quicker until it is there.
+  const rush = f.rush ? K.rush : 1;
+  const maxTurn = K.turnRate * rush * dt;
   f.heading += Math.max(-maxTurn, Math.min(maxTurn, turn));
-  f.x += Math.sin(f.heading) * f.speed * dt;
-  f.z += Math.cos(f.heading) * f.speed * dt;
+  f.x += Math.sin(f.heading) * f.speed * rush * dt;
+  f.z += Math.cos(f.heading) * f.speed * rush * dt;
 }
 
 /** A new fish at a random place in the pond. */
@@ -159,7 +164,7 @@ export function createKoi(scene, calm) {
 
   // Rings on the water and drops of a splash, made once and used again.
   const ringMat = new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: true, depthWrite: false, side: THREE.DoubleSide });
-  const ringGeo = new THREE.RingGeometry(0.9, 1, 40);
+  const ringGeo = new THREE.RingGeometry(0.84, 1, 40);
   ringGeo.rotateX(-Math.PI / 2);
   const rings = [];
   const dropGeo = new THREE.IcosahedronGeometry(0.05, 0);
@@ -214,6 +219,7 @@ export function createKoi(scene, calm) {
       for (const f of near.slice(0, count)) {
         f.tx = tx + (rnd() - 0.5);
         f.tz = tz + (rnd() - 0.5);
+        f.rush = true;
       }
     },
 
@@ -228,7 +234,7 @@ export function createKoi(scene, calm) {
         r.t += dt;
         const k = r.t / K.rippleTime;
         r.mesh.scale.setScalar(0.2 + k * K.rippleSize);
-        r.mesh.material.opacity = 0.6 * (1 - k);
+        r.mesh.material.opacity = 0.85 * (1 - k);
         if (k >= 1) r.mesh.visible = false;
       }
       for (const d of drops) {

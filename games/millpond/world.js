@@ -1,7 +1,9 @@
-// Millpond – the world around the board: the grassy island with flowers and
-// mushrooms, the pond with soft waves, light spots, water lilies, reeds and
+// Millpond – the world around the board: the grassy island with flowers,
+// mushrooms and four little stone lanterns, the pond with soft waves, light spots, water lilies, reeds and
 // stones, the water mill with its turning wheel, and the land beyond with
-// trees, soft hills, a warm sky and drifting clouds. Everything is made of
+// trees, soft hills, a warm sky and drifting clouds. At dusk the sky turns
+// orange and blue, the lanterns glow and fireflies float over the water
+// (setDusk). Everything is made of
 // simple low-poly shapes; things that come many times (reeds, flowers,
 // stones, trees ...) are drawn as one instanced mesh each, so the graphics
 // chip has little to do.
@@ -75,6 +77,12 @@ function onRing(rnd, r0, r1) {
   return { x: Math.cos(a) * r, z: Math.sin(a) * r, a, r };
 }
 
+/** Where the four stone lanterns stand on the island: on the diagonals, outside the board. */
+const LANTERNS = [1, 3, 5, 7].map((k) => {
+  const a = (k * Math.PI) / 4;
+  return { x: Math.cos(a) * W.lanterns.radius, z: Math.sin(a) * W.lanterns.radius };
+});
+
 /** Is this spot beside the water mill (kept free of trees and reeds)? */
 const nearMill = (x, z, room) => Math.hypot(x - MILL.x, z - MILL.z) < room;
 
@@ -96,6 +104,7 @@ function buildSky(scene) {
       void main() { gl_FragColor = vec4(mix(horizon, top, smoothstep(-0.05, 0.45, h)), 1.0); }`,
   });
   scene.add(new THREE.Mesh(geo, material));
+  const sky = material.uniforms;
 
   // Clouds: a few soft clusters of white balls that drift slowly round the sky.
   const rnd = seeded(91);
@@ -120,7 +129,7 @@ function buildSky(scene) {
   }
   clouds.add(instances(puff, white, parts.length, (i) => parts[i]));
   scene.add(clouds);
-  return clouds;
+  return { clouds, sky, cloudMat: white };
 }
 
 function buildLand(scene) {
@@ -338,6 +347,7 @@ function buildPond(scene, calm) {
   const wave = calm ? W.water.wave * 0.35 : W.water.wave;
 
   return {
+    water: water.material,
     update(t) {
       // Waves: a few slow sine waves across the pond.
       for (let i = 0; i < pos.count; i++) {
@@ -403,6 +413,8 @@ function buildIsland(scene) {
     if (Math.abs(p.x) < half && Math.abs(p.z) < half) continue;
     // The rows of pieces still to place stand here.
     if (Math.abs(p.x) < half && Math.abs(Math.abs(p.z) - CONFIG.anim.handRow) < 0.5) continue;
+    // ... and the lanterns.
+    if (LANTERNS.some((l) => Math.hypot(l.x - p.x, l.z - p.z) < 0.7)) continue;
     free.push(p);
   }
   const at = (i, y) => ({ x: free[i].x, y, z: free[i].z });
@@ -545,18 +557,126 @@ function buildMill(scene) {
 }
 
 /** Builds everything round the board. Returns update(t, dt) for the moving parts. */
+/** Four little stone lanterns on the island; their windows glow at dusk, and each casts a soft warm light. */
+function buildLanterns(scene) {
+  const stone = mat('#a9a59a');
+  const dark = mat('#7d796f');
+  const glow = new THREE.MeshStandardMaterial({ color: '#fff1c8', emissive: W.lanterns.color, emissiveIntensity: 0, roughness: 0.6, flatShading: true });
+  const lights = [];
+  for (const l of LANTERNS) {
+    const g = new THREE.Group();
+    g.position.set(l.x, W.islandY, l.z);
+    g.rotation.y = Math.atan2(l.x, l.z);
+    const part = (geo, m, y) => {
+      const mesh = new THREE.Mesh(geo, m);
+      mesh.position.y = y;
+      mesh.castShadow = true;
+      g.add(mesh);
+    };
+    part(new THREE.CylinderGeometry(0.26, 0.3, 0.12, 6), dark, 0.06);
+    part(new THREE.CylinderGeometry(0.08, 0.1, 0.42, 6), stone, 0.33);
+    part(new THREE.BoxGeometry(0.4, 0.06, 0.4), stone, 0.57);
+    part(new THREE.BoxGeometry(0.26, 0.24, 0.26), glow, 0.72);
+    part(new THREE.ConeGeometry(0.34, 0.24, 4), dark, 0.96);
+    g.children[g.children.length - 1].rotation.y = Math.PI / 4;
+    part(new THREE.SphereGeometry(0.05, 6, 4), dark, 1.1);
+    scene.add(g);
+    const light = new THREE.PointLight(W.lanterns.color, 0, W.lanterns.reach, 2);
+    light.position.set(l.x, W.islandY + 0.75, l.z);
+    scene.add(light);
+    lights.push(light);
+  }
+  return {
+    setDusk(d) {
+      glow.emissiveIntensity = d * 1.6;
+      for (const light of lights) light.intensity = d * W.lanterns.light;
+    },
+  };
+}
+
+/** Fireflies: little glowing dots that float over the reeds and the water at dusk. */
+function buildFireflies(scene, calm) {
+  const rnd = seeded(77);
+  const count = W.fireflies.count;
+  const home = [];
+  for (let i = 0; i < count; i++) {
+    // Most near the reeds along the shore, some round the island.
+    const near = i % 3 === 0 ? onRing(rnd, W.islandRadius + 0.8, W.islandRadius + 3) : onRing(rnd, W.pondRadius - 4, W.pondRadius - 0.5);
+    home.push({ x: near.x, z: near.z, y: W.waterY + 0.4 + rnd() * 1.4, p: rnd() * 6.3, q: rnd() * 6.3 });
+  }
+  const pos = new Float32Array(count * 3);
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  // A soft round glow, painted once.
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = 32;
+  const g = canvas.getContext('2d');
+  const grad = g.createRadialGradient(16, 16, 0, 16, 16, 16);
+  grad.addColorStop(0, 'rgba(255,255,255,1)');
+  grad.addColorStop(0.35, 'rgba(255,255,255,0.6)');
+  grad.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = grad;
+  g.fillRect(0, 0, 32, 32);
+  const material = new THREE.PointsMaterial({
+    map: new THREE.CanvasTexture(canvas),
+    color: '#fff27a',
+    size: 0.3,
+    transparent: true,
+    opacity: 0,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    fog: false,
+  });
+  const points = new THREE.Points(geo, material);
+  points.visible = false;
+  scene.add(points);
+  const speed = calm ? 0.25 : 1;
+  return {
+    update(t, d) {
+      points.visible = d > 0.02;
+      if (!points.visible) return;
+      for (let i = 0; i < count; i++) {
+        const h = home[i];
+        const k = t * speed;
+        pos[i * 3] = h.x + Math.sin(k * 0.4 + h.p) * 0.8;
+        pos[i * 3 + 1] = h.y + Math.sin(k * 0.9 + h.q) * 0.25;
+        pos[i * 3 + 2] = h.z + Math.cos(k * 0.33 + h.q) * 0.8;
+      }
+      geo.attributes.position.needsUpdate = true;
+      // Each one blinks softly on its own (seen as the group fading a little).
+      material.opacity = d * (calm ? 0.9 : 0.75 + 0.25 * Math.sin(t * 2.1));
+    },
+  };
+}
+
+/** Builds everything round the board. Returns update(t, dt) for the moving parts. */
 export function buildWorld(scene, calm) {
-  const clouds = buildSky(scene);
+  const { clouds, sky, cloudMat } = buildSky(scene);
   buildLand(scene);
   buildIsland(scene);
   const pond = buildPond(scene, calm);
   const mill = buildMill(scene);
+  const lanterns = buildLanterns(scene);
+  const fireflies = buildFireflies(scene, calm);
+  const colour = (a, b, d) => new THREE.Color(a).lerp(new THREE.Color(b), d);
+  let dusk = 0;
   return {
     /** The water mill's wheel turns quickly for a moment (a mill was closed). */
     spinWheel: mill.spin,
+    /** How far it is towards dusk: 0 = afternoon, 1 = dusk. */
+    setDusk(d) {
+      dusk = d;
+      sky.top.value.copy(colour(W.sky.top, W.dusk.top, d));
+      sky.horizon.value.copy(colour(W.sky.horizon, W.dusk.horizon, d));
+      cloudMat.color.copy(colour('#ffffff', W.dusk.clouds, d));
+      cloudMat.emissive.copy(colour('#fff3e6', W.dusk.cloudGlow, d));
+      pond.water.color.copy(colour(W.water.color, W.dusk.water, d));
+      lanterns.setDusk(d);
+    },
     update(t, dt) {
       pond.update(t);
       mill.update(dt);
+      fireflies.update(t, dusk);
       clouds.rotation.y = t * (calm ? 0.001 : 0.004);
     },
   };

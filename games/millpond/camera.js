@@ -38,11 +38,14 @@ export function createCameraRig(camera, canvas, calm) {
     viewSide(side) {
       const fromPos = camera.position.clone();
       // On a narrow screen (a phone held upright, a small window) the camera
-      // stays further away, so the whole board fits from side to side.
-      const fit = Math.min(2.2, Math.max(1, 1.3 / camera.aspect));
-      const dist = Math.min(CONFIG.camera.maxDistance, 11 * fit);
+      // stays further away and looks down more steeply, so the whole board
+      // fits from side to side.
+      const fit = Math.min(CONFIG.camera.maxFit, Math.max(1, 1.3 / camera.aspect));
+      const dist = 11 * fit;
+      controls.maxDistance = Math.max(CONFIG.camera.maxDistance, dist);
+      const tall = camera.aspect < 0.8;
       const z = side === 's' ? -1 : 1;
-      const toPos = new THREE.Vector3(0, dist * 0.72, z * dist * 0.69);
+      const toPos = new THREE.Vector3(0, dist * (tall ? 0.87 : 0.72), z * dist * (tall ? 0.49 : 0.69));
       const a0 = Math.atan2(fromPos.x, fromPos.z);
       const a1 = Math.atan2(toPos.x, toPos.z);
       const r0 = Math.hypot(fromPos.x, fromPos.z);

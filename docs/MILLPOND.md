@@ -8,8 +8,8 @@ work, ask before changing it.
 
 Slug and folder: `games/millpond/`. Title in the store: **Millpond**.
 
-**Status:** being built. Steps 1 to 5 are done (version 0.5.0, draft);
-next is step 6, the polish (water, dusk, phone, images, publishing).
+**Status:** published as version 1.0.0 on 2026-11-18. Steps 1 to 6 are
+done; step 7, the documentation, is next.
 
 ## The idea in one sentence
 

@@ -1511,3 +1511,30 @@ with every step):
   move with its removal. It works after the end of a game too, and while
   the computer is still thinking (then only the own move goes back). The
   camera stays where it is.
+- **Step 6 (polish and publishing):** a click into the open water (not
+  the island, not the shore) sends out a ring and makes the three nearest
+  koi swim there 2.4 times faster until they arrive (a test script: from
+  five spots all round the pond, three koi each came within 2 m in 20 s,
+  and none came closer to the island than 10.3 m). A click on a point of
+  the board still counts as a move; only a click beside every point goes
+  to the water.
+- Dusk (**N**, or the button, which then says "Day (N)"): over 1.2 s the
+  sun sinks and turns orange, the sky goes from blue to deep blue with an
+  orange horizon, the clouds and the water darken. Four little stone
+  lanterns stand on the island's diagonals; their windows glow and each
+  casts a soft warm point light (four point lights, always there, dark by
+  day). 46 fireflies (soft round dots) float over the reeds and round the
+  island, only at dusk. It also works behind the menu.
+- Reduced motion, all together: no swinging and no turning camera, calmer
+  waves, lilies that do not bob, no hopping pieces, no splash drops,
+  slower clouds, fish and fireflies. Flying away and sliding into the pond
+  stay, because they show what happened.
+- Phone: in a window narrower than 700 px the picture moves up by 11 % of
+  the screen height, so the panel at the bottom does not cover the board;
+  in a tall window the camera looks down more steeply and may stand up to
+  2.5 times further back, so the whole board fits.
+- Cover and banner are drawn as SVG in the look of the game (a wooden sign
+  with the title, the pond with the water mill, the island with the board,
+  a big ladybug and a big snail in front). The texts call the game "Nine
+  Men's Morris", a traditional name nobody owns.
+- Published as version 1.0.0 on 2026-11-18 with a patch note.

@@ -3,8 +3,10 @@
   "shortDescription": "Ladybugs against snails on a wooden board by a cosy mill pond, against the computer or a friend.",
   "genres": ["Strategy", "Board Game"],
   "engine": "HTML5",
-  "version": "0.5.0",
-  "status": "draft",
+  "version": "1.0.0",
+  "status": "published",
   "publishedAt": "2026-11-18",
-  "maxPlayers": 2
+  "maxPlayers": 2,
+  "cover": "cover.svg",
+  "banner": "banner.svg"
 }
