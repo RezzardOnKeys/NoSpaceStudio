@@ -15,6 +15,23 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 76 – 2026-11-18 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Millpond nach docs/MILLPOND.md bauen, Schritt 1: Ordner, game.json, alle Regeln mit Testskript, Menü mit Seite und Stärke, Party-Verbindung; das Spiel startet allein und mit zwei Tabs (einfaches Brett)
+**Änderungen:**
+- Neuer Spielordner `games/millpond/` (Version 0.1.0, `"status": "draft"`, `"maxPlayers": 2`)
+- `rules.js`: alle Regeln der Mühle in eigenen Worten: 24 Punkte, 9 Steine je Seite, Setzen, Ziehen, Springen mit 3 Steinen, Mühle (auch zwei auf einmal nimmt nur einen Stein), geschützte Steine in Mühlen (außer alle stehen in Mühlen), Sieg bei 2 Steinen oder keinem Zug, Remis bei dreifacher Wiederholung oder 50 Zügen ohne Mühle; ein Zug ist ein kurzer Text (`p5`, `m5-6`, `x12`), eine Partie die Liste davon
+- Menü als Holzschild: Seite (Ladybugs, Snails, Random), Stärke (Easy, Medium, Hard) allein, Spielerliste in der Party, „Ready“ / „Start game“, „How to play“ zum Aufklappen
+- Party-Verbindung, Schiedsrichter (`host.js`) und Gast-Kopie (`guest.js`) nach dem Vorbild von Blockchess; Revanche tauscht die Seiten, Aufgeben mit zweimal Klicken
+- Einfaches 3D-Brett aus Holz mit Linien und Holzzapfen, Steine als farbige Scheiben, Markierungen (freie Punkte, mögliche Züge, Steine zum Entfernen, letzter Zug), Kamera drehen und zoomen, C dreht zur eigenen Seite; Anzeige von Phase, Zug und Steinen je Seite, Ergebnis-Karte
+- Der Computer macht vorerst zufällige erlaubte Züge (die echte Suche kommt in Schritt 5)
+- Entscheidung 52 angelegt (alle Festlegungen aus Schritt 1), ROADMAP, games/README.md und Status in MILLPOND.md
+- Commit-Hash für Version 75 nachgetragen
+- Kein News-Beitrag: das Spiel ist noch ein Entwurf und für Spieler nicht sichtbar
+- Getestet: Testskript mit 88 Prüfungen (Setzen, Ziehen, Springen, Mühle beim Setzen und Ziehen, zwei Mühlen auf einmal, geschützte Steine, Sieg durch 2 Steine auch beim Setzen, Sieg durch Blockieren, beide Remis-Arten, Nachspielen der Zugliste, Zurücknehmen, falsche Zugtexte, 3000 ganze Zufallspartien mit allen vier Arten von Spielende); im Browser allein (Setzen per Mausklick, Mühle, Entfernen, ganze Partie bis „Draw“ mit Ergebnis-Karte) und in der Party mit zwei Tabs (Lobby, Ready, Seitenwahl, ganze Partie mit 123 Zügen auf beiden Seiten gleich, Revanche mit Seitentausch, Aufgeben des Gastes). Für die Browsertests vorübergehend ein Testzugang, wieder entfernt. Nicht getestet: Neuladen von Host und Gast (Schritt 4), Safari, Touch, Handy-Ansicht
+**Geänderte Dateien:** games/millpond/index.html (neu), games/millpond/game.js (neu), games/millpond/game.json (neu), games/millpond/config.js (neu), games/millpond/rules.js (neu), games/millpond/host.js (neu), games/millpond/guest.js (neu), games/millpond/ai.js (neu), games/millpond/net.js (neu), games/millpond/scene.js (neu), games/millpond/board.js (neu), games/millpond/pieceView.js (neu), games/millpond/camera.js (neu), games/millpond/menu.js (neu), games/millpond/hud.js (neu), games/millpond/vendor/ (neu: three.module.js, three.core.js, OrbitControls.js, peerjs.min.js, Lizenzdateien), docs/DECISIONS.md, docs/ROADMAP.md, docs/MILLPOND.md, games/README.md, PROTOKOLL.md
+**Commit-Message:** `[v76] feat(millpond): add the rules, menu, party connection and a simple board`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 75 – 2026-11-18 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Klassische Brett- und Partyspiele in eigenem Stil sammeln (nur solche, die ohne Probleme online dürfen); entschieden: Mühle als gemütliches Spiel auf einer Insel im Teich mit Kois und drehbarer Kamera wie bei Blockchess. Plan als Datei festhalten und einen Startprompt für den nächsten Chat schreiben
 **Änderungen:**
@@ -25,7 +42,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Startprompt für den nächsten Chat geschrieben (steht im Chat, nicht als Datei)
 **Geänderte Dateien:** docs/MILLPOND.md (neu), docs/ROADMAP.md, PROTOKOLL.md
 **Commit-Message:** `[v75] docs: plan the game Millpond`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`c8df307`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/c8df307)
 
 ## Version 74 – 2026-11-18 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Teleport Snipe: die freie Sicht zwischen den beiden Startpunkten so lassen

@@ -8,7 +8,8 @@ work, ask before changing it.
 
 Slug and folder: `games/millpond/`. Title in the store: **Millpond**.
 
-**Status:** planned, not built yet. Start with step 1 of the order of work.
+**Status:** being built. Step 1 is done (version 0.1.0, draft); next is
+step 2, the scene.
 
 ## The idea in one sentence
 

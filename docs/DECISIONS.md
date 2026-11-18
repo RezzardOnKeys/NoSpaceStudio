@@ -1375,3 +1375,43 @@ own). Two changes:
   and the game draws on. If it is not back after four seconds, a notice
   offers "Reload". A game alone is stored for that one reload and goes on
   where it was; the party host keeps its game anyway, and a guest rejoins.
+
+## 52. Millpond: built from its plan, with these choices
+
+**Decision:** Millpond (`games/millpond/`) is built step by step from
+[MILLPOND.md](MILLPOND.md), laid out like Blockchess (decision 51). Where
+the plan leaves something open, these defaults were chosen (the list grows
+with every step):
+
+- **Step 1 (rules, menu and connection):** the sides are called `'l'`
+  (Ladybugs, they begin) and `'s'` (Snails) everywhere in the code and in
+  the party messages. The 24 points are numbered 0 to 23: ring 0 is the
+  outer square, ring 2 the inner one, and on every ring the points go
+  clockwise from the top left corner (a drawing is at the top of
+  `rules.js`). The Ladybugs sit at the near side (+z) of the board.
+- A move travels as a short text: `p5` (place on point 5), `m5-6` (move or
+  fly from 5 to 6), `x12` (remove the piece on 12). Removing is a move of
+  its own right after the move that closed the mill; only then the turn
+  passes. So a whole game is simply the list of these texts.
+- How the rules count: "3 pieces left" for flying and "only 2 left" for
+  losing count the pieces on the board plus those still in hand (so a side
+  can also lose while placing). A side that cannot move loses only in the
+  moving phase. The 50 moves without a mill count only moves (not
+  removals) once all pieces are placed, both sides together. A position
+  counts as the same when the pieces on the board, the pieces in hand and
+  the side to move are the same; the start position counts once. Closing a
+  mill while the opponent has no piece on the board removes nothing.
+- The party connection (`net.js`) is copied from Blockchess with the room
+  name `nss-millpond-<party code>`; the referee (`host.js`) and the guest's
+  copy (`guest.js`) work exactly like there. The host keeps its game in
+  `sessionStorage` (`millpond-host-<party code>`). three.js r187 with
+  OrbitControls and PeerJS are the same files as in Blockchess
+  (`vendor/`).
+- The menu is a wooden sign with lily-green buttons and a soft round font;
+  "How to play" is a fold-out list in the menu. Alone the default is
+  Ladybugs and Medium.
+- The camera cannot slide sideways (the board always stays in the middle)
+  and has no flying keys, unlike Blockchess; it turns, zooms and swings to
+  the own side with C.
+- Until step 5 the computer plays a random allowed move at every strength,
+  and the pieces are plain coloured discs until step 3.

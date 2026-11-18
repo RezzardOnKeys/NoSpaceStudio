@@ -1,0 +1,10 @@
+{
+  "title": "Millpond",
+  "shortDescription": "Ladybugs against snails on a wooden board by a cosy mill pond, against the computer or a friend.",
+  "genres": ["Strategy", "Board Game"],
+  "engine": "HTML5",
+  "version": "0.1.0",
+  "status": "draft",
+  "publishedAt": "2026-11-18",
+  "maxPlayers": 2
+}
