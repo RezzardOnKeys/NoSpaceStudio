@@ -400,9 +400,9 @@ Collected in conversations with the developers; nothing decided yet.
   more halls, sound, drawn icons for the power-ups,
   sending the dust film to a guest who reloads.
 - **Teleport Snipe follow-ups** (the game itself is built, see above):
-  a mode where zooming in shows the opponent what you see, sound, maybe
-  blocking the open line of sight between the two start points (see the
-  hand-over of version 73).
+  a mode where zooming in shows the opponent what you see, sound. (The
+  open line of sight between the start points stays on purpose,
+  decision 50.)
 - **Other game ideas discussed on 2026-11-17 and set aside** (not
   decided): "Blend In" (hide among identical bots on a market square, tap
   or shoot the other player), a competitive zombie hunt on a farm

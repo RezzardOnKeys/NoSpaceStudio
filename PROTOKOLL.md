@@ -15,6 +15,16 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 74 – 2026-11-18 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Teleport Snipe: die freie Sicht zwischen den beiden Startpunkten so lassen
+**Änderungen:**
+- Entscheidung festgehalten: Beide Startpunkte sehen sich über die Mitte hinweg, das bleibt mit Absicht so (Entscheidung 50, ROADMAP)
+- Commit-Hash für Version 73 nachgetragen
+- Nur Dokumentation, am Spiel ändert sich nichts; deshalb kein News-Beitrag
+**Geänderte Dateien:** docs/DECISIONS.md, docs/ROADMAP.md, PROTOKOLL.md
+**Commit-Message:** `[v74] docs(teleport-snipe): keep the open line of sight between the start points`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 73 – 2026-11-18 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Teleport Snipe komplett fertigstellen und veröffentlichen wie die anderen Spiele, mit News-Beitrag und allem, was noch fehlt (Schritte 6 bis 8 des Plans)
 **Änderungen:**
@@ -28,7 +38,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Getestet: mit einem Testskript 12 Matches gegen den Bot (36 Runden; gegen einen stehenden Spieler trifft er etwa 60 % seiner Schüsse, gegen einen laufenden etwa 35 %, nie lange festgesteckt); im Browser allein gegen den Bot (er trifft, Rundenkarte „You lose the round“, Ergebnis), Party mit zwei Tabs (Bewegung, Fehlschuss mit Teleport, keine Fehler), im Launcher Store-Kachel, Spiel-Seite mit Banner, Beschreibung und Patch Note; lint, typecheck, build, Prettier. Nicht getestet: echte Maus, wie stark sich der Bot gegen einen Menschen anfühlt, Safari, eine echte Party mit zwei Konten über das Internet
 **Geänderte Dateien:** games/teleport-snipe/bot.js (neu), games/teleport-snipe/cover.svg (neu), games/teleport-snipe/banner.svg (neu), games/teleport-snipe/description.md (neu), games/teleport-snipe/config.js, games/teleport-snipe/effects.js, games/teleport-snipe/game.js, games/teleport-snipe/game.json, games/teleport-snipe/guest.js, games/teleport-snipe/host.js, games/teleport-snipe/map.js, games/teleport-snipe/sim.js, news/2026-11-18-teleport-snipe-1-0.md (neu), README.md, games/README.md, docs/ROADMAP.md, docs/DECISIONS.md, docs/PARTY-GAMES.md, docs/TELEPORT-SNIPE.md, PROTOKOLL.md
 **Commit-Message:** `[v73] feat(teleport-snipe): add the bot, falling petals, store images and publish Teleport Snipe 1.0.0`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`87651eb`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/87651eb)
 
 ## Version 72 – 2026-11-18 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Teleport Snipe: die Felsen im Kiesgarten sehen kaputt aus (zerfallen in einzelne Splitter)

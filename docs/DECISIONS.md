@@ -1269,10 +1269,10 @@ something open, these defaults were chosen (the list grows with every step):
   reach the ground); cover and banner are SVG pictures in the garden's
   style; version 1.0.0 is published with one patch note (no separate
   announcement, as with Dust Dash).
-- **Open:** without the dummies the two start points see each other
-  across the middle, so a round can be decided in the first seconds. The
-  plan keeps the middle as low cover, so this was left as it is and
-  asked in the hand-over.
+- **The start points stay in sight of each other** (decided by the
+  developers on 2026-11-18): without the dummies both start points see
+  each other across the middle, so a round can be decided in the first
+  seconds. That stays on purpose; the middle remains low cover as planned.
 
 **Why:** The plan asks to record every choice made while building. The
 proven connection code keeps party matches reliable, and the menu gets a
