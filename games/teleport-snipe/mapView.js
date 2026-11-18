@@ -113,9 +113,15 @@ function rock(p, group, seed) {
   const geo = new THREE.IcosahedronGeometry(0.5, 1);
   const pos = geo.attributes.position;
   for (let i = 0; i < pos.count; i++) {
-    // The same small dents every time (no randomness: the same on every screen).
-    const k = 0.86 + 0.14 * Math.sin(i * 12.9898 + seed * 78.233);
-    pos.setXYZ(i, pos.getX(i) * k, pos.getY(i) * k, pos.getZ(i) * k);
+    const x = pos.getX(i);
+    const y = pos.getY(i);
+    const z = pos.getZ(i);
+    // Every triangle has its own copy of its corners. The dent depends only
+    // on where a corner is, so all copies of a corner move together and the
+    // surface stays closed. The same small dents every time (no randomness).
+    const n = Math.sin(x * 127.1 + y * 311.7 + z * 74.7 + seed * 78.233) * 43758.5453;
+    const k = 0.84 + 0.16 * (n - Math.floor(n));
+    pos.setXYZ(i, x * k, y * k, z * k);
   }
   geo.computeVertexNormals();
   const m = mesh(geo, COLORS.stoneDark);

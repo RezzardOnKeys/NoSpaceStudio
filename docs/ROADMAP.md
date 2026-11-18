@@ -122,7 +122,7 @@ table whenever a phase is finished.
   the computer at every strength). **Not yet tested: Safari, a real party
   with two accounts over the internet, touch screens.**
 - **The seventh game is being built:** "Teleport Snipe"
-  (`games/teleport-snipe/`, version 0.5.0, draft; steps 1 to 5 of 8 done:
+  (`games/teleport-snipe/`, version 0.5.1, draft; steps 1 to 5 of 8 done:
   menu, colours, mouse speed slider, party connection, the temple garden,
   moving, jumping, crouching, sliding, stairs, the rifle with zoom, hitscan
   shots, spread, 1 s reload, tracers, hit marker, test dummies, teleports

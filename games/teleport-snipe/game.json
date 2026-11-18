@@ -3,7 +3,7 @@
   "shortDescription": "A one-shot sniper duel in a temple garden: every miss teleports you somewhere random.",
   "genres": ["Action", "Shooter", "Party"],
   "engine": "HTML5",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "status": "draft",
   "publishedAt": "2026-11-17",
   "maxPlayers": 2

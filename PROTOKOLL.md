@@ -15,6 +15,19 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 72 – 2026-11-18 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Teleport Snipe: die Felsen im Kiesgarten sehen kaputt aus (zerfallen in einzelne Splitter)
+**Änderungen:**
+- Ursache: Jedes Dreieck eines Felsens hat eigene Kopien seiner Ecken, und jede Kopie wurde unterschiedlich stark eingedellt. Dadurch passten die Dreiecke nicht mehr aneinander und es entstanden Lücken
+- Die Delle hängt jetzt nur davon ab, wo eine Ecke liegt: alle Kopien einer Ecke bewegen sich gleich, die Felsen sind wieder geschlossene, raue Steine (gleiche Größe wie vorher, die Kollision ändert sich nicht)
+- Version 0.5.1 (game.json, ROADMAP, TELEPORT-SNIPE.md)
+- Commit-Hash für Version 71 nachgetragen
+- Kein News-Beitrag: das Spiel ist noch ein Entwurf
+- Getestet: im Browser das Menü mit Blick auf den Kiesgarten, alle fünf Felsen sind geschlossen. Nicht getestet: Safari
+**Geänderte Dateien:** games/teleport-snipe/mapView.js, games/teleport-snipe/game.json, docs/ROADMAP.md, docs/TELEPORT-SNIPE.md, PROTOKOLL.md
+**Commit-Message:** `[v72] fix(teleport-snipe): close the gaps in the rocks of the gravel garden`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 71 – 2026-11-18 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Blockchess: nach einem Matt durch den Computer war der Bildschirm komplett blau, das Brett weg, „View the board“ zeigte nichts (Brave, im Launcher); prüfen und sicherstellen, dass es im Mehrspieler nicht passiert
 **Änderungen:**
@@ -26,7 +39,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Getestet: Testskripte (alle grün); im Browser die 3D-Grafik absichtlich abgeschaltet (zeigt genau das blaue Bild) und zurückgeholt: Brett und Figuren vollständig wieder da; abgeschaltet ohne Rückkehr: Hinweis erscheint, „Reload“ setzt die Partie fort und der Computer zieht weiter; Matt durch den Gast in der Party mit zwei Tabs, danach „View the board“: Brett sichtbar. Für die Tests vorübergehend ein Testzugang, wieder entfernt. Nicht getestet: Brave selbst (läuft hier nicht), Safari, ob die Grafik auf deinem MacBook jetzt stabil bleibt
 **Geänderte Dateien:** games/blockchess/pieces.js, games/blockchess/pieceView.js, games/blockchess/game.js, games/blockchess/config.js, games/blockchess/index.html, games/blockchess/game.json, news/2026-11-18-blockchess-1-0-1.md (neu), docs/DECISIONS.md, docs/ROADMAP.md, PROTOKOLL.md
 **Commit-Message:** `[v71] fix(blockchess): keep the board visible by drawing pieces with far fewer draw calls and recover a lost 3D view`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`c873fd5`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/c873fd5)
 
 ## Version 70 – 2026-11-18 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Das Spiel aus blockchess.zip (3D-Schach in einer Blockwelt mit eigenen Figuren, Computergegner, Online-Modus) als neues Spiel Blockchess 1.0.0 einbauen wie Inkwars, sofort veröffentlichen; ohne Ton, ohne „2 Spieler an einem Gerät“, mit Aufgeben-Knopf; alte ZIP-Dateien und alten Kram aufräumen
