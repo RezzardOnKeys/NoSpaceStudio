@@ -16,6 +16,7 @@ these files when it is built. Step by step:
 | `die-together/` | Die Together (3D shooter, two players steer one character; 2, 4, 6 or 8 players from a party, with 2 against a bot; three.js and PeerJS in `vendor/`) |
 | `dust-dash/` | Dust Dash (cosy vacuum race in a wooden hall with deliveries and power-ups; 1 vs 1 from a party or alone against a bot; three.js and PeerJS in `vendor/`) |
 | `inkwars/` | Inkwars (3D water fight: paint the arena, dive into your own colour; 1 vs 1 from a party or alone against bots; three.js and PeerJS in `vendor/`) |
+| `blockchess/` | Blockchess (3D chess on a floating block island with hand-made pieces; 1 vs 1 from a party or alone against the computer; three.js, chess.js and PeerJS in `vendor/`) |
 | `teleport-snipe/` | Teleport Snipe (draft, being built: one-shot sniper duel in a temple garden, every miss teleports you; 1 vs 1 from a party or alone against a bot; three.js and PeerJS in `vendor/`) |
 
 ## Rules for a game

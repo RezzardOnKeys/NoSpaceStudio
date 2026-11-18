@@ -15,6 +15,28 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 70 – 2026-11-18 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Das Spiel aus blockchess.zip (3D-Schach in einer Blockwelt mit eigenen Figuren, Computergegner, Online-Modus) als neues Spiel Blockchess 1.0.0 einbauen wie Inkwars, sofort veröffentlichen; ohne Ton, ohne „2 Spieler an einem Gerät“, mit Aufgeben-Knopf; alte ZIP-Dateien und alten Kram aufräumen
+**Änderungen:**
+- Neues Spiel `games/blockchess/` (Version 1.0.0, veröffentlicht): ohne Build-Schritt, schlichtes JavaScript mit relativen Imports, eine kleine Datei pro Aufgabe (Dateiliste oben in `game.js`); die große `main.js` der ZIP aufgeteilt in Regeln, Schiedsrichter, Gast-Kopie, Szene, Brett, Figuren-Anzeige, Kamera, Menü und Anzeige
+- `vendor/`: three.js r187 (dieselben Dateien wie in den anderen Spielen) mit OrbitControls aus derselben Version, chess.js 1.4.0 und PeerJS 1.5.4, jeweils mit Lizenzdatei; nichts von einem CDN. Der Computergegner läuft in einem Web Worker ohne Vite
+- Alle Texte und Kommentare auf Englisch, Figurennamen übersetzt (Village Guard gegen Cave Folk)
+- Nicht übernommen: Ton (`sound.js`), „2 Spieler an einem Gerät“, Raumcodes und Einladungslinks, die Test-Hintertüren `window.blockchess` und `?fast`, Vite-Einstellungen, package.json, node_modules, dist, .git, .claude
+- Zusammenspielen nur über die Party, genau 2 Spieler: Der Host ist Schiedsrichter und wählt die Seiten (Weiß, Schwarz, Zufall), der Gast drückt „Ready“; „Rematch“ tauscht die Seiten. Der Gast zeigt seinen Zug sofort, der Host prüft und bestätigt ihn; passt etwas nicht, bekommt der Gast die ganze Partie neu
+- Neuladen: Der Gast kommt mitten in der Partie zurück; der Host merkt sich die Partie im Tab und macht nach einem Neuladen weiter. Geht der Gast, sieht der Host einen Hinweis und „(away)“
+- Neu: „Resign“ (zweimal klicken) für beide Seiten und allein; danach zeigt der Knopf das Ergebnis wieder
+- Allein gegen den Computer: Seite (Weiß, Schwarz, Zufall), Stärke (leicht, mittel, schwer), „Undo“
+- Die Regeln warten nie auf die Animation; Züge, die sich im Hintergrund stauen, werden ohne Laufen gesetzt. Deshalb braucht das Spiel keinen Takt für Tabs im Hintergrund (`ticker.js`)
+- Auf dem Handy (Hochformat) steht die Kamera weiter weg, damit das ganze Brett ins Bild passt; „weniger Bewegung“ wird beachtet
+- Store-Eintrag: `game.json`, `description.md`, `cover.svg` und `banner.svg` im Pixel- und Blockstil des Spiels
+- News: Patch Note Blockchess 1.0.0
+- Doku: Entscheidung 51, ROADMAP (Where things stand; Teleport Snipe ist dort jetzt das siebte Spiel), games/README.md (Tabelle), docs/PARTY-GAMES.md (sechstes Beispiel), README.md (Spieleliste)
+- Aufgeräumt: `inkwars.zip` (war noch im Repository, wird mit diesem Commit entfernt), `blockchess.zip`, der alte Build-Ordner `dist/` und drei `.DS_Store`-Dateien (die letzten drei waren nur auf dem Rechner)
+- Getestet: mit Testskripten (83 Prüfungen: Schäfermatt, Narrenmatt, Patt, dreifache Wiederholung, zu wenig Material, 50-Züge-Regel, Rochade, en passant, Umwandlung, Aufgeben beider Seiten, Revanche, Neuladen des Gastes mitten in der Partie und nach dem Ende, verlorene und falsche Nachrichten, Speichern und Laden beim Host, ganze Partien des Computers auf allen drei Stufen); im Browser allein (Züge, Schlagen, Undo, Resign, Ergebnis, Handy-Ansicht, im Spielfenster des Launchers) und in der Party mit zwei Tabs (Matt, Patt, Wiederholung, Umwandlung mit Auswahl, Rochade, Revanche mit Seitentausch, Gast und Host geben auf, Gast lädt neu, Host lädt neu, Gast geht und kommt wieder); für die Browsertests vorübergehend ein Testzugang und ein Test-Takt, wieder entfernt. Nicht getestet: Safari, eine echte Party mit zwei Konten über das Internet, Touch-Bildschirme
+**Geänderte Dateien:** games/blockchess/ (neu: index.html, game.js, config.js, rules.js, host.js, guest.js, ai.js, aiWorker.js, net.js, scene.js, world.js, textures.js, board.js, pieces.js, pieceView.js, camera.js, menu.js, hud.js, game.json, description.md, cover.svg, banner.svg, vendor/three.module.js, vendor/three.core.js, vendor/three-LICENSE.txt, vendor/OrbitControls.js, vendor/chess.js, vendor/chess-LICENSE.txt, vendor/peerjs.min.js, vendor/peerjs-LICENSE.txt), news/2026-11-18-blockchess-1-0.md (neu), docs/DECISIONS.md, docs/ROADMAP.md, docs/PARTY-GAMES.md, games/README.md, README.md, PROTOKOLL.md, inkwars.zip (gelöscht)
+**Commit-Message:** `[v70] feat(games): add Blockchess 1.0.0, 3D chess on a floating block island for two players or against the computer`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 69 – 2026-11-17 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Teleport Snipe, Schritt 5: Party mit dem Host als Schiedsrichter, Gast bewegt sich sofort selbst, Schüsse mit Verzögerungsausgleich, Teleports ohne Warten, Neuladen während eines Matches
 **Änderungen:**
@@ -31,7 +53,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Getestet: mit einem Testskript ein ganzes Party-Match mit künstlicher Verzögerung 0, 60 und 150 ms (Gast läuft, springt, duckt sich: Host-Kopie am Ende gleich bis auf 0 bis 1 cm; jeder Schuss, den der Gast als Treffer sieht, wird vom Host bestätigt, obwohl der Host schon 0,9 bis 1,9 m weiter war; Teleports auf beiden Seiten gleich; Host-Schüsse und Teleports kommen beim Gast an); alle früheren Tests noch grün; im Browser mit zwei Tabs (Gast läuft und springt, Host-Kopie exakt gleich; Gast trifft den seitlich laufenden Host über den ganzen Garten, Runde endet; Fehlschuss teleportiert auf beiden Seiten gleich; Gast lädt in Runde 2 neu und ist zurück mit Stand, Position und Schusszahl; geduckter Host hinter der Mauer zeigt nur den Hut; Leuchtspur und Blitz des Hosts beim Gast) und allein (Treffermarkierung). Für die Browsertests habe ich wieder vorübergehend einen Testzugang eingebaut und entfernt. Nicht getestet: eine echte Party mit zwei Konten über das Internet, echte Maus, Safari
 **Geänderte Dateien:** games/teleport-snipe/wire.js (neu), games/teleport-snipe/feed.js (neu), games/teleport-snipe/host.js, games/teleport-snipe/guest.js, games/teleport-snipe/sim.js, games/teleport-snipe/config.js, games/teleport-snipe/playerView.js, games/teleport-snipe/game.js, games/teleport-snipe/game.json, docs/DECISIONS.md, docs/TELEPORT-SNIPE.md, docs/ROADMAP.md, PROTOKOLL.md
 **Commit-Message:** `[v69] feat(teleport-snipe): add the party with the host as referee, guest prediction and lag-compensated shots`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`53b5732`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/53b5732)
 
 ## Version 68 – 2026-11-17 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Teleport Snipe, Schritt 4: Teleports (Stehplätze, Zufall aus dem Seed, zwei Lichtblitze), Runden mit Zeitlupe, Rundenkarte, wer zuerst 3 gewinnt, Ergebnis

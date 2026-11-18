@@ -101,7 +101,24 @@ table whenever a phase is finished.
   over the internet, the mouse (pointer lock) by Claude, how strong the
   bot feels against a person** (its numbers are under `bot` in
   `config.js`). No sound yet.
-- **The sixth game is being built:** "Teleport Snipe"
+- **The sixth game is in:** `games/blockchess/` (Blockchess, version 1.0.0,
+  published on 2026-11-18), chess on a raised board in a floating island
+  of blocks with twelve hand-made block figures (Village Guard against
+  Cave Folk) that walk to their squares. 1 vs 1 from a party (the host is
+  the referee and picks the sides, a rematch swaps them) or alone against
+  the computer (easy, medium, hard, with undo). It was handed over as a
+  ZIP file of a Vite project and brought in as plain JavaScript like
+  Inkwars (decision 51): three.js with OrbitControls, chess.js and PeerJS
+  in `vendor/`, the computer in a web worker, no sound, no room codes.
+  Tested in Chrome: alone against the computer, a party with two tabs
+  (checkmate, stalemate, a draw by repetition, resign by both sides,
+  promotion with a choice, castling, rematch, reload of the guest and of
+  the host during a game, the guest leaving and coming back), inside the
+  launcher's player, and with test scripts (all rules and draws, the
+  referee and the guest copy with lost and false messages, whole games of
+  the computer at every strength). **Not yet tested: Safari, a real party
+  with two accounts over the internet, touch screens.**
+- **The seventh game is being built:** "Teleport Snipe"
   (`games/teleport-snipe/`, version 0.5.0, draft; steps 1 to 5 of 8 done:
   menu, colours, mouse speed slider, party connection, the temple garden,
   moving, jumping, crouching, sliding, stairs, the rifle with zoom, hitscan
@@ -398,6 +415,6 @@ Collected in conversations with the developers; nothing decided yet.
   real SMTP provider is needed before going public (phase 7).
 - `brand.contactEmail` is still the placeholder `contact@example.com`.
 - Fullscreen in the player and Safari in general have not been tested yet.
-  This includes Blind Drop, Die Together, Inkwars and Dust Dash (3D with
+  This includes Blind Drop, Die Together, Inkwars, Dust Dash and Blockchess (3D with
   WebGL), which were only tested in Chrome.
 - `eslint-plugin-jsx-a11y` can be added once it supports ESLint 10.

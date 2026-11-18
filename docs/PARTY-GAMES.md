@@ -183,6 +183,21 @@ Host sie nicht innerhalb einer Sekunde, liegen sie wieder da. Wer neu lädt,
 bekommt einmal die Liste aller fehlenden Teile (Nachricht `dirt`).
 Entscheidung 44 erklärt den Aufbau.
 
+Ein sechstes Beispiel für ein **Spiel mit Zügen statt Echtzeit** ist
+`games/blockchess/` (Schach, 1 gegen 1). Hier gibt es keinen Takt und
+keine Positionen: Der Gast prüft seinen Zug mit denselben Regeln
+(`rules.js`), zeigt ihn sofort und schickt ihn mit seiner Nummer
+(Halbzug) an den Host. Der Host spielt ihn nur, wenn die Nummer stimmt,
+die Seite dran ist und der Zug erlaubt ist, und bestätigt ihn. Passt
+etwas nicht oder fehlt eine Nachricht, bekommt der Gast die ganze Partie
+als Liste aller Züge (Nachricht `game`) und baut sie neu auf. Dieselbe
+Nachricht bekommt ein Gast, der neu lädt. Der Host merkt sich die Partie
+im `sessionStorage` des Tabs, so geht sie auch nach einem Neuladen des
+Hosts weiter. Weil die Regeln nie auf die Animation warten
+(`pieceView.js`), braucht das Spiel keinen Takt für Tabs im Hintergrund.
+Die Liste aller Nachrichten steht oben in `host.js`, Entscheidung 51
+erklärt den Aufbau.
+
 ### 4. Ohne Party weiter funktionieren
 
 Ohne `#party=...` wurde das Spiel allein gestartet (oder direkt über seine

@@ -1254,3 +1254,81 @@ something open, these defaults were chosen (the list grows with every step):
 **Why:** The plan asks to record every choice made while building. The
 proven connection code keeps party matches reliable, and the menu gets a
 look of its own that fits the garden, like Dust Dash's parcel tag.
+
+## 51. Blockchess: brought in from a ZIP file, party mode with the host as referee
+
+**Decision:** Blockchess (`games/blockchess/`) was written as its own Vite
+project (three.js 0.187, chess.js 1.4.0, PeerJS 1.5.5) and handed over as
+`blockchess.zip`, with German texts, a hot-seat mode and its own room codes.
+It went in the way Inkwars did (decision 39):
+
+- **No build step, one small file per job** (decision 38); the list of
+  files is at the top of `game.js`. The 600-line `main.js` of the ZIP was
+  split into `rules.js` (the rules around chess.js), `host.js` (referee),
+  `guest.js` (guest copy), `scene.js`, `board.js`, `pieceView.js`,
+  `camera.js`, `menu.js`, `hud.js` and `game.js`. `pieces.js`, `world.js`,
+  `textures.js` and `ai.js` were taken over almost unchanged (import
+  paths and comments). Comments and all texts on screen are English; the
+  pieces are called Village Guard (Villager, Stone Golem, Lantern Monk,
+  Block Horse Knight, Crystal Mage, Village Elder) and Cave Folk (Bone
+  Warrior, Obsidian Colossus, Mushroom Shaman, Spider Rider, Shadow Witch,
+  Cave King).
+- **Third-party code in `vendor/`** (decision 27) with licence files:
+  three.js r187 (the same files as in the other 3D games),
+  `OrbitControls.js` from the same three.js version with its import
+  pointed at `./three.module.js`, chess.js 1.4.0 (BSD-2 licence; exactly
+  this version, because the computer uses its internal functions for
+  speed) and PeerJS 1.5.4 (the same file as in the other games instead of
+  the ZIP's 1.5.5).
+- **The computer runs in a web worker** (`aiWorker.js`), started with
+  `new Worker(new URL('./aiWorker.js', import.meta.url), { type: 'module' })`,
+  which browsers understand without Vite. If the worker cannot start, the
+  computer thinks on the page itself. Strength and thinking time are in
+  `config.js`.
+- **Not taken over:** `.git`, `node_modules`, `dist`, `.claude`,
+  `package.json`, `package-lock.json`, the Vite setup, the test back
+  doors `window.blockchess` and `?fast`, `sound.js` (our games have no
+  sound for now), the mode "2 players on one device", and the room codes
+  and invitation links (`online.js`).
+- **Playing together only through the party** (decision 33), exactly 2
+  players (`"maxPlayers": 2`). The host's browser is the referee: it
+  holds the moves and the result (`host.js`, all messages at its top).
+  The guest checks its own move with the same rules and shows it at once,
+  then sends it; the host plays it only if it is that side's turn, the
+  half-move number fits and the move is legal, and confirms it. Otherwise,
+  or if the guest misses a message, the guest gets the whole game again
+  (`game` message, the list of moves) and starts over from it.
+- **The host picks the sides** in the menu (White, Black or Random); the
+  guest presses "Ready", the host "Start game", as in the other party
+  games. "Rematch" swaps the sides; "Menu" goes back for both.
+- **Reloading:** a guest who reloads gets the whole game and is back at
+  once. The host keeps the game in the tab's `sessionStorage`, so a
+  reload of the host's tab continues it too (the guest comes back on its
+  own). If the guest leaves, the host sees "… left the game. Waiting for
+  them to come back…" and the other player is marked "(away)".
+- **Resign** for both sides and alone: the button must be clicked twice
+  within three seconds ("Really resign?"). In a party the guest asks the
+  host, who ends the game. After the game the same button shows the
+  result again. There is no offer of a draw.
+- **Alone against the computer:** White, Black or Random, easy, medium or
+  hard, and "Undo" (it takes back the own move and the computer's answer).
+- **The picture never holds the rules up.** In the ZIP the next move
+  waited for the walking animation, which runs only while frames are
+  drawn; a tab in the background would have stopped. Now the rules
+  change at once, and `pieceView.js` shows the moves one after another;
+  moves that piled up are set without walking. So no clock for hidden
+  tabs (`ticker.js`) is needed: chess has no running time, and every
+  message is handled when it arrives.
+- **Smaller changes:** the camera stands further back on a narrow screen
+  (a phone held upright), so the whole board fits; the side panel moves
+  to the bottom there. With "reduce motion" the pieces do not bob or hop
+  and the camera does not swing. A pawn reaching the last rank without a
+  choice becomes a queen. The shadow type is `PCFShadowMap`.
+
+**Why:** The same rules as for every other game: static folders, small
+files, no CDN, one way to play together. The referee model of the other
+party games means two screens cannot disagree about a move or the result;
+for a turn-based game the guest needs no prediction beyond showing its own
+move at once. The look of a world made of blocks is a common style; the
+figures, the island and the code are the ZIP author's own, and the store
+texts do not refer to any other game.

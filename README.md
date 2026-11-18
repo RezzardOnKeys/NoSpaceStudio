@@ -14,8 +14,8 @@ in-app purchases.
 </div>
 
 > **Status:** prototype. Accounts, friends, online status, playtime and
-> parties work; five games are in (99-Finger WPM Trainer, Blind Drop, Die
-> Together, Inkwars, Dust Dash). The plan and the current state are in
+> parties work; six games are in (99-Finger WPM Trainer, Blind Drop, Die
+> Together, Inkwars, Dust Dash, Blockchess). The plan and the current state are in
 > [docs/ROADMAP.md](docs/ROADMAP.md).
 
 <!-- TODO: replace with a real screenshot once the store page exists. -->
