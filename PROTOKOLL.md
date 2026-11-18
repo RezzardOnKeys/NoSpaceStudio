@@ -15,6 +15,18 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 75 – 2026-11-18 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Klassische Brett- und Partyspiele in eigenem Stil sammeln (nur solche, die ohne Probleme online dürfen); entschieden: Mühle als gemütliches Spiel auf einer Insel im Teich mit Kois und drehbarer Kamera wie bei Blockchess. Plan als Datei festhalten und einen Startprompt für den nächsten Chat schreiben
+**Änderungen:**
+- Neuer Spielplan `docs/MILLPOND.md` für das achte Spiel „Millpond“ (`games/millpond/`): Mühle (Nine Men's Morris) mit Marienkäfern gegen Schnecken auf einem Holzbrett, auf einer kleinen Insel in einem Mühlteich mit Kois, Seerosen, Schilf und Wassermühle; Kamera drehen und zoomen wie bei Blockchess; vollständige Regeln (Setzen, Ziehen, Springen mit 3 Steinen, Mühle schützt, Sieg bei 2 Steinen oder keinem Zug, Remis bei dreifacher Wiederholung oder 50 Zügen ohne Mühle); Extras: mögliche Züge anzeigen, Mühle leuchtet und das Mühlrad dreht schneller, geschlagene Marienkäfer fliegen weg und Schnecken rutschen ins Wasser, Klick ins Wasser lockt die Kois, Tag und Abenddämmerung mit Laternen und Glühwürmchen; 1 gegen 1 aus der Party (Host als Schiedsrichter wie bei Blockchess) oder allein gegen den Computer (leicht, mittel, schwer, mit Zurücknehmen); kein Ton; 7 Schritte mit Übergabe nach jedem Schritt; nach Fertigstellung veröffentlicht
+- ROADMAP: achtes Spiel als geplant eingetragen; Liste klassischer Spiele, die ohne Probleme in eigenem Stil möglich sind (mit Hinweis auf geschützte Namen), unter „Ideas for later“
+- Commit-Hash für Version 74 nachgetragen
+- Nur Dokumentation, kein Spielcode; deshalb kein News-Beitrag
+- Startprompt für den nächsten Chat geschrieben (steht im Chat, nicht als Datei)
+**Geänderte Dateien:** docs/MILLPOND.md (neu), docs/ROADMAP.md, PROTOKOLL.md
+**Commit-Message:** `[v75] docs: plan the game Millpond`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 74 – 2026-11-18 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Teleport Snipe: die freie Sicht zwischen den beiden Startpunkten so lassen
 **Änderungen:**
@@ -23,7 +35,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Nur Dokumentation, am Spiel ändert sich nichts; deshalb kein News-Beitrag
 **Geänderte Dateien:** docs/DECISIONS.md, docs/ROADMAP.md, PROTOKOLL.md
 **Commit-Message:** `[v74] docs(teleport-snipe): keep the open line of sight between the start points`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`d507e64`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/d507e64)
 
 ## Version 73 – 2026-11-18 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Teleport Snipe komplett fertigstellen und veröffentlichen wie die anderen Spiele, mit News-Beitrag und allem, was noch fehlt (Schritte 6 bis 8 des Plans)

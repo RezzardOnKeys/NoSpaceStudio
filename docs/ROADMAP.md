@@ -141,6 +141,14 @@ table whenever a phase is finished.
   **Not yet tested: Safari, a real party with two accounts over the
   internet, the mouse (pointer lock) by Claude, how strong the bot feels
   against a person.** No sound yet.
+- **The eighth game is planned, not built yet:** "Millpond"
+  (`games/millpond/`), the old board game Nine Men's Morris on a cosy
+  island in a mill pond: ladybugs against snails on a wooden board, koi in
+  the water, a turning water mill, a camera that turns around the scene
+  like in Blockchess, and a few extras (mills light up, removed pieces fly
+  away or slide into the pond, day and dusk). 1 vs 1 from a party or alone
+  against the computer, published as soon as version 1.0 is done. The
+  complete plan is in [MILLPOND.md](MILLPOND.md). Build it from that file.
 - **Games and news are files in the repository**, not database rows
   (decision 22). A game is a folder `games/<slug>/` with a `game.json`
   (store entry), an optional `description.md` and its images. A news post is
@@ -415,6 +423,16 @@ Collected in conversations with the developers; nothing decided yet.
   opponent's position.
 - **Other game ideas:** drawing and guessing ("Doodle Dash", 3–8 players),
   quiz, memory duel, reaction mini games.
+- **Classic board and party games in our own look** (discussed on
+  2026-11-18, like Blockchess; only traditional games that belong to
+  nobody, always with our own name, look and texts, never the name or look
+  of a commercial edition): draughts, Go, backgammon, Reversi, four in a
+  row (own name), Pachisi, snakes and ladders, mancala, a ship hunt on a
+  grid (own name), dots and boxes, dice poker and bluff dice (not the
+  names of commercial editions), Halma and Chinese checkers, finding pairs
+  (not called "Memory", which is a trademark), drawing and guessing,
+  werewolf/mafia with own roles. Nine Men's Morris is planned as
+  Millpond.
 - **Launcher ideas:** leaderboards per game (games report a score),
   achievements, a "delete my account" button (the privacy policy
   promises deletion on request by email).
