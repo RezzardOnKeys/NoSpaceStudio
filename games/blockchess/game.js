@@ -25,7 +25,7 @@
 //                  with its licence
 
 import { CONFIG, SIDE_NAMES } from './config.js';
-import { createRules } from './rules.js';
+import { createRules, validResult } from './rules.js';
 import { createReferee } from './host.js';
 import { createCopy, cleanName } from './guest.js';
 import { bestMove } from './ai.js';
@@ -284,6 +284,55 @@ function soloCheckEnd() {
     solo.result = r;
     solo.state = 'ended';
   }
+}
+
+// ---- When the browser switches the 3D view off --------------------------------------
+// Some graphics chips give up now and then (too much work, a driver hiccup);
+// the browser then drops the 3D view and only the blue page background
+// stays. three.js asks the browser to bring it back; if that does not
+// happen within a few seconds, a notice offers to reload the page. A game
+// alone is kept over that reload (the party host keeps its game anyway, and
+// a guest comes back into the running game by itself).
+const RELOAD_KEY = 'blockchess-reload';
+let lostTimer = 0;
+canvas.addEventListener('webglcontextlost', () => {
+  clearTimeout(lostTimer);
+  lostTimer = setTimeout(() => document.getElementById('lost').classList.remove('hidden'), CONFIG.lostWaitMs);
+});
+canvas.addEventListener('webglcontextrestored', () => {
+  clearTimeout(lostTimer);
+  document.getElementById('lost').classList.add('hidden');
+});
+document.getElementById('reload').onclick = () => {
+  if (ROLE === 'solo' && solo.state !== 'menu') {
+    try {
+      sessionStorage.setItem(
+        RELOAD_KEY,
+        JSON.stringify({ mv: rules.packed(), me: solo.myColor, level: menu.level, r: solo.result }),
+      );
+    } catch {
+      /* without storage the reload starts in the menu */
+    }
+  }
+  location.reload();
+};
+
+/** After "Reload" in that notice, the game alone goes on where it was. */
+function restoreSolo() {
+  let saved = null;
+  try {
+    saved = JSON.parse(sessionStorage.getItem(RELOAD_KEY) || 'null');
+    sessionStorage.removeItem(RELOAD_KEY);
+  } catch {
+    return;
+  }
+  if (!saved || !Array.isArray(saved.mv) || !rules.reset(saved.mv)) return;
+  solo.myColor = saved.me === 'b' ? 'b' : 'w';
+  menu.level = [1, 2, 3].includes(saved.level) ? saved.level : 2;
+  solo.result = validResult(saved.r) || rules.outcome();
+  solo.state = solo.result ? 'ended' : 'playing';
+  enterGame();
+  maybeComputer();
 }
 
 // ---- Starting, ending, the menu -------------------------------------------------
@@ -620,6 +669,8 @@ function frame() {
   view.renderer.render(view.scene, view.camera);
 }
 
+// After "Reload" in the notice above, a game alone goes on.
+if (ROLE === 'solo') restoreSolo();
 // A host who reloads continues the running game.
 if (ROLE === 'host') {
   try {

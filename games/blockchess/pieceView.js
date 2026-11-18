@@ -56,6 +56,10 @@ export function createPieceView(scene, calm) {
         p.position.set(side * (6.3 + col * 0.8), -1, side * (3.5 - row));
         p.scale.setScalar(0.75);
         p.rotation.y = (-side * Math.PI) / 2;
+        // Beside the board a shadow adds nothing; it only costs drawing time.
+        p.traverse((o) => {
+          o.castShadow = false;
+        });
         grave.add(p);
       });
     }

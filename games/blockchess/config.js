@@ -39,6 +39,9 @@ export const CONFIG = {
   },
   // "Resign" must be clicked twice within this time.
   resignConfirmMs: 3000,
+  // If the browser has not brought a lost 3D view back after this long, a
+  // notice offers to reload the page.
+  lostWaitMs: 4000,
 };
 
 export const SIDE_NAMES = { w: 'White', b: 'Black' };

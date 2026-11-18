@@ -3,7 +3,7 @@
   "shortDescription": "Chess on a floating block island with hand-made pieces, against the computer or a friend.",
   "genres": ["Strategy", "Board Game"],
   "engine": "HTML5",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "status": "published",
   "publishedAt": "2026-11-18",
   "maxPlayers": 2,

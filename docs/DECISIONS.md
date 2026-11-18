@@ -1332,3 +1332,23 @@ for a turn-based game the guest needs no prediction beyond showing its own
 move at once. The look of a world made of blocks is a common style; the
 figures, the island and the code are the ZIP author's own, and the store
 texts do not refer to any other game.
+
+**Version 1.0.1:** After a checkmate by the computer the developer saw
+only a blue screen in Brave (inside the launcher); the board was gone and
+"View the board" showed nothing. Blue is the page background, so the
+browser had dropped the 3D view (a "lost WebGL context"). It could not be
+made to happen in Chrome here, but a measurement showed why the graphics
+chip was under strain: the pieces needed more than 5500 draw calls per
+frame (every face of every little box had a texture and draw call of its
+own). Two changes:
+
+- `pieces.js` copies all face textures of a kind of piece onto one sheet
+  (a texture atlas, built once when the game loads) and joins the fixed
+  boxes of each part of a figure (body, arm, leg ...) into one mesh. Moving
+  parts stay separate. The pieces look the same (compared in close-ups);
+  the board now needs about 620 draw calls and 73 textures instead of 665.
+  Captured pieces beside the board no longer cast shadows.
+- If the 3D view is lost anyway, three.js asks the browser to restore it
+  and the game draws on. If it is not back after four seconds, a notice
+  offers "Reload". A game alone is stored for that one reload and goes on
+  where it was; the party host keeps its game anyway, and a guest rejoins.

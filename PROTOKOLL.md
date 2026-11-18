@@ -15,6 +15,19 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 71 – 2026-11-18 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Blockchess: nach einem Matt durch den Computer war der Bildschirm komplett blau, das Brett weg, „View the board“ zeigte nichts (Brave, im Launcher); prüfen und sicherstellen, dass es im Mehrspieler nicht passiert
+**Änderungen:**
+- Ursache: Blau ist der Seitenhintergrund, der Browser hatte die 3D-Grafik abgeschaltet („WebGL-Kontext verloren“). In Chrome ließ sich das hier nicht nachstellen (zwei ganze Partien mit Matt durch den Computer, Matt in der Party in beide Richtungen: Brett blieb sichtbar). Gemessen: Das Brett brauchte über 5500 Zeichenbefehle pro Bild, weil jede Seitenfläche jedes kleinen Quaders eine eigene Textur hatte. Das kann die Grafik eines MacBooks überlasten
+- Figuren: Alle Flächenbilder einer Figurenart kommen beim Laden auf einen gemeinsamen Bildbogen (Atlas), und alle festen Quader eines Figurenteils werden zu einem Objekt zusammengefasst; bewegliche Teile bleiben getrennt. Jetzt etwa 620 statt 5566 Zeichenbefehle und 73 statt 665 Texturen; Aussehen in Nahaufnahmen vorher/nachher verglichen, gleich. Geschlagene Figuren neben dem Brett werfen keinen Schatten mehr
+- Falls die 3D-Grafik trotzdem einmal wegfällt: Das Spiel holt sie automatisch zurück; klappt das nach 4 Sekunden nicht, erscheint ein Hinweis mit „Reload“, danach geht eine Partie gegen den Computer genau dort weiter (Host und Gast in der Party kamen schon vorher zurück)
+- Version 1.0.1, Patch Note, Entscheidung 51 ergänzt, ROADMAP
+- Commit-Hash für Version 70 nachgetragen
+- Getestet: Testskripte (alle grün); im Browser die 3D-Grafik absichtlich abgeschaltet (zeigt genau das blaue Bild) und zurückgeholt: Brett und Figuren vollständig wieder da; abgeschaltet ohne Rückkehr: Hinweis erscheint, „Reload“ setzt die Partie fort und der Computer zieht weiter; Matt durch den Gast in der Party mit zwei Tabs, danach „View the board“: Brett sichtbar. Für die Tests vorübergehend ein Testzugang, wieder entfernt. Nicht getestet: Brave selbst (läuft hier nicht), Safari, ob die Grafik auf deinem MacBook jetzt stabil bleibt
+**Geänderte Dateien:** games/blockchess/pieces.js, games/blockchess/pieceView.js, games/blockchess/game.js, games/blockchess/config.js, games/blockchess/index.html, games/blockchess/game.json, news/2026-11-18-blockchess-1-0-1.md (neu), docs/DECISIONS.md, docs/ROADMAP.md, PROTOKOLL.md
+**Commit-Message:** `[v71] fix(blockchess): keep the board visible by drawing pieces with far fewer draw calls and recover a lost 3D view`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 70 – 2026-11-18 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Das Spiel aus blockchess.zip (3D-Schach in einer Blockwelt mit eigenen Figuren, Computergegner, Online-Modus) als neues Spiel Blockchess 1.0.0 einbauen wie Inkwars, sofort veröffentlichen; ohne Ton, ohne „2 Spieler an einem Gerät“, mit Aufgeben-Knopf; alte ZIP-Dateien und alten Kram aufräumen
 **Änderungen:**
@@ -35,7 +48,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Getestet: mit Testskripten (83 Prüfungen: Schäfermatt, Narrenmatt, Patt, dreifache Wiederholung, zu wenig Material, 50-Züge-Regel, Rochade, en passant, Umwandlung, Aufgeben beider Seiten, Revanche, Neuladen des Gastes mitten in der Partie und nach dem Ende, verlorene und falsche Nachrichten, Speichern und Laden beim Host, ganze Partien des Computers auf allen drei Stufen); im Browser allein (Züge, Schlagen, Undo, Resign, Ergebnis, Handy-Ansicht, im Spielfenster des Launchers) und in der Party mit zwei Tabs (Matt, Patt, Wiederholung, Umwandlung mit Auswahl, Rochade, Revanche mit Seitentausch, Gast und Host geben auf, Gast lädt neu, Host lädt neu, Gast geht und kommt wieder); für die Browsertests vorübergehend ein Testzugang und ein Test-Takt, wieder entfernt. Nicht getestet: Safari, eine echte Party mit zwei Konten über das Internet, Touch-Bildschirme
 **Geänderte Dateien:** games/blockchess/ (neu: index.html, game.js, config.js, rules.js, host.js, guest.js, ai.js, aiWorker.js, net.js, scene.js, world.js, textures.js, board.js, pieces.js, pieceView.js, camera.js, menu.js, hud.js, game.json, description.md, cover.svg, banner.svg, vendor/three.module.js, vendor/three.core.js, vendor/three-LICENSE.txt, vendor/OrbitControls.js, vendor/chess.js, vendor/chess-LICENSE.txt, vendor/peerjs.min.js, vendor/peerjs-LICENSE.txt), news/2026-11-18-blockchess-1-0.md (neu), docs/DECISIONS.md, docs/ROADMAP.md, docs/PARTY-GAMES.md, games/README.md, README.md, PROTOKOLL.md, inkwars.zip (gelöscht)
 **Commit-Message:** `[v70] feat(games): add Blockchess 1.0.0, 3D chess on a floating block island for two players or against the computer`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`2477fe9`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/2477fe9)
 
 ## Version 69 – 2026-11-17 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Teleport Snipe, Schritt 5: Party mit dem Host als Schiedsrichter, Gast bewegt sich sofort selbst, Schüsse mit Verzögerungsausgleich, Teleports ohne Warten, Neuladen während eines Matches

@@ -101,7 +101,7 @@ table whenever a phase is finished.
   over the internet, the mouse (pointer lock) by Claude, how strong the
   bot feels against a person** (its numbers are under `bot` in
   `config.js`). No sound yet.
-- **The sixth game is in:** `games/blockchess/` (Blockchess, version 1.0.0,
+- **The sixth game is in:** `games/blockchess/` (Blockchess, version 1.0.1,
   published on 2026-11-18), chess on a raised board in a floating island
   of blocks with twelve hand-made block figures (Village Guard against
   Cave Folk) that walk to their squares. 1 vs 1 from a party (the host is
@@ -110,6 +110,9 @@ table whenever a phase is finished.
   ZIP file of a Vite project and brought in as plain JavaScript like
   Inkwars (decision 51): three.js with OrbitControls, chess.js and PeerJS
   in `vendor/`, the computer in a web worker, no sound, no room codes.
+  1.0.1: the board could vanish (blue screen) at the end of a game in
+  Brave; the pieces are now drawn with far fewer draw calls, and a lost
+  3D view comes back by itself or after a reload that keeps the game.
   Tested in Chrome: alone against the computer, a party with two tabs
   (checkmate, stalemate, a draw by repetition, resign by both sides,
   promotion with a choice, castling, rematch, reload of the guest and of

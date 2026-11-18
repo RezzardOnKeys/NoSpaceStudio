@@ -442,9 +442,148 @@ export const ROSTER = {
 };
 export const PIECE_NAMES = { p: 'Pawn', r: 'Rook', b: 'Bishop', n: 'Knight', q: 'Queen', k: 'King' };
 
+// ---------- Fewer draw calls ----------
+// A figure is built from many small boxes, and every box face has a little
+// texture of its own: drawn as built, the whole board needs more than 5000
+// draw calls per frame. That is too much for some graphics chips; the
+// browser then switches the 3D view off and only the blue page background
+// stays. So, once per kind of piece, all its face textures are copied onto
+// one sheet (an "atlas"), and all fixed boxes of one part (the body, an arm,
+// a leg ...) become a single mesh with that sheet. Parts that move keep
+// their own group. The look stays exactly the same.
+const PAD = 2; // edge pixels repeated around each texture, so neighbours never bleed in
+const kinds = new Map(); // color + type -> { material, rects, shapes }
+
+function sheetTexture(canvas) {
+  const t = new THREE.CanvasTexture(canvas);
+  t.magFilter = THREE.NearestFilter;
+  t.minFilter = THREE.NearestMipmapLinearFilter;
+  t.generateMipmaps = true;
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+
+/** Copies an image with its edge pixels repeated PAD times around it. */
+function paste(ctx, img, x, y) {
+  const w = img.width, h = img.height;
+  ctx.drawImage(img, x, y);
+  ctx.drawImage(img, 0, 0, w, 1, x, y - PAD, w, PAD);
+  ctx.drawImage(img, 0, h - 1, w, 1, x, y + h, w, PAD);
+  ctx.drawImage(img, 0, 0, 1, h, x - PAD, y, PAD, h);
+  ctx.drawImage(img, w - 1, 0, 1, h, x + w, y, PAD, h);
+}
+
+/** One sheet with all face textures of a kind of piece, and the place of each. */
+function buildSheet(mats) {
+  const items = mats.map((m) => ({ m, img: m.map.image, glow: m.emissiveMap ? m.emissiveMap.image : null }));
+  items.sort((a, b) => b.img.height - a.img.height);
+  const W = 256;
+  let x = 0, y = 0, row = 0;
+  for (const it of items) {
+    const w = it.img.width + 2 * PAD, h = it.img.height + 2 * PAD;
+    if (x + w > W) {
+      x = 0;
+      y += row;
+      row = 0;
+    }
+    it.x = x + PAD;
+    it.y = y + PAD;
+    x += w;
+    row = Math.max(row, h);
+  }
+  const H = y + row;
+  const colour = document.createElement('canvas');
+  colour.width = W;
+  colour.height = H;
+  const ctx = colour.getContext('2d');
+  const anyGlow = items.some((it) => it.glow);
+  let glowCtx = null, glow = null;
+  if (anyGlow) {
+    glow = document.createElement('canvas');
+    glow.width = W;
+    glow.height = H;
+    glowCtx = glow.getContext('2d');
+    glowCtx.fillStyle = '#000';
+    glowCtx.fillRect(0, 0, W, H);
+  }
+  const rects = new Map();
+  for (const it of items) {
+    paste(ctx, it.img, it.x, it.y);
+    if (it.glow) paste(glowCtx, it.glow, it.x, it.y);
+    rects.set(it.m, { x: it.x / W, y: it.y / H, w: it.img.width / W, h: it.img.height / H });
+  }
+  const material = new THREE.MeshLambertMaterial({
+    map: sheetTexture(colour),
+    alphaTest: mats.some((m) => m.alphaTest > 0) ? 0.5 : 0,
+  });
+  if (glow) {
+    material.emissiveMap = sheetTexture(glow);
+    material.emissive = new THREE.Color('#ffffff');
+  }
+  return { material, rects };
+}
+
+/** All fixed boxes of one part as one shape, with the texture places of the sheet. */
+function joinBoxes(boxes, rects) {
+  const pos = [], nor = [], uv = [];
+  const p = new THREE.Vector3(), n = new THREE.Vector3(), nm = new THREE.Matrix3();
+  for (const b of boxes) {
+    b.updateMatrix();
+    nm.getNormalMatrix(b.matrix);
+    const geo = b.geometry;
+    const idx = geo.index.array;
+    const P = geo.attributes.position, N = geo.attributes.normal, U = geo.attributes.uv;
+    for (const grp of geo.groups) {
+      const r = rects.get(b.material[grp.materialIndex]);
+      for (let i = grp.start; i < grp.start + grp.count; i++) {
+        const v = idx[i];
+        p.fromBufferAttribute(P, v).applyMatrix4(b.matrix);
+        n.fromBufferAttribute(N, v).applyMatrix3(nm).normalize();
+        pos.push(p.x, p.y, p.z);
+        nor.push(n.x, n.y, n.z);
+        // The canvas is turned upside down when it becomes a texture (v = 0 is its bottom row).
+        uv.push(r.x + U.getX(v) * r.w, 1 - (r.y + (1 - U.getY(v)) * r.h));
+      }
+    }
+  }
+  const out = new THREE.BufferGeometry();
+  out.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  out.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3));
+  out.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  return out;
+}
+
+/** Joins the fixed boxes of every part of a figure; key names the kind of piece. */
+function mergeFigure(root, keep, key) {
+  const parts = [];
+  const boxesOf = [];
+  root.traverse((o) => {
+    if (o.isMesh) return;
+    parts.push(o);
+    boxesOf.push(o.children.filter((c) => c.isMesh && !keep.has(c) && Array.isArray(c.material)));
+  });
+  if (!kinds.has(key)) {
+    const mats = [];
+    for (const boxes of boxesOf) for (const b of boxes) for (const m of b.material) if (!mats.includes(m)) mats.push(m);
+    kinds.set(key, { ...buildSheet(mats), shapes: [] });
+  }
+  const kind = kinds.get(key);
+  parts.forEach((part, partNo) => {
+    const boxes = boxesOf[partNo];
+    if (!boxes.length) return;
+    if (!kind.shapes[partNo]) kind.shapes[partNo] = joinBoxes(boxes, kind.rects);
+    for (const b of boxes) part.remove(b);
+    const mesh = new THREE.Mesh(kind.shapes[partNo], kind.material);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    part.add(mesh);
+  });
+}
+
 export function createPiece(type, color) {
   const [name, build] = ROSTER[color][type];
   const { g, sw, hover = 0, orb } = build();
+  mergeFigure(g, new Set([...sw.map((s) => s[0]), orb]), color + type);
   g.scale.setScalar(S);
   const outer = new THREE.Group();
   outer.add(g);
