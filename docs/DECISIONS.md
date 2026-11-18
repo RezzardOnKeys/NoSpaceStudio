@@ -1474,3 +1474,13 @@ with every step):
   last are set at once in the same frame. The board can be clicked only
   when nothing moves. If the picture ever shows something else than the
   rules while nothing moves, it is set anew from the rules.
+- **Step 4 (party):** the referee, the guest's copy, rematch, resign and
+  both reloads work exactly as in Blockchess and were in place since
+  step 1. One change: when the guest gets the same game again (it got out
+  of step), the camera stays where the player put it and a result card
+  that was already seen does not pop up again; only a new game (or new
+  sides) swings the camera to the own side. A removal counts as a move of
+  its own, so a guest who closes a mill sends two moves in a row; a guest
+  who reloads in the middle of that is back in the removal.
+- "Menu" after a game goes back to the side the host picked in the menu
+  (the rematches only swapped the sides of the games), as in Blockchess.

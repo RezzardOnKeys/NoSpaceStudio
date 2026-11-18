@@ -15,6 +15,19 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 79 – 2026-11-18 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Millpond Schritt 4: Party mit Host als Schiedsrichter, Gast-Kopie, Revanche, Aufgeben, Neuladen von Gast und Host
+**Änderungen:**
+- Schiedsrichter, Gast-Kopie, Revanche, Aufgeben und Neuladen waren seit Schritt 1 eingebaut; jetzt gründlich geprüft
+- Verbessert: Bekommt der Gast dieselbe Partie noch einmal (nach einem verlorenen oder abgelehnten Zug), bleibt die Kamera, wo der Spieler sie hingedreht hat, und eine schon gesehene Ergebnis-Karte springt nicht noch einmal auf; nur eine neue Partie (oder neue Seiten) dreht die Kamera zur eigenen Seite
+- Version 0.4.0, Entscheidung 52 ergänzt, ROADMAP, Status in MILLPOND.md
+- Commit-Hash für Version 78 nachgetragen
+- Kein News-Beitrag: das Spiel ist noch ein Entwurf
+- Getestet: neues Testskript für Schiedsrichter und Gast (38 Prüfungen: 600 ganze Partien, davon 400 mit 10 % oder 30 % verlorenen Zügen, am Ende immer gleich; falsche, doppelte und zu späte Züge, Zug in der falschen Runde, kaputte Nachrichten; Aufgeben beider Seiten, Revanche mit Seitentausch, Menü; Neuladen des Gastes mitten im Entfernen, Speichern und Laden beim Host, auch einer beendeten Partie); Regel- und Koi-Tests weiter grün; im Browser mit zwei Tabs: Gast lädt mitten in der Partie neu (sofort zurück mit allen Zügen), Host lädt neu (Partie geht weiter, Gast kommt von selbst zurück, danach gehen Züge wieder durch), Gast verlässt die Seite („ben left the game…“, „(away)“) und kommt zurück, ein dritter Tab bekommt „This game already has two players.“, Gast gibt auf, Revanche tauscht die Seiten, Host gibt auf (Bestätigung erlischt nach 3 Sekunden), „Menu“ bringt beide ins Menü; lint, typecheck, build. Für die Browsertests vorübergehend ein Testzugang, wieder entfernt. Nicht getestet: eine echte Party mit zwei Konten über das Internet, Safari, Touch; dass die Kamera bei einer erneut geschickten Partie stehen bleibt, habe ich nur im Code geprüft, nicht im Bild
+**Geänderte Dateien:** games/millpond/game.js, games/millpond/game.json, docs/DECISIONS.md, docs/ROADMAP.md, docs/MILLPOND.md, PROTOKOLL.md
+**Commit-Message:** `[v79] feat(millpond): keep the camera when the guest gets the game again, test the party`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 78 – 2026-11-18 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Millpond Schritt 3: Figuren und Spielen mit der Maus (Setzen, Ziehen, Springen, mögliche Züge, Mühle mit Licht, Entfernen mit wegfliegendem Marienkäfer und ins Wasser rutschender Schnecke), Anzeige während der Partie, Ergebnis
 **Änderungen:**
@@ -33,7 +46,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Getestet: im Browser allein eine ganze Partie gegen Zufallszüge (134 Züge, 15 Flüge, Mühlen und Entfernen, Ende „The ladybugs have only 2 pieces left.“, Ergebnis-Karte, Bild passt am Ende genau zu den Regeln); Nahaufnahmen der Figuren, Mühlen-Leuchten, wegrutschende Schnecke mit Ringen, wegfliegender Marienkäfer; echter Mausklick setzt einen Stein; sechs aufgestaute Züge werden richtig gesetzt; Party mit zwei Tabs (ganze Partie mit 137 Zügen, auf beiden Seiten dasselbe Ergebnis und dasselbe Bild); Regel- und Koi-Tests weiter grün; lint, typecheck, build. Weil der Browser hier im Hintergrund kaum Bilder zeichnet, habe ich die Animationen für die Tests von Hand Bild für Bild vorangetrieben (vorübergehender Testzugang, wieder entfernt). Nicht getestet: wie sich die Animationen bei echten 60 Bildern pro Sekunde anfühlen, Safari, Touch, Neuladen in der Party (Schritt 4)
 **Geänderte Dateien:** games/millpond/pieces.js (neu), games/millpond/pieceView.js, games/millpond/koi.js, games/millpond/world.js, games/millpond/scene.js, games/millpond/board.js, games/millpond/hud.js, games/millpond/game.js, games/millpond/config.js, games/millpond/index.html, games/millpond/game.json, docs/DECISIONS.md, docs/ROADMAP.md, docs/MILLPOND.md, PROTOKOLL.md
 **Commit-Message:** `[v78] feat(millpond): add the ladybug and snail figures with placing, walking, flying, mills and removing`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`969d4b5`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/969d4b5)
 
 ## Version 77 – 2026-11-18 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Millpond Schritt 2: die Szene mit Insel, Holzbrett, Teich mit Seerosen und Schilf, Kois, Wassermühle, Landschaft, Licht und Kamera

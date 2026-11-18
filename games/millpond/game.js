@@ -91,6 +91,8 @@ let resultShown = false; // the result card was shown for this game
 let confirmUntil = 0; // "Really resign?" until this time
 let thinking = false; // the computer is looking for a move
 let aiToken = 0; // a new game makes the computer's answer void
+let viewing = null; // the side whose game the screen shows
+let viewingPlies = 0; // how many moves that game had when it was shown
 
 const names = () => {
   const me = mySide();
@@ -274,25 +276,35 @@ function startSolo() {
   solo.result = null;
   solo.state = 'playing';
   rules.reset();
-  enterGame();
+  enterGame(true);
   maybeComputer();
 }
 
 function startHost(side) {
   ref.start(side);
-  enterGame();
+  enterGame(true);
   toGuest(ref.gameMessage(menu.myName));
   saveHost();
 }
 
-/** Shows the board for the game that is now in the rules (new, continued or rejoined). */
-function enterGame() {
+/**
+ * Shows the board for the game that is now in the rules (new, continued or
+ * rejoined). isNew: a game that was just started here.
+ */
+function enterGame(isNew = false) {
+  // The same game sent again (the guest got out of step) keeps the camera
+  // and a result card that was already seen; a new game starts afresh.
+  const fresh = isNew || screen !== 'game' || viewing !== mySide() || rules.plies < viewingPlies;
   screen = 'game';
   selected = null;
-  resultShown = false;
   confirmUntil = 0;
   pieces.reset(rules);
-  rig.viewSide(mySide());
+  if (fresh) {
+    resultShown = false;
+    rig.viewSide(mySide());
+  }
+  viewing = mySide();
+  viewingPlies = rules.plies;
   menuUi.show(false);
   hud.hideResult();
   hud.show(true);
@@ -500,6 +512,7 @@ function lastPoints() {
 function refresh() {
   menuUi.render(menu);
   if (screen !== 'game') return;
+  viewingPlies = rules.plies;
   // A safety net: if the picture ever shows something else than the rules, set it anew.
   if (!pieces.busy() && !pieces.matches(rules)) pieces.reset(rules);
   const mine = canMove();
