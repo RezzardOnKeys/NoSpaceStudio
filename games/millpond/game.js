@@ -10,7 +10,7 @@
 //   rules.js       the rules: board, phases, mills, removing, flying, results, draws
 //   host.js        the referee of a party game; the list of all party messages is at its top
 //   guest.js       the guest's copy of a party game
-//   ai.js          the computer opponent
+//   ai.js          the computer opponent; aiWorker.js runs it in a web worker
 //   net.js         party connection with PeerJS
 //   scene.js       the 3D view and its light; world.js the island, the pond,
 //                  the water mill and the land round it; koi.js the fish
@@ -235,18 +235,44 @@ if (ROLE === 'host') {
 }
 
 // ---- The computer (alone) ------------------------------------------------------
+// It thinks in a web worker, so the picture keeps moving. If the worker
+// cannot start, it thinks on the page itself (the picture stands still for
+// a moment). Its answer shows at the earliest minThinkMs after its turn
+// began, so it feels like an opponent and not like a reflex.
+let worker = null;
+let thinkStart = 0;
+try {
+  worker = new Worker(new URL('./aiWorker.js', import.meta.url), { type: 'module' });
+  worker.onmessage = (e) => computerAnswer(e.data);
+  worker.onerror = () => {
+    worker = null;
+    if (thinking) askComputer();
+  };
+} catch {
+  worker = null;
+}
+
+function askComputer() {
+  const job = { moves: rules.packed(), level: menu.level, id: aiToken };
+  if (worker) worker.postMessage(job);
+  else setTimeout(() => computerAnswer({ ...bestMove(job.moves, job.level), id: job.id }), 30);
+}
+
 function maybeComputer() {
   if (ROLE !== 'solo' || solo.state !== 'playing' || rules.turn === solo.mySide) return;
   thinking = true;
-  const id = ++aiToken;
-  setTimeout(() => {
-    if (id !== aiToken) return;
-    computerAnswer({ ...bestMove(rules.packed(), menu.level), id });
-  }, CONFIG.ai.minThinkMs);
+  aiToken++;
+  thinkStart = performance.now();
+  askComputer();
 }
 
 function computerAnswer(data) {
   if (data.id !== aiToken || !thinking) return;
+  const wait = CONFIG.ai.minThinkMs - (performance.now() - thinkStart);
+  if (wait > 0) {
+    setTimeout(() => computerAnswer(data), wait);
+    return;
+  }
   thinking = false;
   const done = data.move && rules.move(data.move);
   if (done) {
@@ -289,9 +315,10 @@ function startHost(side) {
 
 /**
  * Shows the board for the game that is now in the rules (new, continued or
- * rejoined). isNew: a game that was just started here.
+ * rejoined). isNew: a game that was just started here; keepView: the
+ * camera stays where it is (after "Undo").
  */
-function enterGame(isNew = false) {
+function enterGame(isNew = false, keepView = false) {
   // The same game sent again (the guest got out of step) keeps the camera
   // and a result card that was already seen; a new game starts afresh.
   const fresh = isNew || screen !== 'game' || viewing !== mySide() || rules.plies < viewingPlies;
@@ -301,7 +328,7 @@ function enterGame(isNew = false) {
   pieces.reset(rules);
   if (fresh) {
     resultShown = false;
-    rig.viewSide(mySide());
+    if (!keepView) rig.viewSide(mySide());
   }
   viewing = mySide();
   viewingPlies = rules.plies;
@@ -456,6 +483,36 @@ function resign() {
   refresh();
 }
 
+/**
+ * Alone: takes back the own last move and the computer's answer to it
+ * (with the removals that belong to them), back to the moment it was the
+ * player's turn before that move.
+ */
+function undo() {
+  if (!canUndo()) return;
+  aiToken++;
+  thinking = false;
+  let mine = false;
+  while (rules.plies > 0) {
+    rules.undo(1);
+    if (rules.turn === solo.mySide) mine = true;
+    if (mine && rules.turn === solo.mySide && rules.phase !== 'remove') break;
+  }
+  solo.result = null;
+  solo.state = 'playing';
+  enterGame(false, true);
+  maybeComputer();
+  refresh();
+}
+
+/** Undo is possible alone once the player has made a move, and not while a move is still being shown. */
+function canUndo() {
+  if (ROLE !== 'solo' || solo.state === 'menu' || pieces.busy()) return false;
+  const first = solo.mySide === 'l' ? 1 : 2; // the snails move second
+  return rules.plies >= first;
+}
+
+document.getElementById('undo').onclick = undo;
 document.getElementById('resign').onclick = resign;
 document.getElementById('cam').onclick = () => rig.viewSide(mySide());
 window.addEventListener('keydown', (e) => {
@@ -543,6 +600,7 @@ function refresh() {
   );
   const ended = phase() === 'ended';
   hud.setButtons({
+    undo: { shown: ROLE === 'solo', enabled: canUndo() },
     resign: ended ? 'result' : performance.now() < confirmUntil ? 'confirm' : 'resign',
     resignEnabled: ended || phase() === 'playing',
   });

@@ -15,6 +15,21 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 80 – 2026-11-18 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Millpond Schritt 5: der Computer (leicht, mittel, schwer) im Web Worker und „Undo“
+**Änderungen:**
+- Der Computer (`ai.js`) sucht mit Minimax und Alpha-Beta: Er probiert seine Züge, die Antworten darauf und so weiter und nimmt den Zug, der ihn am besten stellt, wenn auch der Gegner gut spielt. Bewertet werden Steine, Mühlen, die gleich zugehen können, stehende Mühlen und (beim Ziehen) wie viele Züge jede Seite hat
+- Leicht schaut 1 Zug voraus, rechnet viel Zufall dazu und nimmt in 30 % der Züge einen etwas schwächeren; Mittel schaut 3 Züge voraus; Schwer schaut so tief, wie es in 1,6 s schafft (bis 7, im Schnitt 4 bis 5). Alle Zahlen unter `ai` in `config.js`
+- Er denkt in einem Web Worker (`aiWorker.js`, neu), damit das Bild nie stockt; seine Antwort kommt frühestens 0,6 s nach Beginn seines Zuges
+- „Undo“ (nur allein): nimmt den eigenen letzten Zug und die Antwort des Computers zurück, jeweils mit dem Entfernen, das dazugehört; geht auch nach dem Ende einer Partie; die Kamera bleibt stehen
+- Version 0.5.0, Entscheidung 52 ergänzt, ROADMAP, Status in MILLPOND.md
+- Commit-Hash für Version 79 nachgetragen
+- Kein News-Beitrag: das Spiel ist noch ein Entwurf
+- Getestet: Testskript mit ganzen Partien Stufe gegen Stufe (je 8): Leicht schlägt Zufallszüge 8:0, Mittel schlägt Leicht 8:0, Schwer schlägt Mittel 6:2 und Leicht 8:0, kein ungültiger Zug, längste Denkzeit 1,6 s; im Browser: der Web Worker läuft, die Antwort kam nach 0,78 s, „Undo“ nimmt eigenen Zug und Antwort zurück, auch dreimal direkt nachdem der Computer eine Mühle geschlossen und einen Stein genommen hatte (Bild passt danach zu den Regeln); Regel-, Koi- und Party-Tests weiter grün; lint, typecheck, build. Für die Browsertests vorübergehend ein Testzugang, wieder entfernt. Nicht getestet: „Undo“ direkt nach einer eigenen Mühle im Browser (nur im Code geprüft), wie stark sich die Stufen gegen einen Menschen anfühlen, die Denkzeit auf deinem MacBook (hier gemessen auf diesem Rechner), Safari
+**Geänderte Dateien:** games/millpond/ai.js, games/millpond/aiWorker.js (neu), games/millpond/config.js, games/millpond/game.js, games/millpond/hud.js, games/millpond/index.html, games/millpond/game.json, docs/DECISIONS.md, docs/ROADMAP.md, docs/MILLPOND.md, PROTOKOLL.md
+**Commit-Message:** `[v80] feat(millpond): add the computer with three strengths in a web worker and undo`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 79 – 2026-11-18 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Millpond Schritt 4: Party mit Host als Schiedsrichter, Gast-Kopie, Revanche, Aufgeben, Neuladen von Gast und Host
 **Änderungen:**
@@ -26,7 +41,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Getestet: neues Testskript für Schiedsrichter und Gast (38 Prüfungen: 600 ganze Partien, davon 400 mit 10 % oder 30 % verlorenen Zügen, am Ende immer gleich; falsche, doppelte und zu späte Züge, Zug in der falschen Runde, kaputte Nachrichten; Aufgeben beider Seiten, Revanche mit Seitentausch, Menü; Neuladen des Gastes mitten im Entfernen, Speichern und Laden beim Host, auch einer beendeten Partie); Regel- und Koi-Tests weiter grün; im Browser mit zwei Tabs: Gast lädt mitten in der Partie neu (sofort zurück mit allen Zügen), Host lädt neu (Partie geht weiter, Gast kommt von selbst zurück, danach gehen Züge wieder durch), Gast verlässt die Seite („ben left the game…“, „(away)“) und kommt zurück, ein dritter Tab bekommt „This game already has two players.“, Gast gibt auf, Revanche tauscht die Seiten, Host gibt auf (Bestätigung erlischt nach 3 Sekunden), „Menu“ bringt beide ins Menü; lint, typecheck, build. Für die Browsertests vorübergehend ein Testzugang, wieder entfernt. Nicht getestet: eine echte Party mit zwei Konten über das Internet, Safari, Touch; dass die Kamera bei einer erneut geschickten Partie stehen bleibt, habe ich nur im Code geprüft, nicht im Bild
 **Geänderte Dateien:** games/millpond/game.js, games/millpond/game.json, docs/DECISIONS.md, docs/ROADMAP.md, docs/MILLPOND.md, PROTOKOLL.md
 **Commit-Message:** `[v79] feat(millpond): keep the camera when the guest gets the game again, test the party`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`24f89b4`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/24f89b4)
 
 ## Version 78 – 2026-11-18 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Millpond Schritt 3: Figuren und Spielen mit der Maus (Setzen, Ziehen, Springen, mögliche Züge, Mühle mit Licht, Entfernen mit wegfliegendem Marienkäfer und ins Wasser rutschender Schnecke), Anzeige während der Partie, Ergebnis

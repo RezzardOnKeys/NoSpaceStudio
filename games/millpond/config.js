@@ -5,6 +5,16 @@ export const CONFIG = {
     // The computer "thinks" at least this long, so its move does not appear
     // at the very moment the own piece lands.
     minThinkMs: 600,
+    // Per strength: how many moves it looks ahead at most (a removal counts
+    // as a move), how long it may think (ms), how much chance it adds to its
+    // scores (a piece is worth 100) and how often it takes a weaker move.
+    levels: {
+      1: { depth: 1, timeMs: 300, noise: 60, slip: 0.3 },
+      2: { depth: 3, timeMs: 900, noise: 12, slip: 0 },
+      3: { depth: 7, timeMs: 1600, noise: 3, slip: 0 },
+    },
+    // What counts in a position (see ai.js).
+    weights: { piece: 100, threat: 22, openTwo: 6, mill: 10, mobility: 4 },
   },
   board: {
     // Distance between two neighbouring grid lines of the board (metres).

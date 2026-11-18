@@ -82,8 +82,13 @@ export function createHud() {
       );
     },
 
-    /** resign: 'resign' | 'confirm' | 'result' ('result' after the game: the button shows the result again). */
-    setButtons({ resign, resignEnabled }) {
+    /**
+     * undo: { shown, enabled } (alone only); resign: 'resign' | 'confirm' |
+     * 'result' ('result' after the game: the button shows the result again).
+     */
+    setButtons({ undo, resign, resignEnabled }) {
+      $('undo').classList.toggle('hidden', !undo.shown);
+      $('undo').disabled = !undo.enabled;
       const b = $('resign');
       b.textContent = { resign: 'Resign', confirm: 'Really resign?', result: 'Result' }[resign];
       b.classList.toggle('danger', resign !== 'result');

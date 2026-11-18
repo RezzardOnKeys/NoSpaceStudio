@@ -1484,3 +1484,30 @@ with every step):
   who reloads in the middle of that is back in the removal.
 - "Menu" after a game goes back to the side the host picked in the menu
   (the rematches only swapped the sides of the games), as in Blockchess.
+- **Step 5 (the computer):** a minimax search with alpha-beta pruning
+  (`ai.js`). A removal counts as a move of its own, so "three moves ahead"
+  can be a move, its removal and the answer. The score: 100 per piece (on
+  the board or in hand), 22 for two in a row whose gap can be closed at
+  once (while placing or flying, or with an own piece next to the gap),
+  6 for two in a row that cannot be closed yet, 10 per standing mill, 4
+  per possible step in the moving phase, and a closed mill counts the
+  piece it will take already. Moves that close a mill are tried first,
+  then moves that block one, so the search cuts more.
+- The strengths (under `ai.levels` in `config.js`): Easy looks 1 move
+  ahead, adds up to ±60 of chance and in 30 % of its moves takes one of
+  its better moves at random (never one that loses at once); Medium looks
+  3 moves ahead with ±12; Hard looks up to 7 moves ahead with ±3, step by
+  step deeper until its 1.6 s are used up (it reaches 4 to 5 on average).
+  It stops looking further when it has found a certain win, or when every
+  move loses.
+- It thinks in a web worker (`aiWorker.js`, started like in Blockchess);
+  without a worker it thinks on the page. Its answer is shown at the
+  earliest 0.6 s after its turn began.
+- A test script played whole games level against level (8 each): Easy
+  beat random moves 8:0, Medium beat Easy 8:0, Hard beat Medium 6:2 and
+  Easy 8:0; the longest think was 1.6 s (Hard).
+- "Undo" takes moves back until it is the player's turn again before
+  their last move: the computer's answer with its removal, and the own
+  move with its removal. It works after the end of a game too, and while
+  the computer is still thinking (then only the own move goes back). The
+  camera stays where it is.
