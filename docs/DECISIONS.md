@@ -1380,8 +1380,7 @@ own). Two changes:
 
 **Decision:** Millpond (`games/millpond/`) is built step by step from
 [MILLPOND.md](MILLPOND.md), laid out like Blockchess (decision 51). Where
-the plan leaves something open, these defaults were chosen (the list grows
-with every step):
+the plan leaves something open, these defaults were chosen:
 
 - **Step 1 (rules, menu and connection):** the sides are called `'l'`
   (Ladybugs, they begin) and `'s'` (Snails) everywhere in the code and in
@@ -1538,3 +1537,17 @@ with every step):
   a big ladybug and a big snail in front). The texts call the game "Nine
   Men's Morris", a traditional name nobody owns.
 - Published as version 1.0.0 on 2026-11-18 with a patch note.
+
+**Why:** The same rules as for every other game: a static folder, small
+files with one job each, nothing from a CDN, one way to play together.
+A turn-based game needs no clock and no prediction, so the referee model
+of Blockchess fits exactly; treating a removal as a move of its own keeps
+"the game is the list of its moves" true, so sending, storing, replaying
+and taking back moves all work the same way. The figures, the island and
+all texts are our own; only the rules of the traditional game are used,
+and the German name of the game appears nowhere in it.
+
+**Open points:** not tested in Safari, on touch screens or in a real party
+with two accounts over the internet; how strong the three levels feel
+against a person, and how smooth dusk with its four lanterns runs on an
+older MacBook, is up to the developers to try.

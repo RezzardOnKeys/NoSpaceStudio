@@ -8,8 +8,8 @@ work, ask before changing it.
 
 Slug and folder: `games/millpond/`. Title in the store: **Millpond**.
 
-**Status:** published as version 1.0.0 on 2026-11-18. Steps 1 to 6 are
-done; step 7, the documentation, is next.
+**Status:** done. Published as version 1.0.0 on 2026-11-18; all seven
+steps are finished. The choices made while building are decision 52.
 
 ## The idea in one sentence
 

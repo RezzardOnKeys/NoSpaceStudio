@@ -141,24 +141,28 @@ table whenever a phase is finished.
   **Not yet tested: Safari, a real party with two accounts over the
   internet, the mouse (pointer lock) by Claude, how strong the bot feels
   against a person.** No sound yet.
-- **The eighth game is in:** "Millpond" (`games/millpond/`,
-  version 1.0.0, published on 2026-11-18), the old board game Nine Men's Morris on a cosy
-  island in a mill pond: ladybugs against snails on a wooden board, koi in
-  the water, a turning water mill, a camera that turns around the scene
-  like in Blockchess, and a few extras (mills light up, removed pieces fly
-  away or slide into the pond, day and dusk). 1 vs 1 from a party or alone
-  against the computer, published as soon as version 1.0 is done. The
-  complete plan is in [MILLPOND.md](MILLPOND.md); the choices made while
-  building are decision 52. Steps 1 to 6 of 7 are done:
-  all rules (tested with a script over thousands of whole games), the
-  menu, the party connection, the scene (island, wooden board, pond with
-  lilies, reeds and koi, water mill, hills), and the ladybug and snail
-  figures with every animation (placing, walking, flying, mills, flying
-  away, sliding into the pond), and the party (rematch, resign, reload of
-  guest and host, a guest leaving and coming back), the computer (easy,
-  medium, hard, in a web worker) with "Undo", and the polish (click the
-  water, dusk with lanterns and fireflies, phone layout, store images).
-  Step 7, the documentation, is still open.
+- **The eighth game is in:** `games/millpond/` (Millpond, version 1.0.0,
+  published on 2026-11-18), Nine Men's Morris on a cosy island in a mill
+  pond: ladybugs against snails on a wooden board, koi in the water, water
+  lilies and reeds, a water mill turning its wheel at the shore. Pieces hop
+  from their rows onto the board, ladybugs trip and snails glide, with
+  three pieces left they fly; a closed mill glows and spins the water
+  mill's wheel; a removed ladybug flies away and a removed snail slides
+  into the pond, and the koi come to look. N switches to dusk with glowing
+  lanterns and fireflies; a click into the water calls the koi. 1 vs 1
+  from a party (the host is the referee and picks the sides, a rematch
+  swaps them) or alone against the computer (easy, medium, hard, in a web
+  worker, with undo). Built step by step from [MILLPOND.md](MILLPOND.md);
+  every choice is in decision 52. Tested in Chrome: alone against the
+  computer and against random moves (whole games), a party with two tabs
+  (whole games, rematch, resign by both sides, reload of the guest and of
+  the host during a game, the guest leaving and coming back, a third
+  player turned away), the phone view, inside the launcher (store, game
+  page, news, player), and with test scripts (all rules and endings over
+  thousands of games, the referee and the guest copy with lost and false
+  messages, the koi, the computer level against level). **Not yet tested:
+  Safari, a real party with two accounts over the internet, touch screens,
+  how strong the computer feels against a person.** No sound yet.
 - **Games and news are files in the repository**, not database rows
   (decision 22). A game is a folder `games/<slug>/` with a `game.json`
   (store entry), an optional `description.md` and its images. A news post is
@@ -421,6 +425,11 @@ Collected in conversations with the developers; nothing decided yet.
   a mode where zooming in shows the opponent what you see, sound. (The
   open line of sight between the start points stays on purpose,
   decision 50.)
+- **Millpond follow-ups** (the game itself is built, see above): sound
+  (water, the mill, a soft click for a piece), the smaller variants of the
+  game (Six and Twelve Men's Morris, with their own boards), a move list or
+  a replay of a finished game, an even stronger computer (a table of known
+  endgames, or deeper search with remembered positions).
 - **Other game ideas discussed on 2026-11-17 and set aside** (not
   decided): "Blend In" (hide among identical bots on a market square, tap
   or shoot the other player), a competitive zombie hunt on a farm
@@ -441,8 +450,7 @@ Collected in conversations with the developers; nothing decided yet.
   grid (own name), dots and boxes, dice poker and bluff dice (not the
   names of commercial editions), Halma and Chinese checkers, finding pairs
   (not called "Memory", which is a trademark), drawing and guessing,
-  werewolf/mafia with own roles. Nine Men's Morris is planned as
-  Millpond.
+  werewolf/mafia with own roles. Nine Men's Morris is in as Millpond.
 - **Launcher ideas:** leaderboards per game (games report a score),
   achievements, a "delete my account" button (the privacy policy
   promises deletion on request by email).

@@ -15,6 +15,22 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 82 – 2026-11-18 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Millpond Schritt 7: Dokumentation (ROADMAP, Entscheidung 52, games/README.md, PARTY-GAMES.md, README.md, Status in MILLPOND.md)
+**Änderungen:**
+- ROADMAP: Millpond als achtes fertiges Spiel beschrieben (was es kann, was getestet ist, was nicht), Folgeideen für Millpond (Ton, kleinere Varianten mit 6 und 12 Steinen, Zugliste oder Wiederholung einer Partie, noch stärkerer Computer), bei den klassischen Spielen „Nine Men's Morris is in as Millpond“
+- Entscheidung 52 abgeschlossen: Begründung („Why“) und offene Punkte
+- docs/PARTY-GAMES.md: achtes Beispiel für Züge aus mehreren Teilen (das Nehmen eines Steins ist ein eigener Zug in der Liste)
+- README.md: acht Spiele
+- MILLPOND.md: Status „done“
+- games/README.md war schon aktuell (seit Schritt 6)
+- Commit-Hash für Version 81 nachgetragen
+- Nur Dokumentation, am Spiel ändert sich nichts; deshalb kein News-Beitrag
+- Geprüft: lint, typecheck, build, Prettier; keine Stelle spricht mehr von sieben Spielen oder einem geplanten Millpond
+**Geänderte Dateien:** docs/ROADMAP.md, docs/DECISIONS.md, docs/PARTY-GAMES.md, docs/MILLPOND.md, README.md, PROTOKOLL.md
+**Commit-Message:** `[v82] docs(millpond): document Millpond as the eighth game`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 81 – 2026-11-18 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Millpond Schritt 6: Feinschliff (Klick ins Wasser, Tag und Abenddämmerung mit Laternen und Glühwürmchen, weniger Bewegung, Handy-Ansicht), Cover, Banner, Beschreibung, Patch Note, veröffentlichen
 **Änderungen:**
@@ -29,7 +45,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Getestet: Testskript für neugierige Kois (von fünf Stellen rund um den Teich kamen je drei Kois in 20 s auf 2 m heran, nie näher als 10,3 m an die Inselmitte); alle früheren Testskripte grün; im Browser: Abenddämmerung (Bild), Ringe nach einem echten Mausklick ins Wasser, Handy-Ansicht (Menü und Partie, ganzes Brett sichtbar), Cover und Banner; im Launcher Store-Kachel, Spiel-Seite mit Banner, Beschreibung und Patch Note, News-Seite, das Spiel startet im Player; Party mit zwei Tabs startet weiter; lint, typecheck, build, Prettier. Für die Browsertests vorübergehend ein Testzugang, wieder entfernt. Nicht getestet: echtes Antippen auf einem Handy (Touch), die Einstellung „weniger Bewegung“ im Browser (nur im Code geprüft), Safari, Bildrate bei Abenddämmerung auf deinem MacBook (vier Punktlichter kosten etwas Grafikleistung)
 **Geänderte Dateien:** games/millpond/cover.svg (neu), games/millpond/banner.svg (neu), games/millpond/description.md (neu), games/millpond/world.js, games/millpond/scene.js, games/millpond/koi.js, games/millpond/camera.js, games/millpond/config.js, games/millpond/game.js, games/millpond/index.html, games/millpond/game.json, news/2026-11-18-millpond-1-0.md (neu), docs/DECISIONS.md, docs/ROADMAP.md, docs/MILLPOND.md, games/README.md, PROTOKOLL.md
 **Commit-Message:** `[v81] feat(millpond): add dusk, curious koi, phone layout and store images and publish Millpond 1.0.0`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`df19c8b`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/df19c8b)
 
 ## Version 80 – 2026-11-18 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Millpond Schritt 5: der Computer (leicht, mittel, schwer) im Web Worker und „Undo“

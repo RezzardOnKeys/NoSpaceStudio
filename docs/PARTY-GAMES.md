@@ -211,6 +211,18 @@ Zufallszahl pro Match (`random.js`), beide Seiten rechnen denselben Platz
 aus. Der Host zählt die Schüsse mit und schickt die Zahl, so stimmt das
 auch nach einem Neuladen des Gastes. Entscheidung 50 erklärt den Aufbau.
 
+Ein achtes Beispiel für **Züge, die aus mehreren Teilen bestehen**, ist
+`games/millpond/` (Mühle mit Marienkäfern und Schnecken, 1 gegen 1). Es
+ist gebaut wie Blockchess, mit einem Unterschied: Wer eine Mühle schließt,
+nimmt danach noch einen Stein des Gegners, bevor der andere dran ist. Das
+Nehmen ist darum ein eigener Zug in der Liste (`p5` setzen, `m5-6`
+ziehen, `x12` nehmen), mit eigener Nummer; danach bleibt dieselbe Seite
+am Zug. So gilt weiter: Die ganze Partie ist die Liste ihrer Züge, und ein
+Gast, der mitten im Nehmen neu lädt, ist sofort wieder genau dort. Bekommt
+der Gast die Partie noch einmal, weil er aus dem Takt war, bleibt seine
+Kamera stehen; nur eine neue Partie dreht sie zur eigenen Seite.
+Entscheidung 52 erklärt den Aufbau.
+
 ### 4. Ohne Party weiter funktionieren
 
 Ohne `#party=...` wurde das Spiel allein gestartet (oder direkt über seine
