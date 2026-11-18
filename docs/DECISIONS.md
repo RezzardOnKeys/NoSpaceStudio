@@ -1415,3 +1415,32 @@ with every step):
   the own side with C.
 - Until step 5 the computer plays a random allowed move at every strength,
   and the pieces are plain coloured discs until step 3.
+- **Step 2 (the scene):** all sizes are in `world` and `koi` in
+  `config.js`. The board's top is at height 0, the island's grass at
+  -0.32 m, the pond's surface at -0.75 m; the island has a radius of
+  7.5 m, the pond 24 m. Every placement (flowers, reeds, trees ...) comes
+  from a fixed seed, so both players see the same pond.
+- Things that come many times (reeds, flowers, mushrooms, stones, lily
+  leaves, trees, hills, clouds) are one instanced mesh each: the whole
+  scene needs about 180 draw calls per frame, far below the 620 of
+  Blockchess after its fix (decision 51).
+- The water is a fine grid whose corners rise and fall with three slow
+  sine waves (weaker with "reduce motion"); the light spots are a painted
+  texture that drifts over it. The koi are drawn after the water and let
+  15 % of it through, so they look just under the surface but stay
+  orange, white and red (drawn under the water they looked grey).
+- The water mill stands on the shore towards +x and -z (angle -0.45), a
+  house on a wooden platform with its wheel in front of it, facing the
+  island, so the wheel is seen from its round side and not from its
+  edge. A few low reed clumps stand off the island, the tall ones along
+  the shore.
+- The koi (7 fish) each swim towards a point a little further round the
+  pond and then pick the next; soft pushes keep them 9.8 m from the middle
+  (the island with its sand ends at 8.8 m), inside 21.8 m and 6 m away
+  from the mill. A test script let 40 fish swim for ten minutes each: none
+  came closer to the middle than 9.7 m or to the mill than 5.1 m, none got
+  stuck, and they swam all the way round.
+- The camera can zoom from 4 to 24 m and never looks from below 0.44 of a
+  half turn, so it stays above the water and the hills always fill the
+  edge of the picture. In a narrow window it stands further back (up to
+  2.2 times).

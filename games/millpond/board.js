@@ -24,18 +24,61 @@ export function pointAt(x, z) {
   return best;
 }
 
+/** Light planks with a fine grain, painted once on a small canvas. */
+function grainTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = 256;
+  const g = canvas.getContext('2d');
+  const planks = ['#c08a52', '#b98349', '#c79359', '#b37d45'];
+  let seed = 3;
+  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  for (let i = 0; i < 8; i++) {
+    g.fillStyle = planks[i % 4];
+    g.fillRect(0, i * 32, 256, 32);
+    g.strokeStyle = 'rgba(90, 55, 25, 0.25)';
+    for (let k = 0; k < 7; k++) {
+      g.lineWidth = 0.5 + rnd();
+      g.beginPath();
+      const y = i * 32 + 3 + rnd() * 26;
+      g.moveTo(0, y);
+      for (let x = 0; x <= 256; x += 32) g.lineTo(x, y + Math.sin(x * 0.03 + k) * 1.5);
+      g.stroke();
+    }
+    g.fillStyle = 'rgba(70, 40, 15, 0.45)';
+    g.fillRect(0, i * 32, 256, 1.5);
+  }
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
 export function createBoard(scene) {
   const group = new THREE.Group();
   scene.add(group);
 
-  // The wooden board; its top is at height 0, where the pieces stand.
+  // The wooden board; its top is at height 0, where the pieces stand. It is
+  // made of planks (a painted grain texture) inside a darker frame.
   const size = 6 * SP + 1.3;
-  const wood = new THREE.MeshStandardMaterial({ color: '#b07a45', roughness: 0.85 });
+  const wood = new THREE.MeshStandardMaterial({ map: grainTexture(), roughness: 0.85 });
   const plate = new THREE.Mesh(new THREE.BoxGeometry(size, 0.3, size), wood);
   plate.position.y = -0.15;
   plate.castShadow = true;
   plate.receiveShadow = true;
   group.add(plate);
+  const frameMat = new THREE.MeshStandardMaterial({ color: '#6e4526', roughness: 0.8 });
+  const rim = 0.28;
+  for (const [w, d, x, z] of [
+    [size + rim * 2, rim, 0, (size + rim) / 2],
+    [size + rim * 2, rim, 0, -(size + rim) / 2],
+    [rim, size, (size + rim) / 2, 0],
+    [rim, size, -(size + rim) / 2, 0],
+  ]) {
+    const bar = new THREE.Mesh(new THREE.BoxGeometry(w, 0.4, d), frameMat);
+    bar.position.set(x, -0.12, z);
+    bar.castShadow = true;
+    bar.receiveShadow = true;
+    group.add(bar);
+  }
 
   // The carved lines between neighbouring points.
   const lineMat = new THREE.MeshStandardMaterial({ color: '#5a3a1e', roughness: 1 });

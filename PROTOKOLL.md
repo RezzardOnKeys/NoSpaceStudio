@@ -15,6 +15,26 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 77 – 2026-11-18 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Millpond Schritt 2: die Szene mit Insel, Holzbrett, Teich mit Seerosen und Schilf, Kois, Wassermühle, Landschaft, Licht und Kamera
+**Änderungen:**
+- Insel: runde Grasinsel mit Sandrand, Grasbüscheln, Blumen in fünf Farben und Fliegenpilzen; Steine am Ufer
+- Holzbrett: Bretter mit Maserung in einem dunklen Holzrahmen
+- Teich: sanfte Wellen, wandernde Lichtflecken, 16 Seerosenblätter (einige mit rosa Blüte, alle schaukeln leicht), Schilf mit Rohrkolben am Ufer und in ein paar niedrigen Büscheln vor der Insel, Steine am Ufer, dunkler Grund
+- 7 Kois (orange, weiß mit roten oder orangen Flecken, rot, golden) schwimmen in Bögen um die Insel, nie durch Insel, Ufer oder Mühlrad; sie wedeln mit dem Schwanz
+- Wassermühle am Ufer: Holzhaus auf einer Plattform mit Pfählen, Satteldach, Schornstein, Tür und Fenster; das Rad steht vor dem Haus, zeigt zur Insel und dreht sich langsam im Wasser
+- Landschaft: Wiese um den Teich, Tannen und Laubbäume, weiche Hügel, warmer Himmel mit Verlauf und langsam ziehenden Wolken, leichter Dunst am Horizont
+- Licht: warme, tief stehende Nachmittagssonne mit langen Schatten
+- Kamera: zoomt von 4 bis 24 m, bleibt immer über dem Wasser; in schmalen Fenstern weiter weg, damit das Brett passt
+- Bei „weniger Bewegung“ ruhigeres Wasser, Seerosen ohne Schaukeln, langsamere Wolken und Fische
+- Version 0.2.0, Entscheidung 52 ergänzt, ROADMAP, Status in MILLPOND.md
+- Commit-Hash für Version 76 nachgetragen
+- Kein News-Beitrag: das Spiel ist noch ein Entwurf
+- Getestet: Testskript für die Kois (40 Fische je 10 Minuten: nie näher als 9,7 m an der Inselmitte, nie näher als 5,1 m an der Mühle, nie festgesteckt, ganz herum geschwommen); Regeltests weiter grün; im Browser allein (Menü, Spielansicht, Kamera drehen und zoomen, Mühle und Kois aus der Nähe, Handy-Ansicht), etwa 180 Zeichenbefehle pro Bild; Party mit zwei Tabs (Start, Revanche, Klick des Gastes kommt beim Host an). Für die Nahaufnahmen vorübergehend ein Testzugang zur Kamera, wieder entfernt. Nicht getestet: Bildrate auf deinem MacBook (der Browser hier zeichnet im Hintergrund keine Bilder), Safari, Touch. Am Handy ist das Brett links und rechts noch knapp angeschnitten; das richte ich in Schritt 6 (Handy-Ansicht)
+**Geänderte Dateien:** games/millpond/world.js (neu), games/millpond/koi.js (neu), games/millpond/scene.js, games/millpond/board.js, games/millpond/camera.js, games/millpond/config.js, games/millpond/game.js, games/millpond/game.json, docs/DECISIONS.md, docs/ROADMAP.md, docs/MILLPOND.md, PROTOKOLL.md
+**Commit-Message:** `[v77] feat(millpond): add the island, the pond with lilies, reeds and koi, the water mill and the landscape`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 76 – 2026-11-18 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Millpond nach docs/MILLPOND.md bauen, Schritt 1: Ordner, game.json, alle Regeln mit Testskript, Menü mit Seite und Stärke, Party-Verbindung; das Spiel startet allein und mit zwei Tabs (einfaches Brett)
 **Änderungen:**
@@ -30,7 +50,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Getestet: Testskript mit 88 Prüfungen (Setzen, Ziehen, Springen, Mühle beim Setzen und Ziehen, zwei Mühlen auf einmal, geschützte Steine, Sieg durch 2 Steine auch beim Setzen, Sieg durch Blockieren, beide Remis-Arten, Nachspielen der Zugliste, Zurücknehmen, falsche Zugtexte, 3000 ganze Zufallspartien mit allen vier Arten von Spielende); im Browser allein (Setzen per Mausklick, Mühle, Entfernen, ganze Partie bis „Draw“ mit Ergebnis-Karte) und in der Party mit zwei Tabs (Lobby, Ready, Seitenwahl, ganze Partie mit 123 Zügen auf beiden Seiten gleich, Revanche mit Seitentausch, Aufgeben des Gastes). Für die Browsertests vorübergehend ein Testzugang, wieder entfernt. Nicht getestet: Neuladen von Host und Gast (Schritt 4), Safari, Touch, Handy-Ansicht
 **Geänderte Dateien:** games/millpond/index.html (neu), games/millpond/game.js (neu), games/millpond/game.json (neu), games/millpond/config.js (neu), games/millpond/rules.js (neu), games/millpond/host.js (neu), games/millpond/guest.js (neu), games/millpond/ai.js (neu), games/millpond/net.js (neu), games/millpond/scene.js (neu), games/millpond/board.js (neu), games/millpond/pieceView.js (neu), games/millpond/camera.js (neu), games/millpond/menu.js (neu), games/millpond/hud.js (neu), games/millpond/vendor/ (neu: three.module.js, three.core.js, OrbitControls.js, peerjs.min.js, Lizenzdateien), docs/DECISIONS.md, docs/ROADMAP.md, docs/MILLPOND.md, games/README.md, PROTOKOLL.md
 **Commit-Message:** `[v76] feat(millpond): add the rules, menu, party connection and a simple board`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`c3cb853`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/c3cb853)
 
 ## Version 75 – 2026-11-18 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Klassische Brett- und Partyspiele in eigenem Stil sammeln (nur solche, die ohne Probleme online dürfen); entschieden: Mühle als gemütliches Spiel auf einer Insel im Teich mit Kois und drehbarer Kamera wie bei Blockchess. Plan als Datei festhalten und einen Startprompt für den nächsten Chat schreiben

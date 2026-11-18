@@ -12,7 +12,8 @@
 //   guest.js       the guest's copy of a party game
 //   ai.js          the computer opponent
 //   net.js         party connection with PeerJS
-//   scene.js       the 3D view and its light
+//   scene.js       the 3D view and its light; world.js the island, the pond,
+//                  the water mill and the land round it; koi.js the fish
 //   board.js       the points of the board, marks, what is under the mouse
 //   pieceView.js   the pieces on the board
 //   camera.js      turning and zooming the camera
@@ -55,7 +56,7 @@ const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // ---- The world ------------------------------------------------------------
 const canvas = document.getElementById('c');
-const view = createScene(canvas);
+const view = createScene(canvas, calm);
 const board = createBoard(view.scene);
 const pieces = createPieceView(view.scene);
 const rig = createCameraRig(view.camera, canvas, calm);
@@ -525,12 +526,15 @@ function refresh() {
 
 // ---- Main loop ----------------------------------------------------------------
 let last = performance.now();
+let clock = 0;
 function frame() {
   requestAnimationFrame(frame);
   const now = performance.now();
   const dt = Math.min(0.05, (now - last) / 1000);
   last = now;
+  clock += dt;
   rig.update(dt);
+  view.update(clock, dt);
   view.renderer.render(view.scene, view.camera);
 }
 
