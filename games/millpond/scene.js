@@ -48,6 +48,8 @@ export function createScene(canvas, calm) {
     renderer,
     scene,
     camera,
+    world,
+    koi,
     /** Moves the water, the wheel, the clouds and the fish on; t = seconds since the start. */
     update(t, dt) {
       world.update(t, dt);

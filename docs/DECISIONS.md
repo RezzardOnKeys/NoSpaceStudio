@@ -1444,3 +1444,33 @@ with every step):
   half turn, so it stays above the water and the hills always fill the
   edge of the picture. In a narrow window it stands further back (up to
   2.2 times).
+- **Step 3 (figures and playing):** the figures are made in code
+  (`pieces.js`): the fixed parts of a figure are joined into one shape with
+  its colours on its corners. A ladybug is four parts (body with head and
+  legs, two shell halves on a hinge behind the head, the wings), a snail
+  one (foot, eyes on stalks, and a shell built as a tube that winds round
+  in a spiral and gets thinner, with a dark band along it). The ladybug's
+  dots are painted per corner, not per triangle, so they come out round.
+- The pieces still to place stand in two rows on the grass next to the
+  board: the Ladybugs on the near side (+z), the Snails on the far side;
+  a placed piece hops from the end of its row onto its point. No flowers
+  grow where the rows stand. The side panel shows the same as nine small
+  stones per side (on the board, still to place, lost) and the numbers.
+- Times (all under `anim` in `config.js`): placing 0.65 s; a step 0.3 s +
+  0.3 s per metre, snails 1.4 times slower, ladybugs in three little hops;
+  flying in a 1.6 m high arc; a closed mill glows 1.3 s, then the piece to
+  remove is chosen; a removed ladybug flies away in 2.2 s, a removed snail
+  slides in 2.6 s straight off the side of the board it stands on, over
+  the grass and down the bank into the pond.
+- A closed mill: the three pieces glow gold, a gold line grows along the
+  mill, and the water mill's wheel turns six times faster and slows down
+  again over 2.2 s. Two mills at once show two lines.
+- Where the snail enters the water, two rings spread and a few drops jump
+  up; the three nearest koi swim over to look (the spot is moved into the
+  part of the pond the koi may use). With "reduce motion" there are no
+  drops, no hopping and no bobbing of the chosen piece.
+- The picture never holds the rules up: moves are queued, and when more
+  than one is waiting (a tab in the background draws nothing), all but the
+  last are set at once in the same frame. The board can be clicked only
+  when nothing moves. If the picture ever shows something else than the
+  rules while nothing moves, it is set anew from the rules.

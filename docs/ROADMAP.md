@@ -149,11 +149,13 @@ table whenever a phase is finished.
   away or slide into the pond, day and dusk). 1 vs 1 from a party or alone
   against the computer, published as soon as version 1.0 is done. The
   complete plan is in [MILLPOND.md](MILLPOND.md); the choices made while
-  building are decision 52. Steps 1 and 2 of 7 are done (version 0.2.0):
+  building are decision 52. Steps 1 to 3 of 7 are done (version 0.3.0):
   all rules (tested with a script over thousands of whole games), the
-  menu, the party connection, and the scene (island, wooden board, pond
-  with lilies, reeds and koi, water mill, hills); a game can be played
-  alone (the computer still plays random moves) and with two tabs.
+  menu, the party connection, the scene (island, wooden board, pond with
+  lilies, reeds and koi, water mill, hills), and the ladybug and snail
+  figures with every animation (placing, walking, flying, mills, flying
+  away, sliding into the pond); a game can be played alone (the computer
+  still plays random moves) and with two tabs.
 - **Games and news are files in the repository**, not database rows
   (decision 22). A game is a folder `games/<slug>/` with a `game.json`
   (store entry), an optional `description.md` and its images. A news post is

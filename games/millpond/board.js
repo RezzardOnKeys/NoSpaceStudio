@@ -52,7 +52,7 @@ function grainTexture() {
   return tex;
 }
 
-export function createBoard(scene) {
+export function createBoard(scene, calm) {
   const group = new THREE.Group();
   scene.add(group);
 
@@ -107,7 +107,7 @@ export function createBoard(scene) {
   }
 
   // The marks: a ring round the point and a dot on it.
-  const ringGeo = new THREE.RingGeometry(0.3, 0.4, 32);
+  const ringGeo = new THREE.RingGeometry(0.36, 0.46, 32);
   const dotGeo = new THREE.CircleGeometry(0.11, 20);
   const marks = [];
   for (let p = 0; p < 24; p++) {
@@ -127,7 +127,15 @@ export function createBoard(scene) {
   const floor = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
   const hit = new THREE.Vector3();
 
+  let freeDots = [];
+
   return {
+    /** The free points glow softly while placing. */
+    update(clock) {
+      const o = calm ? 0.6 : 0.45 + 0.25 * Math.sin(clock * 2.5);
+      for (const p of freeDots) marks[p].dot.material.opacity = o;
+    },
+
     /**
      * Shows the marks. s: { free: points that glow while placing,
      * targets: where the chosen piece may go, selected: the chosen point or
@@ -150,7 +158,8 @@ export function createBoard(scene) {
         marks[p].dot.visible = true;
       };
       for (const p of last) ring(p, CONFIG.marks.last, 0.5);
-      for (const p of free) dot(p, CONFIG.marks.free, 0.7);
+      for (const p of free) dot(p, CONFIG.marks.free, 0.6);
+      freeDots = free;
       for (const p of targets) dot(p, CONFIG.marks.target, 0.9);
       if (selected !== null) ring(selected, CONFIG.marks.select, 0.9);
       for (const p of removable) ring(p, CONFIG.marks.remove, 0.9);
@@ -169,6 +178,7 @@ export function createBoard(scene) {
         while (o && o.userData.point === undefined) o = o.parent;
         if (o) return o.userData.point;
       }
+      // Beside the figures: the point nearest to where the ray meets the board.
       if (ray.ray.intersectPlane(floor, hit)) return pointAt(hit.x, hit.z);
       return null;
     },

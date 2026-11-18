@@ -97,7 +97,14 @@
       #side { position: fixed; top: 12px; right: 12px; width: 290px; display: flex; flex-direction: column; gap: 8px; }
       #players .who { margin: 0 0 2px; }
       #players .turn::after { content: '◀'; margin-left: 2px; color: var(--gold); }
-      #players .count { margin: 0 0 8px 24px; font-size: 12px; color: var(--muted); }
+      #players .count { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin: 2px 0 8px 24px; font-size: 12px; color: var(--muted); }
+      .stones { display: flex; gap: 3px; }
+      .stone { width: 10px; height: 10px; border-radius: 50%; border: 2px solid rgba(0, 0, 0, 0.4); }
+      .stone.l.on { background: var(--red); }
+      .stone.s.on { background: var(--honey); }
+      .stone.l.hand { border-color: var(--red); }
+      .stone.s.hand { border-color: var(--honey); }
+      .stone.lost { opacity: 0.25; background: rgba(0, 0, 0, 0.4); }
       #toast { position: fixed; left: 50%; top: 66px; transform: translateX(-50%); max-width: calc(100% - 24px); color: var(--gold); text-align: center; }
 
       /* ---- Result ---- */

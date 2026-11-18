@@ -1,8 +1,10 @@
-// Millpond – the koi: a handful of orange, white and red-and-white fish that
-// swim slowly in curves through the pond, just under the surface. Each fish
-// heads for a point a little further round the pond; when it gets close it
-// picks the next one. A soft push keeps it away from the island, the shore
-// and the water mill's wheel, so a fish never swims through anything.
+// Millpond – the koi and the ripples: a handful of orange, white and
+// red-and-white fish that swim slowly in curves through the pond, just under
+// the surface. Each fish heads for a point a little further round the pond;
+// when it gets close it picks the next one. A soft push keeps it away from
+// the island, the shore and the water mill's wheel, so a fish never swims
+// through anything. When something falls into the water, rings spread from
+// there, a few drops jump up, and the nearest koi swim over to look.
 
 import * as THREE from './vendor/three.module.js';
 import { CONFIG } from './config.js';
@@ -155,8 +157,86 @@ export function createKoi(scene, calm) {
     fish.push({ ...newFish(rnd), group, tail, phase: rnd() * 6.3 });
   }
 
+  // Rings on the water and drops of a splash, made once and used again.
+  const ringMat = new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: true, depthWrite: false, side: THREE.DoubleSide });
+  const ringGeo = new THREE.RingGeometry(0.9, 1, 40);
+  ringGeo.rotateX(-Math.PI / 2);
+  const rings = [];
+  const dropGeo = new THREE.IcosahedronGeometry(0.05, 0);
+  const dropMat = new THREE.MeshBasicMaterial({ color: '#e8f6ff', transparent: true, opacity: 0.85 });
+  const drops = [];
+
+  function ripple(x, z, delay = 0) {
+    let r = rings.find((ring) => !ring.mesh.visible);
+    if (!r) {
+      r = { mesh: new THREE.Mesh(ringGeo, ringMat.clone()), t: 0, delay: 0 };
+      scene.add(r.mesh);
+      rings.push(r);
+    }
+    r.mesh.position.set(x, W.waterY + 0.04, z);
+    r.mesh.visible = true;
+    r.mesh.scale.setScalar(0.01);
+    r.t = 0;
+    r.delay = delay;
+  }
+
   return {
+    /** Rings spread from this spot on the water. */
+    ripple,
+
+    /** Something fell into the water here: rings and a few drops. */
+    splash(x, z) {
+      ripple(x, z);
+      ripple(x, z, 0.35);
+      if (calm) return;
+      for (let i = 0; i < 8; i++) {
+        let d = drops.find((drop) => !drop.mesh.visible);
+        if (!d) {
+          d = { mesh: new THREE.Mesh(dropGeo, dropMat), v: new THREE.Vector3() };
+          scene.add(d.mesh);
+          drops.push(d);
+        }
+        const a = (i / 8) * Math.PI * 2 + rnd();
+        d.mesh.position.set(x, W.waterY + 0.05, z);
+        d.v.set(Math.cos(a) * (0.6 + rnd()), 1.8 + rnd() * 1.2, Math.sin(a) * (0.6 + rnd()));
+        d.mesh.visible = true;
+      }
+    },
+
+    /** The nearest koi swim over to this spot to look. */
+    attract(x, z, count = K.curious) {
+      // The spot they swim to stays inside the part of the pond they may use.
+      const r = Math.hypot(x, z) || 1;
+      const to = Math.max(K.inner + 1, Math.min(K.outer - 1, r));
+      const tx = (x / r) * to;
+      const tz = (z / r) * to;
+      const near = fish.slice().sort((a, b) => Math.hypot(a.x - tx, a.z - tz) - Math.hypot(b.x - tx, b.z - tz));
+      for (const f of near.slice(0, count)) {
+        f.tx = tx + (rnd() - 0.5);
+        f.tz = tz + (rnd() - 0.5);
+      }
+    },
+
     update(t, dt) {
+      for (const r of rings) {
+        if (!r.mesh.visible) continue;
+        if (r.delay > 0) {
+          r.delay -= dt;
+          r.mesh.material.opacity = 0;
+          continue;
+        }
+        r.t += dt;
+        const k = r.t / K.rippleTime;
+        r.mesh.scale.setScalar(0.2 + k * K.rippleSize);
+        r.mesh.material.opacity = 0.6 * (1 - k);
+        if (k >= 1) r.mesh.visible = false;
+      }
+      for (const d of drops) {
+        if (!d.mesh.visible) continue;
+        d.v.y -= 9.8 * dt;
+        d.mesh.position.addScaledVector(d.v, dt);
+        if (d.mesh.position.y < W.waterY) d.mesh.visible = false;
+      }
       for (const f of fish) {
         stepFish(f, calm ? dt * 0.6 : dt, rnd);
         f.group.position.set(f.x, W.waterY - K.depth + Math.sin(t * 0.7 + f.phase) * 0.04, f.z);

@@ -8,8 +8,8 @@ work, ask before changing it.
 
 Slug and folder: `games/millpond/`. Title in the store: **Millpond**.
 
-**Status:** being built. Steps 1 and 2 are done (version 0.2.0, draft);
-next is step 3, the figures and playing with the mouse.
+**Status:** being built. Steps 1 to 3 are done (version 0.3.0, draft);
+next is step 4, the party (rematch, resign, reload of guest and host).
 
 ## The idea in one sentence
 

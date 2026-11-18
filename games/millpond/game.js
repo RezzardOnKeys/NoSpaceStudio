@@ -15,7 +15,9 @@
 //   scene.js       the 3D view and its light; world.js the island, the pond,
 //                  the water mill and the land round it; koi.js the fish
 //   board.js       the points of the board, marks, what is under the mouse
-//   pieceView.js   the pieces on the board
+//   pieces.js      the ladybug and snail figures; pieceView.js puts them in
+//                  their rows and on the board and lets them hop, walk, fly,
+//                  glow in a mill, fly away and slide into the pond
 //   camera.js      turning and zooming the camera
 //   menu.js        the menu before a game, hud.js everything on top of the
 //                  view during a game and the result
@@ -57,8 +59,8 @@ const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 // ---- The world ------------------------------------------------------------
 const canvas = document.getElementById('c');
 const view = createScene(canvas, calm);
-const board = createBoard(view.scene);
-const pieces = createPieceView(view.scene);
+const board = createBoard(view.scene, calm);
+const pieces = createPieceView(view.scene, { calm, world: view.world, koi: view.koi });
 const rig = createCameraRig(view.camera, canvas, calm);
 const hud = createHud();
 
@@ -135,6 +137,7 @@ function fromGuest(msg) {
   } else if (msg.t === 'move') {
     const ok = ref.guestMove(msg);
     if (ok) {
+      pieces.play(ok.done);
       toGuest(ok.msg);
       sendEnd();
       saveHost();
@@ -178,7 +181,9 @@ function fromHost(msg) {
       enterGame();
     }
   } else if (msg.t === 'move') {
-    if (copy.onMove(msg) === 'resync') toHost({ t: 'sync' });
+    const r = copy.onMove(msg);
+    if (r === 'resync') toHost({ t: 'sync' });
+    else if (r !== 'known') pieces.play(r.done);
   } else if (msg.t === 'end') {
     copy.onEnd(msg);
   }
@@ -241,7 +246,9 @@ function maybeComputer() {
 function computerAnswer(data) {
   if (data.id !== aiToken || !thinking) return;
   thinking = false;
-  if (data.move && rules.move(data.move)) {
+  const done = data.move && rules.move(data.move);
+  if (done) {
+    pieces.play(done);
     soloCheckEnd();
     // After closing a mill the computer removes a piece as its next move.
     maybeComputer();
@@ -284,6 +291,7 @@ function enterGame() {
   selected = null;
   resultShown = false;
   confirmUntil = 0;
+  pieces.reset(rules);
   rig.viewSide(mySide());
   menuUi.show(false);
   hud.hideResult();
@@ -362,22 +370,27 @@ document.getElementById('toMenu').onclick = backToMenu;
 document.getElementById('look').onclick = () => hud.hideResult();
 
 // ---- Playing a move -----------------------------------------------------------
-const canMove = () => screen === 'game' && phase() === 'playing' && rules.turn === mySide() && !thinking;
+const canMove = () =>
+  screen === 'game' && phase() === 'playing' && rules.turn === mySide() && !thinking && !pieces.busy();
 
 function play(m) {
   if (ROLE === 'solo') {
-    if (!rules.move(m)) return;
+    const done = rules.move(m);
+    if (!done) return;
+    pieces.play(done);
     soloCheckEnd();
     maybeComputer();
   } else if (ROLE === 'host') {
     const ok = ref.hostMove(m);
     if (!ok) return;
+    pieces.play(ok.done);
     toGuest(ok.msg);
     sendEnd();
     saveHost();
   } else {
     const ok = copy.tryMove(m);
     if (!ok) return;
+    pieces.play(ok.done);
     toHost(ok.msg);
   }
 }
@@ -449,12 +462,12 @@ canvas.addEventListener('pointerup', (e) => {
   const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y);
   down = null;
   if (moved > 6 || screen !== 'game') return;
-  const p = board.pick(e.clientX, e.clientY, view.camera, pieces.group.children);
+  const p = board.pick(e.clientX, e.clientY, view.camera, pieces.pickable());
   if (p !== null) onPoint(p);
 });
 canvas.addEventListener('pointermove', (e) => {
   if (screen !== 'game' || e.pointerType !== 'mouse' || down) return;
-  const p = board.pick(e.clientX, e.clientY, view.camera, pieces.group.children);
+  const p = board.pick(e.clientX, e.clientY, view.camera, pieces.pickable());
   canvas.style.cursor = p !== null && canMove() ? 'pointer' : '';
 });
 
@@ -487,12 +500,14 @@ function lastPoints() {
 function refresh() {
   menuUi.render(menu);
   if (screen !== 'game') return;
-  pieces.sync(rules.board());
+  // A safety net: if the picture ever shows something else than the rules, set it anew.
+  if (!pieces.busy() && !pieces.matches(rules)) pieces.reset(rules);
   const mine = canMove();
   if (!mine || (rules.phase !== 'move' && rules.phase !== 'fly')) selected = null;
   const now = rules.phase;
   const free = [];
   if (mine && now === 'place') for (let p = 0; p < 24; p++) if (!rules.board()[p]) free.push(p);
+  pieces.setSelected(selected);
   board.show({
     free,
     targets: mine && selected !== null ? rules.targetsFrom(selected) : [],
@@ -518,15 +533,12 @@ function refresh() {
     resign: ended ? 'result' : performance.now() < confirmUntil ? 'confirm' : 'resign',
     resignEnabled: ended || phase() === 'playing',
   });
-  if (ended && !resultShown) {
-    resultShown = true;
-    showResultCard();
-  }
 }
 
 // ---- Main loop ----------------------------------------------------------------
 let last = performance.now();
 let clock = 0;
+let wasBusy = false;
 function frame() {
   requestAnimationFrame(frame);
   const now = performance.now();
@@ -535,6 +547,17 @@ function frame() {
   clock += dt;
   rig.update(dt);
   view.update(clock, dt);
+  pieces.update(dt, clock);
+  board.update(clock);
+
+  // When the last move has been shown, the board wakes up and the result shows.
+  const busy = pieces.busy();
+  if (wasBusy && !busy) refresh();
+  wasBusy = busy;
+  if (screen === 'game' && phase() === 'ended' && !resultShown && !busy) {
+    resultShown = true;
+    showResultCard();
+  }
   view.renderer.render(view.scene, view.camera);
 }
 

@@ -15,6 +15,26 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 78 – 2026-11-18 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Millpond Schritt 3: Figuren und Spielen mit der Maus (Setzen, Ziehen, Springen, mögliche Züge, Mühle mit Licht, Entfernen mit wegfliegendem Marienkäfer und ins Wasser rutschender Schnecke), Anzeige während der Partie, Ergebnis
+**Änderungen:**
+- Neue Figuren (`pieces.js`): Marienkäfer mit roter Schale aus zwei Hälften, runden schwarzen Punkten, schwarzem Kopf, großen Augen, Fühlern, Beinchen und Flügeln unter der Schale; Schnecke mit weichem Fuß, Stielaugen und einem honigfarbenen Spiralhaus mit dunklem Streifen
+- Die noch zu setzenden Steine stehen als Reihen neben dem Brett (Marienkäfer vorne, Schnecken hinten); beim Setzen hüpft ein Stein aus der Reihe auf seinen Punkt
+- Ziehen: Marienkäfer trippeln in kleinen Hüpfern, Schnecken gleiten etwas langsamer; mit 3 Steinen fliegen die Steine in hohem Bogen (Marienkäfer mit offenen Flügeln); der gewählte Stein hüpft leicht
+- Mühle: die drei Steine leuchten golden, eine goldene Linie läuft die Mühle entlang, das Mühlrad dreht kurz schnell; danach sind die Steine, die man nehmen darf, rot markiert
+- Entfernen: ein Marienkäfer öffnet die Schale und fliegt in einem Bogen davon; eine Schnecke rutscht vom Brett über das Gras ins Wasser, es gibt Ringe und Spritzer, und die drei nächsten Kois schwimmen hin
+- Freie Punkte leuchten beim Setzen sanft; im Seitenfeld je Seite neun kleine Steine (auf dem Brett, noch zu setzen, verloren) und die Zahlen
+- Ergebnis-Karte erst, wenn der letzte Zug gezeigt ist
+- Das Bild hält die Regeln nie auf: Züge kommen in eine Warteschlange; stauen sich mehrere (Tab im Hintergrund), werden alle bis auf den letzten sofort gesetzt
+- Bei „weniger Bewegung“ kein Hüpfen und keine Spritzer
+- Version 0.3.0, Entscheidung 52 ergänzt, ROADMAP, Status in MILLPOND.md
+- Commit-Hash für Version 77 nachgetragen
+- Kein News-Beitrag: das Spiel ist noch ein Entwurf
+- Getestet: im Browser allein eine ganze Partie gegen Zufallszüge (134 Züge, 15 Flüge, Mühlen und Entfernen, Ende „The ladybugs have only 2 pieces left.“, Ergebnis-Karte, Bild passt am Ende genau zu den Regeln); Nahaufnahmen der Figuren, Mühlen-Leuchten, wegrutschende Schnecke mit Ringen, wegfliegender Marienkäfer; echter Mausklick setzt einen Stein; sechs aufgestaute Züge werden richtig gesetzt; Party mit zwei Tabs (ganze Partie mit 137 Zügen, auf beiden Seiten dasselbe Ergebnis und dasselbe Bild); Regel- und Koi-Tests weiter grün; lint, typecheck, build. Weil der Browser hier im Hintergrund kaum Bilder zeichnet, habe ich die Animationen für die Tests von Hand Bild für Bild vorangetrieben (vorübergehender Testzugang, wieder entfernt). Nicht getestet: wie sich die Animationen bei echten 60 Bildern pro Sekunde anfühlen, Safari, Touch, Neuladen in der Party (Schritt 4)
+**Geänderte Dateien:** games/millpond/pieces.js (neu), games/millpond/pieceView.js, games/millpond/koi.js, games/millpond/world.js, games/millpond/scene.js, games/millpond/board.js, games/millpond/hud.js, games/millpond/game.js, games/millpond/config.js, games/millpond/index.html, games/millpond/game.json, docs/DECISIONS.md, docs/ROADMAP.md, docs/MILLPOND.md, PROTOKOLL.md
+**Commit-Message:** `[v78] feat(millpond): add the ladybug and snail figures with placing, walking, flying, mills and removing`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 77 – 2026-11-18 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Millpond Schritt 2: die Szene mit Insel, Holzbrett, Teich mit Seerosen und Schilf, Kois, Wassermühle, Landschaft, Licht und Kamera
 **Änderungen:**
@@ -33,7 +53,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Getestet: Testskript für die Kois (40 Fische je 10 Minuten: nie näher als 9,7 m an der Inselmitte, nie näher als 5,1 m an der Mühle, nie festgesteckt, ganz herum geschwommen); Regeltests weiter grün; im Browser allein (Menü, Spielansicht, Kamera drehen und zoomen, Mühle und Kois aus der Nähe, Handy-Ansicht), etwa 180 Zeichenbefehle pro Bild; Party mit zwei Tabs (Start, Revanche, Klick des Gastes kommt beim Host an). Für die Nahaufnahmen vorübergehend ein Testzugang zur Kamera, wieder entfernt. Nicht getestet: Bildrate auf deinem MacBook (der Browser hier zeichnet im Hintergrund keine Bilder), Safari, Touch. Am Handy ist das Brett links und rechts noch knapp angeschnitten; das richte ich in Schritt 6 (Handy-Ansicht)
 **Geänderte Dateien:** games/millpond/world.js (neu), games/millpond/koi.js (neu), games/millpond/scene.js, games/millpond/board.js, games/millpond/camera.js, games/millpond/config.js, games/millpond/game.js, games/millpond/game.json, docs/DECISIONS.md, docs/ROADMAP.md, docs/MILLPOND.md, PROTOKOLL.md
 **Commit-Message:** `[v77] feat(millpond): add the island, the pond with lilies, reeds and koi, the water mill and the landscape`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`0069f2b`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/0069f2b)
 
 ## Version 76 – 2026-11-18 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Millpond nach docs/MILLPOND.md bauen, Schritt 1: Ordner, game.json, alle Regeln mit Testskript, Menü mit Seite und Stärke, Party-Verbindung; das Spiel startet allein und mit zwei Tabs (einfaches Brett)

@@ -61,10 +61,22 @@ export function createHud() {
           team.className = 'team';
           team.textContent = SIDE_NAMES[p.side];
           line.append(chip, name, team);
+          // A row of nine small stones: on the board (full), still to place
+          // (ring) and lost (faded), with the numbers for screen readers.
+          const lost = PIECES - p.hand - p.onBoard;
           const count = document.createElement('div');
           count.className = 'count';
-          const lost = PIECES - p.hand - p.onBoard;
-          count.textContent = `To place: ${p.hand} · On the board: ${p.onBoard} · Lost: ${lost}`;
+          const row = document.createElement('span');
+          row.className = 'stones';
+          row.setAttribute('aria-hidden', 'true');
+          for (let i = 0; i < PIECES; i++) {
+            const stone = document.createElement('span');
+            stone.className = `stone ${p.side} ` + (i < p.onBoard ? 'on' : i < p.onBoard + p.hand ? 'hand' : 'lost');
+            row.append(stone);
+          }
+          const text = document.createElement('span');
+          text.textContent = `${p.hand} to place · ${lost} lost`;
+          count.append(row, text);
           return [line, count];
         }),
       );

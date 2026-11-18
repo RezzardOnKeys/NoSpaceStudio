@@ -401,6 +401,8 @@ function buildIsland(scene) {
   while (free.length < 90) {
     const p = onRing(rnd, 2, R - 0.4);
     if (Math.abs(p.x) < half && Math.abs(p.z) < half) continue;
+    // The rows of pieces still to place stand here.
+    if (Math.abs(p.x) < half && Math.abs(Math.abs(p.z) - CONFIG.anim.handRow) < 0.5) continue;
     free.push(p);
   }
   const at = (i, y) => ({ x: free[i].x, y, z: free[i].z });
@@ -529,9 +531,15 @@ function buildMill(scene) {
   axle.position.z = -0.35;
   wheel.add(axle);
 
+  // After a mill on the board the wheel turns quickly for a moment.
+  let boost = 0;
   return {
     update(dt) {
-      wheel.rotation.z += W.mill.wheelSpeed * dt;
+      wheel.rotation.z += W.mill.wheelSpeed * (1 + boost * W.mill.boost) * dt;
+      boost = Math.max(0, boost - dt / W.mill.boostTime);
+    },
+    spin() {
+      boost = 1;
     },
   };
 }
@@ -544,6 +552,8 @@ export function buildWorld(scene, calm) {
   const pond = buildPond(scene, calm);
   const mill = buildMill(scene);
   return {
+    /** The water mill's wheel turns quickly for a moment (a mill was closed). */
+    spinWheel: mill.spin,
     update(t, dt) {
       pond.update(t);
       mill.update(dt);
