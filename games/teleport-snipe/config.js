@@ -64,6 +64,24 @@ export const CONFIG = {
     flashHeight: 3, // high enough to be seen above low cover
     petals: 7, // cherry petals whirling in each flash
   },
+  // ── The bot (alone only). It plays by the same rules as a player; these
+  //    numbers make it weaker or stronger. ──────────────────────────────
+  bot: {
+    reaction: 0.45, // seconds from first seeing the player until it starts to aim
+    turnRate: 5, // how fast it turns, radians per second
+    fov: 110, // it only sees what is within this angle in front of it (degrees)
+    settle: 0.15, // it holds the aim this long before it shoots (seconds)
+    // Aiming error in degrees: a base, more with distance, more when the
+    // player moves (per metre per second of the player's speed).
+    errorBase: 0.35,
+    errorPerMeter: 0.02,
+    errorPerSpeed: 0.25,
+    coverMin: 5, // it walks to cover between this ...
+    coverMax: 16, // ... and this many metres away
+    waitMin: 0.8, // and waits there between this ...
+    waitMax: 2.5, // ... and this many seconds
+    forget: 4, // seconds after which it stops looking where it last saw the player
+  },
   // ── Rounds and the match ────────────────────────────────────
   match: {
     countdown: 3, // seconds before a round: look around, no moving or shooting

@@ -121,20 +121,26 @@ table whenever a phase is finished.
   referee and the guest copy with lost and false messages, whole games of
   the computer at every strength). **Not yet tested: Safari, a real party
   with two accounts over the internet, touch screens.**
-- **The seventh game is being built:** "Teleport Snipe"
-  (`games/teleport-snipe/`, version 0.5.1, draft; steps 1 to 5 of 8 done:
-  menu, colours, mouse speed slider, party connection, the temple garden,
-  moving, jumping, crouching, sliding, stairs, the rifle with zoom, hitscan
-  shots, spread, 1 s reload, tracers, hit marker, test dummies, teleports
-  with flashes, rounds with slow motion, round card, first to 3, result,
-  the party with the host as referee, the guest moving ahead and shots
-  with lag compensation), a one-on-one sniper duel in a Japanese
-  temple garden: one shot, 1 s reload, every hit kills, and every shot
-  that misses the opponent teleports the shooter to a completely random
-  spot on the map. First to 3 rounds wins. 1 vs 1 from a party or alone
-  against a bot, published as soon as version 1.0 is done. The complete
-  plan is in [TELEPORT-SNIPE.md](TELEPORT-SNIPE.md). Build it from that
-  file.
+- **The seventh game is in:** `games/teleport-snipe/` (Teleport Snipe,
+  version 1.0.0, published on 2026-11-18), a one-on-one sniper duel in a
+  walled Japanese temple garden: one shot, exactly 1 s reload, every hit
+  wins the round, and every shot that misses the opponent teleports the
+  shooter to a completely random spot (a soft column of light shows where
+  from and where to). First to 3 rounds, slow motion after every hit, no
+  time limit. Fast movement with jumping, crouching and sliding, zoom with
+  the right mouse button (without zoom a shot spreads up to 7°). 1 vs 1
+  from a party (the host is the referee, the guest moves itself ahead and
+  is corrected softly, its shots are checked with lag compensation) or
+  alone against a bot that plays by the same rules (its numbers are under
+  `bot` in `config.js`). Built step by step from
+  [TELEPORT-SNIPE.md](TELEPORT-SNIPE.md); every choice is in decision 50.
+  Tested in Chrome: alone against the bot, a party with two tabs (also a
+  reload of the guest during a match), inside the launcher (store, game
+  page), and with test scripts (movement, shots, teleport spots, rounds,
+  the bot over many matches, a party with an artificial network delay).
+  **Not yet tested: Safari, a real party with two accounts over the
+  internet, the mouse (pointer lock) by Claude, how strong the bot feels
+  against a person.** No sound yet.
 - **Games and news are files in the repository**, not database rows
   (decision 22). A game is a folder `games/<slug>/` with a `game.json`
   (store entry), an optional `description.md` and its images. A news post is
@@ -393,9 +399,10 @@ Collected in conversations with the developers; nothing decided yet.
   players and more bots (players are a list, the limit is `MAX_PLAYERS`),
   more halls, sound, drawn icons for the power-ups,
   sending the dust film to a guest who reloads.
-- **Teleport Snipe** is decided and fully planned:
-  [TELEPORT-SNIPE.md](TELEPORT-SNIPE.md). Ideas discussed for later: a
-  mode where zooming in shows the opponent what you see, sound.
+- **Teleport Snipe follow-ups** (the game itself is built, see above):
+  a mode where zooming in shows the opponent what you see, sound, maybe
+  blocking the open line of sight between the two start points (see the
+  hand-over of version 73).
 - **Other game ideas discussed on 2026-11-17 and set aside** (not
   decided): "Blend In" (hide among identical bots on a market square, tap
   or shoot the other player), a competitive zombie hunt on a farm

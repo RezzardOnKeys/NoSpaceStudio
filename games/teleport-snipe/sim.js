@@ -11,7 +11,7 @@
 // towards -z, a positive yaw turns to the left.
 
 import { CONFIG } from './config.js';
-import { BOXES, DUMMIES, SPOTS } from './map.js';
+import { BOXES, SPOTS } from './map.js';
 import { mix, randomRow } from './random.js';
 
 const EPS = 0.001;
@@ -357,27 +357,14 @@ export function castShot(ox, oy, oz, dx, dy, dz, targets) {
   return { dist, x: ox + dx * dist, y: oy + dy * dist, z: oz + dz * dist, target };
 }
 
-/** Seconds a hit dummy lies on the ground before it stands up again. */
-const DUMMY_DOWN = 1.5;
-
-/** Fresh dummies (map.js) for a match: { x, y, z, down } where down counts the seconds left lying. */
-export function createDummies() {
-  return DUMMIES.map((d) => ({ x: d.x, y: d.y, z: d.z, down: 0 }));
-}
-
-/** Dummies that were hit stand up again after a while. */
-export function tickDummies(dummies, dt) {
-  for (const d of dummies) d.down = Math.max(0, d.down - dt);
-}
-
 /**
  * A player pulls the trigger. shot: { ox, oy, oz, dx, dy, dz } – where the
  * shot starts (the eyes) and its direction with the spread already in it.
  * Only works when the rifle is loaded; then it needs `reload` seconds again.
  * The answer is castShot()'s, or null if the rifle was not loaded.
- * target is 'p<seat>' for a player and 'd<index>' for a dummy.
+ * target is 'p<seat>' for the player who was hit.
  */
-export function fireShot(shooter, shot, players, dummies) {
+export function fireShot(shooter, shot, players) {
   if (shooter.reload > 0 || !shooter.alive) return null;
   shooter.reload = CONFIG.rifle.reload;
   shooter.shots += 1;
@@ -385,12 +372,7 @@ export function fireShot(shooter, shot, players, dummies) {
   for (const p of players) {
     if (p !== shooter && p.alive) targets.push({ x: p.x, y: p.y, z: p.z, height: bodyHeight(p), id: `p${p.seat}` });
   }
-  dummies.forEach((d, i) => {
-    if (d.down <= 0) targets.push({ x: d.x, y: d.y, z: d.z, height: CONFIG.move.height, id: `d${i}` });
-  });
-  const result = castShot(shot.ox, shot.oy, shot.oz, shot.dx, shot.dy, shot.dz, targets);
-  if (result.target && result.target[0] === 'd') dummies[Number(result.target.slice(1))].down = DUMMY_DOWN;
-  return result;
+  return castShot(shot.ox, shot.oy, shot.oz, shot.dx, shot.dy, shot.dz, targets);
 }
 
 // ── Teleports ─────────────────────────────────────────────────────────
@@ -430,10 +412,10 @@ export function teleportPlayer(p, spot) {
  * where victim is the seat that was hit (or -1), and from / to are where
  * the shooter teleported from and to (null without a teleport).
  */
-export function resolveShot(seed, shooter, shot, players, dummies) {
-  const result = fireShot(shooter, shot, players, dummies);
+export function resolveShot(seed, shooter, shot, players) {
+  const result = fireShot(shooter, shot, players);
   if (!result) return null;
-  const victim = result.target && result.target[0] === 'p' ? Number(result.target.slice(1)) : -1;
+  const victim = result.target ? Number(result.target.slice(1)) : -1;
   if (victim >= 0) return { result, victim, from: null, to: null };
   const from = { x: shooter.x, y: shooter.y, z: shooter.z };
   const others = players.filter((p) => p !== shooter);

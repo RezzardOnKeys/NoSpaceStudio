@@ -1250,6 +1250,29 @@ something open, these defaults were chosen (the list grows with every step):
   who reloads during a match gets the same teleport spots again.
 - Found while building step 5: since step 4 the own hit marker had not
   worked (the shot's answer had changed its shape); fixed.
+- **Step 6 (the bot, `bot.js`):** it walks from cover to cover (standing
+  spots on the ground within 1.1 m of a wall, rock, lantern, trunk or
+  bamboo that hides a body), waits there 0.8 to 2.5 s and looks towards
+  where it last saw the player or a flash, else at the middle of the
+  garden. It sees only within 110° in front of it and only with a free
+  line to the player's head or chest; it notices the player's teleport
+  flash where it could see its upper part. After 0.45 s of sight it
+  zooms in, turns at 5 rad/s, holds the aim 0.15 s and shoots. Its aiming
+  error is 0.35° plus 0.02° per metre plus 0.25° per m/s of the player's
+  speed, chosen once per aim. If it does not get anywhere for 0.7 s it
+  jumps; after three tries it picks another spot. In simulated matches it
+  hit about 60 % of its shots against a player standing still and about
+  35 % against one running around, and never got stuck. The straw
+  dummies are gone.
+- **Step 7 (polish):** petals fall slowly from every cherry tree (one
+  instanced mesh, 16 per tree, 6 with reduced motion, recycled when they
+  reach the ground); cover and banner are SVG pictures in the garden's
+  style; version 1.0.0 is published with one patch note (no separate
+  announcement, as with Dust Dash).
+- **Open:** without the dummies the two start points see each other
+  across the middle, so a round can be decided in the first seconds. The
+  plan keeps the middle as low cover, so this was left as it is and
+  asked in the hand-over.
 
 **Why:** The plan asks to record every choice made while building. The
 proven connection code keeps party matches reliable, and the menu gets a

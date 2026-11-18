@@ -4,7 +4,8 @@
 // card and the score up to "first to 3". It exists only in one browser:
 // your own in a match alone, the party host's in a party match. The
 // guest's browser decides nothing that counts; it shows what the referee
-// reports (guest.js). The bot is added in step 6 of the plan.
+// reports (guest.js). In a match alone the referee also runs the bot
+// (bot.js), which plays by the same rules.
 //
 // A round goes: countdown (3 s) -> playing -> slowmo (1.5 s at a quarter
 // of the speed after the hit) -> card (2.5 s) -> the next round's
@@ -46,12 +47,11 @@ import {
   createPlayer,
   placePlayer,
   movePlayer,
-  createDummies,
-  tickDummies,
   resolveShot,
   eyeOf,
 } from './sim.js';
 import { packPlayer, packPoint, unpackShot } from './wire.js';
+import { Bot } from './bot.js';
 
 // How far back a guest's shot may look (steps of the rules: half a second).
 const REWIND = 30;
@@ -62,8 +62,9 @@ const ORIGIN_SLACK = 2.5;
 /**
  * localSeats: the seats whose keys are read in this browser.
  * feed: the guest's keys (feed.js) in a party match, or null.
+ * botSeats: the seats played by the bot (a match alone).
  */
-export function createReferee({ localSeats, feed = null }) {
+export function createReferee({ localSeats, feed = null, botSeats = [] }) {
   let stepTime = 0; // time not yet used up by whole steps of the rules
   let timer = 0; // seconds left in the slow motion or of the round card
   let history = []; // per step: { n, at: [{ x, y, z, crouching }, ...] }
@@ -80,7 +81,7 @@ export function createReferee({ localSeats, feed = null }) {
     hostStep: 0, // steps of the rules played in this match
     remoteSeat: -1, // the seat moved by the guest's keys (-1: none connected)
     players: Array.from({ length: MAX_PLAYERS }, (_, seat) => createPlayer(seat)),
-    dummies: createDummies(), // straw targets until the bot exists (map.js)
+    bots: [], // { seat, bot } for every seat in botSeats
     // What happened since game.js last looked:
     //   { type: 'teleport', seat, n, from, to }
     //   { type: 'shot', seat, from, to, hit }
@@ -99,9 +100,11 @@ export function createReferee({ localSeats, feed = null }) {
       ref.seed = seed;
       ref.round = 1;
       ref.scores = new Array(MAX_PLAYERS).fill(0);
-      ref.dummies = createDummies();
       ref.hostStep = 0;
       for (const p of ref.players) p.shots = 0;
+      // The bot duels the first player who is not a bot.
+      const human = ref.players.find((p) => !botSeats.includes(p.seat));
+      ref.bots = botSeats.map((seat) => ({ seat, bot: new Bot(ref.players[seat], human) }));
       ref.beginRound();
     },
 
@@ -114,6 +117,7 @@ export function createReferee({ localSeats, feed = null }) {
       history = [];
       pending = [];
       if (feed) feed.reset();
+      for (const b of ref.bots) b.bot.reset();
       ref.state = 'countdown';
     },
 
@@ -204,6 +208,12 @@ export function createReferee({ localSeats, feed = null }) {
       const p = ref.players[seat];
       if (p.alive) movePlayer(p, STEP);
     }
+    for (const { seat, bot } of ref.bots) {
+      const p = ref.players[seat];
+      const shot = bot.think(STEP);
+      if (shot && ref.state === 'playing') decide(seat, shot);
+      if (p.alive) movePlayer(p, STEP);
+    }
     if (feed && ref.remoteSeat >= 0) {
       feed.play(ref.players[ref.remoteSeat], (seq) => {
         // The guest's shots fired after this step are decided now.
@@ -212,7 +222,6 @@ export function createReferee({ localSeats, feed = null }) {
         for (const s of ready) if (ref.state === 'playing') decideRemote(s.seat, s.v, s.shot);
       });
     }
-    tickDummies(ref.dummies, STEP);
     ref.hostStep += 1;
     history.push({
       n: ref.hostStep,
@@ -223,7 +232,7 @@ export function createReferee({ localSeats, feed = null }) {
 
   /** Decides a shot and everything that follows: the round's end or the teleport. */
   function decide(seat, shot) {
-    const out = resolveShot(ref.seed, ref.players[seat], shot, ref.players, ref.dummies);
+    const out = resolveShot(ref.seed, ref.players[seat], shot, ref.players);
     if (!out) return null;
     const from = { x: shot.ox, y: shot.oy, z: shot.oz };
     const to = { x: out.result.x, y: out.result.y, z: out.result.z };
@@ -238,6 +247,12 @@ export function createReferee({ localSeats, feed = null }) {
     } else {
       const n = ref.players[seat].shots;
       ref.events.push({ type: 'teleport', seat, n, from: out.from, to: out.to });
+      // A bot sees the flash where the other player landed, like a person would;
+      // a bot that teleported itself looks for new cover.
+      for (const b of ref.bots) {
+        if (b.seat !== seat) b.bot.noticeFlash(out.to);
+        else b.bot.goal = null;
+      }
       netEvents.push(['t', seat, n, packPoint(out.from), packPoint(out.to)]);
     }
     return out;

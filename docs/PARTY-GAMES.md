@@ -198,6 +198,19 @@ Hosts weiter. Weil die Regeln nie auf die Animation warten
 Die Liste aller Nachrichten steht oben in `host.js`, Entscheidung 51
 erklärt den Aufbau.
 
+Ein siebtes Beispiel für **Treffer, die auf dem Bildschirm des Gastes
+zählen**, ist `games/teleport-snipe/` (Scharfschützen-Duell, 1 gegen 1).
+Der Gast bewegt sich selbst und schickt die Tasten jedes Schritts
+nummeriert (`feed.js`, wie bei Inkwars und Dust Dash). Ein Schuss des
+Gastes nennt den Schritt, nach dem er fiel, und den Moment, in dem der Gast
+den Host gesehen hat. Der Host merkt sich, wo alle in der letzten halben
+Sekunde standen, stellt die Spieler kurz dorthin zurück und entscheidet
+dann („Verzögerungsausgleich“, `decideRemote` in `host.js`). Teleports
+warten nicht auf den Host: Der Platz des n-ten Schusses kommt aus einer
+Zufallszahl pro Match (`random.js`), beide Seiten rechnen denselben Platz
+aus. Der Host zählt die Schüsse mit und schickt die Zahl, so stimmt das
+auch nach einem Neuladen des Gastes. Entscheidung 50 erklärt den Aufbau.
+
 ### 4. Ohne Party weiter funktionieren
 
 Ohne `#party=...` wurde das Spiel allein gestartet (oder direkt über seine

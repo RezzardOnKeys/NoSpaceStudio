@@ -27,8 +27,6 @@ import {
   createPlayer,
   placePlayer,
   movePlayer,
-  createDummies,
-  tickDummies,
   resolveShot,
   blocked,
   bodyHeight,
@@ -122,7 +120,6 @@ export function createMirror({ mySeat }) {
     seed: 1,
     kill: null, // { victim, shooter } of the hit that ended the round
     players: Array.from({ length: MAX_PLAYERS }, (_, seat) => createPlayer(seat)),
-    dummies: createDummies(), // straw targets until the bot exists (map.js)
     // Like the referee's: { type: 'teleport', seat, n, from, to } and
     // { type: 'shot', seat, from, to, hit } (shots of the other player).
     events: [],
@@ -138,7 +135,6 @@ export function createMirror({ mySeat }) {
       mirror.seed = seed;
       mirror.round = 1;
       mirror.scores = new Array(MAX_PLAYERS).fill(0);
-      mirror.dummies = createDummies();
       for (const p of mirror.players) p.shots = 0;
       predicted = new Set();
       reports = [];
@@ -172,8 +168,7 @@ export function createMirror({ mySeat }) {
           steps.set(seq, { x: me.x, y: me.y, z: me.z });
           steps.delete(seq - KEEP_STEPS);
           seq++;
-          tickDummies(mirror.dummies, STEP);
-        }
+              }
         // Make up a part of the difference to the host, never into a wall.
         const k = 1 - Math.exp(-dt * FIX_RATE);
         const nx = me.x + fix.x * k;
@@ -230,7 +225,7 @@ export function createMirror({ mySeat }) {
      */
     shoot(seat, shot) {
       if (mirror.state !== 'playing' || !synced) return null;
-      const out = resolveShot(mirror.seed, mirror.players[seat], shot, mirror.players, mirror.dummies);
+      const out = resolveShot(mirror.seed, mirror.players[seat], shot, mirror.players);
       if (!out) return null;
       const n = mirror.players[seat].shots;
       if (out.to) {

@@ -274,22 +274,6 @@ export const SPOTS = (() => {
 })();
 
 /**
- * Straw target dummies to try the rifle on, at different heights and
- * distances: in the middle, on the pagoda balcony, the tea house veranda,
- * the hill and the bridge. They are only there while the game is being
- * built and go away when the bot arrives (step 6 of the plan).
- */
-export const DUMMIES = [
-  { x: 0, y: 0, z: 2 },
-  { x: -14, y: 3.6, z: -12.3 },
-  { x: 19, y: 1.5, z: -7 },
-  { x: -15, y: 2, z: 13.4 },
-  { x: 12, y: 0.8, z: 15 },
-  { x: -5, y: 0, z: -14 },
-  { x: 8, y: 0, z: -4 },
-];
-
-/**
  * The two fixed start points on opposite sides of the garden. A view
  * direction (yaw) of 0 looks towards -z, so both start out looking at the
  * middle. Players swap sides every round.

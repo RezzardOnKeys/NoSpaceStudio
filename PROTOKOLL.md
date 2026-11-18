@@ -15,6 +15,21 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 73 – 2026-11-18 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Teleport Snipe komplett fertigstellen und veröffentlichen wie die anderen Spiele, mit News-Beitrag und allem, was noch fehlt (Schritte 6 bis 8 des Plans)
+**Änderungen:**
+- Schritt 6, der Bot (neue Datei `bot.js`): spielt nach denselben Regeln (Tempo, ein Schuss, 1 s Nachladen, Teleport bei Fehlschuss), läuft von Deckung zu Deckung, schaut dorthin, wo er den Spieler oder einen Lichtblitz zuletzt gesehen hat, sieht nur nach vorn und nie durch Wände, bemerkt Teleport-Blitze wie ein Mensch, zielt nach etwa 0,45 s mit einem Fehler, der mit Entfernung und Tempo des Spielers wächst, und kann deshalb danebenschießen und teleportieren. Alle Werte unter `bot` in `config.js`
+- Die Zielpuppen aus Stroh sind wieder entfernt (sie waren nur zum Testen)
+- Schritt 7: Kirschblüten fallen langsam von allen Kirschbäumen (bei „weniger Bewegung“ weniger und langsamer), Cover und Banner als eigene Bilder im Stil des Gartens, Beschreibung für die Spiel-Seite
+- Veröffentlicht: Version 1.0.0, `"status": "published"`, Datum 2026-11-18; News-Beitrag „Teleport Snipe 1.0 – one shot, and every miss teleports you“ (Patch Note)
+- Schritt 8, Doku: ROADMAP (siebtes Spiel ist drin, Folgeideen), Entscheidung 50 ergänzt (Bot, Feinschliff, offene Frage), games/README.md, docs/PARTY-GAMES.md (siebtes Beispiel: Treffer mit Verzögerungsausgleich, Teleports aus dem Seed), README.md (sieben Spiele), Status in TELEPORT-SNIPE.md
+- Commit-Hash für Version 72 nachgetragen
+- Offene Frage an die Entwickler: Ohne die Puppen sehen sich beide Startpunkte über die Mitte hinweg, eine Runde kann also in den ersten Sekunden entschieden sein (siehe Übergabe)
+- Getestet: mit einem Testskript 12 Matches gegen den Bot (36 Runden; gegen einen stehenden Spieler trifft er etwa 60 % seiner Schüsse, gegen einen laufenden etwa 35 %, nie lange festgesteckt); im Browser allein gegen den Bot (er trifft, Rundenkarte „You lose the round“, Ergebnis), Party mit zwei Tabs (Bewegung, Fehlschuss mit Teleport, keine Fehler), im Launcher Store-Kachel, Spiel-Seite mit Banner, Beschreibung und Patch Note; lint, typecheck, build, Prettier. Nicht getestet: echte Maus, wie stark sich der Bot gegen einen Menschen anfühlt, Safari, eine echte Party mit zwei Konten über das Internet
+**Geänderte Dateien:** games/teleport-snipe/bot.js (neu), games/teleport-snipe/cover.svg (neu), games/teleport-snipe/banner.svg (neu), games/teleport-snipe/description.md (neu), games/teleport-snipe/config.js, games/teleport-snipe/effects.js, games/teleport-snipe/game.js, games/teleport-snipe/game.json, games/teleport-snipe/guest.js, games/teleport-snipe/host.js, games/teleport-snipe/map.js, games/teleport-snipe/sim.js, news/2026-11-18-teleport-snipe-1-0.md (neu), README.md, games/README.md, docs/ROADMAP.md, docs/DECISIONS.md, docs/PARTY-GAMES.md, docs/TELEPORT-SNIPE.md, PROTOKOLL.md
+**Commit-Message:** `[v73] feat(teleport-snipe): add the bot, falling petals, store images and publish Teleport Snipe 1.0.0`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 72 – 2026-11-18 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Teleport Snipe: die Felsen im Kiesgarten sehen kaputt aus (zerfallen in einzelne Splitter)
 **Änderungen:**
@@ -26,7 +41,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Getestet: im Browser das Menü mit Blick auf den Kiesgarten, alle fünf Felsen sind geschlossen. Nicht getestet: Safari
 **Geänderte Dateien:** games/teleport-snipe/mapView.js, games/teleport-snipe/game.json, docs/ROADMAP.md, docs/TELEPORT-SNIPE.md, PROTOKOLL.md
 **Commit-Message:** `[v72] fix(teleport-snipe): close the gaps in the rocks of the gravel garden`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`6c89cf4`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/6c89cf4)
 
 ## Version 71 – 2026-11-18 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Blockchess: nach einem Matt durch den Computer war der Bildschirm komplett blau, das Brett weg, „View the board“ zeigte nichts (Brave, im Launcher); prüfen und sicherstellen, dass es im Mehrspieler nicht passiert

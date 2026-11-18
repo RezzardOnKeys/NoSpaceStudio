@@ -13,13 +13,14 @@
 //   random.js     the seeded random numbers (teleport spots)
 //   host.js       the referee (rounds, slow motion, score); the list of all
 //                 party messages is at its top
+//   bot.js        the bot you duel alone
 //   feed.js       the guest's keys on the host, one step at a time
 //   guest.js      the guest's copy of a party match (own player ahead,
 //                 corrected softly)
 //   wire.js       how players, keys and shots are packed for the network
 //   net.js        party connection with PeerJS, ticker.js a clock for hidden tabs
 //   scene.js      the 3D view (mapView.js the garden, playerView.js the
-//                 other player and the target dummies, viewModel.js the own
+//                 other player, viewModel.js the own
 //                 rifle, effects.js tracers, teleport flashes and petals)
 //   controls.js   keyboard, mouse and the mouse speed slider
 //   lobby.js      the menu before a match, hud.js the display during a match,
@@ -29,11 +30,12 @@
 import * as THREE from './vendor/three.module.js';
 import { CONFIG, PALETTE, SNAP_MS, INPUT_MS, MAX_PLAYERS } from './config.js';
 import { bodyHeight } from './sim.js';
+import { PROPS } from './map.js';
 import { createScene } from './scene.js';
 import { buildMapView } from './mapView.js';
 import { PlayerView } from './playerView.js';
 import { createViewModel } from './viewModel.js';
-import { createEffects } from './effects.js';
+import { createEffects, createPetalFall } from './effects.js';
 import { createControls } from './controls.js';
 import { createLobby } from './lobby.js';
 import {
@@ -83,16 +85,22 @@ const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const rifle = createViewModel(calm);
 const effects = createEffects(calm);
 scene.add(effects.group);
+// Cherry petals keep falling from the trees, also behind the menu.
+const petals = createPetalFall(
+  PROPS.filter((p) => p.type === 'tree'),
+  calm,
+);
+scene.add(petals.group);
 // The garden first, then the own rifle on top of it (its own depth).
 renderer.autoClear = false;
-// The straw colour of the target dummies.
-const STRAW = 0xd8c28a;
 
 // Who runs the match: the referee here, or a copy of the host's match.
 // The party host moves the guest's player with the guest's keys (feed.js).
 const feed = ROLE === 'host' ? createFeed() : null;
 const match =
-  ROLE === 'guest' ? createMirror({ mySeat: MY_SEAT }) : createReferee({ localSeats: [MY_SEAT], feed });
+  ROLE === 'guest'
+    ? createMirror({ mySeat: MY_SEAT })
+    : createReferee({ localSeats: [MY_SEAT], feed, botSeats: ROLE === 'solo' ? [OTHER_SEAT] : [] });
 
 // ---- State of this player's screen --------------------------------------
 let state = 'menu'; // menu | countdown | playing | slowmo | card | ended
@@ -103,7 +111,6 @@ let eyeLift = CONFIG.look.eyeHeight; // eye height above the feet (lower when cr
 let zoom = 0; // 0 = normal view, 1 = fully zoomed in
 let kick = 0; // the recoil: how far the view is lifted right now (radians)
 let hitT = 0; // seconds the hit marker is still shown
-let dummyViews = []; // one figure per target dummy
 let dying = 0; // seconds since the player was hit (0 while alive)
 let clock = 0; // seconds since the page loaded (for the camera in the menu)
 let notice = ''; // a network notice shown during a match
@@ -203,9 +210,6 @@ function beginMatch(seed) {
   if (other) scene.remove(other.group);
   other = new PlayerView(PALETTE[menu.colors[OTHER_SEAT]].hex);
   scene.add(other.group);
-  for (const v of dummyViews) scene.remove(v.group);
-  dummyViews = match.dummies.map(() => new PlayerView(STRAW));
-  for (const v of dummyViews) scene.add(v.group);
   rifle.setColor(PALETTE[menu.colors[MY_SEAT]].hex);
   resetView();
   notice = '';
@@ -248,8 +252,6 @@ function toMenu() {
   hideResult();
   if (other) scene.remove(other.group);
   other = null;
-  for (const v of dummyViews) scene.remove(v.group);
-  dummyViews = [];
   lobby.show(true);
   renderLobby();
 }
@@ -545,17 +547,6 @@ function showEvents() {
   match.events.length = 0;
 }
 
-/** Hit dummies fall over backwards and stand up again. */
-function updateDummies(dt) {
-  match.dummies.forEach((d, i) => {
-    const v = dummyViews[i];
-    if (!v) return;
-    v.place(d.x, d.y, d.z, Math.atan2(d.x, d.z));
-    const want = d.down > 0 ? Math.PI / 2 : 0;
-    v.group.rotation.x += (want - v.group.rotation.x) * (1 - Math.exp(-(d.down > 0 ? 18 : 6) * dt));
-  });
-}
-
 // ---- Main loop ------------------------------------------------------------------
 let last = performance.now();
 /** Seconds since the last call, at most a tenth of a second. */
@@ -654,7 +645,6 @@ function frame() {
     shoot();
     showEvents();
     placeOther(gameDt);
-    updateDummies(gameDt);
     updateHud({
       state,
       round: match.round,
@@ -670,6 +660,7 @@ function frame() {
   }
   // The tracer of the deciding shot stays visible through the slow motion.
   effects.update(dt * match.speed);
+  petals.update(dt * match.speed);
   renderer.clear();
   renderer.render(scene, camera);
   if (inMatch()) {

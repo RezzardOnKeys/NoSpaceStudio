@@ -179,3 +179,57 @@ export function createEffects(calm) {
 
   return { group, tracer, impact, flash, puff, update };
 }
+
+/**
+ * Cherry petals that fall slowly from every cherry tree, all the time. One
+ * instanced mesh for all of them keeps it cheap; a petal that reaches the
+ * ground starts again in its tree's crown. trees: [{ x, z }, ...].
+ */
+export function createPetalFall(trees, calm) {
+  const perTree = calm ? 6 : 16;
+  const count = trees.length * perTree;
+  const geo = new THREE.PlaneGeometry(0.1, 0.07);
+  const mat = new THREE.MeshBasicMaterial({ color: PETAL_COLORS[0], side: THREE.DoubleSide });
+  const mesh = new THREE.InstancedMesh(geo, mat, count);
+  const color = new THREE.Color();
+  const petals = [];
+  const start = (p, anywhere) => {
+    const t = trees[p.tree];
+    const a = Math.random() * Math.PI * 2;
+    const r = Math.random() * 1.8;
+    p.x = t.x + Math.cos(a) * r;
+    p.z = t.z + Math.sin(a) * r;
+    p.y = anywhere ? 0.2 + Math.random() * 4 : 3.4 + Math.random() * 1.2;
+    p.fall = (calm ? 0.25 : 0.4) + Math.random() * 0.35;
+    p.phase = Math.random() * 10;
+  };
+  for (let i = 0; i < count; i++) {
+    const p = { tree: Math.floor(i / perTree) };
+    start(p, true);
+    petals.push(p);
+    mesh.setColorAt(i, color.setHex(PETAL_COLORS[i % PETAL_COLORS.length]));
+  }
+  const m4 = new THREE.Matrix4();
+  const q = new THREE.Quaternion();
+  const e = new THREE.Euler();
+  const one = new THREE.Vector3(1, 1, 1);
+  const at = new THREE.Vector3();
+  let time = 0;
+
+  function update(dt) {
+    time += dt;
+    petals.forEach((p, i) => {
+      p.y -= p.fall * dt;
+      if (p.y < 0.03) start(p, false);
+      // A light breeze: the petals sway and drift a little.
+      const s = time * 0.9 + p.phase;
+      at.set(p.x + Math.sin(s) * 0.35, p.y, p.z + Math.cos(s * 0.8) * 0.25);
+      e.set(s * 1.7, s * 1.3, s);
+      m4.compose(at, q.setFromEuler(e), one);
+      mesh.setMatrixAt(i, m4);
+    });
+    mesh.instanceMatrix.needsUpdate = true;
+  }
+  update(0);
+  return { group: mesh, update };
+}
