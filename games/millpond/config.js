@@ -83,7 +83,9 @@ export const CONFIG = {
       ground: '#3d4a30',
       fade: 1.2, // seconds the change takes
     },
-    lanterns: { radius: 6.3, color: '#ffb35c', light: 2.2, reach: 5 },
+    // The lanterns: where they stand, the colour of their light, how bright
+    // the pool of light on the grass is (0 to 1) and how far it reaches (m).
+    lanterns: { radius: 6.3, color: '#ffb35c', light: 0.45, reach: 2.2 },
     fireflies: { count: 46 },
     // The water mill stands on the shore at this angle (radians, 0 = +x).
     // After a mill on the board the wheel turns `boost` times faster for a
@@ -97,7 +99,7 @@ export const CONFIG = {
     targetStep: [0.35, 0.9], // how far round the pond the next target lies (radians)
     inner: 9.8, // fish stay this far from the middle of the island ...
     outer: 21.8, // ... and inside this circle
-    millRoom: 6, // and this far from the water mill
+    millRoom: 7, // and this far from the water mill
     depth: 0.16, // how deep under the surface they swim
     curious: 3, // how many koi come to look at a splash
     rush: 2.4, // and how much faster they swim there

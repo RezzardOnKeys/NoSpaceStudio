@@ -15,6 +15,14 @@ import {
 const DEFAULT_DURATION_MS = 5000;
 const MAX_VISIBLE_TOASTS = 4;
 
+/*
+ * A running number is enough to tell toasts apart. crypto.randomUUID() would
+ * also work, but browsers offer it only on https and localhost, so the
+ * launcher would break when it is opened from a phone in the home network
+ * (http://192.168.…).
+ */
+let nextToastId = 0;
+
 interface ToastItem extends Required<Pick<ToastOptions, 'title' | 'variant' | 'duration'>> {
   id: string;
   description?: string;
@@ -81,7 +89,7 @@ export function ToastProvider({ children }: ToastProviderProps) {
   }, []);
 
   const toast = useCallback((options: ToastOptions) => {
-    const id = crypto.randomUUID();
+    const id = `toast-${++nextToastId}`;
     const item: ToastItem = {
       id,
       title: options.title,

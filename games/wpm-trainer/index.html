@@ -1080,6 +1080,12 @@ function safeImageUrl(u) {
   return /^https:\/\/[^\s"'<>]+$/.test(u) || /^http:\/\/(localhost|127\.0\.0\.1)[:/][^\s"'<>]*$/.test(u) ? u.slice(0, 500) : '';
 }
 const oppName = () => Room.oppName || 'Opponent';
+// The other player's result is shown as HTML, so only plain numbers in a
+// sensible range are taken over; anything else becomes 0.
+function safeResult(m) {
+  const num = (v, max) => { const n = Number(v); return Number.isFinite(n) ? Math.round(Math.min(max, Math.max(0, n))) : 0; };
+  return { gross: num(m.gross, 9999), net: num(m.net, 9999), ok: num(m.ok, 99999), bad: num(m.bad, 99999), acc: num(m.acc, 100) };
+}
 
 // --- gemeinsamer Zufallsgenerator (gleiche Wörter für beide) ---
 function mulberry32(a) {
@@ -1273,7 +1279,7 @@ function onRoomMsg(m) {
       if (Room.role === 'guest') beginRound(m);
       break;
     case 'result':
-      Room.oppResult = m; roomUi(); renderVs(); break;
+      Room.oppResult = safeResult(m); roomUi(); renderVs(); break;
     case 'ready':
       Room.oppReady = true; roomUi(); break;
     case 'hello':

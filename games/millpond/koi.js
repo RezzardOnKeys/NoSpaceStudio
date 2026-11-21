@@ -172,7 +172,8 @@ export function createKoi(scene, calm) {
   const drops = [];
 
   function ripple(x, z, delay = 0) {
-    let r = rings.find((ring) => !ring.mesh.visible);
+    // At most a dozen rings at a time: fast clicking reuses the oldest one.
+    let r = rings.find((ring) => !ring.mesh.visible) || (rings.length >= 12 ? rings.reduce((a, b) => (a.t > b.t ? a : b)) : null);
     if (!r) {
       r = { mesh: new THREE.Mesh(ringGeo, ringMat.clone()), t: 0, delay: 0 };
       scene.add(r.mesh);

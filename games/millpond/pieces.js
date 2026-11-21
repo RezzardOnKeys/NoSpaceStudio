@@ -216,6 +216,8 @@ function getShapes() {
     shapes.left = shellHalf(-1);
     shapes.right = shellHalf(1);
     shapes.wing = wingGeo();
+    // All wings share one material (they never glow), so nothing is left over when figures go.
+    shapes.wingMat = new THREE.MeshStandardMaterial({ color: '#e8f0ff', transparent: true, opacity: 0.55, side: THREE.DoubleSide, roughness: 0.3 });
     shapes.snail = snailGeo();
   }
   return shapes;
@@ -252,11 +254,10 @@ export function createFigure(side) {
     root.add(hinge);
     fig[k] = hinge;
   }
-  const wingMat = new THREE.MeshStandardMaterial({ color: '#e8f0ff', transparent: true, opacity: 0.55, side: THREE.DoubleSide, roughness: 0.3 });
   fig.wings = [-1, 1].map((sgn) => {
     const hinge = new THREE.Group();
     hinge.position.set(sgn * 0.05, SHELL_Y + 0.12, 0.08);
-    const w = add(s.wing, hinge, wingMat);
+    const w = add(s.wing, hinge, s.wingMat);
     w.position.x = sgn * 0.12;
     w.castShadow = false;
     hinge.visible = false;

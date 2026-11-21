@@ -15,6 +15,21 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 
 ---
 
+## Version 83 – 2026-11-21 – Branch: main – von: Morris
+**Prompt (Kurzfassung):** Den ganzen Code prüfen (Launcher, Datenbank, alle Spiele): ob alles aktuell und sauber ist, frei von Fehlern, Rucklern und möglichen Problemen, und wo es geht verbessern
+**Änderungen:**
+- Geprüft: automatisch über das ganze Projekt (lint, typecheck, build, Prettier, Syntax aller Spieldateien, npm audit: keine Sicherheitslücken); gelesen: Millpond vollständig, der Launcher (Datenschicht, Anmeldung, Party, Online-Status, Spielzeit, Player, Seiten), die Migrationen (jede Tabelle mit RLS, alle Funktionen mit erhöhten Rechten haben einen festen Suchpfad); die übrigen sieben Spiele gezielt auf gefährliche Stellen durchsucht (HTML aus fremden Daten, ungeschützter Speicher, Timer, die sich ansammeln) und jedes im Browser geladen
+- **WPM Trainer 1.5.1 (Sicherheit):** das Rundenergebnis des Gegners wurde ungeprüft als HTML angezeigt; ein veränderter Gegner hätte damit eigenen Code im Spielfenster ausführen können (nicht im Launcher, die Anmeldung war nie in Gefahr). Jetzt werden nur Zahlen übernommen
+- **Launcher:** die Hinweis-Meldungen (Toasts) brauchten `crypto.randomUUID()`, das es nur auf https und localhost gibt; über die Netzwerk-Adresse vom Handy (http://192.168…) wäre der Launcher bei der ersten Meldung abgestürzt. Jetzt eine einfache laufende Nummer. Für Spieler auf der echten Seite (https) ändert sich nichts, deshalb kein Launcher-Beitrag
+- **Millpond 1.0.1 (flüssiger):** die Wellen rechnet jetzt die Grafikkarte (vorher jedes Bild über 5000 Ecken auf dem Prozessor); die Laternen haben statt vier echter Lichter (die auch tagsüber jeden Bildpunkt Rechenzeit kosteten) einen gemalten Lichtschein auf dem Gras, sieht gleich aus; alle Marienkäfer-Flügel teilen sich ein Material (vorher bei jeder Partie neue, nie freigegeben); höchstens zwölf Ringe auf dem Wasser; Kois halten 7 m Abstand zur Mühle (bei anderem Zufall kam einer bis auf 4,3 m und konnte die Radkante streifen); wer die Kamera während des Schwenks greift, übernimmt sofort
+- News-Beiträge „Millpond 1.0.1 – smoother by the pond“ und „WPM Trainer 1.5.1 – safer results in a party“; Versionen in game.json, Entscheidung 52 (Abschnitt 1.0.1), ROADMAP
+- Commit-Hash für Version 82 nachgetragen
+- Nicht geändert, aber erwähnt: die Seite `/dev/ui` (Bauteile-Übersicht) ist auch auf der echten Seite erreichbar (harmlos); der WPM Trainer fragt bei jedem Start nach lokalen Testvideos (`video.mp4` usw.), die es nur bei euch lokal gibt (Absicht, steht in .gitignore); ein paar npm-Pakete haben kleine Updates
+- Getestet: alle acht Spiele laden ohne Fehler; Millpond im Browser (Tag, Abenddämmerung mit dem neuen Lichtschein, eine ganze Partie gegen den Computer, Bild passt zu den Regeln); neues Testskript für Millpond (34 Prüfungen: Regeln, 2000 Zufallspartien mit allen vier Arten von Spielende, 300 Party-Partien auch mit 20 % verlorenen Zügen, Kois); lint, typecheck, build, Prettier. Nicht gelesen habe ich die übrigen sieben Spiele Zeile für Zeile (nur gezielt durchsucht und geladen); nicht getestet: der Launcher mit Konto (keine Anmeldung möglich), Safari
+**Geänderte Dateien:** games/wpm-trainer/index.html, games/wpm-trainer/game.json, src/components/ui/ToastProvider.tsx, games/millpond/world.js, games/millpond/pieces.js, games/millpond/koi.js, games/millpond/camera.js, games/millpond/config.js, games/millpond/game.json, news/2026-11-21-millpond-1-0-1.md (neu), news/2026-11-21-wpm-trainer-1-5-1.md (neu), docs/DECISIONS.md, docs/ROADMAP.md, PROTOKOLL.md
+**Commit-Message:** `[v83] fix: check the WPM opponent's result, toasts without crypto, smoother Millpond 1.0.1`
+**GitHub-Commit:** _ausstehend_
+
 ## Version 82 – 2026-11-18 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Millpond Schritt 7: Dokumentation (ROADMAP, Entscheidung 52, games/README.md, PARTY-GAMES.md, README.md, Status in MILLPOND.md)
 **Änderungen:**
@@ -29,7 +44,7 @@ Wichtig: Im alten Stand nichts ändern und nichts committen, nur ansehen. Wenn i
 - Geprüft: lint, typecheck, build, Prettier; keine Stelle spricht mehr von sieben Spielen oder einem geplanten Millpond
 **Geänderte Dateien:** docs/ROADMAP.md, docs/DECISIONS.md, docs/PARTY-GAMES.md, docs/MILLPOND.md, README.md, PROTOKOLL.md
 **Commit-Message:** `[v82] docs(millpond): document Millpond as the eighth game`
-**GitHub-Commit:** _ausstehend_
+**GitHub-Commit:** [`880029d`](https://github.com/RezzardOnKeys/NoSpaceStudio/commit/880029d)
 
 ## Version 81 – 2026-11-18 – Branch: main – von: Morris
 **Prompt (Kurzfassung):** Millpond Schritt 6: Feinschliff (Klick ins Wasser, Tag und Abenddämmerung mit Laternen und Glühwürmchen, weniger Bewegung, Handy-Ansicht), Cover, Banner, Beschreibung, Patch Note, veröffentlichen

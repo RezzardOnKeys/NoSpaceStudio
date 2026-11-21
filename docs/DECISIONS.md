@@ -1436,7 +1436,7 @@ the plan leaves something open, these defaults were chosen:
 - The koi (7 fish) each swim towards a point a little further round the
   pond and then pick the next; soft pushes keep them 9.8 m from the middle
   (the island with its sand ends at 8.8 m), inside 21.8 m and 6 m away
-  from the mill. A test script let 40 fish swim for ten minutes each: none
+  from the mill (7 m since 1.0.1). A test script let 40 fish swim for ten minutes each: none
   came closer to the middle than 9.7 m or to the mill than 5.1 m, none got
   stuck, and they swam all the way round.
 - The camera can zoom from 4 to 24 m and never looks from below 0.44 of a
@@ -1520,9 +1520,8 @@ the plan leaves something open, these defaults were chosen:
 - Dusk (**N**, or the button, which then says "Day (N)"): over 1.2 s the
   sun sinks and turns orange, the sky goes from blue to deep blue with an
   orange horizon, the clouds and the water darken. Four little stone
-  lanterns stand on the island's diagonals; their windows glow and each
-  casts a soft warm point light (four point lights, always there, dark by
-  day). 46 fireflies (soft round dots) float over the reeds and round the
+  lanterns stand on the island's diagonals; their windows glow (and, since
+  1.0.1, a painted pool of light lies round each of them). 46 fireflies (soft round dots) float over the reeds and round the
   island, only at dusk. It also works behind the menu.
 - Reduced motion, all together: no swinging and no turning camera, calmer
   waves, lilies that do not bob, no hopping pieces, no splash drops,
@@ -1549,5 +1548,24 @@ and the German name of the game appears nowhere in it.
 
 **Open points:** not tested in Safari, on touch screens or in a real party
 with two accounts over the internet; how strong the three levels feel
-against a person, and how smooth dusk with its four lanterns runs on an
-older MacBook, is up to the developers to try.
+against a person, and how smooth the game runs on an older MacBook, is up
+to the developers to try.
+
+**Version 1.0.1 (a check of the whole code on 2026-11-21):**
+
+- The waves are computed by the graphics chip: a few lines added to the
+  water's shader move its corners, instead of the page moving more than
+  5000 corners and working out their light every frame (flat shading finds
+  the light of each triangle by itself).
+- The lanterns no longer have real point lights. Four point lights made
+  every point of the picture a little more work, also by day while they
+  were dark; now a soft painted pool of light lies on the grass round each
+  lantern and a small halo sits on it, at dusk only. It looks the same.
+- All ladybug wings share one material; before, every ladybug made its own,
+  and it was never freed when the figures were set up anew for a game.
+- At most twelve rings on the water at a time (fast clicking reuses the
+  oldest one).
+- Koi keep 7 m (instead of 6 m) from the water mill: with other random
+  paths a big fish could touch the edge of the wheel.
+- A player who grabs the camera while it swings to the own side takes over
+  at once instead of fighting the swing for a second.

@@ -230,26 +230,40 @@ function buildPond(scene, calm) {
   floor.position.y = W.floorY;
   scene.add(floor);
 
-  // The water: a fine grid whose corners rise and fall a little each frame.
+  // The water: a fine grid whose corners rise and fall with a few slow sine
+  // waves. The graphics chip moves the corners itself (a small addition to
+  // the shader), so the page has nothing to compute for it; the flat shading
+  // works out the light of every triangle from its tilt on its own.
   const size = W.pondRadius * 2 + 4;
   const waterGeo = new THREE.PlaneGeometry(size, size, 72, 72);
   waterGeo.rotateX(-Math.PI / 2);
-  const water = new THREE.Mesh(
-    waterGeo,
-    new THREE.MeshStandardMaterial({
-      color: W.water.color,
-      roughness: 0.45,
-      metalness: 0.05,
-      transparent: true,
-      opacity: W.water.opacity,
-      flatShading: true,
-      depthWrite: false,
-    }),
-  );
+  const waterMat = new THREE.MeshStandardMaterial({
+    color: W.water.color,
+    roughness: 0.45,
+    metalness: 0.05,
+    transparent: true,
+    opacity: W.water.opacity,
+    flatShading: true,
+    depthWrite: false,
+  });
+  const waveTime = { value: 0 };
+  const waveHeight = { value: calm ? W.water.wave * 0.35 : W.water.wave };
+  waterMat.onBeforeCompile = (shader) => {
+    shader.uniforms.waveTime = waveTime;
+    shader.uniforms.waveHeight = waveHeight;
+    shader.vertexShader =
+      'uniform float waveTime;\nuniform float waveHeight;\n' +
+      shader.vertexShader.replace(
+        '#include <begin_vertex>',
+        `#include <begin_vertex>
+        transformed.y += waveHeight * (sin(position.x * 0.55 + waveTime * 0.9) + sin(position.z * 0.43 - waveTime * 0.7)
+          + 0.6 * sin((position.x + position.z) * 0.9 + waveTime * 1.4));`,
+      );
+  };
+  const water = new THREE.Mesh(waterGeo, waterMat);
   water.position.y = W.waterY;
   water.receiveShadow = true;
   scene.add(water);
-  const base = waterGeo.attributes.position.array.slice();
 
   // Soft light spots that drift over the water (a painted texture, added on top).
   const canvas = document.createElement('canvas');
@@ -343,20 +357,10 @@ function buildPond(scene, calm) {
   const axis = new THREE.Vector3(0, 1, 0);
   const v = new THREE.Vector3();
   const one = new THREE.Vector3();
-  const pos = waterGeo.attributes.position;
-  const wave = calm ? W.water.wave * 0.35 : W.water.wave;
-
   return {
-    water: water.material,
+    water: waterMat,
     update(t) {
-      // Waves: a few slow sine waves across the pond.
-      for (let i = 0; i < pos.count; i++) {
-        const x = base[i * 3];
-        const z = base[i * 3 + 2];
-        pos.setY(i, wave * (Math.sin(x * 0.55 + t * 0.9) + Math.sin(z * 0.43 - t * 0.7) + 0.6 * Math.sin((x + z) * 0.9 + t * 1.4)));
-      }
-      pos.needsUpdate = true;
-      waterGeo.computeVertexNormals();
+      waveTime.value = t;
       spotsTex.offset.set(Math.sin(t * 0.05) * 0.3, t * 0.012);
 
       // The lilies bob gently on the waves.
@@ -557,12 +561,20 @@ function buildMill(scene) {
 }
 
 /** Builds everything round the board. Returns update(t, dt) for the moving parts. */
-/** Four little stone lanterns on the island; their windows glow at dusk, and each casts a soft warm light. */
+/**
+ * Four little stone lanterns on the island; at dusk their windows glow and
+ * a soft warm pool of light lies on the grass round each of them. The pool is
+ * a painted glow, not a real light: real lights would cost every point of
+ * the picture some work, also by day.
+ */
 function buildLanterns(scene) {
   const stone = mat('#a9a59a');
   const dark = mat('#7d796f');
   const glow = new THREE.MeshStandardMaterial({ color: '#fff1c8', emissive: W.lanterns.color, emissiveIntensity: 0, roughness: 0.6, flatShading: true });
-  const lights = [];
+  const pool = glowTexture();
+  const poolMat = new THREE.MeshBasicMaterial({ map: pool, color: W.lanterns.color, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false });
+  const haloMat = new THREE.SpriteMaterial({ map: pool, color: W.lanterns.color, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false });
+  const glows = [];
   for (const l of LANTERNS) {
     const g = new THREE.Group();
     g.position.set(l.x, W.islandY, l.z);
@@ -581,17 +593,38 @@ function buildLanterns(scene) {
     g.children[g.children.length - 1].rotation.y = Math.PI / 4;
     part(new THREE.SphereGeometry(0.05, 6, 4), dark, 1.1);
     scene.add(g);
-    const light = new THREE.PointLight(W.lanterns.color, 0, W.lanterns.reach, 2);
-    light.position.set(l.x, W.islandY + 0.75, l.z);
-    scene.add(light);
-    lights.push(light);
+    const lightPool = new THREE.Mesh(new THREE.CircleGeometry(W.lanterns.reach, 24), poolMat);
+    lightPool.rotation.x = -Math.PI / 2;
+    lightPool.position.set(l.x, W.islandY + 0.02, l.z);
+    const halo = new THREE.Sprite(haloMat);
+    halo.position.set(l.x, W.islandY + 0.75, l.z);
+    halo.scale.setScalar(1.1);
+    scene.add(lightPool, halo);
+    glows.push(lightPool, halo);
   }
+  for (const m of glows) m.visible = false;
   return {
     setDusk(d) {
       glow.emissiveIntensity = d * 1.6;
-      for (const light of lights) light.intensity = d * W.lanterns.light;
+      poolMat.opacity = d * W.lanterns.light;
+      haloMat.opacity = d * 0.8;
+      for (const m of glows) m.visible = d > 0.01;
     },
   };
+}
+
+/** A soft round glow, white in the middle and fading out, painted once. */
+function glowTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = 64;
+  const g = canvas.getContext('2d');
+  const grad = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  grad.addColorStop(0, 'rgba(255,255,255,1)');
+  grad.addColorStop(0.35, 'rgba(255,255,255,0.55)');
+  grad.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = grad;
+  g.fillRect(0, 0, 64, 64);
+  return new THREE.CanvasTexture(canvas);
 }
 
 /** Fireflies: little glowing dots that float over the reeds and the water at dusk. */
@@ -607,18 +640,8 @@ function buildFireflies(scene, calm) {
   const pos = new Float32Array(count * 3);
   const geo = new THREE.BufferGeometry();
   geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-  // A soft round glow, painted once.
-  const canvas = document.createElement('canvas');
-  canvas.width = canvas.height = 32;
-  const g = canvas.getContext('2d');
-  const grad = g.createRadialGradient(16, 16, 0, 16, 16, 16);
-  grad.addColorStop(0, 'rgba(255,255,255,1)');
-  grad.addColorStop(0.35, 'rgba(255,255,255,0.6)');
-  grad.addColorStop(1, 'rgba(255,255,255,0)');
-  g.fillStyle = grad;
-  g.fillRect(0, 0, 32, 32);
   const material = new THREE.PointsMaterial({
-    map: new THREE.CanvasTexture(canvas),
+    map: glowTexture(),
     color: '#fff27a',
     size: 0.3,
     transparent: true,

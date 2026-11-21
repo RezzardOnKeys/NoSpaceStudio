@@ -26,6 +26,10 @@ export function createCameraRig(camera, canvas, calm) {
   controls.maxDistance = CONFIG.camera.maxDistance;
 
   let swing = null; // the running swing to a side
+  // A player who grabs the camera takes over at once from a running swing.
+  controls.addEventListener('start', () => {
+    swing = null;
+  });
 
   return {
     /** Behind the menu the camera turns slowly round the island. */

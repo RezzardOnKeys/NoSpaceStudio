@@ -21,7 +21,7 @@ table whenever a phase is finished.
 ### Where things stand
 
 - **The first game is in:** `games/wpm-trainer/` (99-Finger WPM Trainer by
-  Balls, version 1.5.0), a typing race for 2 players. Playing together works
+  Balls, version 1.5.1), a typing race for 2 players. Playing together works
   **only through a party** in the launcher; the old room codes and invite
   links are gone (decision 33). Started alone it is single player. A thin
   bar at the top of the game holds the video controls (right) and, in a
@@ -141,7 +141,7 @@ table whenever a phase is finished.
   **Not yet tested: Safari, a real party with two accounts over the
   internet, the mouse (pointer lock) by Claude, how strong the bot feels
   against a person.** No sound yet.
-- **The eighth game is in:** `games/millpond/` (Millpond, version 1.0.0,
+- **The eighth game is in:** `games/millpond/` (Millpond, version 1.0.1,
   published on 2026-11-18), Nine Men's Morris on a cosy island in a mill
   pond: ladybugs against snails on a wooden board, koi in the water, water
   lilies and reeds, a water mill turning its wheel at the shore. Pieces hop
